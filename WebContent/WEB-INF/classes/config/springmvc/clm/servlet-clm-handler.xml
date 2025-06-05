@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<!-- 권한체크 하는 Handler -->
+	<bean id="clm.commHandlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="order" value="1"/>
+		<property name="interceptors">
+			<list>
+				<ref bean="secfw.clmsInterceptor"/>
+				<ref bean="secfw.classMethodAuthInterceptor"/>
+				<ref bean="secfw.menuInterceptor"/>				
+			</list>
+		</property>
+		<property name="alwaysUseFullPath" value="true"/>
+		<property name="mappings">
+			<props>
+				<!-- 계약관리 -->
+				<prop key="/clm/manage/contract.do">clm.manageControl</prop>
+				<prop key="/clm/rule/regulation.do">clm.ruleRegulationControl</prop>
+				<prop key="/clm/manage/request.do">clm.manageRequestControl</prop>
+				<prop key="/clm/manage/myContract.do">clm.myContractControl</prop>
+				<prop key="/clm/manage/myNotice.do">clm.MyNoticeController</prop>
+				
+				<prop key="/clm/manage/consideration.do">clm.considerationControl</prop>			<!-- 검토의뢰 -->
+				<prop key="/clm/manage/myApproval.do">clm.myApprovalControl</prop>				    <!-- MyApproval-->
+				<prop key="/clm/manage/consultation.do">clm.consultationControl</prop>				<!-- 체결품의 -->
+				<prop key="/clm/manage/conclusion.do">clm.conclusionControl</prop>					<!--체결본 등록 (계약서등록 ) -->
+				
+				<prop key="/clm/manage/execution.do">clm.executionControl</prop>					<!-- 이행  작성자 : 신승완 2011.09.05-->	
+				<prop key="/clm/manage/completion.do">clm.completionControl</prop>					<!-- 종료  작성자 : 신승완 2011.09.30-->
+				<prop key="/clm/manage/registration.do">clm.registrationControl</prop>				<!-- 체결후 등록  작성자 : 심우규 2011.09.30-->
+				
+				<!-- 계약검토  -->
+				<prop key="/clm/review/consideration.do">clm.reviewControl</prop>					<!-- 의뢰내역  -->
+				
+				<prop key="/clm/review/considerationHQ.do">clm.reviewHQControl</prop>					<!-- HQ 본사 의뢰내역 박병주: 2014.04.24  -->
+				
+				<!-- 계약서 라이브러리 -->
+				<prop key="/clm/draft/refContract.do">clm.refContractControl</prop>
+				<prop key="/clm/draft/template.do">clm.templateControl</prop>
+				<prop key="/clm/draft/itemLibrary.do">clm.itemLibraryControl</prop>
+				<prop key="/clm/draft/libReview.do">clm.libReviewControl</prop>
+				<prop key="/clm/draft/customer.do">clm.customerControl</prop>	
+				<!-- 계약 관리 규정 -->
+				
+				<!-- 계약 법률 용어-->
+				<prop key="/clm/share/LawTerms.do">clm.LawTermsController</prop>
+				<!-- 계약 체결시 유의사항-->
+				<prop key="/clm/share/ContractAttention.do">clm.ContractAttentionController</prop>
+				<!-- 주요 거래선 유형별 협상 포인트 -->
+				<prop key="/clm/share/ContractNegoPoint.do">clm.ContractNegoPointController</prop>
+				<!-- Admin -->
+				<prop key="/clm/admin/dimension.do">clm.dimensionControl</prop>							<!-- 계약유형&분류관리 - 계약분류관리 -->
+				<prop key="/clm/admin/subject.do">clm.subjectControl</prop>								<!-- 계약유형&분류관리 - 계약분류상세관리 -->	
+				<prop key="/clm/admin/type.do">clm.typeControl</prop>									<!-- 계약유형&분류관리 - 계약유형관리 -->
+				<prop key="/clm/admin/cntrBasicAttrMng.do">clm.cntrBasicAttrMngControl</prop>			<!-- 계약유형별 속성관리 - 계약속성관리 -->
+				<prop key="/clm/admin/cntrTypeBasicInfoMng.do">clm.cntrTypeBasicInfoMngControl</prop>	<!-- 계약유형별 속성관리 - 계약유형별 속성목록 -->
+				<prop key="/clm/admin/board.do">clm.adminBoardControl</prop>				
+				<prop key="/clm/admin/faq.do">clm.adminFaqControl</prop>
+				<prop key="/clm/admin/regulation.do">clm.adminRegulationControl</prop>
+				<prop key="/clm/admin/decideArbitrarilyRe.do">clm.adminDecideArbitrarilyReControl</prop>
+				<prop key="/clm/admin/aboutClmManage.do">clm.adminAboutClmManageControl</prop>
+				<prop key="/clm/admin/role.do">clm.roleManageControl</prop> <!-- Role Control -->
+				<prop key="/clm/admin/approvalPath.do">clm.approvalPathControl</prop><!-- Approval Path Control -->
+
+				<!-- 공지 및 Q&A -->
+				<prop key="/clm/counsel/board.do">clm.noticeBoardControl</prop>
+				<prop key="/clm/counsel/faq.do">clm.counselFaqControl</prop>
+				<prop key="/clm/counsel/qna.do">clm.counselQnaControl</prop>			
+				
+				<!-- 날인 신청 처리 -->
+				<prop key="/clm/sign/signManage.do">clm.signManageController</prop>				
+						
+			</props>
+		</property>
+	</bean>	
+	
+	<!-- 검색용 Handler -->
+	<bean id="clm.searchHandlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="order" value="1"/>
+		<property name="interceptors">
+			<list>
+				<ref bean="secfw.clmsInterceptor"/>
+				<ref bean="secfw.menuInterceptor" />			
+			</list>
+		</property>
+		<property name="alwaysUseFullPath" value="true"/>
+		<property name="mappings">
+			<props>
+				<!-- 검색엔진 -->
+				<prop key="/clm/search/search.do">clm.searchControl</prop>									
+			</props>
+		</property>
+	</bean>
+	
+	<!-- 권한체크 안하는 handler -->
+	<bean id="clm.commNoAuthHandlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="order" value="1"/>
+		<property name="alwaysUseFullPath" value="true"/>
+		<property name="mappings">
+			<props>
+				<prop key="/clm/intro.do">clm.introForward</prop>									<!-- 인트로 -->
+				<prop key="/clm/loginIntro.do">clm.loginIntroForward</prop>							<!-- 로그인화면 -->
+				<prop key="/clm/imageViewPop.do">clm.imageViewPopForward</prop>						<!-- 이미지 보기 팝업 -->
+				<prop key="/clm/progress.do">clm.progressForward</prop>								<!-- Progress -->
+				<prop key="/clm/blank.do">clm.blankPageForward</prop>								<!-- Progress -->
+				<prop key="/clm/testValidation.do">clm.testValidation</prop>						<!-- 유효값 체크 템플릿 -->
+				<prop key="/clm/manage/conclusionDelay.do">clm.conclusionDelayControl</prop>		<!-- 미체결사유팝업 -->
+				<prop key="/clm/manage/chooseContractType.do">clm.chooseContractTypeControl</prop>	<!-- 계약유형선택팝업 -->
+				<prop key="/clm/manage/chooseContract.do">clm.chooseContractControl</prop>			<!-- 계약팝업 -->
+				<prop key="/clm/manage/chooseClient.do">clm.chooseClientControl</prop>				<!-- 의뢰인선택팝업 -->
+				<prop key="/clm/manage/chooseSealPerson.do">clm.chooseSealPersonControl</prop>		<!-- 날인담당자선택팝업 -->
+				<prop key="/clm/draft/customerNew.do">clm.customerNewControl</prop>
+				<prop key="/clm/draft/nation.do">clm.nationControl</prop>
+				<prop key="/clm/draft/customerTest.do">clm.customerTestControl</prop>
+				<prop key="/clm/manage/myContractPop.do">clm.myContractControl</prop>               <!-- 연관계약선택팝업 -->
+				<prop key="/isalive.do">isaliveControl</prop>										<!-- EYEON -->
+				<prop key="/clm/draft/excelUpload.do">clm.excelUploadControl</prop>
+				
+				<!--  추후 권한체크 핸들러로 옮겨야할 목록 -->				
+				<!--  <prop key="/clm/manage/myContract.do">clm.myContract</prop>myContract 조회 -->				
+
+				<!--  <prop key="/clm/manage/myApprival.do">clm.myApprival</prop>myApproval 목록 -->
+				<!--  <prop key="/clm/manage/contractCnt.do">clm.contractCnt</prop>계약검퇴의뢰시 계약 개수 -->				
+				<!-- 프로타입 테스트 : 2011.09.19 신승완 작성-->
+				<prop key="/clm/manage/prototypeTest.do">clm.prototypeTest</prop>
+				<!-- <prop key="/clm/manage/execution.do">clm.executionControl</prop>					이행  작성자 : 신승완 2011.09.05	
+				<prop key="/clm/manage/completion.do">clm.completionControl</prop>					종료  작성자 : 신승완 2011.09.30 -->
+				
+				<prop key="/clm/pageReload.do">clm.pageReload</prop> <!-- 페이지 리로드용url -->
+				<prop key="/clm/cntrtAlert.do">clm.cntrtAlert</prop> <!-- 사업부담당자알림용url -->
+				
+				 <!-- 표준계약서 -->
+				<prop key="/clm/draft/stdContract.do">clm.stdContractControl</prop>
+								
+			</props>
+		</property>
+	</bean>	
+		
+</beans>

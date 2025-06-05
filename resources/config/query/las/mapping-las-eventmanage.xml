@@ -1,0 +1,504 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+    <queries>
+<query id="las.lawservice.listEventManage" isCamelCase="false">
+  <statement>
+    <![CDATA[
+               
+    	     SELECT *
+              FROM ( SELECT rownum RN, t.*, COUNT(1) over() TOTAL_CNT
+                     FROM (
+		
+						     SELECT  A.EVENT_NO
+        							,A.EVENT_NM
+        							,A.EVENT_GBN1
+        							,A.EVENT_GBN2
+        							,A.LAWSUIT_TRGT
+        							,TO_CHAR(A.REG_DT, 'YYYY-MM-DD') AS REG_DT
+        							,A.REG_ID
+        							,A.REG_NM
+        							,A.DEL_YN
+           					
+           					FROM TN_LAS_EVENTMNG A
+           					
+           					 #if (!$vo.srch_lawfirm_id.equals("") + !$vo.srch_lawfirm_nm.equals("") )
+								     	
+							    ,( SELECT EVENT_NO 
+							    	FROM  TN_LAS_EVENT_ACCEPT 
+							    	WHERE LAWFIRM_ID IN ( 
+							    						SELECT LAWFIRM_ID 
+							    						 FROM  TN_LAS_LAWFIRMMNG
+									                 	WHERE  DEL_YN = 'N' 
+									                    		#if (!$vo.srch_lawfirm_id.equals(""))
+									                      			AND LAWFIRM_ID = :vo.srch_lawfirm_id   
+									                    		#end
+									                    		#if (!$vo.srch_lawfirm_nm.equals(""))
+									                      			AND LAWFIRM_NM LIKE '%' + :vo.srch_lawfirm_nm + '%'        
+									                    		#end 
+									            		) GROUP BY  EVENT_NO 
+								) B
+								
+							 #end
+           
+           					WHERE A.DEL_YN = 'N' 
+           					
+           						#if (!$vo.srch_lawfirm_id.equals("") + !$vo.srch_lawfirm_nm.equals("") )
+           						 	AND A.EVENT_NO = B.EVENT_NO
+           						#end           						
+           						
+           						#if (!$vo.srch_lwr_nm.equals(""))
+           							AND A.EVENT_NO IN ( SELECT DISTINCT EVENT_NO 
+           												FROM   TN_LAS_EVENT_ACCEPT_LAWYER 
+           												WHERE  LWR_NO IN ( 
+           																SELECT LWR_NO 
+           																 FROM  TN_LAS_LAWYERMNG 
+           																WHERE  UPPER(LWR_NM) LIKE '%' + :vo.srch_lwr_nm + '%'	 
+           																)
+           												)
+           						#end
+           						
+           						#if (!$vo.srch_event_no.equals(""))
+								     AND A.EVENT_NO = :vo.srch_event_no   
+								#end 
+								
+								#if (!$vo.srch_event_nm.equals(""))
+								     AND A.EVENT_NM LIKE '%' + :vo.srch_event_nm    + '%'	 
+								#end 
+								
+								#if (!$vo.srch_kbn1.equals(""))
+								     AND A.EVENT_GBN1 = :vo.srch_kbn1 
+								         #if (!$vo.srch_kbn2.equals(""))
+								              AND A.EVENT_GBN2 = :vo.srch_kbn2                    
+								         #end
+								#end
+								
+								#if (!$vo.srch_reg_nm.equals(""))
+								     AND A.REG_NM  LIKE '%' + :vo.srch_reg_nm + '%'	 
+								#end 
+								
+								#if (!$vo.srch_start_dt.equals(""))
+									AND	A.REG_DT >= date(:vo.srch_start_dt)
+			                    #end
+			                    
+			                    #if (!$vo.srch_end_dt.equals(""))
+									AND	A.REG_DT <= date(:vo.srch_end_dt) + 1
+			                    #end 
+			                    
+			                    ORDER BY A.EVENT_NM ASC
+           
+            				 ) t
+            		ORDER BY RN 
+            		)
+            WHERE RN between :vo.start_index and :vo.end_index     
+           
+    ]]>
+  </statement>
+</query>
+
+
+<query id="las.lawservice.insertEventManage" isCamelCase="false">
+  <statement>
+    <![CDATA[
+    INSERT INTO TN_LAS_EVENTMNG (
+           EVENT_NO
+               , EVENT_NM
+               , EVENT_GBN1
+               , EVENT_GBN2
+               , EVENT_CONT
+               , LAWSUIT_TRGT
+               , REG_DT
+               , REG_ID
+               , REG_NM
+               , MOD_DT
+               , MOD_ID
+               , MOD_NM
+               , DEL_YN
+               , DEL_DT
+               , DEL_ID
+               , DEL_NM
+        ) VALUES (
+           :vo.event_no
+          ,:vo.event_nm
+          ,:vo.event_gbn1
+          ,:vo.event_gbn2
+          ,:vo.event_cont
+          ,:vo.lawsuit_trgt
+          ,SYSDATE
+          ,:vo.reg_id
+          ,:vo.reg_nm
+          ,''
+          ,''
+          ,''
+          ,'N'
+          ,''
+          ,''
+          ,''
+        )
+    ]]>
+  </statement>
+</query>
+
+<query id="las.lawservice.getMaxEventNo" isCamelCase="false">
+  <statement>
+    <![CDATA[
+
+    		SELECT ('E' + TO_CHAR(SYSDATE, 'YYYYMMDD') + LEFT(HEX(RAND())+HEX(RAND()),5)) AS EVENT_NO
+      
+    ]]>
+  </statement>
+</query>
+
+<query id="las.lawservice.getListRefDept" isCamelCase="false">
+  <statement>
+    <![CDATA[
+         
+     		SELECT   
+  					 EVENT_NO	
+  					,INTNL_DEPT_CD	
+  					,GRP_DEPT_CD	
+  					,DEPT_NM	
+  					,REG_DT	
+  					,REG_ID
+  					,REG_NM
+           				
+           	FROM 	 TN_LAS_EVENT_REFDEPT 
+              
+          	WHERE  	 EVENT_NO = :vo.event_no
+
+    ]]>
+  </statement>
+</query>
+
+<query id="las.lawservice.insertRefDept" isCamelCase="false">
+  <statement>
+    <![CDATA[
+   
+	    INSERT INTO TN_LAS_EVENT_REFDEPT (
+	           		 EVENT_NO
+	               , INTNL_DEPT_CD
+	               , GRP_DEPT_CD 
+	               , DEPT_NM
+	               , REG_DT
+	               , REG_ID
+	               , REG_NM
+	
+		        ) VALUES (
+		           :vo.event_no
+		          ,:vo.intnl_dept_cd
+		          ,:vo.grp_dept_cd
+		          ,:vo.dept_nm
+		          ,SYSDATE
+		          ,:vo.reg_id
+		          ,:vo.reg_nm
+		        )
+   
+    ]]>
+  </statement>
+</query>
+
+<query id="las.lawservice.deleteRefDept" isCamelCase="false">
+  <statement>
+    <![CDATA[
+   
+	    DELETE FROM TN_LAS_EVENT_REFDEPT 
+	    		WHERE EVENT_NO =  :vo.event_no
+   
+    ]]>
+  </statement>
+</query>
+
+<query id="las.lawservice.detailEventManage" isCamelCase="false">
+  <statement>
+    <![CDATA[
+         
+       SELECT A.EVENT_NO                                ,
+              A.EVENT_NM                                ,
+              A.EVENT_GBN1                              ,
+              A.EVENT_GBN2                              ,
+              CASE 
+			  	WHEN A.EVENT_GBN1 = 'IL'
+					THEN (SELECT CD_NM FROM TB_COM_CD WHERE GRP_CD = 'IL' AND CD = A.EVENT_GBN2) 
+				WHEN A.EVENT_GBN1 = 'TK'
+					THEN (SELECT CD_NM FROM TB_COM_CD WHERE GRP_CD = 'TK' AND CD = A.EVENT_GBN2)
+			  	ELSE ''
+			  END EVENT_GBN2_NM							,
+              A.EVENT_CONT                              ,
+              A.LAWSUIT_TRGT                            ,
+              TO_CHAR(A.REG_DT, 'YYYY-MM-DD') AS REG_DT ,
+              A.REG_ID                                  ,
+              A.REG_NM                                  ,
+              A.DEL_YN									,
+              B.LAWSUIT_TRGT_NM							,
+              C.EVENT_GBN1_NM
+              
+       FROM   TN_LAS_EVENTMNG A
+       
+       		  ,(SELECT CD, CD_NM AS LAWSUIT_TRGT_NM FROM TB_COM_CD WHERE GRP_CD = '105' ) B
+       		  ,(SELECT CD, CD_NM AS EVENT_GBN1_NM FROM TB_COM_CD WHERE GRP_CD = '106' ) C
+       
+       WHERE  EVENT_NO = :vo.event_no
+       	AND   A.LAWSUIT_TRGT = B.CD(+) 
+       	AND   A.EVENT_GBN1 = C.CD(+) 
+
+    ]]>
+  </statement>
+</query>
+
+<query id="las.lawservice.getListLawywerAcceptEvent" isCamelCase="false">
+  <statement>
+    <![CDATA[
+       
+           SELECT LWR_NO ,
+                  LWR_NM
+           FROM   TN_LAS_LAWYERMNG
+           WHERE  LWR_NO IN
+                             ( SELECT DISTINCT LWR_NO
+                             FROM             TN_LAS_EVENT_ACCEPT_LAWYER
+                             WHERE            EVENT_NO = :vo.event_no
+                             )
+			AND		DEL_YN = 'N' 
+
+
+    ]]>
+  </statement>
+</query>
+
+<query id="las.lawservice.getListEventAccept" isCamelCase="false">
+  <statement>
+    <![CDATA[
+    
+            SELECT																																																	  
+					rownum RN,
+					C.CD_NM AS LAWSUIT_TRGT_NM,
+					A.LAWFIRM_ID,
+					D.LAWFIRM_NM,
+					MIN(TO_CHAR(TO_DATE(A.ACPTDAY,'YYYY-MM-DD'),'YYYY-MM-DD')) REG_DT , 
+					MIN(A.REG_NM) REG_NM 
+			FROM                                                                                                                                                       
+				 	TN_LAS_EVENT_ACCEPT A,                                                                                                                                   
+				  	TN_LAS_EVENTMNG B,                                                                                                                                       					
+				 	(SELECT CD,CD_NM FROM TB_COM_CD WHERE GRP_CD = '105') C,
+                 	TN_LAS_LAWFIRMMNG D
+                 
+			WHERE 	A.EVENT_NO = B.EVENT_NO 
+            AND 	B.LAWSUIT_TRGT = C.CD   
+            AND 	A.EVENT_NO = :vo.event_no
+            AND 	A.LAWFIRM_ID = D.LAWFIRM_ID
+								                                                                                                                                                        
+			GROUP BY C.CD_NM , A.LAWFIRM_ID,D.LAWFIRM_NM          
+              
+			ORDER BY REG_DT DESC
+    
+    
+    ]]>
+  </statement>
+</query>
+
+
+<query id="las.lawservice.getListEventAcceptTmp" isCamelCase="false">
+  <statement>
+    <![CDATA[
+    
+        SELECT *
+	   	FROM ( SELECT rownum RN, t.*, COUNT(1) over() TOTAL_CNT
+	          FROM (
+	
+					SELECT 
+						A.ACPT_NO, 
+						A.EVENT_NO, 
+						A.ACPTDAY, 
+						A.LAWFIRM_ID, 
+						A.CLAIMDAY, 
+						A.CLAIM_AMT, 
+						A.CRRNCY_UNIT, 
+						A.CLAIM_CONT, 
+						A.INVOICE_NO, 
+						A.SRVCSTARTDAY, 
+						A.SRVCENDDAY, 
+						A.REMIT_AMT, 
+						A.REMITPLNDDAY, 
+						A.REMITDAY, 
+						A.UNPAYDAY, 
+						A.REVIEW_YN, 
+						A.REVIEW_CONT, 
+						TO_CHAR(A.REG_DT, 'YYYY-MM-DD') AS REG_DT, 
+						A.REG_ID, 
+						A.REG_NM, 
+						TO_CHAR(A.MOD_DT, 'YYYY-MM-DD') AS MOD_DT,
+						A.MOD_ID, 
+						A.MOD_NM, 
+						
+						B.LAWSUIT_TRGT,
+						C.LAWFIRM_NM,
+						D.LAWSUIT_TRGT_NM
+					
+					FROM TN_LAS_EVENT_ACCEPT A
+						,TN_LAS_EVENTMNG B
+						,TN_LAS_LAWFIRMMNG C
+						,(SELECT CD, CD_NM AS LAWSUIT_TRGT_NM FROM TB_COM_CD WHERE GRP_CD = '105' ) D
+					
+					WHERE  	A.EVENT_NO = :vo.event_no
+						AND A.EVENT_NO = B.EVENT_NO
+						AND A.LAWFIRM_ID = C.LAWFIRM_ID(+)
+						AND   B.LAWSUIT_TRGT = D.CD(+)  
+	
+	 				 ) t
+	 		ORDER BY RN 
+	 		)
+
+    ]]>
+  </statement>
+</query>
+
+<query id="las.lawservice.getListEventAcceptInvoice" isCamelCase="false">
+  <statement>
+    <![CDATA[
+    
+        SELECT *
+	   	FROM ( SELECT rownum RN, t.*, COUNT(1) over() TOTAL_CNT
+	          FROM (
+	
+					SELECT DISTINCT                   
+						 A.ACPT_NO
+                		,DECODE(A.INVOICE_NO,NULL,A.ACPTDAY,A.INVOICE_NO) AS INVOICE_NO 
+                		,A.REG_NM 
+                		,ISNULL(TO_CHAR(TO_DATE(A.ACPTDAY, 'YYYY-MM-DD'),'YYYY-MM-DD'),'N') ACPTDAY
+                		,ISNULL(TO_CHAR(TO_DATE(A.UNPAYDAY, 'YYYY-MM-DD'),'YYYY-MM-DD'),'N') UNPAYDAY
+                		,ISNULL(TO_CHAR(TO_DATE(A.REMITDAY, 'YYYY-MM-DD'),'YYYY-MM-DD'),'N') REMITDAY
+                		,A.LAWFIRM_ID 
+                		,C.LAWFIRM_NM 
+                		,ISNULL(B.REF_KEY,'N') AS UPFILE_YN
+					FROM    
+						TN_LAS_EVENT_ACCEPT A 
+                		,(SELECT * FROM TN_COM_ATTACH WHERE FILE_MIDCLSFCN = 'F00504') B
+                		,(SELECT LAWFIRM_ID,LAWFIRM_NM FROM TN_LAS_LAWFIRMMNG ) C 
+				  WHERE 
+                		A.DEL_YN = 'N' 
+                 		AND A.ACPT_NO = B.REF_KEY(+) 
+                 		AND A.LAWFIRM_ID = C.LAWFIRM_ID(+)
+                 		AND A.EVENT_NO = :vo.event_no
+				 
+			 ORDER BY 	A.ACPT_NO DESC
+			 
+	 				 ) t
+	 		ORDER BY RN 
+	 		)
+
+    ]]>
+  </statement>
+</query>
+
+<query id="las.lawservice.modifyEventManage" isCamelCase="false">
+  <statement>
+    <![CDATA[
+         
+         UPDATE TN_LAS_EVENTMNG
+          
+          SET
+                EVENT_NM = :vo.event_nm
+              , EVENT_GBN1 = :vo.event_gbn1
+              , EVENT_GBN2 = :vo.event_gbn2
+              , EVENT_CONT = :vo.event_cont
+              , LAWSUIT_TRGT = :vo.lawsuit_trgt
+              , MOD_DT = SYSDATE
+              , MOD_ID = :vo.mod_id
+              , MOD_NM = :vo.mod_nm
+              
+          WHERE  EVENT_NO = :vo.event_no
+
+    ]]>
+  </statement>
+</query>
+
+
+<query id="las.lawservice.deleteEventManage" isCamelCase="false">
+  <statement>
+    <![CDATA[
+                UPDATE  TN_LAS_EVENTMNG
+                   SET  DEL_YN = 'Y' 
+	        	      , DEL_DT = SYSDATE 
+    	        	  , DEL_ID = :vo.del_id
+        	     	  , DEL_NM = :vo.del_nm 
+                 WHERE  EVENT_NO = :vo.event_no
+           
+    ]]>
+  </statement>
+</query>
+
+<!-- 부서 정보 리스트 -->
+<query id="las.lawservice.getListDept" isCamelCase="false">
+	<statement>
+		<![CDATA[
+		
+			SELECT 
+					 DEPT_NM 
+					,GRP_DEPT_CD
+					,INTNL_DEPT_CD
+            		,CRTRNDAY
+            		,DEPT_LVL
+			FROM 
+					TN_LAS_YEAR_DEPT            
+            WHERE 
+					GRP_DEPT_CD = 'C04802'
+            AND 	CRTRNDAY = (SELECT MAX(CRTRNDAY) FROM TN_LAS_YEAR_DEPT WHERE GRP_DEPT_CD = 'C04802')
+            
+		]]>
+	</statement>
+</query>
+
+
+	<!-- 부서 정보 (트리구조) 리스트 -->
+<query id="las.lawservice.listDept_tmp" isCamelCase="false">
+	<statement>
+		<![CDATA[
+       
+						SELECT
+							 DEPT_CD
+			   				,DEPT_NM
+			        		,DEPT_NM_ENG
+							,IN_DEPT_CD 
+			    			,DEPT_LEVEL
+			    			,DEPT_ORDER
+			    			,DOWN_DEPT_YN
+			    			,UP_DEPT_CD
+        				FROM 	 TB_COM_DEPT 
+        				WHERE 	 DEPT_LEVEL = 2
+        					 AND IN_DEPT_CD LIKE '0102%' OR  ( IN_DEPT_CD = '010208050000' OR  IN_DEPT_CD = '0102230000'   ) 
+        					 AND LOAD_VERSION = ( SELECT MAX(LOAD_VERSION) FROM TB_COM_DEPT )
+			 
+			 			ORDER BY DEPT_ORDER        			
+              
+		]]>
+	</statement>
+</query>
+
+<!-- 부서 정보 (트리구조) 리스트 -->
+<query id="las.lawservice.listDeptTree" isCamelCase="false">
+	<statement>
+		<![CDATA[
+			SELECT 
+				DEPT_CD
+			    ,CASE 
+			    	WHEN :vo.session_user_locale = 'ko'
+					THEN DEPT_NM
+			        ELSE DEPT_NM_ENG
+				END AS DEPT_NM
+				,IN_DEPT_CD 
+			    ,DEPT_LEVEL
+			    ,DEPT_ORDER
+			    ,DOWN_DEPT_YN
+			    ,UP_DEPT_CD
+			FROM 
+				TB_COM_DEPT
+			WHERE 
+				UP_DEPT_CD = :vo.up_dept_cd
+			ORDER BY DEPT_ORDER ASC
+		]]>
+	</statement>
+</query>
+
+    </queries>
+</queryservice>

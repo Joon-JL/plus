@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+    <queries>
+    	<!-- 목록 -->
+        <query id="clm.admin.listType" isCamelCase="false">
+            <statement>
+            <![CDATA[
+            SELECT *
+              FROM(   SELECT ROW_NUMBER() OVER (ORDER BY TYPE_CD ASC) RN,
+              			t.*, CAST(COUNT(1) over() AS NUMERIC) TOTAL_CNT
+		                FROM ( SELECT	 ISNULL(C.TYPE_CD, B.TYPE_CD) TYPE_CD
+		                        		,A.TYPE_CD DIMENSION_CD
+										,(CASE WHEN C.TYPE_CD IS NULL THEN '' ELSE B.TYPE_CD END) AS DETAIL_CD
+										,CASE WHEN :vo.session_user_locale = 'ko' THEN A.CD_NM
+			              					  WHEN :vo.session_user_locale = 'fr' THEN A.CD_NM_FRA
+			              					  WHEN :vo.session_user_locale = 'de' THEN A.CD_NM_DEU
+			              					  ELSE A.CD_NM_ENG
+			              				 END DIMENSION_NM
+										,CASE WHEN :vo.session_user_locale = 'ko' THEN A.CD_NM
+			              					  WHEN :vo.session_user_locale = 'fr' THEN A.CD_NM_FRA
+			              					  WHEN :vo.session_user_locale = 'de' THEN A.CD_NM_DEU
+			              					  ELSE A.CD_NM_ENG
+			              				 END DIMENSION_NM_ENG
+										,ISNULL(CASE WHEN C.CD_NM IS NULL THEN '-' ELSE B.CD_NM END, '-') DETAIL_NM
+										,ISNULL(CASE WHEN C.CD_NM_ENG IS NULL THEN '-' ELSE B.CD_NM_ENG END, '-') DETAIL_NM_ENG
+										,ISNULL(CASE WHEN :vo.session_user_locale = 'ko' THEN C.CD_NM
+			              					  		 WHEN :vo.session_user_locale = 'fr' THEN C.CD_NM_FRA
+			              					  		 WHEN :vo.session_user_locale = 'de' THEN C.CD_NM_DEU
+			              					  		 ELSE C.CD_NM_ENG
+			              				 		END CD_NM, 
+			              				 		CASE WHEN :vo.session_user_locale = 'ko' THEN B.CD_NM
+			              					  		 WHEN :vo.session_user_locale = 'fr' THEN B.CD_NM_FRA
+			              					  		 WHEN :vo.session_user_locale = 'de' THEN B.CD_NM_DEU
+			              					  		 ELSE B.CD_NM_ENG
+			              				 		END CD_NM) CD_NM
+										,ISNULL(CASE WHEN :vo.session_user_locale = 'ko' THEN C.CD_NM_ABBR
+			              					  		 WHEN :vo.session_user_locale = 'fr' THEN C.CD_NM_ABBR_FRA
+			              					  		 WHEN :vo.session_user_locale = 'de' THEN C.CD_NM_ABBR_DEU
+			              					  		 ELSE C.CD_NM_ABBR_ENG
+			              				 		END CD_NM_ABBR,
+			              				 		CASE WHEN :vo.session_user_locale = 'ko' THEN B.CD_NM_ABBR
+			              					  		 WHEN :vo.session_user_locale = 'fr' THEN B.CD_NM_ABBR_FRA
+			              					  		 WHEN :vo.session_user_locale = 'de' THEN B.CD_NM_ABBR_DEU
+			              					  		 ELSE B.CD_NM_ABBR_ENG
+			              				 		END CD_NM_ABBR) CD_NM_ABBR
+										,ISNULL(CASE WHEN :vo.session_user_locale = 'ko' THEN C.CD_NM
+			              					  		 WHEN :vo.session_user_locale = 'fr' THEN C.CD_NM_FRA
+			              					  		 WHEN :vo.session_user_locale = 'de' THEN C.CD_NM_DEU
+			              					  		 ELSE C.CD_NM_ENG
+			              				 		END CD_NM_ENG, 
+			              				 		CASE WHEN :vo.session_user_locale = 'ko' THEN B.CD_NM
+			              					  		 WHEN :vo.session_user_locale = 'fr' THEN B.CD_NM_FRA
+			              					  		 WHEN :vo.session_user_locale = 'de' THEN B.CD_NM_DEU
+			              					  		 ELSE B.CD_NM_ENG
+			              				 		END CD_NM_ENG) CD_NM_ENG
+										,ISNULL(CASE WHEN :vo.session_user_locale = 'ko' THEN C.CD_NM_ABBR
+			              					  		 WHEN :vo.session_user_locale = 'fr' THEN C.CD_NM_ABBR_FRA
+			              					  		 WHEN :vo.session_user_locale = 'de' THEN C.CD_NM_ABBR_DEU
+			              					  		 ELSE C.CD_NM_ABBR_ENG
+			              				 		END CD_NM_ABBR_ENG, 
+			              				 		CASE WHEN :vo.session_user_locale = 'ko' THEN B.CD_NM_ABBR
+			              					  		 WHEN :vo.session_user_locale = 'fr' THEN B.CD_NM_ABBR_FRA
+			              					  		 WHEN :vo.session_user_locale = 'de' THEN B.CD_NM_ABBR_DEU
+			              					  		 ELSE B.CD_NM_ABBR_ENG
+			              				 		END CD_NM_ABBR_ENG) CD_NM_ABBR_ENG
+										,ISNULL(C.PRNT_SRT, B.PRNT_SRT) PRNT_SRT
+										,ISNULL(C.CD_EXPL, B.CD_EXPL) CD_EXPL
+										,ISNULL(C.USE_YN, B.USE_YN) USE_YN
+										,CONVERT(CHAR(10), ISNULL(C.REG_DT, B.REG_DT), 23) AS REG_DT /*YYYY-MM-DD*/
+										,ISNULL(C.REG_ID, B.REG_ID) REG_ID
+										,ISNULL(C.REG_NM, B.REG_NM) REG_NM
+										,ISNULL(C.REG_DEPT_NM, B.REG_DEPT_NM) REG_DEPT_NM
+										,CONVERT(CHAR(10), ISNULL(C.MOD_DT, B.MOD_DT), 23) AS MOD_DT /*YYYY-MM-DD*/
+										,ISNULL(C.MOD_ID, B.MOD_ID) MOD_ID
+										,ISNULL(C.MOD_NM, B.MOD_NM) MOD_NM
+										,ISNULL(C.MOD_DEPT_NM, B.MOD_DEPT_NM) MOD_DEPT_NM
+								  FROM  TN_COM_CONTRACTTYPE_CD A LEFT OUTER JOIN
+										TN_COM_CONTRACTTYPE_CD B 
+										ON A.TYPE_CD = B.UP_TYPE_CD
+										
+										LEFT OUTER JOIN
+										(SELECT * FROM TN_COM_CONTRACTTYPE_CD WHERE LEN(TYPE_CD) <> 8 AND LEN(TYPE_CD) <> 10) C
+										ON B.TYPE_CD = C.UP_TYPE_CD
+								 WHERE  A.UP_TYPE_CD = 'TOP'
+								   AND  A.USE_YN = 'Y'
+								   AND  (B.CD_NM IS NOT NULL OR C.CD_NM IS NOT NULL)
+								#if (!$vo.srch_dimension.equals(""))
+								   AND  B.UP_TYPE_CD = :vo.srch_dimension
+								#end
+		                    ) t
+		            WHERE USE_YN = 'Y'
+					#if (!$vo.srch_word.equals(""))
+		              AND CD_NM LIKE '%' + :vo.srch_word + '%'
+		            #end
+            ) TA
+            WHERE RN between :vo.start_index and :vo.end_index
+            ORDER BY RN
+            ]]>
+            </statement>
+        </query>
+        
+    	<!-- Item 목록 -->
+        <query id="clm.admin.listTypeItem" isCamelCase="false" isDynamic="true">
+            <statement>
+            <![CDATA[
+            SELECT *
+              FROM ( SELECT ROW_NUMBER() OVER (ORDER BY SRT_CD) RN, t.*, CAST(COUNT(1) over() AS NUMERIC) TOTAL_CNT
+                     FROM (
+							SELECT   RIGHT(A.CD, 3) CD
+									,(CASE WHEN B.CD IS NULL THEN 'N' ELSE 'Y' END) AS CHECK_YN
+									,A.CD_NM
+									,A.CD_NM_ENG
+									,A.CD_ABBR_NM
+									,A.CD_ABBR_NM_ENG
+									,A.CD AS SRT_CD
+						      FROM  TB_COM_CD A LEFT OUTER JOIN
+								    (SELECT CD
+									   FROM TB_COM_CD
+									  WHERE SYS_CD = 'LAS'
+									    AND GRP_CD = 'C041'
+									    AND RIGHT(CD, 3) IN (
+													#foreach ($item_cd in $vo.item_cds) 
+														#if ($velocityCount	== 1 ) 
+															'$item_cd'
+														#else 
+															, '$item_cd'
+														#end 
+													#end
+									    )) B
+							 ON A.CD = B.CD
+							 WHERE A.SYS_CD = 'LAS'
+							   AND  A.GRP_CD = 'C041'
+						 ) t
+            		) TA ORDER BY RN
+            ]]>
+            </statement>
+        </query>
+        
+    	<!-- Item 적용 목록 -->
+        <query id="clm.admin.listApplyItem" isCamelCase="false">
+            <statement>
+            <![CDATA[
+            SELECT *
+              FROM ( SELECT ROW_NUMBER() OVER (ORDER BY TYPE_CD ASC) ITEM_RN, t.*, CAST(COUNT(1) over() AS NUMERIC) TOTAL_CNT
+                     FROM (
+                        SELECT	 RIGHT(TYPE_CD, 3) ITEM_CD
+                        		,CASE WHEN :vo.session_user_locale = 'ko' THEN CD_NM
+			              			  WHEN :vo.session_user_locale = 'fr' THEN CD_NM_FRA
+			              			  WHEN :vo.session_user_locale = 'de' THEN CD_NM_DEU
+			              			  ELSE CD_NM_ENG
+			              		 END ITEM_CD_NM
+                        		,CASE WHEN :vo.session_user_locale = 'ko' THEN CD_NM_ABBR
+			              			  WHEN :vo.session_user_locale = 'fr' THEN CD_NM_ABBR_FRA
+			              			  WHEN :vo.session_user_locale = 'de' THEN CD_NM_ABBR_DEU
+			              			  ELSE CD_NM_ABBR_ENG
+			              		 END ITEM_CD_NM_ABBR
+                        		,CASE WHEN :vo.session_user_locale = 'ko' THEN CD_NM
+			              			  WHEN :vo.session_user_locale = 'fr' THEN CD_NM_FRA
+			              			  WHEN :vo.session_user_locale = 'de' THEN CD_NM_DEU
+			              			  ELSE CD_NM_ENG
+			              		 END ITEM_CD_NM_ENG
+                        		,CASE WHEN :vo.session_user_locale = 'ko' THEN CD_NM_ABBR
+			              			  WHEN :vo.session_user_locale = 'fr' THEN CD_NM_ABBR_FRA
+			              			  WHEN :vo.session_user_locale = 'de' THEN CD_NM_ABBR_DEU
+			              			  ELSE CD_NM_ABBR_ENG
+			              		 END ITEM_CD_NM_ABBR_ENG
+                        		,CD_EXPL ITEM_CD_EXPL
+                        		,TYPE_CD
+						  FROM  TN_COM_CONTRACTTYPE_CD
+						 WHERE  UP_TYPE_CD = :vo.type_cd
+						   AND  USE_YN = 'Y'
+						   AND  (LEN(TYPE_CD) = 10 OR LEN(TYPE_CD) = 8)
+                         ) t
+            		) TA
+            		ORDER BY ITEM_RN
+            ]]>
+            </statement>
+        </query>
+        
+        <!-- 상세 -->
+        <query id="clm.admin.detailType" isCamelCase="false">
+            <statement>
+            <![CDATA[
+            		SELECT *
+            		  FROM (
+	                        SELECT	 ISNULL(C.TYPE_CD, B.TYPE_CD) TYPE_CD
+                        			,A.TYPE_CD DIMENSION_CD
+									,CASE WHEN C.TYPE_CD IS NULL THEN '' ELSE B.TYPE_CD END DETAIL_CD
+									,CASE WHEN :vo.session_user_locale = 'ko' THEN A.CD_NM
+			              				  WHEN :vo.session_user_locale = 'fr' THEN A.CD_NM_FRA
+			              				  WHEN :vo.session_user_locale = 'de' THEN A.CD_NM_DEU
+			              				  ELSE A.CD_NM_ENG
+			              			 END DIMENSION_NM
+									,ISNULL(CASE WHEN C.CD_NM IS NULL THEN '' ELSE B.CD_NM END, '-') DETAIL_NM
+									,ISNULL(CASE WHEN :vo.session_user_locale = 'ko' THEN C.CD_NM
+			              				  		 WHEN :vo.session_user_locale = 'fr' THEN C.CD_NM_FRA
+			              				  		 WHEN :vo.session_user_locale = 'de' THEN C.CD_NM_DEU
+			              				  		 ELSE C.CD_NM_ENG
+			              			 		END CD_NM, 
+			              			 		CASE WHEN :vo.session_user_locale = 'ko' THEN B.CD_NM
+			              				  		 WHEN :vo.session_user_locale = 'fr' THEN B.CD_NM_FRA
+			              				  		 WHEN :vo.session_user_locale = 'de' THEN B.CD_NM_DEU
+			              				  		 ELSE B.CD_NM_ENG
+			              			 		END CD_NM) CD_NM
+									,ISNULL(CASE WHEN :vo.session_user_locale = 'ko' THEN C.CD_NM_ABBR
+			              				  		 WHEN :vo.session_user_locale = 'fr' THEN C.CD_NM_ABBR_FRA
+			              				  		 WHEN :vo.session_user_locale = 'de' THEN C.CD_NM_ABBR_DEU
+			              				  		 ELSE C.CD_NM_ABBR_ENG
+			              			 		END CD_NM_ABBR,
+			              			 		CASE WHEN :vo.session_user_locale = 'ko' THEN B.CD_NM_ABBR
+			              				  		 WHEN :vo.session_user_locale = 'fr' THEN B.CD_NM_ABBR_FRA
+			              				  		 WHEN :vo.session_user_locale = 'de' THEN B.CD_NM_ABBR_DEU
+			              				  		 ELSE B.CD_NM_ABBR_ENG
+			              			 		END CD_NM_ABBR) CD_NM_ABBR
+									,ISNULL(CASE WHEN :vo.session_user_locale = 'ko' THEN C.CD_NM
+			              				  		 WHEN :vo.session_user_locale = 'fr' THEN C.CD_NM_FRA
+			              				  		 WHEN :vo.session_user_locale = 'de' THEN C.CD_NM_DEU
+			              				  		 ELSE C.CD_NM_ENG
+			              			 		END CD_NM_ENG, 
+			              			 		CASE WHEN :vo.session_user_locale = 'ko' THEN B.CD_NM
+			              				  		 WHEN :vo.session_user_locale = 'fr' THEN B.CD_NM_FRA
+			              				  		 WHEN :vo.session_user_locale = 'de' THEN B.CD_NM_DEU
+			              				  		 ELSE B.CD_NM_ENG
+			              			 		END CD_NM_ENG) CD_NM_ENG
+									,ISNULL(CASE WHEN :vo.session_user_locale = 'ko' THEN C.CD_NM_ABBR
+			              				  		 WHEN :vo.session_user_locale = 'fr' THEN C.CD_NM_ABBR_FRA
+			              				  		 WHEN :vo.session_user_locale = 'de' THEN C.CD_NM_ABBR_DEU
+			              				  		 ELSE C.CD_NM_ABBR_ENG
+			              			 		END CD_NM_ABBR_ENG, 
+			              			 		CASE WHEN :vo.session_user_locale = 'ko' THEN B.CD_NM_ABBR
+			              				  		 WHEN :vo.session_user_locale = 'fr' THEN B.CD_NM_ABBR_FRA
+			              				  		 WHEN :vo.session_user_locale = 'de' THEN B.CD_NM_ABBR_DEU
+			              				  		 ELSE B.CD_NM_ABBR_ENG
+			              			 		END CD_NM_ABBR_ENG) CD_NM_ABBR_ENG
+									,ISNULL(C.PRNT_SRT, B.PRNT_SRT) PRNT_SRT
+									,ISNULL(C.CD_EXPL, B.CD_EXPL) CD_EXPL
+									,ISNULL(C.USE_YN, B.USE_YN) USE_YN
+									,CONVERT(CHAR(10), ISNULL(C.REG_DT, B.REG_DT), 23) AS REG_DT /*YYYY-MM-DD*/
+									,ISNULL(C.REG_ID, B.REG_ID) REG_ID
+									,ISNULL(C.REG_NM, B.REG_NM) REG_NM
+									,ISNULL(C.REG_DEPT_NM, B.REG_DEPT_NM) REG_DEPT_NM
+									,CONVERT(CHAR(10), ISNULL(C.MOD_DT, B.MOD_DT), 23) AS MOD_DT /*YYYY-MM-DD*/
+									,ISNULL(C.MOD_ID, B.MOD_ID) MOD_ID
+									,ISNULL(C.MOD_NM, B.MOD_NM) MOD_NM
+									,ISNULL(C.MOD_DEPT_NM, B.MOD_DEPT_NM) MOD_DEPT_NM
+							  FROM  TN_COM_CONTRACTTYPE_CD A LEFT OUTER JOIN
+									TN_COM_CONTRACTTYPE_CD B 
+									ON A.TYPE_CD = B.UP_TYPE_CD
+									
+									LEFT OUTER JOIN
+									(SELECT * FROM TN_COM_CONTRACTTYPE_CD WHERE LEN(TYPE_CD) <> 8 AND LEN(TYPE_CD) <> 10) C
+									ON B.TYPE_CD = C.UP_TYPE_CD
+							 WHERE  A.UP_TYPE_CD = 'TOP'
+							   AND  (B.CD_NM IS NOT NULL OR C.CD_NM IS NOT NULL)
+							 ) TA
+					 WHERE USE_YN = 'Y'
+					   AND TYPE_CD = :vo.type_cd
+            ]]>
+            </statement>
+        </query>
+        
+        <!-- 등록 -->
+		<query id="clm.admin.insertType" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				INSERT INTO TN_COM_CONTRACTTYPE_CD  
+							(
+								 TYPE_CD
+								,UP_TYPE_CD
+								,CD_NM
+								,CD_NM_ABBR
+								,CD_NM_ENG
+								,CD_NM_ABBR_ENG
+								,PRNT_SRT
+								,CD_EXPL
+								,USE_YN
+								,REG_DT
+								,REG_ID
+								,REG_NM
+								,REG_DEPT_NM
+					        ) VALUES (
+					           :vo.type_cd
+					          ,ISNULL(:vo.detail_cd, :vo.dimension_cd)
+					          ,:vo.cd_nm
+					          ,:vo.cd_nm_abbr
+					          ,:vo.cd_nm_eng
+					          ,:vo.cd_nm_abbr_eng
+					          ,0
+					          ,:vo.cd_expl
+					          ,'Y'
+					          ,GETDATE()
+					          ,:vo.reg_id
+					          ,:vo.reg_nm
+					          ,:vo.reg_dept_nm
+					        )
+			]]>
+			</statement>
+		</query>
+		
+        <!-- ITEM 등록 -->
+		<query id="clm.admin.insertTypeItem" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				INSERT INTO TN_COM_CONTRACTTYPE_CD  
+							(
+								 TYPE_CD
+								,UP_TYPE_CD
+								,CD_NM
+								,CD_NM_ABBR
+								,CD_NM_ENG
+								,CD_NM_ABBR_ENG
+								,PRNT_SRT
+								,CD_EXPL
+								,USE_YN
+								,REG_DT
+								,REG_ID
+								,REG_NM
+								,REG_DEPT_NM
+					        ) VALUES (
+					           :vo.item_cd
+					          ,:vo.type_cd
+					          ,:vo.item_cd_nm
+					          ,:vo.item_cd_nm_abbr
+					          ,:vo.item_cd_nm_eng
+					          ,:vo.item_cd_nm_abbr_eng
+					          ,0
+					          ,''
+					          ,'Y'
+					          ,GETDATE()
+					          ,:vo.reg_id
+					          ,:vo.reg_nm
+					          ,:vo.reg_dept_nm
+					        )
+			]]>
+			</statement>
+		</query>
+		
+		<!-- 수정 -->
+		<query id="clm.admin.modifyType" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				UPDATE	TN_COM_CONTRACTTYPE_CD
+				   SET	 TYPE_CD = :vo.type_cd
+						,CD_NM = :vo.cd_nm
+						,CD_NM_ABBR = :vo.cd_nm_abbr
+						,CD_NM_ENG = :vo.cd_nm_eng
+						,CD_NM_ABBR_ENG = :vo.cd_nm_abbr_eng
+						,PRNT_SRT = 0
+						,CD_EXPL = :vo.cd_expl
+						,MOD_DT = GETDATE()
+						,MOD_ID = :vo.mod_id
+						,MOD_NM = :vo.mod_nm
+						,MOD_DEPT_NM = :vo.mod_dept_nm
+				WHERE TYPE_CD = :vo.type_cd
+				  AND USE_YN = 'Y'
+			]]>
+			</statement>
+		</query>        
+		
+		<!-- 삭제 -->
+		<query id="clm.admin.deleteType" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				UPDATE	TN_COM_CONTRACTTYPE_CD
+				   SET   USE_YN  = 'N'
+				        ,MOD_DT  = GETDATE()
+						,MOD_ID = :vo.mod_id
+						,MOD_NM = :vo.mod_nm
+						,MOD_DEPT_NM = :vo.mod_dept_nm
+				WHERE (TYPE_CD = :vo.type_cd OR UP_TYPE_CD = :vo.type_cd) 
+				  AND USE_YN = 'Y'
+			]]>
+			</statement>
+		</query>
+		
+		<!-- Item 삭제 -->
+		<query id="clm.admin.deleteTypeItem" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				DELETE TN_COM_CONTRACTTYPE_CD
+				 WHERE UP_TYPE_CD = :vo.type_cd
+				   AND USE_YN = 'Y'
+			]]>
+			</statement>
+		</query>
+		
+		<!-- TypeCd 채번생성 -->
+		<query id="clm.admin.makeTypeCd" isCamelCase="false">
+			<statement>
+			<![CDATA[
+			SELECT ISNULL(:vo.detail_cd, :vo.dimension_cd) + 
+					ISNULL(RIGHT('0'+CAST((CAST(RIGHT((
+											SELECT  MAX(TYPE_CD)
+											  FROM  TN_COM_CONTRACTTYPE_CD
+											 WHERE  UP_TYPE_CD = ISNULL(:vo.detail_cd, :vo.dimension_cd)
+											   AND  RIGHT(TYPE_CD, 2) <> '99'
+									   ), 2) AS numeric)+1) AS NVARCHAR(2)),2),'01')  nextTypeCd
+			    
+			]]>
+			</statement>
+		</query>
+    </queries>
+</queryservice>

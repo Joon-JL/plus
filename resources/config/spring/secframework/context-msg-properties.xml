@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:config="http://www.anyframejava.org/schema/service"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<value>/WEB-INF/classes/config/message/secframework/message-secframework</value>				
+				<value>/WEB-INF/classes/config/message/secframework/clms-message-secframework</value>
+				<value>/WEB-INF/classes/config/message/secframework/las-message-secframework</value>
+				<value>/WEB-INF/classes/config/property/property-secframework</value>
+				
+				<!-- AnyFrame영역 그대로 두시오. -->
+				<value>anyframe/core/properties/messages/properties</value>
+				<value>anyframe/core/idgen/messages/idgeneration</value>
+				<value>anyframe/core/query/messages/query</value>
+				<value>anyframe/core/process/messages/process</value>
+				<value>anyframe/core/adaptormanager/messages/adaptormanager</value>		
+				<value>anyframe/web/springmvc/messages/springmvc</value>
+				<!-- AnyFrame영역 그대로 두시오. -->
+				
+				<!-- Spring Security message source -->                
+                <value>anyframe/iam/security</value>
+			</list>
+		</property>
+		<property name="cacheSeconds" value="3"/>
+		<property name="defaultEncoding" value="UTF-8"/>
+	</bean>
+
+	<bean id="messageSourceAccessor" class="org.springframework.context.support.MessageSourceAccessor">
+		<constructor-arg><ref local="messageSource" /></constructor-arg>
+	</bean>
+		    
+	<bean id="secfw.messageService" class="com.sds.secframework.common.service.MessageService">
+		<property name="messageSource" ref="messageSource"/>
+	</bean>
+
+    <bean id="propertyConfigurer"
+        class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <description>
+        <![CDATA[
+        ]]>    
+        </description>
+        <property name="locations">
+            <list>
+                <!-- value>classpath:common-jdbc.properties</value-->
+                <!--value>/WEB-INF/classes/config/**/property/*.properties</value-->
+                <value>classpath:/config/property/property-secframework.properties</value>
+                <value>classpath:/config/property/property-secframework-loadData.properties</value>
+			</list>
+        </property>
+    </bean>
+
+	<bean id="secfw.propertySource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<value>classpath:/config/property/property-secframework</value>
+				<value>classpath:/config/property/property-secframework-loadData</value>
+			</list>
+		</property>
+		<property name="cacheSeconds" value="3"/>
+		<property name="defaultEncoding" value="UTF-8"/>
+	</bean>
+	   
+	<bean id="secfw.propertyService" class="com.sds.secframework.common.service.PropertyService">
+		<property name="propertySource" ref="secfw.propertySource" />
+	</bean>
+
+	<bean id="configurableCallBack" scope="prototype" class="anyframe.common.config.ConfigurableCallback" />
+
+</beans>

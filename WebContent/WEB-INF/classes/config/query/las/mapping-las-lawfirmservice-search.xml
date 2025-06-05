@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+    <queries>
+		<query id="las.lawservice.listLawfirmSearch" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		               
+		    	     SELECT *
+		              FROM ( SELECT rownum RN, t.*, COUNT(1) over() TOTAL_CNT
+		                     FROM (
+				
+								    SELECT                                     
+		
+						                    A.ACPT_NO, 
+						                    DECODE(A.ACPTDAY, NULL, '', SUBSTRING(TRIM(A.ACPTDAY),1,4) + '-' + SUBSTRING(TRIM(A.ACPTDAY),5,2) + '-' + SUBSTRING(TRIM(A.ACPTDAY),7,2)) AS ACPTDAY, 
+						                    A.EVENT_NO, 
+						                    A.LAWFIRM_ID, 
+						                    DECODE(A.CLAIMDAY, NULL, '', SUBSTRING(TRIM(A.CLAIMDAY),1,4) + '-' + SUBSTRING(TRIM(A.CLAIMDAY),5,2) + '-' + SUBSTRING(TRIM(A.CLAIMDAY),7,2)) AS CLAIMDAY, 
+						                    A.CRRNCY_UNIT, 
+						                    A.CLAIM_AMT,
+						                    A.CLAIM_CONT,
+						                    DECODE(A.UNPAYDAY, NULL, '', SUBSTRING(TRIM(A.UNPAYDAY),1,4) + '-' + SUBSTRING(TRIM(A.UNPAYDAY),5,2) + '-' + SUBSTRING(TRIM(A.UNPAYDAY),7,2)) AS UNPAYDAY, 
+						                    A.REMIT_AMT,                  
+						                    A.INVOICE_NO, 
+						                    DECODE(A.SRVCSTARTDAY, NULL, '', SUBSTRING(TRIM(A.SRVCSTARTDAY),1,4) + '-' + SUBSTRING(TRIM(A.SRVCSTARTDAY),5,2) + '-' + SUBSTRING(TRIM(A.SRVCSTARTDAY),7,2)) AS SRVCSTARTDAY, 
+		              						DECODE(A.SRVCENDDAY, NULL, '', SUBSTRING(TRIM(A.SRVCENDDAY),1,4) + '-' + SUBSTRING(TRIM(A.SRVCENDDAY),5,2) + '-' + SUBSTRING(TRIM(A.SRVCENDDAY),7,2)) AS SRVCENDDAY, 
+											DECODE(A.REMITPLNDDAY, NULL, '', SUBSTRING(TRIM(A.REMITPLNDDAY),1,4) + '-' + SUBSTRING(TRIM(A.REMITPLNDDAY),5,2) + '-' + SUBSTRING(TRIM(A.REMITPLNDDAY),7,2)) AS REMITPLNDDAY, 
+		              						DECODE(A.REMITDAY, NULL, '', SUBSTRING(TRIM(A.REMITDAY),1,4) + '-' + SUBSTRING(TRIM(A.REMITDAY),5,2) + '-' + SUBSTRING(TRIM(A.REMITDAY),7,2)) AS REMITDAY, 
+						                    A.REVIEW_YN, 
+						                    A.REVIEW_CONT,
+						                    TO_CHAR(A.REG_DT, 'YYYY-MM-DD') AS REG_DT,
+						                    A.REG_NM, 
+						                    A.REG_ID, 
+						                    TO_CHAR(A.MOD_DT, 'YYYY-MM-DD') AS MOD_DT,
+						                    A.MOD_NM,
+						                    A.MOD_ID,
+						                    
+										    B.EVENT_NM, 
+										    B.LAWSUIT_TRGT,
+						                    D.LAWFIRM_NM,
+						                    
+						                    E.REMITDAY, 
+						                    E.INTNL_DEPT_CD, 
+						                    E.TOT_REMIT_AMT, 
+						                    E.TOTAMT, 
+						                    E.USD_AMT,
+						                    E.DEPT_NM  
+									FROM                                        
+											TN_LAS_EVENT_ACCEPT A,  	
+											TN_LAS_EVENTMNG B,  
+						         			TN_LAS_LAWFIRMMNG D, 
+						          			TN_LAS_EVENT_ACCEPT_SRVCCOST E 
+						
+									WHERE   A.DEL_YN = 'N'                                    
+						            AND     A.EVENT_NO = B.EVENT_NO         				
+						          	AND		A.LAWFIRM_ID = D.LAWFIRM_ID           
+						          	AND     A.ACPT_NO = E.ACPT_NO  
+						          	
+						          	AND		E.TOTAMT > 0
+				
+											#if (!$vo.srch_event_no.equals(""))
+												AND A.EVENT_NO = :vo.srch_event_no   
+											#end 
+																				
+											#if (!$vo.srch_event_nm.equals(""))
+											   -- AND B.EVENT_NM LIKE '%' + :vo.srch_event_nm    + '%'
+											   AND A.INVOICE_NO LIKE '%' + :vo.srch_event_nm    + '%' 
+											#end 
+											
+											#if (!$vo.srch_kbn1.equals(""))
+											     AND B.EVENT_GBN1 = :vo.srch_kbn1 
+											         #if (!$vo.srch_kbn2.equals(""))
+											              AND B.EVENT_GBN2 = :vo.srch_kbn2                    
+											         #end
+											#end
+											
+											--#if (!$vo.srch_unpay_yn.equals(""))
+											--	#if ($vo.srch_unpay_yn.equals("Y"))
+											--    	AND A.UNPAYDAY IS NOT NULL 	 
+											--	#end 
+											--	#if ($vo.srch_unpay_yn.equals("N"))
+											--    	AND A.UNPAYDAY IS NULL 	 
+											--	#end 
+											--#end 
+											
+											#if ($vo.srch_unpay_yn.equals("Y"))
+											    	AND A.UNPAYDAY IS NOT NULL 	 
+											#end 
+
+											
+											#if (!$vo.srch_remit_yn.equals(""))
+												#if ($vo.srch_remit_yn.equals("Y"))
+											    	AND A.REMITDAY IS NOT NULL 	 
+												#end 
+												#if ($vo.srch_remit_yn.equals("N"))
+											    	AND A.REMITDAY IS NULL 	 
+												#end 
+											#end 
+											
+											#if (!$vo.srch_lawfirm_id.equals(""))
+											    AND A.LAWFIRM_ID = :vo.srch_lawfirm_id 	 
+											#end 
+											
+											#if (!$vo.srch_lawsuit_trgt_cd.equals(""))
+											    AND B.LAWSUIT_TRGT = :vo.srch_lawsuit_trgt_cd 
+											#end 
+											
+											#if (!$vo.srch_review_yn.equals(""))
+											    AND A.REVIEW_YN = :vo.srch_review_yn  
+											#end 
+											
+											#if (!$vo.srch_group_cd.equals(""))
+											    --AND E.INTNL_DEPT_CD LIKE '%' +  :vo.srch_group_cd  + '%'	
+											    AND E.DEPT_NM LIKE '%' +  :vo.srch_group_cd  + '%'
+											#end 
+											
+											#if (!$vo.srch_acpt_start_dt.equals(""))
+												AND	TO_DATE(A.ACPTDAY,'YYYY-MM-DD') >= date(:vo.srch_acpt_start_dt)
+											#end
+											
+											#if (!$vo.srch_acpt_end_dt.equals(""))
+												AND	TO_DATE(A.ACPTDAY,'YYYY-MM-DD') <= date(:vo.srch_acpt_end_dt) + 1
+											#end 
+											
+											#if (!$vo.srch_unpay_start_dt.equals(""))
+												AND	TO_DATE(A.UNPAYDAY,'YYYY-MM-DD')  >= date(:vo.srch_unpay_start_dt)
+											#end
+											
+											#if (!$vo.srch_unpay_end_dt.equals(""))
+												AND	TO_DATE(A.UNPAYDAY,'YYYY-MM-DD') <= date(:vo.srch_unpay_end_dt) + 1
+											#end 
+											
+											#if (!$vo.srch_remit_start_dt.equals(""))
+												AND	TO_DATE(A.REMITDAY,'YYYY-MM-DD') >= date(:vo.srch_remit_start_dt)
+											#end
+											
+											#if (!$vo.srch_remit_end_dt.equals(""))
+												AND	TO_DATE(A.REMITDAY,'YYYY-MM-DD') <= date(:vo.srch_remit_end_dt) + 1
+											#end 					                    
+					                   	
+					               ORDER BY ACPT_NO DESC  
+		           
+		            				 ) t
+		            		ORDER BY RN 
+		            		)
+		            WHERE RN between :vo.start_index and :vo.end_index     
+		           
+		    ]]>
+		  </statement>
+		</query>
+		
+		<query id="las.lawservice.excelLawfirmSearch" isCamelCase="false">
+		  <statement>
+		    <![CDATA[				
+				 SELECT                                     
+				
+						A.ACPT_NO, 
+				        --TO_CHAR(TO_DATE(A.ACPTDAY,'YYYY-MM-DD'),'YYYY-MM-DD') AS ACPTDAY			,
+				        A.ACPTDAY, 
+				        A.EVENT_NO, 
+				        A.LAWFIRM_ID, 
+				        --TO_CHAR(TO_DATE(A.CLAIMDAY,'YYYY-MM-DD'),'YYYY-MM-DD') AS CLAIMDAY			,
+				        A.CLAIMDAY,
+				        A.CRRNCY_UNIT, 
+				        A.CLAIM_AMT,
+				        A.CLAIM_CONT,
+				        --TO_CHAR(TO_DATE(A.UNPAYDAY,'YYYY-MM-DD'),'YYYY-MM-DD') AS UNPAYDAY			,
+				        A.UNPAYDAY,
+				        A.REMIT_AMT,                  
+				        A.INVOICE_NO, 
+						--TO_CHAR(TO_DATE(A.SRVCSTARTDAY, 'YYYY-MM-DD'),'YYYY-MM-DD') + '~' + TO_CHAR(TO_DATE(A.SRVCENDDAY, 'YYYY-MM-DD'),'YYYY-MM-DD')AS SRVCDAY,
+						A.SRVCSTARTDAY + '~' + A.SRVCENDDAY AS SRVCDAY,
+						--TO_CHAR(TO_DATE(A.REMITPLNDDAY, 'YYYY-MM-DD'),'YYYY-MM-DD') AS REMITPLNDDAY	,
+						A.REMITPLNDDAY,
+						--TO_CHAR(TO_DATE(A.REMITDAY, 'YYYY-MM-DD'),'YYYY-MM-DD') AS REMITDAY			,
+						A.REMITDAY,
+				        A.REVIEW_YN, 
+				        A.REVIEW_CONT,
+				        TO_CHAR(A.REG_DT, 'YYYY-MM-DD') AS REG_DT,
+				        A.REG_NM, 
+				        A.REG_ID, 
+				        TO_CHAR(A.MOD_DT, 'YYYY-MM-DD') AS MOD_DT,
+				        A.MOD_NM,
+				        A.MOD_ID,
+					    B.EVENT_NM, 
+					    B.LAWSUIT_TRGT,
+				        D.LAWFIRM_NM,
+				        E.REMITDAY, 
+				        E.INTNL_DEPT_CD, 
+				        E.TOT_REMIT_AMT, 
+				        E.TOTAMT, 
+				        E.DEPT_NM,
+				        E.USD_AMT
+				FROM                                        
+						TN_LAS_EVENT_ACCEPT A,  	
+						TN_LAS_EVENTMNG B,  
+						TN_LAS_LAWFIRMMNG D, 
+						TN_LAS_EVENT_ACCEPT_SRVCCOST E 
+				
+				WHERE   A.DEL_YN = 'N'                                    
+				AND		A.EVENT_NO = B.EVENT_NO         				
+				AND		A.LAWFIRM_ID = D.LAWFIRM_ID           
+				AND     A.ACPT_NO = E.ACPT_NO  
+				AND		E.TOTAMT > 0
+				
+						#if (!$vo.srch_event_no.equals(""))
+							AND A.EVENT_NO = :vo.srch_event_no   
+						#end 
+															
+						#if (!$vo.srch_event_nm.equals(""))
+						    -- AND B.EVENT_NM LIKE '%' + :vo.srch_event_nm    + '%'	 
+						    AND A.INVOICE_NO = :vo.srch_event_nm 	 	 
+						#end 
+						
+						#if (!$vo.srch_kbn1.equals(""))
+						     AND B.EVENT_GBN1 = :vo.srch_kbn1 
+						         #if (!$vo.srch_kbn2.equals(""))
+						              AND B.EVENT_GBN2 = :vo.srch_kbn2                    
+						         #end
+						#end
+						
+						#if ($vo.srch_unpay_yn.equals("Y"))
+						    	AND A.UNPAYDAY IS NOT NULL 	 
+						#end 
+						
+						#if (!$vo.srch_remit_yn.equals(""))
+							#if ($vo.srch_remit_yn.equals("Y"))
+						    	AND A.REMITDAY IS NOT NULL 	 
+							#end 
+							#if ($vo.srch_remit_yn.equals("N"))
+						    	AND A.REMITDAY IS NULL 	 
+							#end 
+						#end 
+						
+						#if (!$vo.srch_lawfirm_id.equals(""))
+						    AND A.LAWFIRM_ID = :vo.srch_lawfirm_id 	 
+						#end 
+						
+						#if (!$vo.srch_lawsuit_trgt_cd.equals(""))
+						    AND B.LAWSUIT_TRGT = :vo.srch_lawsuit_trgt_cd 
+						#end 
+						
+						#if (!$vo.srch_review_yn.equals(""))
+						    AND A.REVIEW_YN = :vo.srch_review_yn  
+						#end 
+						
+						#if (!$vo.srch_group_cd.equals(""))
+						    --AND E.INTNL_DEPT_CD LIKE '%' +  :vo.srch_group_cd  + '%'
+						    AND E.DEPT_NM LIKE '%' +  :vo.srch_group_cd  + '%'	
+						#end 
+						
+						#if (!$vo.srch_acpt_start_dt.equals(""))
+							AND	TO_DATE(A.ACPTDAY,'YYYY-MM-DD') >= date(:vo.srch_acpt_start_dt)
+						#end
+						
+						#if (!$vo.srch_acpt_end_dt.equals(""))
+							AND	TO_DATE(A.ACPTDAY,'YYYY-MM-DD') <= date(:vo.srch_acpt_end_dt) + 1
+						#end 
+						
+						#if (!$vo.srch_unpay_start_dt.equals(""))
+							AND	TO_DATE(A.UNPAYDAY,'YYYY-MM-DD')  >= date(:vo.srch_unpay_start_dt)
+						#end
+						
+						#if (!$vo.srch_unpay_end_dt.equals(""))
+							AND	TO_DATE(A.UNPAYDAY,'YYYY-MM-DD') <= date(:vo.srch_unpay_end_dt) + 1
+						#end 
+						
+						#if (!$vo.srch_remit_start_dt.equals(""))
+							AND	TO_DATE(A.REMITDAY,'YYYY-MM-DD') >= date(:vo.srch_remit_start_dt)
+						#end
+						
+						#if (!$vo.srch_remit_end_dt.equals(""))
+							AND	TO_DATE(A.REMITDAY,'YYYY-MM-DD') <= date(:vo.srch_remit_end_dt) + 1
+						#end			     
+				    	
+--				ORDER BY ACPT_NO DESC
+				ORDER BY B.EVENT_NO DESC,  D.LAWFIRM_NM DESC     
+		    ]]>
+		  </statement>
+		</query>
+    </queries>
+</queryservice>

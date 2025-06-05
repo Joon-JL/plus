@@ -1,0 +1,1274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+	<queries>
+		<!-- 사용자 목록 조회 by 성명 -->
+		<query id="secfw.usermng.list.usernm" isCamelCase="false">
+			<statement>
+			<![CDATA[
+                SELECT A.*
+                     ,  CASE WHEN A.USER_NM IS NULL THEN 
+							A.USER_NM_ENG + '(' + ISNULL(A.JIKGUP_NM,'') + ')' + '/' + ISNULL(A.DEPT_NM,'') + '/' + ISNULL(A.COMP_NM,'')
+						ELSE 
+							A.USER_NM + '(' + ISNULL(A.JIKGUP_NM,'') + ')' + '/' + ISNULL(A.DEPT_NM,'') + '/' + ISNULL(A.COMP_NM,'')
+						END AS USER_INFO
+                  FROM TB_COM_USER A
+                 WHERE (A.USER_NM LIKE :vo.srch_cntnt + '%'
+                          OR A.USER_NM_ENG LIKE :vo.srch_cntnt + '%' OR A.USER_REAL_NM LIKE :vo.srch_cntnt + '%')
+            
+            #if (!$vo.srch_role_cd.equals("%"))
+                   AND A.USER_ID IN (
+                                     SELECT D.USER_ID
+                                       FROM TB_COM_ROLE_USER D
+                                      WHERE D.ROLE_CD = :vo.srch_role_cd
+                                    )
+            #end
+			]]>
+			</statement>
+		</query>
+		
+		<!-- 사용자 목록 조회 by 회사명 (사용안함) -->
+		<query id="secfw.usermng.list.compnm" isCamelCase="false">
+			<statement>
+			<![CDATA[
+                SELECT A.*
+                     , A.USER_NM + '(' + A.JIKGUP_NM + ')' + '/' + A.DEPT_NM + '/' + A.COMP_NM AS USER_INFO
+                  FROM TB_COM_USER A
+                 WHERE A.COMP_NM LIKE :vo.srch_cntnt + '%'
+            #if (!$vo.srch_role_cd.equals("%"))
+                   AND A.USER_ID IN (
+                                     SELECT D.USER_ID
+                                       FROM TB_COM_ROLE_USER D
+                                      WHERE D.ROLE_CD = :vo.srch_role_cd
+                                    )
+            #end
+			]]>
+			</statement>
+		</query>
+		
+		<!-- 사용자 목록 조회 by 부서명 (사용안함) -->
+		<query id="secfw.usermng.list.deptnm" isCamelCase="false">
+			<statement>
+			<![CDATA[
+                SELECT A.*
+                     , A.USER_NM + '(' + A.JIKGUP_NM + ')' + '/' + A.DEPT_NM + '/' + A.COMP_NM AS USER_INFO
+                  FROM TB_COM_USER A
+                 WHERE A.DEPT_NM LIKE :vo.srch_cntnt + '%'
+            #if (!$vo.srch_role_cd.equals("%"))
+                   AND A.USER_ID IN (
+                                     SELECT D.USER_ID
+                                       FROM TB_COM_ROLE_USER D
+                                      WHERE D.ROLE_CD = :vo.srch_role_cd
+                                    )
+            #end
+			]]>
+			</statement>
+		</query>
+		
+		<!-- 사용자 목록 조회 by 싱글ID -->		
+		<query id="secfw.usermng.list.singlenm" isCamelCase="false">
+			<statement>
+			<![CDATA[
+                SELECT A.*
+                     , A.USER_NM + '(' + A.JIKGUP_NM + ')' + '/' + A.DEPT_NM + '/' + A.COMP_NM AS USER_INFO
+                  FROM TB_COM_USER A
+                 WHERE A.SINGLE_ID LIKE :vo.srch_cntnt +'%'
+            #if (!$vo.srch_role_cd.equals("%"))
+                   AND A.USER_ID IN (
+                                     SELECT D.USER_ID
+                                       FROM TB_COM_ROLE_USER D
+                                      WHERE D.ROLE_CD = :vo.srch_role_cd
+                                    )
+            #end
+			]]>
+			</statement>
+		</query>
+		
+		<!-- 역할(Role) 목록 by 콤보박스 -->
+		<query id="secfw.usermng.list.roll" isCamelCase="false">
+			<statement>
+			<![CDATA[
+                SELECT ROLE_NM + DBO.DECODE3(ISNULL(COMMENTS, '') , '', '', '(' + COMMENTS + ')') AS ROLE_NM
+                     , ROLE_CD
+                  FROM TB_COM_ROLE
+                 WHERE USE_YN ='Y'
+                 #if ($vo.session_comp_cd && $vo.session_comp_cd.equals("C10"))
+                  AND (ROLE_CD = 'RB01' OR ROLE_CD = 'RB02' OR ROLE_CD = 'RZ00')
+			           #else
+			            AND ROLE_CD <> 'RB02'
+			           #end
+                  AND ROLE_CD <> 'RA00'
+                  ORDER BY ROLE_CD DESC
+			]]>
+			</statement>
+		</query>
+		
+		<!-- 소속조직 목록 by 콤보박스 -->
+		<query id="secfw.usermng.list.orgnz" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT ORGNZ_CD
+				     , ORGNZ_NM
+				     , ORGNZ_NM_ENG
+				  FROM TN_CLM_UNITORGNZ
+			]]>
+			</statement>
+		</query>
+		
+		<!-- 사용자 정보 조회-->							
+		<query id="secfw.usermng.info.user" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT * 
+				FROM 
+				TB_COM_USER
+				WHERE 1=1 
+				#if ($vo.serch_detail_div.equals("user_id"))
+				AND   USER_ID = :vo.serch_detail_vel     
+				#end
+				#if ($vo.serch_detail_div.equals("user_nm"))
+				AND   USER_NM = :vo.serch_detail_vel     
+				#end
+			]]>
+			</statement>
+		</query>	
+		<!-- 권한 리스트 from 사용자-->		
+		<query id="secfw.usermng.user.auth" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT  ROLE_NM+DBO.DECODE3(ISNULL(COMMENTS,''),'','','('+COMMENTS+')') AS ROLE_NM
+				       ,B.ROLE_CD 
+				FROM 
+				 TB_COM_ROLE_USER A
+				,TB_COM_ROLE      B 
+				WHERE 1=1
+				AND A.SYS_CD    =   B.SYS_CD
+				AND A.ROLE_CD   =   B.ROLE_CD
+				AND A.USER_ID   =   :vo.user_id
+				AND A.SYS_CD	=   :vo.sys_cd
+			]]>
+			</statement>
+		</query>	
+		<!-- 사용자권한 삭제-->			
+		<query id="secfw.usermng.auth.delete" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				DELETE
+				TB_COM_ROLE_USER
+				WHERE 1=1 
+				AND USER_ID = :vo.user_id
+				AND SYS_CD = :vo.sys_cd
+			]]>
+			</statement>
+		</query>
+		<!-- 사용자 삭제-->			
+		<query id="secfw.usermng.user.delete" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				DELETE
+				TB_COM_USER
+				WHERE 1=1 
+				AND  USER_ID = :vo.user_id
+			]]>
+			</statement>
+		</query>
+		<!-- 사용자 존제여부확인-->						
+		<query id="secfw.usermng.user.have" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT ISNULL(
+				            ( 
+				                 SELECT 'HAVE'
+				                  FROM TB_COM_USER
+				                  WHERE USER_ID = :vo.user_id
+				            ),'DONT')  AS CHACK
+			]]>
+			</statement>
+		</query>	
+		<!-- 사용자 정보수정-->		
+		<query id="secfw.usermng.user.update" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				UPDATE 
+				TB_COM_USER
+				SET     
+				    RES_NO                  =   :res_no,
+				    EMP_NO                  =   :emp_no,
+				    USER_NM                 =   :user_nm_eng,
+				    USER_NM_ENG             =   :user_nm_eng,
+				    CHINESE_NM              =   :chinese_nm,
+				    SINGLE_ID               =   :single_id,
+				    SINGLE_EPID             =   :single_epid,
+				    COMP_CD = :comp_cd,
+					COMP_NM = :comp_nm,
+					COMP_NM_ENG = :comp_nm,		
+				    /*
+				    COMP_CD                 =   :comp_cd,
+				    COMP_NM                 =   :comp_nm,
+				    COMP_NM_ENG             =   :comp_nm_eng,
+				    */
+				    BUSINESS_CD             =   :business_cd,
+				    BUSINESS_NM             =   :business_nm,
+				    BUSINESS_NM_ENG         =   :business_nm_eng,
+				    DIVISION_CD             =   :division_cd,
+				    DIVISION_NM             =   :division_nm,
+				    DIVISION_NM_ENG         =   :division_nm_eng,      
+				    AREA_CD                 =   :area_cd,
+				    DEPT_CD                 =   :dept_cd,
+				    IN_DEPT_CD              =   :in_dept_cd,
+				    DEPT_NM                 =   :dept_nm,
+				    DEPT_NM_ENG             =   :dept_nm_eng,
+				    CHANGE_DEPT_YMD         =   :change_dept_ymd,
+				    ORIGIN_DEPT_CD          =   :origin_dept_cd,
+				    ORIGIN_DEPT_NM          =   :origin_dept_nm,  
+				    APPOINT_CD              =   :appoint_cd,
+				    GRP_JOIN_YMD            =   :grp_join_ymd,
+				    JOIN_TERM               =   :join_term,
+				    JOIN_LEVEL              =   :join_level,
+				    JOIN_YMD                =   :join_ymd,
+				    RAISE_YMD               =   :raise_ymd,
+				    PROMOTION_YMD           =   :promotion_ymd,   
+				    NEXT_RAISE_YM           =   :next_raise_ym,
+				    NEXT_PROMOTION_YM       =   :next_promotion_ym,   
+				    RETIREMENT_YMD          =   :retirement_ymd,   
+				    SUSPENSION_YMD          =   :suspension_ymd,
+				    REINSTATMENT_YMD        =   :reinstatment_ymd,    
+				    JIKGUN_CD               =   :jikgun_cd,
+				    JIKGUN_NM               =   :jikgun_nm,
+				    JIKGUN_NM_ENG           =   :jikgun_nm_eng,
+				    JIKGUP_CD               =   :jikgup_cd,
+				    JIKGUP_NM               =   :jikgup_nm,
+				    JIKGUP_NM_ENG           =   :jikgup_nm_eng,
+				    GRP_JIKGUP_CD           =   :grp_jikgup_cd,
+				    GRP_JIKGUP_NM           =   :grp_jikgup_nm,
+				    GRP_JIKGUP_NM_ENG       =   :grp_jikgup_nm_eng,   
+				    JIKMU_CD                =   :jikmu_cd,
+				    JIKMU_NM                =   :jikmu_nm,
+				    JIKMU_NM_ENG            =   :jikmu_nm_eng,
+				    JIKCHEK_CD              =   :jikchek_cd,
+				    SCHOOLING_CD            =   :schooling_cd,
+				    GRADUATE_SCHOOL_CD      =   :graduate_school_cd,    
+				    GRADUATE_SCHOOL_NM      =   :graduate_school_nm,   
+				    GRADUATE_SCHOOL_NM_ENG  =   :graduate_school_nm_eng,      
+				    MASTER_MAJOR_CD         =   :master_major_cd,
+				    MASTER_MAJOR_NM         =   :master_major_nm,
+				    MASTER_MAJOR_NM_ENG     =   :master_major_nm_eng,  
+				    UNIV_CD                 =   :univ_cd,
+				    UNIV_NM                 =   :univ_nm,
+				    UNIV_NM_ENG             =   :univ_nm_eng,
+				    BACHELOR_MAJOR_CD       =   :bachelor_major_cd,
+				    BACHELOR_MAJOR_NM       =   :bachelor_major_nm,    
+				    BACHELOR_MAJOR_NM_ENG   =   :bachelor_major_nm_eng, 
+				    MILITARY                =   :military,
+				    SEX_CD                  =   :sex_cd,
+				    ABO_BLOOD               =   :abo_blood,
+				    RH_BLOOD                =   :rh_blood, 
+				    HOBBY                   =   :hobby,
+				    BIRTH_YMD               =   :birth_ymd,
+				    SOLAR_YN                =   :solar_yn,
+				    HEIGHT                  =   :height,
+				    WEIGHT                  =   :weight,
+				    MARRIAGE_YMD            =   :marriage_ymd,
+				    REGION_CD               =   :region_cd,
+				    EMAIL                   =   :email,
+				    HOME_ADDRESS            =   :home_address,
+				    COMP_ZIP_CD             =   :comp_zip_cd,
+				    COMP_ADDRESS            =   :comp_address,
+				    OFFICE_TEL_NO           =   :office_tel_no,
+				    HOME_TEL_NO             =   :home_tel_no,
+				    MOBILE_NO               =   :mobile_no,
+				    STATUS                  =   :status,
+				    LAST_LOCALE             =   :last_locale,
+				    SYS_GBN                 =   :sys_gbn,
+			/*	    REG_DT                  =   :reg_dt,      */
+				    MNA_MNG_YN              =   :mna_mng_yn,
+				    AREA_NM                 =   :area_nm,
+				    USER_LEVEL              =   :user_level,
+				    REGION_NM               =   :region_nm,
+				    REGION_NM_ENG           =   :region_nm_eng,
+				    EMPLOYEE_TYPE           =   :employee_type,  
+				    EMAIL_RCV_YN            =   :email_rcv_yn,
+				    BLNGT_ORGNZ				=   :blngt_orgnz,
+				    RESP_OPERDIV			=	:resp_operdiv,
+				    AUTO_RNEW_YN            =   :auto_rnew_yn,
+				    APPROVAL_YN             =   :approval_yn,
+				    ACCESS_YN				= 	:access_yn,
+				    SEC_REVIEWER_TYPE       =   :sec_reviewer_type
+				    WHERE USER_ID           =   :user_id
+			]]>
+			</statement>
+		</query>		
+		<!-- 사용자 정보 신규-->				
+		<query id="secfw.usermng.user.insert" isCamelCase="false">
+			<statement>
+			<![CDATA[
+					INSERT INTO 
+					TB_COM_USER
+					(     
+					    
+					                RES_NO 
+					                ,EMP_NO 
+					                ,USER_NM
+					                ,USER_NM_ENG
+					                ,USER_REAL_NM
+					                ,USER_REAL_NM_ENG
+					                ,CHINESE_NM   
+					                ,SINGLE_ID        
+					                ,SINGLE_EPID
+					                ,COMP_CD
+					                ,COMP_NM       
+					                ,COMP_NM_ENG 
+					                ,BUSINESS_CD   
+					                ,BUSINESS_NM        
+					                ,BUSINESS_NM_ENG  
+					                ,DIVISION_CD      
+					                ,DIVISION_NM 
+					                ,DIVISION_NM_ENG       
+					                ,AREA_CD
+					                ,DEPT_CD  
+					                ,IN_DEPT_CD
+					                ,DEPT_NM 
+					                ,DEPT_NM_ENG
+					                ,CHANGE_DEPT_YMD
+					                ,ORIGIN_DEPT_CD
+					                ,ORIGIN_DEPT_NM     
+					                ,APPOINT_CD    
+					                ,GRP_JOIN_YMD  
+					                ,JOIN_TERM     
+					                ,JOIN_LEVEL      
+					                ,JOIN_YMD      
+					                ,RAISE_YMD 
+					                ,PROMOTION_YMD      
+					                ,NEXT_RAISE_YM 
+					                ,NEXT_PROMOTION_YM
+					                ,RETIREMENT_YMD      
+					                ,SUSPENSION_YMD    
+					                ,REINSTATMENT_YMD     
+					                ,JIKGUN_CD     
+					                ,JIKGUN_NM         
+					                ,JIKGUN_NM_ENG     
+					                ,JIKGUP_CD        
+					                ,JIKGUP_NM       
+					                ,JIKGUP_NM_ENG  
+					                ,GRP_JIKGUP_CD       
+					                ,GRP_JIKGUP_NM       
+					                ,GRP_JIKGUP_NM_ENG      
+					                ,JIKMU_CD     
+					                ,JIKMU_NM        
+					                ,JIKMU_NM_ENG     
+					                ,JIKCHEK_CD     
+					                ,SCHOOLING_CD    
+					                ,GRADUATE_SCHOOL_CD      
+					                ,GRADUATE_SCHOOL_NM     
+					                ,GRADUATE_SCHOOL_NM_ENG       
+					                ,MASTER_MAJOR_CD   
+					                ,MASTER_MAJOR_NM      
+					                ,MASTER_MAJOR_NM_ENG       
+					                ,UNIV_CD        
+					                ,UNIV_NM      
+					                ,UNIV_NM_ENG     
+					                ,BACHELOR_MAJOR_CD      
+					                ,BACHELOR_MAJOR_NM         
+					                ,BACHELOR_MAJOR_NM_ENG    
+					                ,MILITARY         
+					                ,SEX_CD       
+					                ,ABO_BLOOD    
+					                ,RH_BLOOD    
+					                ,HOBBY      
+					                ,BIRTH_YMD        
+					                ,SOLAR_YN        
+					                ,HEIGHT           
+					                ,WEIGHT         
+					                ,MARRIAGE_YMD      
+					                ,REGION_CD  
+					                ,EMAIL       
+					                ,HOME_ADDRESS        
+					                ,COMP_ZIP_CD    
+					                ,COMP_ADDRESS      
+					                ,OFFICE_TEL_NO         
+					                ,HOME_TEL_NO   
+					                ,MOBILE_NO     
+					                ,STATUS         
+					                ,LAST_LOCALE 
+					                ,SYS_GBN  
+					                ,REG_DT
+					                ,MNA_MNG_YN         
+					                ,AREA_NM 
+					                ,USER_LEVEL   
+					                ,REGION_NM     
+					                ,REGION_NM_ENG         
+					                ,EMPLOYEE_TYPE               
+					                ,USER_ID
+					                ,EMAIL_RCV_YN
+					                ,BLNGT_ORGNZ    
+					                ,RESP_OPERDIV 
+					                ,USER_SRT 
+									,GTHR_CNST_YN								-- 수집동의여부
+									,AUTO_RNEW_YN								-- 자동갱신여부
+					                ,APPROVAL_YN
+					                ,ACCESS_YN
+					)
+					VALUES( 
+					   :res_no,
+					   :emp_no,
+					   :user_nm_eng,
+					   :user_nm_eng,
+					   :user_nm_eng,
+					   :user_nm_eng,
+					   :chinese_nm,
+					   :single_id,
+					   :single_epid,
+					   :comp_cd,
+					   :comp_nm,
+					   :comp_nm,
+					   :business_cd,
+					   :business_nm,
+					   :business_nm_eng,
+					   :division_cd,
+					   :division_nm,
+					   :division_nm_eng,      
+					   :area_cd,
+					   :dept_cd,
+					   :in_dept_cd,
+					   :dept_nm,
+					   :dept_nm_eng,
+					   :change_dept_ymd,
+					   :origin_dept_cd,
+					   :origin_dept_nm ,  
+					   :appoint_cd,
+					   :grp_join_ymd,
+					   :join_term,
+					   :join_level,
+					   :join_ymd,
+					   :raise_ymd,
+					   :promotion_ymd,   
+					   :next_raise_ym,
+					   :next_promotion_ym,   
+					   :retirement_ymd,   
+					   :suspension_ymd,
+					   :reinstatment_ymd,    
+					   :jikgun_cd,
+					   :jikgun_nm,
+					   :jikgun_nm_eng,
+					   :jikgup_cd,
+					   :jikgup_nm,
+					   :jikgup_nm_eng,
+					   :grp_jikgup_cd,
+					   :grp_jikgup_nm,
+					   :grp_jikgup_nm_eng,   
+					   :jikmu_cd,
+					   :jikmu_nm,
+					   :jikmu_nm_eng,
+					   :jikchek_cd,
+					   :schooling_cd,
+					   :graduate_school_cd,    
+					   :graduate_school_nm ,  
+					   :graduate_school_nm_eng,      
+					   :master_major_cd,
+					   :master_major_nm,
+					   :master_major_nm_eng,  
+					   :univ_cd,
+					   :univ_nm,
+					   :univ_nm_eng,
+					   :bachelor_major_cd,
+					   :bachelor_major_nm ,    
+					   :bachelor_major_nm_eng, 
+					   :military,
+					   :sex_cd,
+					   :abo_blood,
+					   :rh_blood ,
+					   :hobby,
+					   :birth_ymd,
+					   :solar_yn,
+					   :height,
+					   :weight,
+					   :marriage_ymd,
+					   :region_cd,
+					   :email,
+					   :home_address,
+					   :comp_zip_cd,
+					   :comp_address,
+					   :office_tel_no,
+					   :home_tel_no,
+					   :mobile_no,
+					   :status,
+					   :last_locale,
+					   :sys_gbn,
+					   GETDATE(),
+					   :mna_mng_yn,
+					   :area_nm,
+					   :user_level,
+					   :region_nm,
+					   :region_nm_eng,
+					   :employee_type , 
+					   :user_id,
+					   :email_rcv_yn,
+					   :blngt_orgnz,
+					   :resp_operdiv,
+					   9999,   
+                       'N',
+                       :auto_rnew_yn,										-- 자동갱신여부
+					   :approval_yn,
+					   :access_yn
+				)
+			]]>
+			</statement>
+		</query>		
+		<!-- 사용자 권한 신규-->		
+		<query id="secfw.usermng.auth.insert" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				INSERT INTO TB_COM_ROLE_USER 
+				(SYS_CD,ROLE_CD,USER_ID,REG_ID,REG_DT)
+				SELECT :sys_cd ,:roll_cd,:user_id,:reg_id,GETDATE()
+				WHERE 1=1 
+				AND   'NEW'= (
+				            SELECT (ISNULL((
+				                        SELECT 'HAVE'
+				                        FROM    TB_COM_ROLE_USER B
+				                        WHERE   1=1
+				                        AND     B.USER_ID  = :user_id
+				                        AND     B.SYS_CD   = :sys_cd
+				                        AND     B.ROLE_CD  = :roll_cd
+				                    ),'NEW'))
+				             )
+			]]>
+			</statement>
+		</query>	
+		<!-- 사용자 메일사용 여부-->
+		<query id="secfw.usermng.emailrcvyn.have" isCamelCase="false">
+			<statement>
+			<![CDATA[
+					SELECT 
+						ISNULL(EMAIL_RCV_YN,'Y') AS EMAIL_RCV_YN
+						,BLNGT_ORGNZ
+						,RESP_OPERDIV
+						,AUTO_RNEW_YN
+						,APPROVAL_YN
+						,ACCESS_YN
+						,COMP_CD
+					FROM TB_COM_USER
+					WHERE USER_ID = :vo.user_id
+			]]>
+			</statement>
+		</query>	
+		
+		<!-- 사용자 리스트 from 이름 -->
+		<query id="secfw.apntusermng.list.usernm" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT ISNULL(AUTH_APNT_YN,'') AS AUTH_APNT_YN2, A.* 
+					   ,A.USER_NM+'('+A.JIKGUP_NM+')'+'/'+A.DEPT_NM+'/'+A.COMP_NM AS USER_INFO
+					   ,(SELECT DEPT_NM FROM TB_COM_DEPT WHERE DEPT_CD=A.AUTH_APNT_DEPT) AUTH_APNT_DEPT_NM
+				FROM 
+				TB_COM_USER A
+				WHERE 
+					1=1 
+				  -- A.BLNGT_ORGNZ = :vo.blngt_orgnz
+				  AND A.COMP_CD = :vo.session_comp_cd 
+				  AND A.USER_NM LIKE :vo.srch_cntnt +'%'
+				#if (!$vo.srch_auth_apnt_yn.equals("%"))
+				  AND A.AUTH_APNT_YN = :vo.srch_auth_apnt_yn
+				#end 
+				ORDER BY A.USER_NM
+			]]>
+			</statement>
+		</query>	
+		<!-- 사용자 리스트 from 소속-->
+		<query id="secfw.apntusermng.list.deptnm" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT A.* 
+					   ,A.USER_NM+'('+A.JIKGUP_NM+')'+'/'+A.DEPT_NM+'/'+A.COMP_NM AS USER_INFO
+					   ,(SELECT DEPT_NM FROM TB_COM_DEPT WHERE DEPT_CD=A.AUTH_APNT_DEPT) AUTH_APNT_DEPT_NM
+				FROM 
+				TB_COM_USER A
+				WHERE
+				  	1=1 
+				  -- A.BLNGT_ORGNZ = :vo.blngt_orgnz
+				  AND A.COMP_CD = :vo.session_comp_cd 
+				  AND A.DEPT_NM LIKE :vo.srch_cntnt +'%'
+				#if (!$vo.srch_auth_apnt_yn.equals("%"))
+				  AND A.AUTH_APNT_YN = :vo.srch_auth_apnt_yn
+				#end
+				ORDER BY A.USER_NM			
+			]]>
+			</statement>
+		</query>
+		<!-- 사용자 리스트 from 싱글아이디-->		
+		<query id="secfw.apntusermng.list.singlenm" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT A.* 
+					   ,A.USER_NM+'('+A.JIKGUP_NM+')'+'/'+A.DEPT_NM+'/'+A.COMP_NM AS USER_INFO
+					   ,(SELECT DEPT_NM FROM TB_COM_DEPT WHERE DEPT_CD=A.AUTH_APNT_DEPT) AUTH_APNT_DEPT_NM
+				FROM 
+				TB_COM_USER A
+				WHERE
+				  	1=1 
+				  -- A.BLNGT_ORGNZ = :vo.blngt_orgnz
+				  AND A.COMP_CD = :vo.session_comp_cd 
+				  AND A.SINGLE_ID LIKE :vo.srch_cntnt +'%'
+				#if (!$vo.srch_auth_apnt_yn.equals("%"))
+				  AND A.AUTH_APNT_YN = :vo.srch_auth_apnt_yn
+				#end
+				ORDER BY A.USER_NM		
+			]]>
+			</statement>
+		</query>				
+		
+		<!-- 권한지정여부 업데이트 -->
+		<query id="secfw.user.updateAuthApntInfo" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				UPDATE TB_COM_USER SET
+					--AUTH_APNT_YN = :vo.auth_apnt_yn,
+					AUTH_APNT_DEPT = :vo.auth_apnt_dept
+					,REG_DT = GETDATE()
+				WHERE 
+					USER_ID = :vo.user_id			
+			]]>
+			</statement>
+		</query>
+		
+		<!-- 날인담당자 리스트  -->		
+		<query id="secfw.signusermng.list" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT 
+							 A.USER_ID
+							,A.SINGLE_ID 		
+							,A.USER_NM
+							,A.DEPT_NM	
+							,A.EMAIL
+							,A.COMP_CD
+						   , A.USER_NM+'('+A.JIKGUP_NM+')'+'/'+A.DEPT_NM+'/'+A.COMP_NM AS USER_INFO
+						   , DBO.DECODE3(ISNULL(B.USER_ID, ''),'','N','Y') AS AUTH_APNT_YN 
+						   , DBO.DECODE3(ISNULL(C.ARA_NM, ''),'','',C.ARA_NM) AS ARA_NM 
+						   , DBO.DECODE3(ISNULL(C.COMMENTS, ''),'','',C.COMMENTS) AS COMMENTS 
+				FROM 
+							TB_COM_USER A LEFT OUTER JOIN
+							(SELECT USER_ID from TB_COM_ROLE_USER WHERE ROLE_CD = :vo.role_cd ) B 
+							ON A.USER_ID = B.USER_ID
+							
+							LEFT OUTER JOIN
+  							(SELECT SEAL_FFMTMAN_ID ,ARA_NM,COMMENTS from TN_CLM_PRTB_CSTB_INSA WHERE DEL_YN = 'N' AND GUBN_CD= :vo.division_cd) C 
+  							ON A.USER_ID = C.SEAL_FFMTMAN_ID 
+				WHERE 
+							A.COMP_CD = :vo.session_comp_cd
+				
+							 #if ($vo.srch_cntnt_type.equals("user_nm") && !$vo.srch_cntnt.equals(""))
+							  	 AND A.USER_NM LIKE :vo.srch_cntnt +'%'
+							 #end				 
+							  
+							 #if ($vo.srch_cntnt_type.equals("single_id"))
+							  	 AND A.SINGLE_ID LIKE :vo.srch_cntnt +'%'
+							 #end 
+							 
+							 #if ($vo.srch_cntnt_type.equals("dept_nm"))
+							  	 AND A.DEPT_NM LIKE :vo.srch_cntnt +'%'
+							 #end				  
+							  
+							#if (!$vo.srch_auth_apnt_yn.equals("%"))
+							  AND DBO.DECODE3(ISNULL (B.USER_ID, ''), '', 'N', 'Y')  = :vo.srch_auth_apnt_yn
+							#end
+							ORDER BY A.USER_NM		
+			]]>
+			</statement>
+		</query>	
+		
+		<!-- 날인/증명서류발급 담당자 권한지정  기등록 담당자정보 체크  -->
+		<query id="secfw.user.AuthSignInfo.count" isCamelCase="false">
+			<statement>
+			<![CDATA[
+			SELECT USER_ID FROM TB_COM_ROLE_USER WHERE USER_ID= :vo.user_id AND ROLE_CD = :vo.role_cd 
+			]]>
+			</statement>
+		</query>
+		
+		<!-- 날인/증명서류발급 담당자 권한지정 INSERT -->
+		<query id="secfw.user.AuthSignInfo.insert" isCamelCase="false">
+			<statement>
+			<![CDATA[
+			INSERT INTO TB_COM_ROLE_USER ( SYS_CD, ROLE_CD, USER_ID,REG_ID, REG_DT) 
+						VALUES (
+										'LAS',
+						 				:vo.role_cd,
+						 				:vo.user_id,
+						 				:vo.session_user_id,
+						 				GETDATE() )
+			]]>
+			</statement>
+		</query>
+		
+		<!-- 날인/증명서류발급 담당자 권한지정 DELETE -->
+		<query id="secfw.user.AuthSignInfo.delete" isCamelCase="false">
+			<statement>
+			<![CDATA[
+						DELETE FROM TB_COM_ROLE_USER WHERE ROLE_CD = :vo.role_cd AND USER_ID = :vo.user_id 
+			]]>
+			</statement>
+		</query>	
+		
+		<!-- 날인/증명서류발급 담당자 기등록 담당자정보 체크 -->
+		<query id="secfw.user.TN_CLM_PRTB_CSTB_INSA.count" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT SEAL_FFMTMAN_ID AS ID_CNT FROM TN_CLM_PRTB_CSTB_INSA WHERE SEAL_FFMTMAN_ID = :vo.seal_ffmtman_id AND GUBN_CD= :vo.gubn_cd
+			]]>
+			</statement>
+		</query>
+		
+		<!-- 날인/증명서류발급 담당자 권한지정 INSERT -->
+		<query id="secfw.user.TN_CLM_PRTB_CSTB_INSA.insert" isCamelCase="false">
+			<statement>
+			<![CDATA[
+			INSERT INTO TN_CLM_PRTB_CSTB_INSA (
+						     COMP_CD
+						   , GUBN_CD
+						   , SEAL_FFMTMAN_ID
+						   , ARA_NM
+						   , COMMENTS
+						   , REG_DT
+						   , REG_ID
+						   , DEL_YN 
+						   ) 
+						VALUES ( 
+						 :vo.comp_cd,
+						 :vo.gubn_cd,
+						 :vo.seal_ffmtman_id,
+						 :vo.ara_nm,
+						 :vo.comments,
+						 GETDATE() ,
+						 :vo.session_user_id,
+						 'N' )
+			]]>
+			</statement>
+		</query>
+		
+		<!-- 날인/증명서류발급 담당자 권한지정 UPDATE -->
+		<query id="secfw.user.TN_CLM_PRTB_CSTB_INSA.update" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				UPDATE 
+							TN_CLM_PRTB_CSTB_INSA 
+							SET 
+									DEL_YN = 'N' 
+							       ,ARA_NM                 = :vo.ara_nm
+       							   ,COMMENTS             = :vo.comments
+       							   ,MOD_DT					= GETDATE()
+       							   ,MOD_ID					= :vo.session_user_id
+				WHERE 
+							SEAL_FFMTMAN_ID = :vo.user_id 
+				AND		
+							GUBN_CD  = :vo.gubn_cd
+			]]>
+			</statement>
+		</query>
+		
+		<!-- 날인/증명서류발급 담당자 권한지정 DELETE -->
+		<query id="secfw.user.TN_CLM_PRTB_CSTB_INSA.delete" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				UPDATE 
+							TN_CLM_PRTB_CSTB_INSA 
+							  SET DEL_YN = 'Y' 
+							, ARA_NM                 = ''
+       						, COMMENTS             = ''
+       						, DEL_DT					= GETDATE()
+       						 ,DEL_ID					= :vo.session_user_id
+				WHERE 
+							SEAL_FFMTMAN_ID = :vo.user_id 
+				AND		
+							GUBN_CD  = :vo.gubn_cd
+			]]>
+			</statement>
+		</query>
+		
+		<query id="secfw.user.TB_COM_USER.select" isCamelCase="false">
+		<statement>
+      <![CDATA[
+        SELECT  USER_ID,
+								RES_NO,
+								EMP_NO,
+								USER_NM,
+								USER_NM_ENG,
+								CHINESE_NM,
+								SINGLE_ID,
+								SINGLE_EPID,
+								COMP_CD,
+								COMP_NM,
+								COMP_NM_ENG,
+								BUSINESS_CD,
+								BUSINESS_NM,
+								BUSINESS_NM_ENG,
+								DIVISION_CD,
+								DIVISION_NM,
+								DIVISION_NM_ENG,
+								AREA_CD,
+								DEPT_CD,
+								IN_DEPT_CD,
+								DEPT_NM,
+								CHANGE_DEPT_YMD,
+								ORIGIN_DEPT_CD,
+								ORIGIN_DEPT_NM,
+								APPOINT_CD,
+								GRP_JOIN_YMD,
+								JOIN_TERM,
+								JOIN_LEVEL,
+								JOIN_YMD,
+								RAISE_YMD,
+								PROMOTION_YMD,
+								NEXT_RAISE_YM,
+								NEXT_PROMOTION_YM,
+								RETIREMENT_YMD,
+								SUSPENSION_YMD,
+								REINSTATMENT_YMD,
+								JIKGUN_CD,
+								JIKGUN_NM,
+								JIKGUN_NM_ENG,
+								JIKGUP_CD,
+								JIKGUP_NM,
+								JIKGUP_NM_ENG,
+								GRP_JIKGUP_CD,
+								GRP_JIKGUP_NM,
+								GRP_JIKGUP_NM_ENG,
+								JIKMU_CD,
+								JIKMU_NM,
+								JIKMU_NM_ENG,
+								JIKCHEK_CD,
+								SCHOOLING_CD,
+								GRADUATE_SCHOOL_CD,
+								GRADUATE_SCHOOL_NM,
+								GRADUATE_SCHOOL_NM_ENG,
+								MASTER_MAJOR_CD,
+								MASTER_MAJOR_NM,
+								MASTER_MAJOR_NM_ENG,
+								UNIV_CD,
+								UNIV_NM,
+								UNIV_NM_ENG,
+								BACHELOR_MAJOR_CD,
+								BACHELOR_MAJOR_NM,
+								BACHELOR_MAJOR_NM_ENG,
+								MILITARY,
+								SEX_CD,
+								ABO_BLOOD,
+								RH_BLOOD,
+								HOBBY,
+								BIRTH_YMD,
+								SOLAR_YN,
+								HEIGHT,
+								WEIGHT,
+								MARRIAGE_YMD,
+								REGION_CD,
+								EMAIL,
+								HOME_ADDRESS,
+								COMP_ZIP_CD,
+								COMP_ADDRESS,
+								OFFICE_TEL_NO,
+								HOME_TEL_NO,
+								MOBILE_NO,
+								STATUS,
+								LAST_LOCALE,
+								SYS_GBN,
+								/* TO_CHAR(REG_DT, 'YYYY-MM-DD') REG_DT, */
+								CONVERT(VARCHAR, CONVERT(DATE, REG_DT), 23) AS REG_DT,
+								MNA_MNG_YN,
+								AREA_NM,
+								USER_LEVEL,
+								REGION_NM,
+								REGION_NM_ENG,
+								EMPLOYEE_TYPE,
+								EMAIL_RCV_YN,
+								DUTY_APBTMAN_ID,
+								BLNGT_ORGNZ,
+								AUTH_APNT_YN,
+								USER_SRT,
+								GTHR_CNST_YN,
+								GTHR_CNST_DT,
+								RESP_OPERDIV,
+								AUTH_APNT_DEPT,
+								AUTO_RNEW_YN,
+								DEPT_NM_ENG,
+								USER_REAL_NM,
+								USER_REAL_NM_ENG,
+								SEC_REVIEWER_TYPE
+				FROM    TB_COM_USER
+				WHERE   USER_ID = :user_id
+      ]]>
+    </statement>
+    <result class="com.sds.secframework.user.dto.UserManagerVO">
+      <result-mapping column="USER_ID" attribute="user_id"/>
+			<result-mapping column="RES_NO" attribute="res_no"/>
+			<result-mapping column="EMP_NO" attribute="emp_no"/>
+			<result-mapping column="USER_NM" attribute="user_nm"/>
+			<result-mapping column="USER_NM_ENG" attribute="user_nm_eng"/>
+			<result-mapping column="CHINESE_NM" attribute="chinese_nm"/>
+			<result-mapping column="SINGLE_ID" attribute="single_id"/>
+			<result-mapping column="SINGLE_EPID" attribute="single_epid"/>
+			<result-mapping column="COMP_CD" attribute="comp_cd"/>
+			<result-mapping column="COMP_NM" attribute="comp_nm"/>
+			<result-mapping column="COMP_NM_ENG" attribute="comp_nm_eng"/>
+			<result-mapping column="BUSINESS_CD" attribute="business_cd"/>
+			<result-mapping column="BUSINESS_NM" attribute="business_nm"/>
+			<result-mapping column="BUSINESS_NM_ENG" attribute="business_nm_eng"/>
+			<result-mapping column="DIVISION_CD" attribute="division_cd"/>
+			<result-mapping column="DIVISION_NM" attribute="division_nm"/>
+			<result-mapping column="DIVISION_NM_ENG" attribute="division_nm_eng"/>
+			<result-mapping column="AREA_CD" attribute="area_cd"/>
+			<result-mapping column="DEPT_CD" attribute="dept_cd"/>
+			<result-mapping column="IN_DEPT_CD" attribute="in_dept_cd"/>
+			<result-mapping column="DEPT_NM" attribute="dept_nm"/>
+			<result-mapping column="CHANGE_DEPT_YMD" attribute="change_dept_ymd"/>
+			<result-mapping column="ORIGIN_DEPT_CD" attribute="origin_dept_cd"/>
+			<result-mapping column="ORIGIN_DEPT_NM" attribute="origin_dept_nm"/>
+			<result-mapping column="APPOINT_CD" attribute="appoint_cd"/>
+			<result-mapping column="GRP_JOIN_YMD" attribute="grp_join_ymd"/>
+			<result-mapping column="JOIN_TERM" attribute="join_term"/>
+			<result-mapping column="JOIN_LEVEL" attribute="join_level"/>
+			<result-mapping column="JOIN_YMD" attribute="join_ymd"/>
+			<result-mapping column="RAISE_YMD" attribute="raise_ymd"/>
+			<result-mapping column="PROMOTION_YMD" attribute="promotion_ymd"/>
+			<result-mapping column="NEXT_RAISE_YM" attribute="next_raise_ym"/>
+			<result-mapping column="NEXT_PROMOTION_YM" attribute="next_promotion_ym"/>
+			<result-mapping column="RETIREMENT_YMD" attribute="retirement_ymd"/>
+			<result-mapping column="SUSPENSION_YMD" attribute="suspension_ymd"/>
+			<result-mapping column="REINSTATMENT_YMD" attribute="reinstatment_ymd"/>
+			<result-mapping column="JIKGUN_CD" attribute="jikgun_cd"/>
+			<result-mapping column="JIKGUN_NM" attribute="jikgun_nm"/>
+			<result-mapping column="JIKGUN_NM_ENG" attribute="jikgun_nm_eng"/>
+			<result-mapping column="JIKGUP_CD" attribute="jikgup_cd"/>
+			<result-mapping column="JIKGUP_NM" attribute="jikgup_nm"/>
+			<result-mapping column="JIKGUP_NM_ENG" attribute="jikgup_nm_eng"/>
+			<result-mapping column="GRP_JIKGUP_CD" attribute="grp_jikgup_cd"/>
+			<result-mapping column="GRP_JIKGUP_NM" attribute="grp_jikgup_nm"/>
+			<result-mapping column="GRP_JIKGUP_NM_ENG" attribute="grp_jikgup_nm_eng"/>
+			<result-mapping column="JIKMU_CD" attribute="jikmu_cd"/>
+			<result-mapping column="JIKMU_NM" attribute="jikmu_nm"/>
+			<result-mapping column="JIKMU_NM_ENG" attribute="jikmu_nm_eng"/>
+			<result-mapping column="JIKCHEK_CD" attribute="jikchek_cd"/>
+			<result-mapping column="SCHOOLING_CD" attribute="schooling_cd"/>
+			<result-mapping column="GRADUATE_SCHOOL_CD" attribute="graduate_school_cd"/>
+			<result-mapping column="GRADUATE_SCHOOL_NM" attribute="graduate_school_nm"/>
+			<result-mapping column="GRADUATE_SCHOOL_NM_ENG" attribute="graduate_school_nm_eng"/>
+			<result-mapping column="MASTER_MAJOR_CD" attribute="master_major_cd"/>
+			<result-mapping column="MASTER_MAJOR_NM" attribute="master_major_nm"/>
+			<result-mapping column="MASTER_MAJOR_NM_ENG" attribute="master_major_nm_eng"/>
+			<result-mapping column="UNIV_CD" attribute="univ_cd"/>
+			<result-mapping column="UNIV_NM" attribute="univ_nm"/>
+			<result-mapping column="UNIV_NM_ENG" attribute="univ_nm_eng"/>
+			<result-mapping column="BACHELOR_MAJOR_CD" attribute="bachelor_major_cd"/>
+			<result-mapping column="BACHELOR_MAJOR_NM" attribute="bachelor_major_nm"/>
+			<result-mapping column="BACHELOR_MAJOR_NM_ENG" attribute="bachelor_major_nm_eng"/>
+			<result-mapping column="MILITARY" attribute="military"/>
+			<result-mapping column="SEX_CD" attribute="sex_cd"/>
+			<result-mapping column="ABO_BLOOD" attribute="abo_blood"/>
+			<result-mapping column="RH_BLOOD" attribute="rh_blood"/>
+			<result-mapping column="HOBBY" attribute="hobby"/>
+			<result-mapping column="BIRTH_YMD" attribute="birth_ymd"/>
+			<result-mapping column="SOLAR_YN" attribute="solar_yn"/>
+			<result-mapping column="HEIGHT" attribute="height"/>
+			<result-mapping column="WEIGHT" attribute="weight"/>
+			<result-mapping column="MARRIAGE_YMD" attribute="marriage_ymd"/>
+			<result-mapping column="REGION_CD" attribute="region_cd"/>
+			<result-mapping column="EMAIL" attribute="email"/>
+			<result-mapping column="HOME_ADDRESS" attribute="home_address"/>
+			<result-mapping column="COMP_ZIP_CD" attribute="comp_zip_cd"/>
+			<result-mapping column="COMP_ADDRESS" attribute="comp_address"/>
+			<result-mapping column="OFFICE_TEL_NO" attribute="office_tel_no"/>
+			<result-mapping column="HOME_TEL_NO" attribute="home_tel_no"/>
+			<result-mapping column="MOBILE_NO" attribute="mobile_no"/>
+			<result-mapping column="STATUS" attribute="status"/>
+			<result-mapping column="LAST_LOCALE" attribute="last_locale"/>
+			<result-mapping column="SYS_GBN" attribute="sys_gbn"/>
+			<result-mapping column="REG_DT" attribute="reg_dt"/>
+			<result-mapping column="MNA_MNG_YN" attribute="mna_mng_yn"/>
+			<result-mapping column="AREA_NM" attribute="area_nm"/>
+			<result-mapping column="USER_LEVEL" attribute="user_level"/>
+			<result-mapping column="REGION_NM" attribute="region_nm"/>
+			<result-mapping column="REGION_NM_ENG" attribute="region_nm_eng"/>
+			<result-mapping column="EMPLOYEE_TYPE" attribute="employee_type"/>
+			<result-mapping column="EMAIL_RCV_YN" attribute="email_rcv_yn"/>
+			<result-mapping column="DUTY_APBTMAN_ID" attribute="duty_apbtman_id"/>
+			<result-mapping column="BLNGT_ORGNZ" attribute="blngt_orgnz"/>
+			<result-mapping column="AUTH_APNT_YN" attribute="auth_apnt_yn"/>
+			<result-mapping column="USER_SRT" attribute="user_srt"/>
+			<result-mapping column="GTHR_CNST_YN" attribute="gthr_cnst_yn"/>
+			<result-mapping column="GTHR_CNST_DT" attribute="gthr_cnst_dt"/>
+			<result-mapping column="RESP_OPERDIV" attribute="resp_operdiv"/>
+			<result-mapping column="AUTH_APNT_DEPT" attribute="auth_apnt_dept"/>
+			<result-mapping column="AUTO_RNEW_YN" attribute="auto_rnew_yn"/>
+			<result-mapping column="DEPT_NM_ENG" attribute="dept_nm_eng"/>
+			<result-mapping column="USER_REAL_NM" attribute="user_real_nm"/>
+			<result-mapping column="USER_REAL_NM_ENG" attribute="user_real_nm_eng"/>
+			<result-mapping column="SEC_REVIEWER_TYPE" attribute="sec_reviewer_type"/>
+    </result>
+		</query>	
+		
+		<!-- TB_COM_USER UPDATE -->
+    <query id="secfw.user.TB_COM_USER.update" isCamelCase="false" isDynamic="true">
+      <statement>
+        UPDATE  TB_COM_USER 
+        SET     
+                SINGLE_ID= :vo.single_id
+                #if (!$vo.abo_blood.equals("")) ,ABO_BLOOD= :vo.abo_blood #end
+								#if (!$vo.appoint_cd.equals("")) ,APPOINT_CD= :vo.appoint_cd #end
+								#if (!$vo.area_cd.equals("")) ,AREA_CD= :vo.area_cd #end
+								#if (!$vo.area_nm.equals("")) ,AREA_NM= :vo.area_nm #end
+								#if (!$vo.auth_apnt_dept.equals("")) ,AUTH_APNT_DEPT= :vo.auth_apnt_dept #end
+								#if (!$vo.auto_rnew_yn.equals("")) ,AUTO_RNEW_YN= :vo.auto_rnew_yn #end
+								#if (!$vo.bachelor_major_cd.equals("")) ,BACHELOR_MAJOR_CD= :vo.bachelor_major_cd #end
+								#if (!$vo.bachelor_major_nm.equals("")) ,BACHELOR_MAJOR_NM= :vo.bachelor_major_nm #end
+								#if (!$vo.bachelor_major_nm_eng.equals("")) ,BACHELOR_MAJOR_NM_ENG= :vo.bachelor_major_nm_eng #end
+								#if (!$vo.birth_ymd.equals("")) ,BIRTH_YMD= :vo.birth_ymd #end
+								#if (!$vo.blngt_orgnz.equals("")) ,BLNGT_ORGNZ= :vo.blngt_orgnz #end
+								#if (!$vo.business_cd.equals("")) ,BUSINESS_CD= :vo.business_cd #end
+								#if (!$vo.business_nm.equals("")) ,BUSINESS_NM= :vo.business_nm #end
+								#if (!$vo.business_nm_eng.equals("")) ,BUSINESS_NM_ENG= :vo.business_nm_eng #end
+								#if (!$vo.change_dept_ymd.equals("")) ,CHANGE_DEPT_YMD= :vo.change_dept_ymd #end
+								#if (!$vo.chinese_nm.equals("")) ,CHINESE_NM= :vo.chinese_nm #end
+								#if (!$vo.comp_address.equals("")) ,COMP_ADDRESS= :vo.comp_address #end
+								#if (!$vo.comp_cd.equals("")) ,COMP_CD= :vo.comp_cd #end
+								#if (!$vo.comp_nm.equals("")) ,COMP_NM= :vo.comp_nm #end
+								#if (!$vo.comp_nm_eng.equals("")) ,COMP_NM_ENG= :vo.comp_nm_eng #end
+								#if (!$vo.comp_zip_cd.equals("")) ,COMP_ZIP_CD= :vo.comp_zip_cd #end
+								#if (!$vo.dept_cd.equals("")) ,DEPT_CD= :vo.dept_cd #end
+								#if (!$vo.dept_nm.equals("")) ,DEPT_NM= :vo.dept_nm #end
+								#if (!$vo.dept_nm_eng.equals("")) ,DEPT_NM_ENG= :vo.dept_nm_eng #end
+								#if (!$vo.division_cd.equals("")) ,DIVISION_CD= :vo.division_cd #end
+								#if (!$vo.division_nm.equals("")) ,DIVISION_NM= :vo.division_nm #end
+								#if (!$vo.division_nm_eng.equals("")) ,DIVISION_NM_ENG= :vo.division_nm_eng #end
+								#if (!$vo.duty_apbtman_id.equals("")) ,DUTY_APBTMAN_ID= :vo.duty_apbtman_id #end
+								#if (!$vo.email.equals("")) ,EMAIL= :vo.email #end
+								#if (!$vo.email_rcv_yn.equals("")) ,EMAIL_RCV_YN= :vo.email_rcv_yn #end
+								#if (!$vo.employee_type.equals("")) ,EMPLOYEE_TYPE= :vo.employee_type #end
+								#if (!$vo.emp_no.equals("")) ,EMP_NO= :vo.emp_no #end
+								#if (!$vo.graduate_school_cd.equals("")) ,GRADUATE_SCHOOL_CD= :vo.graduate_school_cd #end
+								#if (!$vo.graduate_school_nm.equals("")) ,GRADUATE_SCHOOL_NM= :vo.graduate_school_nm #end
+								#if (!$vo.graduate_school_nm_eng.equals("")) ,GRADUATE_SCHOOL_NM_ENG= :vo.graduate_school_nm_eng #end
+								#if (!$vo.grp_jikgup_cd.equals("")) ,GRP_JIKGUP_CD= :vo.grp_jikgup_cd #end
+								#if (!$vo.grp_jikgup_nm.equals("")) ,GRP_JIKGUP_NM= :vo.grp_jikgup_nm #end
+								#if (!$vo.grp_jikgup_nm_eng.equals("")) ,GRP_JIKGUP_NM_ENG= :vo.grp_jikgup_nm_eng #end
+								#if (!$vo.grp_join_ymd.equals("")) ,GRP_JOIN_YMD= :vo.grp_join_ymd #end
+								#if (!$vo.gthr_cnst_dt.equals("")) ,GTHR_CNST_DT= :vo.gthr_cnst_dt #end
+								#if (!$vo.gthr_cnst_yn.equals("")) ,GTHR_CNST_YN= :vo.gthr_cnst_yn #end
+								#if (!$vo.height.equals("")) ,HEIGHT= :vo.height #end
+								#if (!$vo.hobby.equals("")) ,HOBBY= :vo.hobby #end
+								#if (!$vo.home_address.equals("")) ,HOME_ADDRESS= :vo.home_address #end
+								#if (!$vo.home_tel_no.equals("")) ,HOME_TEL_NO= :vo.home_tel_no #end
+								#if (!$vo.in_dept_cd.equals("")) ,IN_DEPT_CD= :vo.in_dept_cd #end
+								#if (!$vo.jikchek_cd.equals("")) ,JIKCHEK_CD= :vo.jikchek_cd #end
+								#if (!$vo.jikgun_cd.equals("")) ,JIKGUN_CD= :vo.jikgun_cd #end
+								#if (!$vo.jikgun_nm.equals("")) ,JIKGUN_NM= :vo.jikgun_nm #end
+								#if (!$vo.jikgun_nm_eng.equals("")) ,JIKGUN_NM_ENG= :vo.jikgun_nm_eng #end
+								#if (!$vo.jikgup_cd.equals("")) ,JIKGUP_CD= :vo.jikgup_cd #end
+								#if (!$vo.jikgup_nm.equals("")) ,JIKGUP_NM= :vo.jikgup_nm #end
+								#if (!$vo.jikgup_nm_eng.equals("")) ,JIKGUP_NM_ENG= :vo.jikgup_nm_eng #end
+								#if (!$vo.jikmu_cd.equals("")) ,JIKMU_CD= :vo.jikmu_cd #end
+								#if (!$vo.jikmu_nm.equals("")) ,JIKMU_NM= :vo.jikmu_nm #end
+								#if (!$vo.jikmu_nm_eng.equals("")) ,JIKMU_NM_ENG= :vo.jikmu_nm_eng #end
+								#if (!$vo.join_level.equals("")) ,JOIN_LEVEL= :vo.join_level #end
+								#if (!$vo.join_term.equals("")) ,JOIN_TERM= :vo.join_term #end
+								#if (!$vo.join_ymd.equals("")) ,JOIN_YMD= :vo.join_ymd #end
+								#if (!$vo.last_locale.equals("")) ,LAST_LOCALE= :vo.last_locale #end
+								#if (!$vo.marriage_ymd.equals("")) ,MARRIAGE_YMD= :vo.marriage_ymd #end
+								#if (!$vo.master_major_cd.equals("")) ,MASTER_MAJOR_CD= :vo.master_major_cd #end
+								#if (!$vo.master_major_nm.equals("")) ,MASTER_MAJOR_NM= :vo.master_major_nm #end
+								#if (!$vo.master_major_nm_eng.equals("")) ,MASTER_MAJOR_NM_ENG= :vo.master_major_nm_eng #end
+								#if (!$vo.military.equals("")) ,MILITARY= :vo.military #end
+								#if (!$vo.mna_mng_yn.equals("")) ,MNA_MNG_YN= :vo.mna_mng_yn #end
+								#if (!$vo.mobile_no.equals("")) ,MOBILE_NO= :vo.mobile_no #end
+								#if (!$vo.next_promotion_ym.equals("")) ,NEXT_PROMOTION_YM= :vo.next_promotion_ym #end
+								#if (!$vo.next_raise_ym.equals("")) ,NEXT_RAISE_YM= :vo.next_raise_ym #end
+								#if (!$vo.office_tel_no.equals("")) ,OFFICE_TEL_NO= :vo.office_tel_no #end
+								#if (!$vo.origin_dept_cd.equals("")) ,ORIGIN_DEPT_CD= :vo.origin_dept_cd #end
+								#if (!$vo.origin_dept_nm.equals("")) ,ORIGIN_DEPT_NM= :vo.origin_dept_nm #end
+								#if (!$vo.promotion_ymd.equals("")) ,PROMOTION_YMD= :vo.promotion_ymd #end
+								#if (!$vo.raise_ymd.equals("")) ,RAISE_YMD= :vo.raise_ymd #end
+								#if (!$vo.region_cd.equals("")) ,REGION_CD= :vo.region_cd #end
+								#if (!$vo.region_nm.equals("")) ,REGION_NM= :vo.region_nm #end
+								#if (!$vo.region_nm_eng.equals("")) ,REGION_NM_ENG= :vo.region_nm_eng #end
+								#if (!$vo.reg_dt.equals("")) ,REG_DT= :vo.reg_dt #end
+								#if (!$vo.reinstatment_ymd.equals("")) ,REINSTATMENT_YMD= :vo.reinstatment_ymd #end
+								#if (!$vo.resp_operdiv.equals("")) ,RESP_OPERDIV= :vo.resp_operdiv #end
+								#if (!$vo.res_no.equals("")) ,RES_NO= :vo.res_no #end
+								#if (!$vo.retirement_ymd.equals("")) ,RETIREMENT_YMD= :vo.retirement_ymd #end
+								#if (!$vo.rh_blood.equals("")) ,RH_BLOOD= :vo.rh_blood #end
+								#if (!$vo.schooling_cd.equals("")) ,SCHOOLING_CD= :vo.schooling_cd #end
+								#if (!$vo.sec_reviewer_type.equals("")) ,SEC_REVIEWER_TYPE= :vo.sec_reviewer_type #end
+								#if (!$vo.sex_cd.equals("")) ,SEX_CD= :vo.sex_cd #end
+								#if (!$vo.single_epid.equals("")) ,SINGLE_EPID= :vo.single_epid #end
+								#if (!$vo.solar_yn.equals("")) ,SOLAR_YN= :vo.solar_yn #end
+								#if (!$vo.status.equals("")) ,STATUS= :vo.status #end
+								#if (!$vo.suspension_ymd.equals("")) ,SUSPENSION_YMD= :vo.suspension_ymd #end
+								#if (!$vo.sys_gbn.equals("")) ,SYS_GBN= :vo.sys_gbn #end
+								#if (!$vo.univ_cd.equals("")) ,UNIV_CD= :vo.univ_cd #end
+								#if (!$vo.univ_nm.equals("")) ,UNIV_NM= :vo.univ_nm #end
+								#if (!$vo.univ_nm_eng.equals("")) ,UNIV_NM_ENG= :vo.univ_nm_eng #end
+								#if (!$vo.user_id.equals("")) ,USER_ID= :vo.user_id #end
+								#if (!$vo.user_level.equals("")) ,USER_LEVEL= :vo.user_level #end
+								#if (!$vo.user_nm.equals("")) ,USER_NM= :vo.user_real_nm_eng #end
+								#if (!$vo.user_nm_eng.equals("")) ,USER_NM_ENG= :vo.user_real_nm_eng #end
+								#if (!$vo.user_real_nm.equals("")) ,USER_REAL_NM= :vo.user_real_nm #end
+								#if (!$vo.user_real_nm_eng.equals("")) ,USER_REAL_NM_ENG= :vo.user_real_nm_eng #end
+								#if (!$vo.user_srt.equals("")) ,USER_SRT= :vo.user_srt #end
+								#if (!$vo.weight.equals("")) ,WEIGHT= :vo.weight #end
+        WHERE   USER_ID = :vo.user_id 
+      </statement>
+    </query>
+    
+    <!-- 승인여부 리스트  -->		
+	<query id="secfw.useraccess.list" isCamelCase="false">
+		<statement>
+		<![CDATA[
+			SELECT 
+						 A.USER_ID
+						,A.SINGLE_ID 		
+						,A.USER_NM
+						,A.DEPT_NM	
+						,A.EMAIL
+						,A.COMP_CD
+						,A.ACCESS_YN
+					   , A.USER_NM+'('+A.JIKGUP_NM+')'+'/'+A.DEPT_NM+'/'+A.COMP_NM AS USER_INFO
+			FROM 
+						TB_COM_USER A
+			WHERE 
+						A.DEPT_CD = :vo.session_dept_cd
+			
+						 #if ($vo.srch_cntnt_type.equals("user_nm") && !$vo.srch_cntnt.equals(""))
+						  	 AND A.USER_NM LIKE :vo.srch_cntnt +'%'
+						 #end				 
+						  
+						 #if ($vo.srch_cntnt_type.equals("single_id"))
+						  	 AND A.SINGLE_ID LIKE :vo.srch_cntnt +'%'
+						 #end 
+						 
+						 #if ($vo.srch_cntnt_type.equals("dept_nm"))
+						  	 AND A.DEPT_NM LIKE :vo.srch_cntnt +'%'
+						 #end				  
+						  
+						#if (!$vo.srch_access_yn.equals("%"))
+							AND A.ACCESS_YN  = :vo.srch_access_yn							
+						#end
+						ORDER BY A.USER_NM		
+		]]>
+		</statement>
+	</query>
+	
+	<!-- 승인여부 업데이트  -->		
+	<query id="secfw.useraccess.update" isCamelCase="false">
+		<statement>
+		<![CDATA[
+			UPDATE	TB_COM_USER
+				SET ACCESS_YN = :vo.access_yn
+					, COMP_CD = :vo.loc_gbn
+					, COMP_NM = :vo.comp_nm
+					, COMP_NM_ENG = :vo.comp_nm						
+			WHERE USER_ID = :vo.user_id
+		]]>
+		</statement>
+	</query>
+	
+	<!-- 사용자정보 입력 -->
+		<query id="secfw.usermng.user.insertNew">
+			<statement>
+			<![CDATA[
+				INSERT INTO TB_COM_USER (
+						USER_ID                                     -- 사용자아이디    
+						,RES_NO                                     -- 주민번호        
+						,EMP_NO                                     -- 사번            
+						,USER_NM                                    -- 성명                 
+						,USER_REAL_NM                               -- 실제성명        
+						,USER_NM_ENG                                -- 영문성명            
+						,USER_REAL_NM_ENG                           -- 실제영문성명     
+						,SINGLE_ID                                  -- 싱글아이디      
+						,SINGLE_EPID                                -- 싱글EPID        
+						,COMP_CD                                    -- 회사코드        
+						,COMP_NM                                    -- 회사명          
+						,COMP_NM_ENG                                -- 회사영문명      
+						,BUSINESS_CD                                -- 총괄코드        
+						,BUSINESS_NM                                -- 총괄명          
+						,BUSINESS_NM_ENG                            -- 총괄영문명      
+						,DIVISION_CD                                -- 사업장코드      
+						,DIVISION_NM                                -- 사업장명        
+						,DEPT_CD                                    -- 부서코드        
+						,IN_DEPT_CD                                 -- 내부부서코드    
+						,DEPT_NM                                    -- 부서명          
+						,DEPT_NM_ENG                                -- 부서영문명          
+						,JIKGUP_CD                                  -- 직급코드        
+						,JIKGUP_NM                                  -- 직급명          
+						,JIKGUP_NM_ENG                              -- 직급영문명      
+						,JIKMU_CD                                   -- 직무코드        
+						,JIKMU_NM                                   -- 직무명          
+						,REGION_CD                                  -- 지역코드        
+						,REGION_NM                                  -- 지역명          
+						,REGION_NM_ENG                              -- 영문지역명      
+						,EMAIL                                      -- 이메일          
+						,OFFICE_TEL_NO                              -- 회사전화번호    
+						,HOME_TEL_NO                                -- 집전화번호      
+						,MOBILE_NO                                  -- 핸드폰번호      
+						,STATUS                                     -- 재직상태        
+						,EMPLOYEE_TYPE                              -- 사용자타입      
+						,USER_LEVEL                                 -- 보안레벨   
+						,SYS_GBN                                    -- 시스템구분
+						,BLNGT_ORGNZ                                -- (국내/국외/IP)
+						,REG_DT
+						,MNA_MNG_YN									-- 메뉴얼관리여부
+						,USER_SRT 
+						,GTHR_CNST_YN								-- 수집동의여부
+						,AUTO_RNEW_YN								-- 자동갱신여부
+						,ACCESS_YN									-- 승인여부
+	                  ) VALUES (
+                        :user_id                                    -- 사용자아이디       
+                        ,:res_no                                    -- 주민번호           
+                        ,:emp_no                                    -- 사번               
+                        ,:user_nm_eng                                   -- 성명       
+                        ,:user_nm_eng                              -- 실제성명        
+                        ,:user_nm_eng                               -- 영문성명           
+                        ,:user_nm_eng                          -- 실제영문성명
+                        ,:single_id                                 -- 싱글아이디         
+                        ,:single_epid                               -- 싱글EPID           
+                        ,:loc_gbn                                   -- 회사코드           
+                        ,:comp_nm -- 회사명             
+                        ,:comp_nm -- 회사영문명         
+                        ,:business_cd                               -- 총괄코드           
+                        ,:business_nm                               -- 총괄명             
+                        ,:business_nm_eng                           -- 총괄영문명         
+                        ,:division_cd                               -- 사업장코드         
+                        ,:division_nm                               -- 사업장명           
+                        ,:dept_cd                                   -- 부서코드           
+                        ,:in_dept_cd                                -- 내부부서코드       
+                        ,:dept_nm                                   -- 부서명             
+                        ,:dept_nm_eng                               -- 부서영문명             
+                        ,:jikgup_cd                                 -- 직급코드           
+                        ,:jikgup_nm                                 -- 직급명             
+                        ,:jikgup_nm_eng                             -- 직급영문명         
+                        ,:jikmu_cd                                  -- 직무코드           
+                        ,:jikmu_nm                                  -- 직무명             
+                        ,:region_cd                                 -- 지역코드           
+                        ,:region_nm                                 -- 지역명             
+                        ,:region_nm_eng                             -- 영문지역명         
+                        ,:email                                     -- 이메일             
+                        ,:office_tel_no                             -- 회사전화번호       
+                        ,:home_tel_no                               -- 집전화번호         
+                        ,:mobile_no                                 -- 핸드폰번호         
+                        ,:status                                    -- 재직상태           
+                        ,:employee_type                             -- 사용자타입         
+                        ,:user_level                                -- 보안레벨
+                        ,:sys_gbn                                   -- 시스템구분
+                        ,'A00000001'
+                        ,GETDATE()  
+                        ,'N' 
+                        ,9999   
+                        ,'N'
+                        ,'Y'										-- 자동갱신여부
+                        ,'P'										-- 승인여부						
+                      ) 
+			]]>
+			</statement>
+		</query>
+    									
+	</queries>
+</queryservice>

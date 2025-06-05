@@ -1,0 +1,1057 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+<queryservice>
+    <queries>
+    
+<query id="clm.sign.list" isCamelCase="false">
+  <statement>
+    <![CDATA[    
+          
+    	     SELECT *
+              FROM ( SELECT rownum RN, t.*, COUNT(1) over() TOTAL_CNT
+                     FROM (
+
+    			SELECT
+							A.COMP_CD,
+							A.COMP_NM,
+							A.APL_YM,
+							A.APL_SQN,
+							A.APL_CLS,
+							A.TITLE,
+							A.SBM,
+							A.USE_SUMM,
+							A.TXT,
+							A.SEAL_KND_CD,
+							A.SEAL_YN,
+							A.APL_OUT_YN,
+							
+							CASE WHEN APL_OUT_YN = 'Y' AND :vo.session_user_locale = 'ko'  THEN '인장반출'
+                   				 	WHEN APL_OUT_YN = 'Y' AND :vo.session_user_locale = 'en'  THEN 'Seal Consignment'
+                   				 	WHEN APL_OUT_YN = 'Y' AND :vo.session_user_locale = 'fr'  THEN 'Seal Consignment'
+                   				 	WHEN APL_OUT_YN = 'Y' AND :vo.session_user_locale = 'de'  THEN 'Seal Consignment'
+                            ELSE
+                      			 ''
+                            END AS APL_OUT_NM, 
+							
+							A.APL_SEAL_NO,
+							A.PRC_SEAL_NO,
+							A.APL_YMD_FROM,
+							TO_CHAR(TO_DATE(A.APL_YMD_FROM, 'YYYY-MM-DD'),'YYYY-MM-DD') AS APL_YMD_FROM_TXT,	
+							A.APL_YMD_TO,
+							TO_CHAR(TO_DATE(A.APL_YMD_TO, 'YYYY-MM-DD'),'YYYY-MM-DD') AS APL_YMD_TO_TXT,	
+							A.PRC_YMD_FROM,
+							A.PRC_YMD_TO,
+							
+							SUBSTRING(A.PRC_YMD_FROM,0,4) + '-' + SUBSTRING(A.PRC_YMD_FROM,5,2) + '-' +SUBSTRING(A.PRC_YMD_FROM,7,2) AS PRC_YMD_FROM_TXT,
+                       		SUBSTRING(A.PRC_YMD_TO,0,4) + '-' + SUBSTRING(A.PRC_YMD_TO,5,2) + '-' +SUBSTRING(A.PRC_YMD_TO,7,2) AS PRC_YMD_TO_TXT,
+							
+							A.RTN_SEAL_NO,
+							A.RTN_YN,
+							A.RTN_YMD,
+							TO_CHAR(TO_DATE(A.RTN_YMD, 'YYYY-MM-DD'),'YYYY-MM-DD') AS RTN_YMD_TXT,	
+							A.DOC_YN,
+
+							A.SEAL_RQSTMAN_ID,
+							A.SEAL_RQSTMAN_NM,
+							A.SEAL_RQSTMAN_JIKGUP_NM,
+							A.SEAL_RQST_DEPT_NM,
+							
+							A.SEAL_RQSTMAN_NM  + '/' + A.SEAL_RQSTMAN_JIKGUP_NM + '/' + A.SEAL_RQST_DEPT_NM AS SEAL_RQSTMAN_TXT,
+							
+							A.SEAL_RQST_STATUS,
+							A.SEAL_RQSTDAY,
+							TO_CHAR(TO_DATE(A.SEAL_RQSTDAY, 'YYYY-MM-DD'),'YYYY-MM-DD') AS SEAL_RQSTDAY_TXT,	
+							A.SEAL_FFMTMAN_ID,
+							A.SEAL_FFMTMAN_NM,
+							A.SEAL_FFMTMAN_JIKGUP_NM,
+							A.SEAL_FFMT_DEPT_NM,
+							A.SEAL_FFMT_STATUS,
+							A.SEAL_FFMTDAY,
+							TO_CHAR(TO_DATE(A.SEAL_FFMTDAY, 'YYYY-MM-DD'),'YYYY-MM-DD') AS SEAL_FFMTDAY_TXT,	
+							A.SEAL_RTNMAN_ID,
+							A.SEAL_RTNMAN_NM,
+							A.SEAL_RTNMAN_JIKGUP_NM,
+							A.SEAL_RTNMAN_DEPT_NM,						
+
+							A.DOC_ISSUER_ID,
+							A.DOC_ISSUER_NM,
+							A.DOC_ISSUER_JIKGUP_NM,
+							A.DOC_ISSUER_DEPT_NM,
+							A.DOC_ISSUE_STATUS,
+							A.DOC_ISSUEDAY,
+							TO_CHAR(TO_DATE(A.DOC_ISSUEDAY, 'YYYY-MM-DD'),'YYYY-MM-DD') AS DOC_ISSUEDAY_TXT,	
+							A.REF_KEY,
+							A.CNSDREQ_ID,
+							A.CNTRT_ID,
+							A.REG_DT,
+							A.REG_ID,
+							A.REG_NM,
+							
+							CASE WHEN :vo.session_user_locale = 'ko' THEN 
+                   				 B.CD_NM
+                            WHEN :vo.session_user_locale = 'fr' THEN 
+                   				 B.CD_NM_FRA
+                   			WHEN :vo.session_user_locale = 'de' THEN 
+                   				 B.CD_NM_DEU
+                            ELSE
+                      			 B.CD_NM_ENG
+                            END AS SEAL_KND_NM,
+                            
+                            CASE WHEN :vo.session_user_locale = 'ko' THEN 
+                   				 C.CD_NM
+                   			WHEN :vo.session_user_locale = 'fr' THEN 
+                   				 C.CD_NM_FRA
+                   			WHEN :vo.session_user_locale = 'de' THEN 
+                   				 C.CD_NM_DEU
+                            ELSE
+                      			 C.CD_NM_ENG
+                            END AS SEAL_FFMT_STATUS_NM,
+                            
+                            CASE WHEN :vo.session_user_locale = 'ko' THEN 
+                   				 D.CD_NM 
+                   			WHEN :vo.session_user_locale = 'fr' THEN 
+                   				 D.CD_NM_FRA
+                   			WHEN :vo.session_user_locale = 'de' THEN 
+                   				 D.CD_NM_DEU
+                            ELSE 
+                      			 D.CD_NM_ENG
+                            END AS APL_CLS_NM,
+                            
+                            CASE WHEN :vo.session_user_locale = 'ko' THEN 
+                   				 E.CD_NM 
+                   			WHEN :vo.session_user_locale = 'fr' THEN 
+                   				 E.CD_NM_FRA
+                   			WHEN :vo.session_user_locale = 'de' THEN 
+                   				 E.CD_NM_DEU
+                            ELSE 
+                      			 E.CD_NM_ENG 
+                            END AS SEAL_RQST_STATUS_NM,
+                            
+                            CASE WHEN :vo.session_user_locale = 'ko' THEN 
+                   				 G.CD_NM 
+                   			WHEN :vo.session_user_locale = 'fr' THEN 
+                   				 G.CD_NM_FRA
+                   			WHEN :vo.session_user_locale = 'de' THEN 
+                   				 G.CD_NM_DEU
+                            ELSE 
+                      			 G.CD_NM_ENG 
+                            END AS DOC_ISSUE_STATUS_NM,
+                            
+                            CASE WHEN (DOC1 + DOC2 + DOC3 + DOC4 + DOC5 + DOC6) > 0 THEN 'YES'
+                            ELSE 'NO' 
+                            END AS DOC_YN_NM ,
+                            
+                           CASE WHEN TRIM(A.SEAL_YN) = 'Y' THEN 
+                   				A.SEAL_FFMTMAN_NM  + '/' + A.SEAL_FFMTMAN_JIKGUP_NM + '/' + A.SEAL_FFMT_DEPT_NM
+                            ELSE 
+                      			 '-'
+                        	END AS SEAL_FFMTMAN_TXT,
+                        
+	                        CASE WHEN A.DOC_YN = 'Y' THEN 
+	                   				A.DOC_ISSUER_NM  + '/' + A.DOC_ISSUER_JIKGUP_NM + '/' + A.DOC_ISSUER_DEPT_NM
+	                            ELSE 
+	                      			 '-'
+	                         END AS DOC_ISSUER_TXT
+        		
+        		FROM 	TN_CLM_PRTB_SD_APL A
+        					 ,(SELECT CD, CD_NM,CD_NM_ENG AS  FROM TB_COM_CD WHERE GRP_CD = 'C021' ) B
+        					 ,(SELECT CD, CD_NM,CD_NM_ENG AS  FROM TB_COM_CD WHERE GRP_CD = 'SL01' ) C
+        					 ,(SELECT CD, CD_NM,CD_NM_ENG AS  FROM TB_COM_CD WHERE GRP_CD = 'AT01' ) D
+        					 ,(SELECT CD, CD_NM,CD_NM_ENG AS  FROM TB_COM_CD WHERE GRP_CD = 'AP01' ) E
+        					 ,(SELECT CD, CD_NM,CD_NM_ENG AS  FROM TB_COM_CD WHERE GRP_CD = 'DC01' ) G
+        		
+        		WHERE   A.DEL_YN = 'N'
+   				           #if(!$vo.session_auth_comp_cd.equals(""))
+						       
+						       #if($vo.sRb.equals("Y") && !$vo.sRb.equals(""))
+						         
+						       #else
+						          AND A.COMP_CD IN ($vo.session_auth_comp_cd)
+						       #end
+						   #end 
+        					AND A.SEAL_KND_CD = B.CD(+)          					
+        					AND A.SEAL_FFMT_STATUS = C.CD(+) 
+        					AND A.APL_CLS = D.CD(+) 
+        					AND A.SEAL_RQST_STATUS = E.CD(+) 
+        					AND A.DOC_ISSUE_STATUS = G.CD(+) 
+        		
+        				#if ($vo.srch_apl_y.equals(""))
+        						AND A.SEAL_RQSTDAY > (SELECT TO_CHAR(SYSDATE - 30,'YYYYMMDD') AS DAY_TEST )
+        				#end       
+        				
+        				#if (!$vo.srch_apl_y.equals("")) 				
+        					#if (!$vo.srch_apl_m.equals(""))        				
+       							AND SUBSTRING(A.APL_YM,0,6) = :vo.srch_apl_y  +  :vo.srch_apl_m
+       						#else       							
+       							AND SUBSTRING(A.APL_YM,0,4)  = :vo.srch_apl_y
+        					#end						
+						#end 
+						
+						#if (!$vo.srch_seal_rqst_status.equals(""))
+						     AND A.SEAL_RQST_STATUS = :vo.srch_seal_rqst_status  	 
+						#end 
+						
+						#if (!$vo.srch_seal_knd_cd.equals(""))
+						     AND A.SEAL_KND_CD = :vo.srch_seal_knd_cd  	 
+						#end 
+						
+						#if (!$vo.srch_seal_ffmt_status.equals(""))
+						     AND A.SEAL_FFMT_STATUS = :vo.srch_seal_ffmt_status  	 
+						#end 
+						
+						#if (!$vo.srch_title.equals(""))
+						     AND A.TITLE  LIKE '%' + :vo.srch_title + '%'	 
+						#end 
+						
+						#if (!$vo.srch_apl_cls.equals(""))
+						     AND A.APL_CLS = :vo.srch_apl_cls  	 
+						#end 
+						
+						#if (!$vo.srch_doc_no.equals(""))						     
+						     #if ($vo.srch_doc_no.equals("DC0201"))
+						    	AND A.DOC1 > 0   	 
+							#end 	
+							#if ($vo.srch_doc_no.equals("DC0202"))
+						    	AND A.DOC2 > 0   	 
+							#end 
+						     #if ($vo.srch_doc_no.equals("DC0203"))
+						    	AND A.DOC3 > 0   	 
+							#end 	
+							#if ($vo.srch_doc_no.equals("DC0204"))
+						    	AND A.DOC4 > 0   	 
+							#end 	
+							#if ($vo.srch_doc_no.equals("DC0205"))
+						    	AND A.DOC5 > 0   	 
+							#end 	
+							#if ($vo.srch_doc_no.equals("DC0206"))
+						    	AND A.DOC6 > 0   	 
+							#end 	
+							#if ($vo.srch_doc_no.equals("DC0207"))
+						    	AND A.DOC7 > 0   	 
+							#end 							
+						#end 
+						
+						#if (!$vo.srch_doc_issue_status.equals(""))
+						     AND A.DOC_ISSUE_STATUS = :vo.srch_doc_issue_status
+						     AND A.DOC_YN = 'Y' 
+						#end 
+						
+						#if (!$vo.srch_sbm.equals(""))
+						     AND A.SBM LIKE '%' + :vo.srch_sbm + '%' 
+						#end 
+						
+						#if (!$vo.srch_seal_rqstman_nm.equals(""))
+						     AND 'Y' = CASE WHEN UPPER(A.SEAL_RQSTMAN_NM)  LIKE '%' + UPPER( :vo.srch_seal_rqstman_nm ) + '%' THEN 'Y'
+							          		WHEN
+								           		NVL((SELECT CASE WHEN UPPER(USER_NM) LIKE '%' + UPPER( :vo.srch_seal_rqstman_nm ) + '%' THEN 'Y'
+													  WHEN UPPER(USER_NM_ENG) LIKE '%' + UPPER( :vo.srch_seal_rqstman_nm ) + '%' THEN 'Y'
+													  ELSE 'N' END
+												    FROM TB_COM_USER WHERE USER_ID = A.SEAL_RQSTMAN_ID),'N') = 'Y' THEN 'Y'
+											ELSE 'N' END			
+						#end 
+
+						#if (!$vo.srch_seal_ffmtman_nm.equals(""))
+						     AND 'Y' = CASE WHEN UPPER(A.SEAL_FFMTMAN_NM)  LIKE '%' + UPPER( :vo.srch_seal_ffmtman_nm ) + '%' THEN 'Y'
+							          		WHEN
+								           		NVL((SELECT CASE WHEN UPPER(USER_NM) LIKE '%' + UPPER( :vo.srch_seal_ffmtman_nm ) + '%' THEN 'Y'
+													  WHEN UPPER(USER_NM_ENG) LIKE '%' + UPPER( :vo.srch_seal_ffmtman_nm ) + '%' THEN 'Y'
+													  ELSE 'N' END
+												    FROM TB_COM_USER WHERE USER_ID = A.SEAL_FFMTMAN_ID),'N') = 'Y' THEN 'Y'
+											ELSE 'N' END
+						#end 
+						
+						#if (!$vo.srch_seal_ffmtday_start.equals(""))
+							AND	( A.DOC_ISSUEDAY = :vo.srch_seal_ffmtday_start OR A.SEAL_FFMTDAY = :vo.srch_seal_ffmtday_start )
+	                    #end
+                	                    						
+						/* 처리목록 용 검색조건 */		
+						#if (!$vo.srch_apl_seal_no.equals(""))
+						     AND A.APL_SEAL_NO LIKE :vo.srch_apl_seal_no + '%' 
+						#end
+										
+						#if (!$vo.srch_seal_ffmtman_id.equals(""))
+						     AND ( A.SEAL_FFMTMAN_ID = :vo.srch_seal_ffmtman_id  OR A.DOC_ISSUER_ID = :vo.srch_seal_ffmtman_id  )
+						#end  
+						
+						/* 인장 반출내역 검색조건 */
+						#if (!$vo.srch_apl_out_yn.equals(""))
+						     AND A.APL_OUT_YN = :vo.srch_apl_out_yn 
+						#end						
+						
+						/* 반출인장번호 검색조건 */
+						#if (!$vo.srch_prc_seal_no.equals(""))
+						     AND A.RTN_SEAL_NO LIKE  '%' + :vo.srch_prc_seal_no + '%' 
+						#end
+								
+						#if (!$vo.srch_rtn_yn.equals(""))
+						     AND A.RTN_YN = :vo.srch_rtn_yn  	 
+						#end
+						
+						/* 인장 처리 반출일 */		
+						#if (!$vo.srch_prc_ymd_start.equals(""))
+							--AND	TO_DATE(:vo.srch_prc_ymd_start) >= TO_DATE(A.PRC_YMD_FROM)
+							--AND	TO_DATE(:vo.srch_prc_ymd_start) <= TO_DATE(A.PRC_YMD_TO) + 1
+							AND	TO_DATE(:vo.srch_prc_ymd_start , 'YYYYMMDD' ) >= TO_DATE(A.PRC_YMD_FROM , 'YYYYMMDD' )
+							AND	TO_DATE(:vo.srch_prc_ymd_start , 'YYYYMMDD' ) <= TO_DATE(A.PRC_YMD_TO , 'YYYYMMDD' ) + 1							
+	                    #end
+	                    
+	                    /* 인장 반납일 */		
+	                    #if (!$vo.srch_rtn_ymd_start.equals(""))
+							AND	TO_DATE(A.RTN_YMD , 'YYYYMMDD' ) >= TO_DATE(:vo.srch_rtn_ymd_start , 'YYYYMMDD' )
+	                    #end
+	                    
+	                    #if (!$vo.srch_rtn_ymd_end.equals(""))
+							AND	TO_DATE(A.RTN_YMD , 'YYYYMMDD' ) <= TO_DATE(:vo.srch_rtn_ymd_end , 'YYYYMMDD' ) + 1
+	                    #end 
+	                    
+	                    #if (!$vo.srch_seal_rqstman_id.equals(""))
+	                           #if($vo.sRb.equals("Y") && !$vo.sRb.equals(""))
+						         
+						       #else
+						          AND A.SEAL_RQSTMAN_ID = :vo.srch_seal_rqstman_id
+						       #end	
+	                    #end 
+	                    
+	                    #if ($vo.forwardFrom.equals("MAIN"))
+	                     	AND ( A.SEAL_FFMTMAN_ID = :vo.srch_seal_ffmtman_id  OR A.DOC_ISSUER_ID = :vo.srch_seal_ffmtman_id  )
+							AND ( A.SEAL_FFMT_STATUS = 'SL0101' OR A.SEAL_FFMT_STATUS = 'SL0102' OR A.DOC_ISSUE_STATUS = 'DC0101')
+							AND  A.SEAL_RQST_STATUS = 'AP0103' 
+	                    #end 
+          			
+          			ORDER BY SEAL_RQSTDAY DESC             		
+           				
+           			 ) t
+            		ORDER BY RN              		
+            		)
+          				#if($vo.goExcel.equals("N"))           		
+			           		WHERE RN between :vo.start_index and :vo.end_index             
+			            #end  
+          
+           
+    ]]>
+  </statement>
+</query>
+
+<query id="clm.sign.getseq" isCamelCase="false">
+  <statement>
+    <![CDATA[
+
+	SELECT NVL(MAX(APL_SQN),0) + 1 AS SSEQ FROM TN_CLM_PRTB_SD_APL
+
+    ]]>
+  </statement>
+</query>
+
+
+<query id="clm.sign.insert" isCamelCase="false">
+  <statement>
+    <![CDATA[
+  
+   INSERT INTO TN_CLM_PRTB_SD_APL (
+                                 COMP_CD
+                                ,APL_YM
+                                ,APL_SQN
+                                ,REG_DT
+                                ,REG_ID
+                                ,DEL_YN
+                                
+	) VALUES (
+                                :vo.comp_cd 
+                                ,TO_CHAR(SYSDATE,'YYYYMM')
+                                ,:vo.apl_sqn
+                                ,SYSDATE
+                                ,:vo.seal_rqstman_id
+                                ,'N'                               
+	)
+        
+    ]]>
+  </statement>
+</query>
+
+<query id="clm.sign.aftermodify" isCamelCase="false">
+  <statement>
+    <![CDATA[
+         UPDATE TN_CLM_PRTB_SD_APL 
+          	SET 
+				APL_CLS            = :vo.apl_cls
+				,TITLE              = :vo.title
+				,SBM                = :vo.sbm
+				,TXT                = :vo.txt
+				,SEAL_KND_CD        = :vo.seal_knd_cd
+				,SEAL_YN            = :vo.seal_yn
+				,APL_OUT_YN         = :vo.apl_out_yn
+				,APL_SEAL_NO        = :vo.apl_seal_no
+				,APL_YMD_FROM       = :vo.apl_ymd_from
+				,APL_YMD_TO         = :vo.apl_ymd_to
+				,RTN_YN             = 'N'
+				,DOC_YN             = :vo.doc_yn
+				,DOC1               = :vo.doc1
+				,DOC2               = :vo.doc2
+				,DOC3               = :vo.doc3
+				,DOC4               = :vo.doc4
+				,DOC5               = :vo.doc5
+				,DOC6               = :vo.doc6
+				,DOC7               = :vo.doc7
+				,USE_SUMM           = :vo.use_summ
+				,SEAL_RQSTMAN_ID    = :vo.seal_rqstman_id
+				,SEAL_RQSTMAN_NM    = :vo.seal_rqstman_nm
+				,SEAL_RQSTMAN_JIKGUP_NM = :vo.seal_rqstman_jikgup_nm
+				,SEAL_RQST_DEPT_NM  = :vo.seal_rqst_dept_nm
+				,SEAL_RQST_STATUS   = 'AP0101'
+				,SEAL_RQSTDAY       = (SELECT TO_CHAR(SYSDATE,'YYYYMMDD') )
+				,SEAL_FFMTMAN_ID    = :vo.seal_ffmtman_id
+				,SEAL_FFMTMAN_NM    = :vo.seal_ffmtman_nm
+				,SEAL_FFMTMAN_JIKGUP_NM = :vo.seal_ffmtman_jikgup_nm
+				,SEAL_FFMT_DEPT_NM      = :vo.seal_ffmt_dept_nm
+				#if($vo.seal_yn.equals("Y"))
+             	  	,SEAL_FFMT_STATUS = 'SL0101'
+      			#else
+       		  		,SEAL_FFMT_STATUS = ''
+				#end
+				,DOC_ISSUER_ID = :vo.doc_issuer_id
+				,DOC_ISSUER_NM = :vo.doc_issuer_nm
+				,DOC_ISSUER_JIKGUP_NM = :vo.doc_issuer_jikgup_nm
+				,DOC_ISSUER_DEPT_NM = :vo.doc_issuer_dept_nm
+						 
+				#if($vo.doc_yn.equals("Y"))
+					,DOC_ISSUE_STATUS = 'DC0101'
+                #else
+                	,DOC_ISSUE_STATUS = ''
+                #end
+
+				,REF_KEY = '' /* REF_KEY */
+				,CNSDREQ_ID = '' /* 의뢰ID */
+				,CNTRT_ID = '' /* 계약ID */
+				,REG_NM = :vo.seal_rqstman_nm
+				,DOC_SCRTXT = :vo.doc_scrtxt
+          WHERE APL_SQN = :vo.apl_sqn
+    ]]>
+  </statement>
+</query>
+
+<query id="clm.sign.modify" isCamelCase="false">
+  <statement>
+    <![CDATA[
+         UPDATE TN_CLM_PRTB_SD_APL 
+          	SET 
+               APL_CLS = :vo.apl_cls
+              ,TITLE = :vo.title
+              ,SBM = :vo.sbm
+              ,TXT = :vo.txt
+              ,SEAL_KND_CD = :vo.seal_knd_cd
+              ,SEAL_YN = :vo.seal_yn
+              ,APL_OUT_YN = :vo.apl_out_yn
+              ,APL_SEAL_NO = :vo.apl_seal_no
+              ,APL_YMD_FROM = :vo.apl_ymd_from
+              ,APL_YMD_TO = :vo.apl_ymd_to             
+              ,DOC_YN = :vo.doc_yn
+              ,DOC1 = :vo.doc1
+              ,DOC2 = :vo.doc2
+              ,DOC3 = :vo.doc3
+              ,DOC4 = :vo.doc4  
+              ,DOC5 = :vo.doc5
+              ,DOC6 = :vo.doc6 
+              ,DOC7 = :vo.doc7 
+              ,USE_SUMM = :vo.use_summ           
+              ,SEAL_FFMTMAN_ID = :vo.seal_ffmtman_id
+              ,SEAL_FFMTMAN_NM = :vo.seal_ffmtman_nm
+              ,SEAL_FFMTMAN_JIKGUP_NM = :vo.seal_ffmtman_jikgup_nm
+              ,SEAL_FFMT_DEPT_NM = :vo.seal_ffmt_dept_nm
+              
+               #if ($vo.seal_yn.equals("Y"))
+				     ,SEAL_FFMT_STATUS = 'SL0101'
+				#else
+					 ,SEAL_FFMT_STATUS = ''
+				#end     
+              
+			  ,DOC_ISSUER_ID = :vo.doc_issuer_id 
+              ,DOC_ISSUER_NM = :vo.doc_issuer_nm
+              ,DOC_ISSUER_JIKGUP_NM = :vo.doc_issuer_jikgup_nm
+              ,DOC_ISSUER_DEPT_NM = :vo.doc_issuer_dept_nm
+              
+                #if ($vo.seal_yn.equals("Y"))
+				     ,DOC_ISSUE_STATUS = 'DC0101'
+				#else
+					 ,DOC_ISSUE_STATUS = ''
+				#end               
+              
+              ,MOD_DT = SYSDATE
+              ,MOD_ID =  :vo.session_user_id
+              ,MOD_NM =  :vo.session_user_nm
+              ,DOC_SCRTXT = :vo.doc_scrtxt
+              
+          WHERE APL_SQN = :vo.apl_sqn
+    ]]>
+  </statement>
+</query>
+
+<query id="clm.sign.detail" isCamelCase="false">
+  <statement>
+    <![CDATA[			
+			SELECT   
+					    A.COMP_CD
+                        ,A.COMP_NM
+                        ,A.APL_YM
+                        ,A.APL_SQN
+                        ,A.APL_CLS
+                        ,A.TITLE
+                        ,A.SBM
+                        ,A.TXT
+                        ,A.SEAL_KND_CD
+                        ,A.SEAL_YN
+                        ,A.APL_OUT_YN
+                        ,A.APL_SEAL_NO
+                        ,A.APL_YMD_FROM
+                        ,A.APL_YMD_TO
+                        ,CASE WHEN APL_OUT_YN = 'Y' THEN 
+                   				 SUBSTRING(A.APL_YMD_FROM,0,4) + '-' + SUBSTRING(A.APL_YMD_FROM,5,2) + '-' +SUBSTRING(A.APL_YMD_FROM,7,2)
+                   				 + ' ~ ' + SUBSTRING(A.APL_YMD_TO,0,4) + '-' + SUBSTRING(A.APL_YMD_TO,5,2) + '-' +SUBSTRING(A.APL_YMD_TO,7,2)
+                            ELSE 
+                      			 '-'
+                         END AS APL_YMD_TXT
+                        ,CASE WHEN A.APL_YMD_FROM IS NOT NULL THEN 
+                   				SUBSTRING(A.APL_YMD_FROM,0,4) + '-' + SUBSTRING(A.APL_YMD_FROM,5,2) + '-' +SUBSTRING(A.APL_YMD_FROM,7,2)
+                            ELSE 
+                      			 ''
+                         END AS APL_YMD_FROM_TXT
+                        ,CASE WHEN A.APL_YMD_TO IS NOT NULL THEN 
+                   				SUBSTRING(A.APL_YMD_TO,0,4) + '-' + SUBSTRING(A.APL_YMD_TO,5,2) + '-' +SUBSTRING(A.APL_YMD_TO,7,2)
+                            ELSE 
+                      			 ''
+                         END AS APL_YMD_TO_TXT
+                        
+                       -- ,SUBSTRING(A.APL_YMD_FROM,0,4) + '-' + SUBSTRING(A.APL_YMD_FROM,5,2) + '-' +SUBSTRING(A.APL_YMD_FROM,7,2) AS APL_YMD_FROM_TXT
+                       -- ,SUBSTRING(A.APL_YMD_TO,0,4) + '-' + SUBSTRING(A.APL_YMD_TO,5,2) + '-' +SUBSTRING(A.APL_YMD_TO,7,2) AS APL_YMD_TO_TXT
+                        
+                        ,CASE WHEN APL_OUT_YN = 'Y' THEN 
+                   				 SUBSTRING(A.PRC_YMD_FROM,0,4) + '-' + SUBSTRING(A.PRC_YMD_FROM,5,2) + '-' +SUBSTRING(A.PRC_YMD_FROM,7,2)
+                   				 + ' ~ ' + SUBSTRING(A.PRC_YMD_TO,0,4) + '-' + SUBSTRING(A.PRC_YMD_TO,5,2) + '-' +SUBSTRING(A.PRC_YMD_TO,7,2)
+                            ELSE 
+                      			 '-'
+                         END AS PRC_YMD_TXT
+                        
+                        ,A.RTN_SEAL_NO
+                        ,A.RTN_YN
+                        ,A.RTN_YMD
+						,TO_CHAR(TO_DATE(A.RTN_YMD, 'YYYY-MM-DD'),'YYYY-MM-DD') AS RTN_YMD_TXT	
+                        
+                        ,A.DOC_YN
+                        ,A.DOC1
+                        ,A.DOC2
+                        ,A.DOC3
+                        ,A.DOC4  
+                        ,A.DOC5
+                        ,A.DOC6
+                        ,A.DOC7  
+                        ,A.USE_SUMM
+                        ,A.SEAL_RQSTMAN_ID
+                        ,A.SEAL_RQSTMAN_NM
+                        ,A.SEAL_RQSTMAN_JIKGUP_NM
+                        ,A.SEAL_RQST_DEPT_NM
+                        
+                		,A.SEAL_RQSTMAN_NM  + '/' + A.SEAL_RQSTMAN_JIKGUP_NM + '/' + A.SEAL_RQST_DEPT_NM AS SEAL_RQSTMAN_TXT
+                        
+                        ,A.SEAL_RQST_STATUS
+                        ,A.SEAL_RQSTDAY
+                        ,A.SEAL_FFMTMAN_ID
+                        ,A.SEAL_FFMTMAN_NM
+                        ,A.SEAL_FFMTMAN_JIKGUP_NM
+                        ,A.SEAL_FFMT_DEPT_NM
+                        
+                         ,CASE WHEN TRIM(A.SEAL_YN) = 'Y' THEN 
+                   				A.SEAL_FFMTMAN_NM  + '/' + A.SEAL_FFMTMAN_JIKGUP_NM + '/' + A.SEAL_FFMT_DEPT_NM
+                            ELSE 
+                      			 '-'
+                         END AS SEAL_FFMTMAN_TXT
+                        
+                        ,A.SEAL_FFMT_STATUS                                
+                        ,A.DOC_ISSUER_ID 
+                        ,A.DOC_ISSUER_NM
+                        ,A.DOC_ISSUER_JIKGUP_NM
+                        ,A.DOC_ISSUER_DEPT_NM     
+                        
+                        ,CASE WHEN A.DOC_YN = 'Y' THEN 
+                   				A.DOC_ISSUER_NM  + '/' + A.DOC_ISSUER_JIKGUP_NM + '/' + A.DOC_ISSUER_DEPT_NM
+                            ELSE 
+                      			 '-'
+                         END AS DOC_ISSUER_TXT             
+                                      
+                        ,A.DOC_ISSUE_STATUS
+                        
+                        ,CASE WHEN A.RTN_YN = 'Y' THEN 
+                   				A.SEAL_RTNMAN_NM  + '/' + A.SEAL_RTNMAN_JIKGUP_NM + '/' + A.SEAL_RTNMAN_DEPT_NM
+                            ELSE 
+                      			 '-'
+                         END AS SEAL_RTNMAN_TXT  
+                        
+                        ,A.REF_KEY
+                        ,A.CNSDREQ_ID
+                        ,A.CNTRT_ID
+                        ,A.REG_DT
+                        ,A.REG_ID
+                        ,A.REG_NM
+                        
+                        ,CASE WHEN :vo.session_user_locale = 'ko' THEN 
+                   				 B.CD_NM
+                   			WHEN :vo.session_user_locale = 'fr' THEN 
+                   				 B.CD_NM_FRA
+                   			WHEN :vo.session_user_locale = 'de' THEN 
+                   				 B.CD_NM_DEU
+                            ELSE
+                      			 B.CD_NM_ENG
+                            END AS SEAL_KND_NM
+                            
+                       ,CASE WHEN :vo.session_user_locale = 'ko' THEN 
+                   				 D.CD_NM
+                   			 WHEN :vo.session_user_locale = 'fr' THEN 
+                   				 D.CD_NM_FRA
+                   			 WHEN :vo.session_user_locale = 'de' THEN 
+                   				 D.CD_NM_DEU
+                            ELSE
+                      			 D.CD_NM_ENG
+                            END AS APL_CLS_NM
+                         
+
+                         
+                         ,RTN_YN
+                         ,RTN_YMD
+                         ,PRC_SEAL_NO
+                         ,PRC_YMD_FROM
+                         ,PRC_YMD_TO
+                         ,CASE WHEN APL_OUT_YN = 'Y' THEN 
+                   				 SUBSTRING(A.PRC_YMD_FROM,0,4) + '-' + SUBSTRING(A.PRC_YMD_FROM,5,2) + '-' +SUBSTRING(A.PRC_YMD_FROM,7,2)
+                   				 + ' ~ ' + SUBSTRING(A.PRC_YMD_TO,0,4) + '-' + SUBSTRING(A.PRC_YMD_TO,5,2) + '-' +SUBSTRING(A.PRC_YMD_TO,7,2)
+                            ELSE 
+                      			 '-'
+                         END AS PRC_YMD_TXT
+                         
+                         ,TO_CHAR(TO_DATE(A.SEAL_FFMTDAY, 'YYYY-MM-DD'),'YYYY-MM-DD') AS SEAL_FFMTDAY_TXT	
+						, TO_CHAR(TO_DATE(A.DOC_ISSUEDAY, 'YYYY-MM-DD'),'YYYY-MM-DD') AS DOC_ISSUEDAY_TXT	
+						
+						, A.DOC_SCRTXT
+        
+			FROM 	 TN_CLM_PRTB_SD_APL A 
+			        	 ,(SELECT CD, CD_NM,CD_NM_ENG AS  FROM TB_COM_CD WHERE GRP_CD = 'C021' ) B
+			        	 ,(SELECT CD, CD_NM,CD_NM_ENG AS  FROM TB_COM_CD WHERE GRP_CD = 'AT01' ) D 
+		
+			WHERE 	A.DEL_YN = 'N' 
+				AND	A.SEAL_KND_CD = B.CD(+) 
+				AND	A.APL_CLS = D.CD(+) 
+				AND 	A.APL_SQN = :vo.apl_sqn
+           
+    ]]>
+  </statement>
+</query>
+
+<query id="clm.sign.getAttachLst" isCamelCase="false">
+  <statement>
+    <![CDATA[
+
+					SELECT 
+                                    FILE_ID,
+                                    FILE_PATH,
+                                    ORG_FILE_NM,
+                                    FILE_SRT,
+                                    FILE_SZ,
+                                    SYS_CD,
+                                    FILE_BIGCLSFCN,
+                                    FILE_MIDCLSFCN,
+                                    FILE_SMLCLSFCN,
+                                    REF_KEY                                   
+                    FROM 
+                                    TN_COM_ATTACH
+                    WHERE 
+                                    DEL_YN = 'N'
+                        AND 		FILE_BIGCLSFCN = 'N005' 
+                        AND 		FILE_MIDCLSFCN = 'N00501'   
+                        AND 		REF_KEY = :vo.apl_sqn
+
+    ]]>
+  </statement>
+</query>
+
+
+<query id="clm.sign.getApprLstTypeA" isCamelCase="false">
+  <statement>
+    <![CDATA[
+
+	    SELECT  
+	    			  MIS_ID
+	    			, TITLE
+                    , SUBSTRING(MAX(SYS_CONNECT_BY_PATH(APPR_USER_NM + '/' + APPR_USER_DUTY + '/' + APPR_USER_DEPT, '<br/>')), 6) AS APPR_MANS
+                    , CASE WHEN 'en' = 'en' THEN
+                    	DECODE(MAX(APPR_STATUS), '1' ,'Period', '2', 'Completed', '3', 'Reject', '4', 'Cancel', '5', 'Reply without Approval', '6', 'Approved after Completion',' ')
+                      ELSE
+                        DECODE(MAX(APPR_STATUS), '1' ,'결재중', '2', '완결', '3', '반려', '4', '상신취소', '5', '전결', '6', '후완결',' ')
+                      END AS APPR_STATUS
+                    
+                    , MAX(APPR_CREATE_DATE) AS APPR_CREATE_DATE
+                    , MAX(GIANJA) AS APPR_GIANJA
+                  		
+        FROM  ( 
+    			SELECT  
+      					      B.MIS_ID
+		                      , B.TITLE
+		                      , C.ACTIVITY
+		                      , row_number() OVER(PARTITION BY B.MIS_ID, C.ACTIVITY ORDER BY B.CREATE_DATE ASC, SEQUENCE) AS RD
+		                      , DECODE(C.ACTIVITY , '1', C.USER_NAME) AS APPR_USER_NM
+		                      , DECODE(C.ACTIVITY , '1', C.DEPT_NAME) AS APPR_USER_DEPT
+		                      , DECODE(C.ACTIVITY , '1', C.DUTY) AS APPR_USER_DUTY
+		                      , DECODE(C.ACTIVITY , '1', C.GROUP_NAME) AS APPR_GROUP_NAME
+		                      , DECODE(C.ACTIVITY , '1', TO_CHAR(TO_DATE(B.CREATE_DATE, 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD')) AS APPR_CREATE_DATE
+		                      , DECODE(C.ACTIVITY , '1', B.STATUS) AS APPR_STATUS      
+		                      , DECODE(C.ACTIVITY , '0', C.USER_NAME + '/' + C.DUTY + '/' + C.DEPT_NAME) AS GIANJA                          
+              	FROM  
+           					TN_CLM_PRTB_SD_APL A, 
+           					TB_COM_START_PROCESS_WSVO B, 
+           					TB_COM_ROUTE_WSVO C
+             	WHERE        
+             				1 = 1 
+             				
+             				#if($vo.cnsdreq_id.equals(""))
+             					AND A.APL_SQN = B.REF_KEY 							    
+							#else
+							   AND A.CNSDREQ_ID = B.REF_KEY 
+							#end  
+		                   
+		                    AND  B.MIS_ID = C.MIS_ID
+		                    AND  B.MODULE_ID = C.MODULE_ID
+		                    AND  B.STATUS NOT IN ('0','E')
+		                    
+		                    #if($vo.cnsdreq_id.equals(""))
+		                    	AND  B.APPRVL_CLSFCN IN ('N00501')							    
+							#else
+								AND  B.APPRVL_CLSFCN IN ('C03002')
+							#end  		                    
+		                    
+		                    AND  C.ACTIVITY IN ('0', '1')   		                    
+		                    AND  B.REF_KEY  = :vo.ref_key                          
+                )
+                 START  WITH  RD = 1 
+                CONNECT BY PRIOR RD = RD - 1  
+                GROUP BY MIS_ID,TITLE
+
+    ]]>
+  </statement>
+</query>
+
+
+<query id="clm.sign.getApprLstTypeB" isCamelCase="false">
+  <statement>
+    <![CDATA[
+
+	    SELECT  
+	    			  MIS_ID
+	    			, TITLE
+                    , SUBSTRING(MAX(SYS_CONNECT_BY_PATH(APPR_USER_NM + '/ ' + APPR_USER_DUTY + '/ ' + APPR_USER_DEPT, '<br/>')), 6) AS APPR_MANS
+                    , CASE WHEN 'en' = 'en' THEN
+                    	DECODE(MAX(APPR_STATUS), '1' ,'Period', '2', 'Completed', '3', 'Reject', '4', 'Cancel', '5', 'Reply without Approval', '6', 'Approved after Completion',' ')
+                      ELSE
+                        DECODE(MAX(APPR_STATUS), '1' ,'결재중', '2', '완결', '3', '반려', '4', '상신취소', '5', '전결', '6', '후완결',' ')
+                      END AS APPR_STATUS
+                    
+                    , MAX(APPR_CREATE_DATE) AS APPR_CREATE_DATE
+                  		
+        FROM  ( 
+    			SELECT  
+      					      B.MIS_ID
+		                      , B.TITLE
+		                      , C.ACTIVITY
+		                      , row_number() OVER(PARTITION BY B.MIS_ID, C.ACTIVITY ORDER BY B.CREATE_DATE ASC, SEQUENCE) AS RD
+		                      , DECODE(C.ACTIVITY , '1', C.USER_NAME) AS APPR_USER_NM
+		                      , DECODE(C.ACTIVITY , '1', C.DEPT_NAME) AS APPR_USER_DEPT
+		                      , DECODE(C.ACTIVITY , '1', C.DUTY) AS APPR_USER_DUTY
+		                      , DECODE(C.ACTIVITY , '1', C.GROUP_NAME) AS APPR_GROUP_NAME
+		                      , DECODE(C.ACTIVITY , '1', TO_CHAR(TO_DATE(B.CREATE_DATE, 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD')) AS APPR_CREATE_DATE
+		                      , DECODE(C.ACTIVITY , '1', B.STATUS) AS APPR_STATUS                                
+              	FROM  
+           					TN_CLM_PRTB_SD_APL A, 
+           					TB_COM_START_PROCESS_WSVO B, 
+           					TB_COM_ROUTE_WSVO C
+             	WHERE               
+		                    A.CNSDREQ_ID = B.REF_KEY 
+		                    AND  B.MIS_ID = C.MIS_ID
+		                    AND  B.MODULE_ID = C.MODULE_ID
+		                    AND  B.STATUS NOT IN ('0','E')
+		                    AND  B.APPRVL_CLSFCN IN ('C03002')
+		                    AND  C.ACTIVITY IN ('0', '1')   
+		                    
+		                    AND  B.REF_KEY  = :vo.ref_key                          
+                )
+                 START  WITH  RD = 1 
+                CONNECT BY PRIOR RD = RD - 1  
+                GROUP BY MIS_ID,TITLE
+
+    ]]>
+  </statement>
+</query>
+
+	<!-- 날인 처리 / 반납처리  -->
+	<query id="clm.sign.prc.sign" isCamelCase="false">
+  		<statement>
+    		<![CDATA[   
+                UPDATE  TN_CLM_PRTB_SD_APL 
+                   SET  
+                   		SEAL_FFMT_STATUS = :vo.seal_ffmt_status
+                   	  , SEAL_FFMTDAY = TO_CHAR(SYSDATE,'YYYYMMDD')                    	  
+                   	 
+					  #if ($vo.rtn_yn.equals("Y"))
+					  , RTN_YN = :vo.rtn_yn
+					  , RTN_YMD =  REPLACE(:vo.rtn_ymd,'-','')
+					  , SEAL_RTNMAN_ID = :vo.seal_rtnman_id 
+		              , SEAL_RTNMAN_NM = :vo.seal_rtnman_nm
+		              , SEAL_RTNMAN_JIKGUP_NM = :vo.seal_rtnman_jikgup_nm
+		              , SEAL_RTNMAN_DEPT_NM = :vo.seal_rtnman_dept_nm  	
+					  #else
+					  , RTN_SEAL_NO = :vo.rtn_seal_no
+					  , PRC_SEAL_NO = :vo.prc_seal_no
+                   	  , PRC_YMD_FROM = REPLACE(:vo.prc_ymd_from,'-','')
+                   	  , PRC_YMD_TO = REPLACE(:vo.prc_ymd_to,'-','')    			
+					  #end          	      
+	        	      
+	        	      , MOD_DT = SYSDATE 
+    	        	  , MOD_ID = :vo.session_user_id
+        	     	  , MOD_NM = :vo.session_user_nm        	     	  
+                WHERE APL_SQN = :vo.apl_sqn
+	    	]]>
+	  </statement>
+	</query>
+	
+	<!-- 증명서류 발급 처리  -->
+	<query id="clm.sign.prc.doc" isCamelCase="false">
+  		<statement>
+    		<![CDATA[   
+                UPDATE  TN_CLM_PRTB_SD_APL 
+                   SET  
+                   		DOC_ISSUE_STATUS = :vo.doc_issue_status
+                   	  , DOC_ISSUEDAY =  TO_CHAR(SYSDATE,'YYYYMMDD')		        	      
+	        	      , MOD_DT = SYSDATE 
+    	        	  , MOD_ID = :vo.session_user_id
+        	     	  , MOD_NM = :vo.session_user_nm        	     	  
+                WHERE APL_SQN = :vo.apl_sqn
+	    	]]>
+	  </statement>
+	</query>
+
+	<!-- 날인 삭제 -->
+	<query id="clm.sign.delete" isCamelCase="false">
+  		<statement>
+    		<![CDATA[   
+                UPDATE  TN_CLM_PRTB_SD_APL 
+                   SET  DEL_YN = 'Y' 
+	        	      , DEL_DT = SYSDATE 
+    	        	  , DEL_ID = :vo.session_user_id
+        	     	  , DEL_NM = :vo.session_user_nm
+                WHERE APL_SQN = :vo.apl_sqn
+	    	]]>
+	  </statement>
+	</query>
+	
+	<!-- 날인 상태 업데이트(품의상신 후) -->
+	<query id="clm.sign.modifySignStatus" isCamelCase="false" >
+	  	<statement>
+	    <![CDATA[
+		   	UPDATE TN_CLM_PRTB_SD_APL
+		   	   SET SEAL_RQST_STATUS				= :vo.seal_rqst_status
+		   	     , MOD_DT					= SYSDATE
+		   	     , MOD_ID	 				= :vo.session_user_id
+		       	 , MOD_NM    				= :vo.session_user_nm
+		     WHERE APL_SQN = :vo.apl_sqn
+	      ]]>
+	  	</statement>
+	</query>
+
+	<!-- 권한체크 -->
+	<query id="las.auth.sign" isCamelCase="false">
+	  <statement>
+	    <![CDATA[
+	    	SELECT	APL_SQN
+		    			,TO_CHAR(REG_DT, 'YYYYMMDD') AS REG_DT 
+		    			,SEAL_RQSTMAN_ID 
+	    				,SEAL_FFMTMAN_ID
+	    				,DOC_ISSUER_ID
+			FROM 	TN_CLM_PRTB_SD_APL
+			WHERE	APL_SQN = :vo.apl_sqn			
+	    ]]>
+	  </statement>
+	</query>
+	
+	<!-- 날인담당자 변경처리 -->
+	<query id="clm.sign.modify.mngman" isCamelCase="false">
+	  <statement>
+	    <![CDATA[    				
+	   
+	                UPDATE  TN_CLM_PRTB_SD_APL 
+	                   		SET  	                   		
+							        SEAL_FFMTMAN_ID = :vo.seal_ffmtman_id
+					              , SEAL_FFMTMAN_NM = :vo.seal_ffmtman_nm
+					              , SEAL_FFMTMAN_JIKGUP_NM = :vo.seal_ffmtman_jikgup_nm
+					              , SEAL_FFMT_DEPT_NM = :vo.seal_ffmt_dept_nm
+								  , DOC_ISSUER_ID = :vo.doc_issuer_id 
+					              , DOC_ISSUER_NM = :vo.doc_issuer_nm
+					              , DOC_ISSUER_JIKGUP_NM = :vo.doc_issuer_jikgup_nm
+					              , DOC_ISSUER_DEPT_NM = :vo.doc_issuer_dept_nm					              		        	      
+				        	      , MOD_DT = SYSDATE 
+			    	        	  , MOD_ID = :vo.session_user_id
+			        	     	  , MOD_NM = :vo.session_user_nm	                
+	                WHERE APL_SQN = :vo.apl_sqn	
+	    ]]>
+	  </statement>
+	</query>
+	
+	<!-- 날인담당자 변경 이력 등록처리 -->
+	<query id="clm.sign.modify.mngmanhis" isCamelCase="false">
+	  <statement>
+	    <![CDATA[
+	   
+					INSERT INTO TN_CLM_PRTB_FFMTMAN_HIS (
+					     COMP_CD,
+					     APL_YM,
+					     APL_SQN,
+					     HIS_SQN,
+					     GUBN_CD,
+					     COMP_NM,
+					     SEAL_FFMTMAN_ID,
+					     SEAL_FFMTMAN_NM,
+					     SEAL_FFMTMAN_JIKGUP_NM,
+					     SEAL_FFMT_DEPT_NM,
+					     REG_DT,
+					     REG_ID,
+					     REG_NM,
+					     MOD_DT,
+					     MOD_ID,
+					     MOD_NM,
+					     DEL_YN,
+					     DEL_DT,
+					     DEL_ID,
+					     DEL_NM
+				) VALUES ( 
+						 :vo.comp_cd ,
+						 :vo.apl_ym ,
+						 :vo.apl_sqn ,
+						 (SELECT NVL(MAX(HIS_SQN),0) + 1 FROM TN_CLM_PRTB_FFMTMAN_HIS ),
+						 :vo.gubn_cd ,
+						 :vo.comp_nm ,
+						 :vo.seal_ffmtman_id ,
+						 :vo.seal_ffmtman_nm ,
+						 :vo.seal_ffmtman_jikgup_nm ,
+						 :vo.seal_ffmt_dept_nm ,
+						 SYSDATE ,
+						 :vo.session_user_id ,
+						 :vo.session_user_nm ,
+						 '' ,
+						 '' ,
+						 '' ,
+						 'N' ,
+						 '' ,
+						 '' ,
+						 ''  
+					 )	              
+	
+	    ]]>
+	  </statement>
+	</query>
+
+		<query id="clm.sign.getAppInfoList" isCamelCase="false">
+            <statement>
+            <![CDATA[
+             SELECT CNTRT_ID     
+			      , TO_CHAR(SYSDATE,'YYMMDDHH24MISS')+ CNTRT_ID as APPKEY
+			      , PRCS_DEPTH
+			      , DEPTH_STATUS
+			      , CNTRT_INFO_GBN
+			   FROM TN_CLM_CONTRACT_MASTER 
+			  WHERE CNTRT_ID = :cntrt_id
+			ORDER BY CNTRT_ID
+            ]]>
+            </statement>
+        </query>
+
+		<!--후처리프로세스 날인테이블에 등록 -->
+		<query id="clm.sign.insert_Prtb_sd_apl_if" isCamelCase="false">
+            <statement>
+            <![CDATA[
+           	INSERT INTO TN_CLM_PRTB_SD_APL (COMP_CD
+                                ,COMP_NM
+                                ,APL_YM
+                                ,APL_SQN
+                                ,APL_CLS
+                                ,TITLE
+                                ,SBM
+                                ,TXT
+                                ,SEAL_KND_CD
+                                ,SEAL_YN
+                                ,APL_OUT_YN
+                                ,RTN_YN
+                                ,DOC_YN
+                                ,SEAL_RQSTMAN_ID
+                                ,SEAL_RQSTMAN_NM
+                                ,SEAL_RQSTMAN_JIKGUP_NM
+                                ,SEAL_RQST_DEPT_NM
+                                ,SEAL_RQST_STATUS
+                                ,SEAL_RQSTDAY
+                                ,SEAL_FFMTMAN_ID
+                                ,SEAL_FFMTMAN_NM
+                                ,SEAL_FFMTMAN_JIKGUP_NM
+                                ,SEAL_FFMT_DEPT_NM
+                                ,SEAL_FFMT_STATUS
+                                ,REF_KEY
+                                ,CNSDREQ_ID
+                                ,CNTRT_ID
+                                ,REG_DT
+                                ,REG_ID
+                                ,REG_NM
+                                ,DEL_YN)
+                                SELECT c.comp_cd ,c.comp_nm ,TO_CHAR(SYSDATE,'YYYYMM')
+                                ,(SELECT NVL(MAX(APL_SQN),0) + 1 FROM TN_CLM_PRTB_SD_APL )
+                                ,'AT0104'
+                                ,A.REQ_TITLE
+                                ,c.CNTRT_OPPNT_NM
+                                ,CASE WHEN :vo.session_user_locale = 'ko' THEN 
+                                						'[' + a.req_title + '] 을 위해 신청합니다.'
+                                  WHEN :vo.session_user_locale = 'fr' THEN 
+                                						'Ceci s‘applique à [' + a.req_title + '].'
+                                  WHEN :vo.session_user_locale = 'de' THEN 
+                                						'Dies gilt für [' + a.req_title + '].'
+                                  ELSE
+       											   		'This is applied for [' + a.req_title + '].'
+                                  END
+                                ,c.SEAL_MTHD
+                                ,'Y' 
+                                ,'N'
+                                ,'N' 
+                                ,'N'
+                                ,c.SEAL_RQSTMAN_ID
+                                ,c.SEAL_RQSTMAN_NM
+                                ,c.SEAL_RQSTMAN_JIKGUP_NM
+                                ,c.SEAL_RQST_DEPT_NM
+                                ,'AP0103'
+                                ,c.SEAL_RQSTDAY
+                                ,c.SEAL_FFMTMAN_ID
+                                ,c.SEAL_FFMTMAN_NM 
+                                ,c.SEAL_FFMTMAN_JIKGUP_NM
+                                ,c.SEAL_FFMT_DEPT_NM
+                                ,'SL0101'
+                                ,(SELECT NVL(MAX(APL_SQN),0) + 1 FROM TN_CLM_PRTB_SD_APL )
+                                ,a.CNSDREQ_ID
+                                ,c.cntrt_id
+                                ,SYSDATE
+                                ,'system'
+                                ,'system'
+                                ,'N'
+                                FROM TN_CLM_CONT_CNSDREQ A
+                                   , TN_CLM_CONTRACT_CNSD B
+                                   , TN_CLM_CONTRACT_MASTER C
+                               WHERE A.CNSDREQ_ID 	= B.CNSDREQ_ID
+                                 AND B.CNTRT_ID 		= C.CNTRT_ID
+                                 AND A.CNSDREQ_ID 	=  :cnsdreq_id
+               
+            ]]>
+            </statement>
+        </query>
+
+
+
+    </queries>
+</queryservice>

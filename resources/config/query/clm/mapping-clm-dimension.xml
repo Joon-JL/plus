@@ -1,0 +1,654 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+    <queries>
+    	<!-- 의뢰현황 목록 -->
+        <query id="clm.admin.listDimension" isCamelCase="false">
+            <statement>
+            <![CDATA[
+            SELECT RN,TYPE_CD,CD_NM,CD_NM_ABBR,CD_NM_ENG,CD_NM_ABBR_ENG,PRNT_SRT,
+            	CD_EXPL,USE_YN,REG_DT,REG_ID,REG_NM,REG_DEPT_NM,MOD_DT,MOD_ID,MOD_NM,MOD_DEPT_NM,
+				CAST(TOTAL_CNT AS NUMERIC) AS TOTAL_CNT
+              FROM(   SELECT ROW_NUMBER() OVER (ORDER BY TYPE_CD ASC) RN,
+              				t.*, COUNT(1) over() TOTAL_CNT
+		                FROM ( SELECT TYPE_CD
+									 ,CASE WHEN :vo.session_user_locale = 'ko' THEN CD_NM
+			              				   WHEN :vo.session_user_locale = 'fr' THEN CD_NM_FRA
+			              				   WHEN :vo.session_user_locale = 'de' THEN CD_NM_DEU
+			              				   ELSE CD_NM_ENG
+			              			  END CD_NM 
+									 ,CASE WHEN :vo.session_user_locale = 'ko' THEN CD_NM_ABBR
+			              				   WHEN :vo.session_user_locale = 'fr' THEN CD_NM_ABBR_FRA
+			              				   WHEN :vo.session_user_locale = 'de' THEN CD_NM_ABBR_DEU
+			              				   ELSE CD_NM_ABBR_ENG
+			              			  END CD_NM_ABBR
+									 ,CASE WHEN :vo.session_user_locale = 'ko' THEN CD_NM
+			              				   WHEN :vo.session_user_locale = 'fr' THEN CD_NM_FRA
+			              				   WHEN :vo.session_user_locale = 'de' THEN CD_NM_DEU
+			              				   ELSE CD_NM_ENG
+			              			  END CD_NM_ENG
+									 ,CASE WHEN :vo.session_user_locale = 'ko' THEN CD_NM_ABBR
+			              				   WHEN :vo.session_user_locale = 'fr' THEN CD_NM_ABBR_FRA
+			              				   WHEN :vo.session_user_locale = 'de' THEN CD_NM_ABBR_DEU
+			              				   ELSE CD_NM_ABBR_ENG
+			              			  END CD_NM_ABBR_ENG
+									 ,PRNT_SRT
+									 ,ISNULL(CD_EXPL,'') AS CD_EXPL
+									 ,USE_YN
+									 ,CONVERT(CHAR(10), REG_DT, 23) AS REG_DT /*YYYY-MM-DD*/
+									 ,REG_ID
+									 ,REG_NM
+									 ,REG_DEPT_NM
+									 ,MOD_DT
+									 ,MOD_ID
+									 ,MOD_NM
+									 ,MOD_DEPT_NM
+							FROM TN_COM_CONTRACTTYPE_CD
+							WHERE UP_TYPE_CD = 'TOP'
+							  AND USE_YN = 'Y'
+							#if (!$vo.srch_word.equals(""))
+				              AND CD_NM LIKE '%' + :vo.srch_word + '%'
+				            #end
+		                    ) T
+		    )TA
+            WHERE RN between :vo.start_index and :vo.end_index
+            ORDER BY RN
+            ]]>
+            </statement>
+        </query>
+        
+        <!-- 상세 -->
+        <query id="clm.admin.detailDimension" isCamelCase="false">
+            <statement>
+            <![CDATA[
+            		SELECT    TYPE_CD
+							 ,CASE WHEN :vo.session_user_locale = 'ko' THEN CD_NM
+			              		   WHEN :vo.session_user_locale = 'fr' THEN CD_NM_FRA
+			              		   WHEN :vo.session_user_locale = 'de' THEN CD_NM_DEU
+			              		   ELSE CD_NM_ENG
+			              	  END CD_NM
+							 ,CASE WHEN :vo.session_user_locale = 'ko' THEN CD_NM_ABBR
+			              		   WHEN :vo.session_user_locale = 'fr' THEN CD_NM_ABBR_FRA
+			              		   WHEN :vo.session_user_locale = 'de' THEN CD_NM_ABBR_DEU
+			              		   ELSE CD_NM_ABBR_ENG
+			              	  END CD_NM_ABBR
+							 ,CASE WHEN :vo.session_user_locale = 'ko' THEN CD_NM
+			              		   WHEN :vo.session_user_locale = 'fr' THEN CD_NM_FRA
+			              		   WHEN :vo.session_user_locale = 'de' THEN CD_NM_DEU
+			              		   ELSE CD_NM_ENG
+			              	  END CD_NM_ENG
+							 ,CASE WHEN :vo.session_user_locale = 'ko' THEN CD_NM_ABBR
+			              		   WHEN :vo.session_user_locale = 'fr' THEN CD_NM_ABBR_FRA
+			              		   WHEN :vo.session_user_locale = 'de' THEN CD_NM_ABBR_DEU
+			              		   ELSE CD_NM_ABBR_ENG
+			              	  END CD_NM_ABBR_ENG
+							 ,PRNT_SRT
+							 ,CD_EXPL
+							 ,USE_YN
+							 ,CONVERT(CHAR(10), REG_DT, 23) AS REG_DT /*YYYY-MM-DD*/
+							 ,REG_ID
+							 ,REG_NM
+							 ,REG_DEPT_NM
+							 ,MOD_DT
+							 ,MOD_ID
+							 ,MOD_NM
+							 ,MOD_DEPT_NM
+					FROM TN_COM_CONTRACTTYPE_CD
+					WHERE UP_TYPE_CD = 'TOP'
+					  AND USE_YN = 'Y'
+			  		  AND TYPE_CD = :vo.type_cd
+            ]]>
+            </statement>
+        </query>
+        
+        <!-- 등록 -->
+		<query id="clm.admin.insertDimension" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				INSERT INTO TN_COM_CONTRACTTYPE_CD  
+							(
+								 TYPE_CD
+								,UP_TYPE_CD
+								,CD_NM
+								,CD_NM_ABBR
+								,CD_NM_ENG
+								,CD_NM_ABBR_ENG
+								,PRNT_SRT
+								,CD_EXPL
+								,USE_YN
+								,REG_DT
+								,REG_ID
+								,REG_NM
+								,REG_DEPT_NM
+					        ) VALUES (
+					           :vo.type_cd
+					          ,'TOP'
+					          ,:vo.cd_nm
+					          ,:vo.cd_nm_abbr
+					          ,:vo.cd_nm_eng
+					          ,:vo.cd_nm_abbr_eng
+					          ,0
+					          ,:vo.cd_expl
+					          ,'Y'
+					          ,GETDATE()
+					          ,:vo.reg_id
+					          ,:vo.reg_nm
+					          ,:vo.reg_dept_nm
+					        )
+			]]>
+			</statement>
+		</query>
+		
+		<!-- 수정 -->
+		<query id="clm.admin.modifyDimension" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				UPDATE	TN_COM_CONTRACTTYPE_CD
+				   SET	 TYPE_CD = :vo.type_cd
+						,CD_NM = :vo.cd_nm
+						,CD_NM_ABBR = :vo.cd_nm_abbr
+						,CD_NM_ENG = :vo.cd_nm_eng
+						,CD_NM_ABBR_ENG = :vo.cd_nm_abbr_eng
+						,PRNT_SRT = 0
+						,CD_EXPL = :vo.cd_expl
+						,MOD_DT = GETDATE()
+						,MOD_ID = :vo.mod_id
+						,MOD_NM = :vo.mod_nm
+						,MOD_DEPT_NM = :vo.mod_dept_nm
+				WHERE TYPE_CD = :vo.type_cd
+				  AND USE_YN = 'Y'
+			]]>
+			</statement>
+		</query>        
+		
+		<!-- 삭제 -->
+		<query id="clm.admin.deleteDimension" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				UPDATE	TN_COM_CONTRACTTYPE_CD
+				   SET   USE_YN  = 'N'
+				        ,MOD_DT  = GETDATE()
+						,MOD_ID = :vo.mod_id
+						,MOD_NM = :vo.mod_nm
+						,MOD_DEPT_NM = :vo.mod_dept_nm
+				WHERE TYPE_CD = :vo.type_cd
+				  AND USE_YN = 'Y'
+			]]>
+			</statement>
+		</query>
+		
+		<!-- DimensionCd 채번생성 -->
+		<query id="clm.admin.makeDimensionCd" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT 'T' + ISNULL(RIGHT('0'+CAST((CAST(RIGHT((
+											SELECT  MAX(TYPE_CD)
+											  FROM  TN_COM_CONTRACTTYPE_CD
+											 WHERE  UP_TYPE_CD = 'TOP'
+									   ), 2) AS numeric)+1) AS NVARCHAR(2)),2),'01')  nextDimensionCd
+			
+			]]>
+			</statement>
+		</query>
+		
+		<!-- 유형관리 트리구조 -->
+		<query id="clm.admin.listDimensionTree" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT LVL
+				      ,RULE_NO
+				      ,TYPE_CD 
+				      ,UP_TYPE_CD 
+				      ,CD_NM
+				      ,CD_NM_ABBR
+				      ,CD_NM_ENG
+				      ,CD_NM_ABBR_ENG
+				      ,CD_EXPL
+				      ,USE_YN
+				      ,ISLEAF 
+				      ,TYPE_CD    AS TREE_KEY 
+				      ,CD_NM      AS TREE_TITLE 
+				      ,CD_NM_ENG  AS TREE_TITLE_ENG 
+				      ,UP_TYPE_CD AS TREE_UP_KEY 
+				      ,LVL        AS TREE_LEVEL 
+				      ,ISLEAF     AS TREE_ISLEAF
+				      ,PRNT_SRT 
+				      ,(MAX(LVL) OVER() - (MAX(LVL) OVER() - (LVL - MIN(LVL) OVER()))) AS ARRAY_LOC 
+				      ,MAX(LVL) OVER() AS TREE_MAX_LEVEL
+				      , CNT
+				      , UP_TYPE_CD_RN
+				  FROM ( SELECT LEVEL LVL
+				              , ROWNUM AS RULE_NO
+				              , TYPE_CD
+				              , UP_TYPE_CD
+				              , CD_NM
+				              , CD_NM_ABBR
+				              , CD_NM_ENG
+				              , CD_NM_ABBR_ENG
+				              , CD_EXPL
+				              , USE_YN 
+				              ,'N' AS ISLEAF
+				              , PRNT_SRT
+				              , CNT
+				              , UP_TYPE_CD_RN
+				           FROM (SELECT A.TYPE_CD
+				                      , ROWNUM AS RULE_NO
+				                      , A.UP_TYPE_CD
+				                      , CASE WHEN :vo.session_user_locale = 'ko' THEN A.CD_NM
+			              					 WHEN :vo.session_user_locale = 'fr' THEN A.CD_NM_FRA
+			              					 WHEN :vo.session_user_locale = 'de' THEN A.CD_NM_DEU
+			              					 ELSE A.CD_NM_ENG
+			           					END CD_NM
+				                      , CASE WHEN :vo.session_user_locale = 'ko' THEN A.CD_NM_ABBR
+			              		   			 WHEN :vo.session_user_locale = 'fr' THEN A.CD_NM_ABBR_FRA
+			              		   			 WHEN :vo.session_user_locale = 'de' THEN A.CD_NM_ABBR_DEU
+			              		   			 ELSE A.CD_NM_ABBR_ENG
+			              	  			END CD_NM_ABBR
+				                      , CASE WHEN :vo.session_user_locale = 'ko' THEN A.CD_NM
+			              					 WHEN :vo.session_user_locale = 'fr' THEN A.CD_NM_FRA
+			              					 WHEN :vo.session_user_locale = 'de' THEN A.CD_NM_DEU
+			              					 ELSE A.CD_NM_ENG
+			           					END CD_NM_ENG
+				                      , CASE WHEN :vo.session_user_locale = 'ko' THEN A.CD_NM_ABBR
+			              		   			 WHEN :vo.session_user_locale = 'fr' THEN A.CD_NM_ABBR_FRA
+			              		   			 WHEN :vo.session_user_locale = 'de' THEN A.CD_NM_ABBR_DEU
+			              		   			 ELSE A.CD_NM_ABBR_ENG
+			              	  			END CD_NM_ABBR_ENG
+				                      , A.CD_EXPL
+				                      , A.USE_YN
+				                      , A.PRNT_SRT
+				                      , COUNT(*) OVER(PARTITION BY A.UP_TYPE_CD) CNT 
+				                      , ROW_NUMBER() OVER(PARTITION BY A.UP_TYPE_CD) UP_TYPE_CD_RN
+				                  FROM TN_COM_CONTRACTTYPE_CD A 
+				                 WHERE 1=1
+				                   AND USE_YN = 'Y'
+				                 ORDER BY TYPE_CD)
+				START WITH  UP_TYPE_CD = 'TOP' 
+				CONNECT BY PRIOR TYPE_CD = UP_TYPE_CD ORDER SIBLINGS BY TYPE_CD )
+				WHERE LVL < 4
+			]]>
+			</statement>
+		</query>
+		
+		
+		<!-- 계약용어집, 계약유형별 이해 목록조회: 2011.09.06 : 신남원 -->
+		<query id="clm.admin.listDimensionWord" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+			    SELECT A.RULE_NO
+				     , A.UP_RULE_NO
+				     , A.RULE_DEPTH
+				     , A.RULE_SRT
+				     , A.DN_RULE_EXIST_YN
+				     , A.RULE_TITLE
+				     , A.RULE_CONT
+				     , A.RULE_CONT_EN
+				     , A.REG_DT
+				     , A.REG_ID
+				     , A.REG_NM
+				     , A.MOD_DT
+				     , A.MOD_ID
+				     , A.MOD_NM
+				     , A.DEL_YN
+				     , A.DEL_DT
+				     , A.DEL_ID
+				     , A.DEL_NM
+				     , COUNT(*) OVER(PARTITION BY A.UP_RULE_NO) CNT
+				  -- , ROW_NUMBER() OVER(PARTITION BY A.UP_RULE_NO) UP_RULE_NO_RN
+				     , ROW_NUMBER() OVER(ORDER BY A.UP_RULE_NO) UP_RULE_NO_RN
+				  FROM TN_CLM_PRCS_RULE_TYPE1 A
+				 WHERE (A.DEL_YN IS NULL OR A.DEL_YN='N')
+				 #if(!$vo.menuGubun.equals(""))
+				   AND A.MENU_GBN = :vo.menuGubun
+				 #end
+				 AND EXISTS (SELECT '1' FROM TN_CLM_PRCS_RULE_TYPE1 WHERE UP_RULE_NO= A.UP_RULE_NO AND DEL_YN='N' AND RULE_DEPTH <> '1')
+				 ORDER BY A.UP_RULE_NO ASC, A.RULE_DEPTH ASC, A.RULE_SRT ASC
+		    ]]>
+		  </statement>
+		</query>
+		
+		
+		
+		  <!-- 계약용어집 목록조회: 2011.10.31 : 김재원 -->
+		<query id="clm.admin.listDimesionWordAdmin" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+				SELECT * FROM (
+				      SELECT ROW_NUMBER() OVER (ORDER BY T.UP_RULE_NO, T.RULE_DEPTH, T.RULE_SRT) RN,
+				      		t.*, CAST(COUNT(1) over() AS NUMERIC) AS TOTAL_CNT
+							  FROM(
+				             SELECT A.RULE_TITLE ONE_TITLE, A.RULE_CONT ONE_CONT
+				                  , B.RULE_TITLE TWO_TITLE, B.RULE_CONT TWO_CONT, B.RULE_NO
+				                  , CONVERT(CHAR(10), B.REG_DT, 23) AS REG_DT, /*YYYY-MM-DD*/
+				                  B.REG_NM, B.REG_ID, B.DN_RULE_EXIST_YN
+				                  , A.UP_RULE_NO, A.RULE_DEPTH,	A.RULE_SRT
+				               FROM(
+				                    SELECT A.UP_RULE_NO,A.RULE_TITLE, A.RULE_CONT
+				                         , A.RULE_DEPTH, A.RULE_SRT, A.RULE_NO
+				                      FROM TN_CLM_PRCS_RULE_TYPE1 A
+				                     WHERE A.RULE_DEPTH = 1
+				                       AND A.DEL_YN = 'N'
+				                       AND A.MENU_GBN = :vo.menuGubun
+				                    ) A,
+				                   (SELECT B.UP_RULE_NO, B.RULE_TITLE, B.RULE_CONT
+				                         , B.RULE_DEPTH, B.RULE_SRT, B.RULE_NO
+				                         , B.REG_DT, B.REG_NM, B.REG_ID, B.DN_RULE_EXIST_YN
+				                      FROM TN_CLM_PRCS_RULE_TYPE1 B
+				                     WHERE B.RULE_DEPTH <> 1
+				                       AND B.DEL_YN = 'N'
+				                       AND B.MENU_GBN = :vo.menuGubun
+				                    ) B
+				              WHERE A.UP_RULE_NO = B.UP_RULE_NO
+				                #if(!$vo.srch_one_rule_depth.equals(""))
+				                    AND B.UP_RULE_NO = :vo.srch_one_rule_depth
+				                #end
+				                #if(!$vo.srch_two_rule_depth.equals(""))
+									AND B.RULE_TITLE LIKE '%'+ :vo.srch_two_rule_depth +'%'
+				                #end
+				                #if(!$vo.srch_cont.equals(""))
+				                    AND B.RULE_CONT LIKE '%'+ :vo.srch_cont +'%'
+				                #end
+				              
+				             ) T
+				          ) TA
+				 WHERE RN BETWEEN :vo.start_index AND :vo.end_index
+				 ORDER BY RN
+		    ]]>
+		  </statement>
+		</query>
+		
+	    <!-- 2단계 코드 가져오기 : 2011.09.01 : 신남원 -->
+		<query id="clm.admin.listRuleCd" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+			SELECT RULE_NO
+				 , RULE_TITLE
+		      FROM TN_CLM_PRCS_RULE_TYPE1
+		     WHERE UP_RULE_NO = :up_rule_no
+		       AND RULE_DEPTH <> 1
+		    #if(!$vo.menuGubun.equals(""))
+			   AND MENU_GBN = :menuGubun
+			#end
+		     ORDER BY RULE_NO
+		    ]]>
+		  </statement>
+		</query>		
+		
+	    <!-- 계약용어집, 계약유형이해  등록 : 2011.11.06 : 김재원 -->
+		<query id="clm.admin.insertDimesion" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    INSERT INTO TN_CLM_PRCS_RULE_TYPE1 (
+		           RULE_NO
+		               , UP_RULE_NO
+		               , RULE_DEPTH
+		               , RULE_SRT
+		               , DN_RULE_EXIST_YN
+		               , RULE_TITLE
+		               , RULE_CONT
+		               , RULE_CONT_EN
+		               , REG_DT
+		               , REG_ID
+		               , REG_NM
+		               , DEL_YN
+		               , MENU_GBN
+		        ) VALUES (
+		           :vo.rule_no
+		          ,:vo.up_rule_no
+		          ,:vo.rule_depth
+		          ,:vo.rule_srt
+		          ,'N'
+		          #if(!$vo.gu.equals(""))
+		              ,:vo.one_rule_title_input
+		              ,''
+		              ,''
+		          #else
+		              ,:vo.rule_title
+		              ,:vo.rule_cont
+		              ,:vo.rule_cont_en
+		          #end
+		          ,GETDATE()
+		          ,:vo.reg_id
+		          ,:vo.reg_nm
+		          ,'N'
+			      ,:vo.menuGubun
+		        )
+		    ]]>
+		  </statement>
+		</query>
+		
+	    <!-- 계약유형집, 계약유형이해 상세조회: 2011.11.06 : 김재원 -->
+		<query id="clm.admin.detailDimensionWordAdmin" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		      SELECT RULE_NO
+		           , UP_RULE_NO
+		           , RULE_DEPTH
+		           , RULE_SRT
+		           , DN_RULE_EXIST_YN
+		           , RULE_TITLE
+		           , RULE_CONT
+		           , RULE_CONT_EN
+		           , REG_DT
+		           , REG_ID
+		           , REG_NM
+		           , MOD_DT
+		           , MOD_ID
+		           , MOD_NM
+		           , DEL_YN
+		           , DEL_DT
+		           , DEL_ID
+		           , DEL_NM
+		        FROM TN_CLM_PRCS_RULE_TYPE1
+		       WHERE RULE_NO = :vo.rule_no
+		      #if(!$vo.menuGubun.equals(""))
+			     AND MENU_GBN = :vo.menuGubun
+			  #end
+		    ]]>
+		  </statement>
+		</query>
+				
+	    <!-- 계약용어집, 계약유형이해 수정 : 2011.11.05 : 김재원 -->		
+		<query id="clm.admin.modifyDimensionWordAdmin" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		         UPDATE TN_CLM_PRCS_RULE_TYPE1
+				    SET RULE_CONT_EN 	= :vo.rule_cont_en
+				      , MOD_DT    		= GETDATE()
+				      , MOD_ID    		= :vo.mod_id
+				      , MOD_NM    		= :vo.mod_nm
+				  WHERE RULE_NO   		= :vo.rule_no
+				#if(!$vo.menuGubun.equals(""))
+			        AND MENU_GBN = :vo.menuGubun
+			    #end
+		    ]]>
+		  </statement>
+		</query>
+		
+	    <!-- 프로세스&규정지침서 삭제 : 2011.11.05 : 김재원 -->		
+		<query id="clm.admin.deleteDimensionWordAdmin" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		         UPDATE TN_CLM_PRCS_RULE_TYPE1
+				    SET DEL_YN  = 'Y' 
+				      , DEL_DT  = GETDATE()
+				      , DEL_ID  = :vo.del_id
+				      , DEL_NM  = :vo.del_nm
+				  WHERE RULE_NO = :vo.rule_no
+		    #if(!$vo.menuGubun.equals(""))
+			        AND MENU_GBN = :vo.menuGubun
+			#end				  
+		    ]]>
+		  </statement>
+		</query>
+		
+		<query id="clm.admin.maxRegulationNo" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		         SELECT MAX(RULE_NO) AS MAX_RULE_NO
+		          FROM TN_CLM_PRCS_RULE_TYPE1
+		         WHERE 1=1 
+		        #if(!$vo.menuGubun.equals(""))
+			       AND MENU_GBN = :vo.menuGubun
+			    #end
+		    ]]>
+		  </statement>
+		</query>
+		
+		<!-- 계약용어집, 계약유형이해 1단계 조회 : 2011.11.06 : 김재원 -->	
+		<query id="clm.admin.listODepthDimesionWord" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		         SELECT A.RULE_NO
+		              , A.UP_RULE_NO
+		              , A.RULE_DEPTH
+		              , A.RULE_SRT
+		              , A.DN_RULE_EXIST_YN
+		              , A.RULE_TITLE
+		              , A.RULE_CONT
+				   FROM TN_CLM_PRCS_RULE_TYPE1 A
+				  WHERE RULE_DEPTH = 1
+				    AND RULE_SRT   = 1
+				    AND EXISTS (SELECT '1' 
+				                FROM TN_CLM_PRCS_RULE_TYPE1 
+				                WHERE UP_RULE_NO = A.UP_RULE_NO 
+				                      AND DEL_YN='N' 
+				                      AND RULE_DEPTH <> '1')
+		        #if(!$vo.menuGubun.equals(""))
+			        AND A.MENU_GBN = :vo.menuGubun
+			    #end				 
+			    	AND DEL_YN = 'N'   
+				  ORDER BY A.UP_RULE_NO, A.RULE_DEPTH, A.RULE_SRT
+		    ]]>
+		  </statement>
+		</query>
+		
+		<!-- 등록 화면 전체depth(selectbox)조회. : 2011.11.04 : 김재원-->	
+		<query id="clm.admin.listUpRuleDimension" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    	SELECT * FROM
+			        (SELECT RULE_NO
+					      , UP_RULE_NO
+					      , RULE_DEPTH
+					      , RULE_SRT
+					      , DN_RULE_EXIST_YN
+					      , RULE_TITLE
+					      , RULE_CONT
+					      , REG_DT
+					      , REG_ID
+					      , REG_NM
+					FROM TN_CLM_PRCS_RULE_TYPE1
+					WHERE 1=1
+						AND DEL_YN = 'N'
+						#if(!$vo.menuGubun.equals(""))
+					        AND MENU_GBN = :vo.menuGubun
+					  	#end
+					  	AND UP_RULE_NO IN (
+					  		SELECT UP_RULE_NO FROM TN_CLM_PRCS_RULE_TYPE1
+					  		WHERE DEL_YN = 'N'
+					  		GROUP BY UP_RULE_NO HAVING COUNT(UP_RULE_NO) > 1)
+					) A
+				WHERE A.RULE_DEPTH = 1
+				ORDER BY UP_RULE_NO, RULE_DEPTH, RULE_SRT
+		    ]]>
+		  </statement>
+		</query>
+		
+		<!-- 규정번호 max값 조회  : 2011.09.21 : dawn -->	
+		<query id="clm.admin.maxRuleNoDimesion" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		         SELECT ISNULL(MAX(RULE_NO)+1, 1) MAX_RULE_NO
+  				   FROM TN_CLM_PRCS_RULE_TYPE1
+  				  WHERE 1=1
+  				#if(!$vo.menuGubun.equals(""))
+			        AND MENU_GBN = :vo.menuGubun
+			    #end
+		    ]]>
+		  </statement>
+		</query>
+		
+		<!-- 최상위가 null 일 경우  : 2011.09.21 : dawn -->	
+		<query id="clm.admin.maxUpRuleNoDimesion" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		         SELECT ISNULL(MAX(UP_RULE_NO)+1, 1) MAX_UP_RULE_NO
+  				   FROM TN_CLM_PRCS_RULE_TYPE1
+  				  WHERE 1=1
+  				#if(!$vo.menuGubun.equals(""))
+			        AND MENU_GBN = :vo.menuGubun
+			    #end
+		    ]]>
+		  </statement>
+		</query>
+		
+		<!-- 현재 상위 규정번호 조회.  : 2011.09.21 : dawn -->	
+		<query id="clm.admin.nUpRuleNoDimesion" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		         SELECT UP_RULE_NO
+  				   FROM TN_CLM_PRCS_RULE_TYPE1
+  				  WHERE 1=1
+  				#if(!$vo.menuGubun.equals(""))
+			        AND MENU_GBN = :vo.menuGubun
+			    #end
+			        AND RULE_NO = :vo.srch_rule_choice
+  				   
+		    ]]>
+		  </statement>
+		</query>
+		
+		<!-- 규정단계 max 값 조회.  : 2011.09.21 : dawn -->	
+		<query id="clm.admin.maxRuleDepthDimesion" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		         SELECT MAX(RULE_DEPTH) MAX_RULE_DEPTH
+				      , MAX(RULE_SRT) MAX_RULE_SRT
+				   FROM TN_CLM_PRCS_RULE_TYPE1
+				  WHERE 1=1
+				#if(!$vo.menuGubun.equals(""))
+			        AND MENU_GBN = :vo.menuGubun
+			    #end
+				    AND UP_RULE_NO = :vo.up_rule_no
+		    ]]>
+		  </statement>
+		</query>
+		
+		<!-- 규정단계 max 값 조회.  : 2011.09.21 : dawn -->	
+		<query id="clm.admin.maxRuleDepthTwoDimesion" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		         SELECT MAX(RULE_DEPTH) MAX_RULE_DEPTH
+				      , MAX(RULE_SRT)+1 MAX_RULE_SRT
+				   FROM TN_CLM_PRCS_RULE_TYPE1
+				  WHERE 1=1
+				#if(!$vo.menuGubun.equals(""))
+			        AND MENU_GBN = :vo.menuGubun
+			    #end
+				    AND UP_RULE_NO = :vo.up_rule_no
+		    ]]>
+		  </statement>
+		</query>
+		
+		<!-- 규정단계 max 값 조회.  : 2011.09.21 : dawn -->	
+		<query id="clm.admin.modifyDnRuleExistYnDimesion" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		         UPDATE TN_CLM_PRCS_RULE_TYPE1
+				    SET DN_RULE_EXIST_YN = 'Y'
+				  WHERE UP_RULE_NO = :vo.up_rule_no 
+				    AND RULE_DEPTH = :vo.rule_depth
+				    AND RULE_SRT   = :vo.rule_srt
+				#if(!$vo.menuGubun.equals(""))
+			        AND MENU_GBN = :vo.menuGubun
+			    #end
+		    ]]>
+		  </statement>
+		</query>
+		
+		
+    </queries>
+</queryservice>

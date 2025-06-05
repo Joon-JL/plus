@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+
+	<!-- Common Controller -->
+	<bean id="secfw.commonControl"
+		class="com.sds.secframework.common.control.CommonController">
+		<property name="localeResolver"     ref="localeResolver" />
+		<property name="propertyService"    ref="secfw.propertyService" />
+		<property name="messageSource"      ref="messageSource" />	
+		<property name="methodNameResolver" ref="paramResolver" />		
+	</bean>
+
+	<!-- 사용자 관리 -->
+	<bean id="secfw.userControl"
+		class="com.sds.secframework.user.control.UserController" parent="secfw.commonControl">
+		<property name="userService" ref="secfw.userService" />
+		<property name="esbOrgService"      ref="secfw.esbOrgService" />
+		<property name="logService"         ref="secfw.logService" />
+		<!-- 2014-05-14 Kevin added. -->
+		<property name="completionService" ref="clm.completionService" />
+		<!-- FERNANDO (MFA project) Jan/2024 - start -->
+		<property name="mailSendService" ref="clm.mailSendService" />
+		<!-- FERNANDO (MFA project) Jan/2024 - end -->
+	</bean>
+		
+	<!-- Link 관리 -->
+	<bean id="secfw.linkControl"
+		class="com.sds.secframework.user.control.LinkController" parent="secfw.commonControl">
+	</bean>
+	
+	<!-- 김정곤  2010/03/21 사용자등록관리-->
+	<bean id="secfw.userManagerControl"
+		class="com.sds.secframework.user.control.UserManagerController" parent="secfw.commonControl">
+		<property name="userManagerService"  ref="secfw.userManagerService" /> 
+		<property name="propertyService" ref="secfw.propertyService" />
+		<property name="methodNameResolver" ref="paramResolver" />
+		<property name="esbOrgService"      ref="secfw.esbOrgService" />		
+	</bean>	
+	
+	<!-- System ALERT -->
+	<bean id="secfw.systemAlertControl" class="com.sds.secframework.util.control.SystemAlertController" parent="secfw.commonControl">
+	</bean>
+	
+	<!-- 게시판관리 -->
+	<bean id="secfw.bbsMngControl"
+		class="com.sds.secframework.bbs.control.BBSMngController" parent="secfw.commonControl">
+		<property name="bbsMngService"  ref="secfw.bbsMngService" />
+		<property name="codeService"    ref="secfw.codeService" />
+	</bean>	
+	
+	<!-- 게시내역 관리 -->
+	<bean id="secfw.bbsControl"
+		class="com.sds.secframework.bbs.control.BBSController" parent="secfw.commonControl">
+		<property name="bbsService"  ref="secfw.bbsService" />
+		<property name="bbsMngService"  ref="secfw.bbsMngService" />
+	</bean>	
+	
+	<!-- 부서관리 -->
+	<bean id="secfw.deptControl"
+		class="com.sds.secframework.dept.control.DeptController" parent="secfw.commonControl">
+		<property name="deptService"  ref="secfw.deptService" />
+	</bean>	
+
+	<!-- 달력팝업 -->
+	<bean id="secfw.popCalendarControl"
+		class="com.sds.secframework.util.control.CalendarController" parent="secfw.commonControl">
+	</bean>
+	
+	<!-- 공통코드 관리 -->
+	<bean id="secfw.codeControl"
+		class="com.sds.secframework.code.control.CodeController" parent="secfw.commonControl">
+		<property name="codeService" ref="secfw.codeService" />
+	</bean>
+
+	<!-- 공통코드 관리(TB_COM_CD만 관리) -->
+	<bean id="secfw.actscodeControl"
+		class="com.sds.secframework.code.control.ActscodeController" parent="secfw.commonControl">
+		<property name="actscodeService" 	ref="secfw.actscodeService" />
+		<property name="comUtilService"     ref="secfw.comUtilService" />
+	</bean>	
+	
+
+	<!-- 우편번호 검색 -->
+	<bean id="secfw.zipControl" class="com.sds.secframework.util.control.ZipController" parent="secfw.commonControl">
+		<property name="zipService" ref="secfw.zipService" />
+		<property name="success_list"    value="/WEB-INF/jsp/secfw/search/ZipListPopup.jsp" />	
+	</bean>
+		
+	<!-- 로그현황 -->
+	<bean id="secfw.logControl"
+		class="com.sds.secframework.log.control.LogController" parent="secfw.commonControl">
+		<property name="logService" ref="secfw.logService" />
+	</bean>
+
+	<!-- 역할관리  -->	
+	<bean id="secfw.roleMngControl"
+		class="com.sds.secframework.auth.control.RoleMngController" parent="secfw.commonControl">	
+		<property name="roleMngService" ref="secfw.roleMngService" />				
+	</bean>	
+
+	<!-- 권한관리  -->	
+	<bean id="secfw.authMngControl"
+		class="com.sds.secframework.auth.control.AuthMngController" parent="secfw.commonControl">		
+		<property name="authMngService" ref="secfw.authMngService" />
+	</bean>
+
+	<!-- 역활권한 매핑  -->	
+	<bean id="secfw.authMappingControl"
+		class="com.sds.secframework.auth.control.AuthMappingController" parent="secfw.commonControl">		
+		<property name="authMappingService" ref="secfw.authMappingService" />
+		<property name="clmsComService"      ref="common.clmsComService" />
+		<property name="userManagerService"  ref="secfw.userManagerService" />
+			
+	</bean>
+	<!-- //역활권한 매핑  -->	
+
+	<!-- 메뉴관리 -->
+	<bean id="secfw.menuMngControl"
+		class="com.sds.secframework.menu.control.MenuMngController" parent="secfw.commonControl">
+		<property name="menuService" ref="secfw.menuMngService" />
+	</bean>	
+
+	<!-- 페이지관리 -->
+	<bean id="secfw.pageMngControl"
+		class="com.sds.secframework.menu.control.PageMngController" parent="secfw.commonControl">
+		<property name="pageMngService"     ref="secfw.pageMngService" />
+	</bean>	
+
+	<!-- SiteMap -->
+	<bean id="secfw.siteMapControl"
+		class="com.sds.secframework.menu.control.SiteMapController">
+		<property name="siteMapService"     ref="secfw.siteMapService" />
+		<property name="propertyService" ref="secfw.propertyService" />
+		<property name="methodNameResolver" ref="paramResolver" />		
+	</bean>	
+	
+	<!-- ESB임직원/부서조회 -->
+	<bean id="secfw.esbOrgControl"
+		class="com.sds.secframework.singleIF.control.EsbOrgController" parent="secfw.commonControl">
+		<property name="esbOrgService"      ref="secfw.esbOrgService" />
+	</bean>	
+
+	<!-- 싱글메일 -->
+	<bean id="secfw.esbMailControl"
+		class="com.sds.secframework.singleIF.control.EsbMailController" parent="secfw.commonControl">
+		<property name="esbMailService"     ref="secfw.esbMailService" />
+		<property name="comUtilService"     ref="secfw.comUtilService" />
+		<property name="esbOrgService"      ref="secfw.esbOrgService" />
+		<property name="userService" 		ref="secfw.userService" />		<!-- 사용자관리 -->
+		<property name="considerationService"	ref="clm.reviewService"/> 	<!-- 계약검토 -->
+		<property name="mailSendService" ref="clm.mailSendService" />
+	</bean>	
+
+	<!-- 싱글결재 -->
+	<bean id="secfw.esbApprovalControl"
+		class="com.sds.secframework.singleIF.control.EsbApprovalController" parent="secfw.commonControl">
+		<property name="esbApprovalService" ref="secfw.esbApprovalService" />
+		<property name="comUtilService"     ref="secfw.comUtilService" />
+		<property name="esbOrgService"      ref="secfw.esbOrgService" />
+		<property name="esbMailService"     ref="secfw.esbMailService" />
+		<property name="mailSendService" ref="clm.mailSendService" />
+	</bean>
+	
+	<!-- 공통Combo -->
+	<bean id="secfw.comboControl"
+		class="com.sds.secframework.util.control.ComboController" parent="secfw.commonControl">
+		<property name="comboService"  ref="secfw.comboService" />
+	</bean>	
+			
+	
+	<!-- Main 컨틀롤 -->
+	<bean id="secfw.mainControl"
+		class="com.sds.secframework.main.control.MainController" parent="secfw.commonControl">
+		<property name="mainService"        ref="secfw.mainService" />
+		<property name="menuService"        ref="secfw.menuService" />
+		<property name="boardService" 		ref="clm.adminBoardService"/>	<!-- 계약관리 공지사항 -->
+		<property name="manageService" 		ref="clm.manageService"/>		<!-- 계약관리 MyApproval -->
+		<property name="myNoticeService" 	ref="clm.myNoticeService"/>		<!-- 계약관리 My Notice -->
+		<property name="noticeService" 		ref="las.noticeService"/>		<!-- 법무 공지사항 -->
+		<property name="mainLawInfoService" ref="las.mainLawInfoService"/>	<!-- 법무 입법동향 -->
+		<property name="lawConsultService" 	ref="las.lawConsultService"/>	<!-- 법무 자문 -->
+		<property name="considerationService"	ref="clm.reviewService"/> <!-- 계약검토 -->
+		<property name="userService" 		ref="secfw.userService" />		<!-- 사용자관리 -->
+	</bean>
+	
+
+	<!-- volatilizationService -->
+	<bean id="secfw.volatilizationControl"
+		class="com.sds.secframework.volatilization.control.VolatilizationController" parent="secfw.commonControl">
+		<property name="volatilizationService"  ref="secfw.volatilizationService" />
+		<property name="userService" ref="secfw.userService" />
+	</bean>
+	
+	<!-- 메뉴 컨틀롤 -->
+	<bean id="secfw.menuControl"
+		class="com.sds.secframework.menu.control.MenuController" parent="secfw.commonControl">
+		<property name="menuService" ref="secfw.menuService" />
+		<property name="methodNameResolver"  ref="paramResolver"/>
+	</bean>
+	
+	<!-- ################################################################ -->
+	<!-- ###### 게시판 에러(개발보류함)										  -->
+	<!-- ################################################################ -->
+	<!--  게시판 관리 -->
+	<bean id="secfw.boardMngController"
+		class="com.sds.secframework.board.control.BoardMngController" parent="secfw.commonControl">
+		<property name="boardMngService" ref="secfw.boardMngService" />
+		<property name="propertyService" ref="secfw.propertyService" />
+		<property name="methodNameResolver" ref="paramResolver" />
+	</bean>
+	
+	<!--  게시판  -->
+	<bean id="secfw.boardController"
+		class="com.sds.secframework.board.control.BoardController" parent="secfw.commonControl">
+		<property name="boardMngService" ref="secfw.boardMngService" />
+		<property name="boardService" ref="secfw.boardService" />
+		<property name="comboService"  ref="secfw.comboService" />
+		<property name="propertyService" ref="secfw.propertyService" />
+		<property name="methodNameResolver" ref="paramResolver" />
+	</bean>	
+	
+	<!-- 클래스메소드 권한설정 -->
+	<bean id="secfw.classMethodAuthControl"
+		class="com.sds.secframework.auth.control.ClassMethodAuthController" parent="secfw.commonControl">
+		<property name="classMethodAuthService" ref="secfw.classMethodAuthService"/>
+		<property name="propertyService" ref="secfw.propertyService"/>
+		<property name="methodNameResolver" ref="paramResolver"/>
+	</bean>
+	
+	<!-- 클래스메소드 권한설정 -->
+	<bean id="secfw.classMethodRoleControl"
+		class="com.sds.secframework.auth.control.ClassMethodRoleController" parent="secfw.commonControl">
+		<property name="classMethodRoleService" ref="secfw.classMethodRoleService"/>
+		<property name="propertyService" ref="secfw.propertyService"/>
+		<property name="methodNameResolver" ref="paramResolver"/>
+	</bean>
+
+	<!-- 사용자 Sorting 관리 -->
+	<bean id="secfw.userSortingManagerControl"
+		class="com.sds.secframework.user.control.UserSortingManagerComtroller" parent="secfw.commonControl">
+		<property name="userSortingManagerService" ref="secfw.userSortingManagerService" />
+		<property name="esbOrgService"      ref="secfw.esbOrgService" />
+		<property name="logService"         ref="secfw.logService" />
+	</bean>
+	
+	<!-- DextUpload -->
+  <bean id="secfw.dextUpload"
+    class="com.sds.secframework.dext.control.DextUploadController" parent="secfw.commonControl">
+    <property name="dextUploadService" ref="secfw.dextUploadService" />
+  </bean>
+	
+</beans>

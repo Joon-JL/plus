@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean id="firstHandlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="order" value="1" />
+		<property name="interceptors">
+			<list>
+				<ref bean="secfw.clmsInterceptor"/>
+				<ref bean="secfw.AuthInterceptor"/>		
+				<ref bean="secfw.menuInterceptor" />		
+			</list>
+		</property>
+		<property name="alwaysUseFullPath" value="true" />
+		<property name="mappings">
+			<props>
+				<prop key="/secfw/user.do">secfw.userControl</prop>
+				<!-- 게시내역관리 -->
+				<prop key="/secfw/bbsMng.do">secfw.bbsMngControl</prop>
+				<prop key="/secfw/bbs.do">secfw.bbsControl</prop>
+				<!-- 메뉴/페이지관리 -->
+				<prop key="/secfw/menuMng.do">secfw.menuMngControl</prop>
+				<prop key="/secfw/pageMng.do">secfw.pageMngControl</prop>
+				<prop key="/secfw/siteMap.do">secfw.siteMapControl</prop>				
+				<!-- 역활권한관리 -->
+				<prop key="/secfw/roleMng.do">secfw.roleMngControl</prop>
+				<prop key="/secfw/authMng.do">secfw.authMngControl</prop>
+				<!--2010/03/21 김정곤 추가 사용자관리 -->				
+				<prop key="/secfw/userMng.do">secfw.userManagerControl</prop>				
+				<!-- 권한매핑 -->
+				<prop key="/secfw/authMapping.do">secfw.authMappingControl</prop>
+				<!-- 로그현황 -->
+				<prop key="/secfw/log.do">secfw.logControl</prop>
+				<!-- 공통코드관리 -->
+				<prop key="/secfw/code.do">secfw.codeControl</prop>
+				<prop key="/secfw/codeForward.do">secfw.codeForward</prop>
+				<prop key="/secfw/codeCompForward.do">secfw.codeCompForward</prop>
+				<prop key="/secfw/actsCode.do">secfw.actscodeControl</prop>
+				<!-- 싱글 메일/결재관리 -->
+				<prop key="/secfw/esbOrg.do">secfw.esbOrgControl</prop>
+				<prop key="/secfw/esbMail.do">secfw.esbMailControl</prop>
+				<prop key="/secfw/esbApproval.do">secfw.esbApprovalControl</prop>
+				<prop key="/secfw/dept.do">secfw.deptControl</prop>
+				<prop key="/secfw/util.do">secfw.zipControl</prop>
+				<prop key="/secfw/systemAlert.do">secfw.systemAlertControl</prop>
+				<!-- 메소드권한설정 -->
+				<prop key="/secfw/classMethodAuth.do">secfw.classMethodAuthControl</prop>
+				
+				<!-- 메인페이지 -->
+				<prop key="/secfw/main/mainPageForward.do">secfw.mainPageForward</prop>
+				<prop key="/secfw/main/templateTop.do">secfw.mainTemplateTopForward</prop>
+				<prop key="/secfw/main/templateLeft.do">secfw.mainTemplateLeftForward</prop>
+				<prop key="/secfw/main/templateContent.do">secfw.mainTemplateContentForward</prop>
+				
+				<!-- 클래스메소드 역할 설정 -->
+				<prop key="/secfw/classMethodRole.do">secfw.classMethodRoleControl</prop>
+				<!-- 클래스메소드 역할 설정 -->
+				
+				<!-- 사용자 Sorting 정보 설정 -->
+				<prop key="/secfw/userSortingMng.do">secfw.userSortingManagerControl</prop>
+				
+				<!-- 메인화면관리 -->
+				<prop key="/secfw/mainPageMng.do">secfw.mainControl</prop>
+				
+			</props>
+		</property>
+	</bean>
+
+	<bean id="secondHandlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="order" value="2" />
+		<property name="interceptors">
+			<list>
+				<!-- ref bean="secfw.menuInterceptor" / -->
+			</list>
+		</property>
+		<property name="alwaysUseFullPath" value="true" />
+		<property name="mappings">
+			<props>
+				<prop key="/secfw/ssoCheck.do">secfw.userControl</prop>
+				<prop key="/login.do">secfw.ssoCheckPageForward</prop>
+				<prop key="/ssoFw.do">secfw.ssoPageForward</prop>
+				<prop key="/ssoLoginCrossBrowse.do">secfw.ssoLoginCrossBrowse</prop>			
+				<prop key="/secfw/intro.do">secfw.introPageForward</prop>
+				<prop key="/secfw/main2.do">secfw.mainControl</prop>
+				<prop key="/secfw/menu.do">secfw.menuControl</prop>
+				<prop key="/secfw/popCalendar.do">secfw.popCalendarControl</prop>
+				<prop key="/secfw/access.do">secfw.userControl</prop>
+				<prop key="/link.do">secfw.linkControl</prop>
+				<!-- 2014-05-14 Kevin added. -->
+				<prop key="/external/gateway.do">secfw.ssoCheckPageForwardForExternal</prop>
+				<prop key="/external/access.do">secfw.userControl</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="thirdHandlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="order" value="2" />
+		<property name="interceptors">
+			<list>
+				<ref bean="secfw.clmsInterceptor"/>
+				<ref bean="secfw.menuInterceptor" />
+			</list>
+		</property>
+		<property name="alwaysUseFullPath" value="true" />
+		<property name="mappings">
+			<props>
+				<prop key="/secfw/main.do">secfw.mainControl</prop>		
+				<prop key="/secfw/user2.do">secfw.userControl</prop>		
+			</props>
+		</property>
+	</bean>	
+
+	<bean id="utilHandlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="order" value="3" />
+		<property name="interceptors">
+			<list>
+			</list>
+		</property>
+		<property name="alwaysUseFullPath" value="true" />
+		<property name="mappings">
+			<props>
+				<prop key="/secfw/combo.do">secfw.comboControl</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="volatileHandlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="order" value="9" />
+		<property name="interceptors">
+			<list>
+				<!-- ref bean="secfw.menuInterceptor" / -->
+			</list>
+		</property>
+		<property name="alwaysUseFullPath" value="true" />
+		<property name="mappings">
+			<props>
+				<prop key="/secfw/volatile.do">secfw.volatilizationControl</prop>
+				<prop key="/secfw/volatile/login.do">secfw.volatile.login</prop>
+			</props>
+		</property>
+	</bean>
+	
+	
+	<!-- ################################################################ -->
+	<!-- ###### 게시판 에러(개발보류함)										  -->
+	<!-- ################################################################ -->
+	<!-- 게시판 관리 -->
+	<bean id="secfw.boardMngHandlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="order" value="1" />
+		<property name="interceptors">
+			<list>
+				<ref bean="secfw.authCheckInterceptor" />
+				<ref bean="secfw.menuInterceptor" />
+			</list>
+		</property>
+		<property name="alwaysUseFullPath" value="true" />
+		<property name="mappings">
+			<props>
+				<prop key="/secfw/boardMng.do">secfw.boardMngController</prop>
+				<prop key="/secfw/boardErrorDeleted.do">secfw.board.deletedBoard</prop>
+			</props>
+		</property>
+	</bean>	
+	
+
+	<!-- 게시판 -->
+	<bean id="secfw.boardHandlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="order" value="1" />
+		<property name="interceptors">
+			<list>
+				<ref bean="secfw.authCheckInterceptor" />
+				<ref bean="secfw.menuInterceptor" />
+				<ref bean="secfw.boardAuthCheckInterceptor" />
+			</list>
+		</property>
+		<property name="alwaysUseFullPath" value="true" />
+		<property name="mappings">
+			<props>
+				<prop key="/secfw/board.do">secfw.boardController</prop>
+			</props>
+		</property>
+	</bean>
+
+  	
+	<!-- DextUpload 핸들러매핑 -->
+	<bean id="dextUploadHandlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+    <property name="order" value="2" />
+    <property name="alwaysUseFullPath" value="true" />
+    <property name="mappings">
+      <props>
+        <prop key="/dextForward.du">secfw.dextForward</prop>
+        <prop key="/dextUpload.du">secfw.dextUpload</prop>
+      </props>
+    </property>
+  </bean>	
+	
+		
+</beans>

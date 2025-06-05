@@ -1,0 +1,610 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+	<queries>
+	
+		<!-- ClmsFile : 첨부파일 목록 조회(라이브러리일 경우) -->
+		<query id="clms.common.listClmsFile" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+			SELECT T.FILE_ID,T.FILE_PATH,T.ORG_FILE_NM,T.FILE_SRT,CAST(T.FILE_SZ AS NUMERIC) AS FILE_SZ
+				,T.SYS_CD,T.FILE_BIGCLSFCN,T.FILE_MIDCLSFCN,T.FILE_SMLCLSFCN
+				,T.REF_KEY,T.FILE_INFO,T.REG_DT,T.REG_ID, CAST(COUNT(T.FILE_CNT) AS NUMERIC) AS DN_CNT 
+			FROM  (
+						SELECT A.FILE_ID,A.FILE_PATH,A.ORG_FILE_NM,A.FILE_SRT,A.FILE_SZ,A.SYS_CD,A.FILE_BIGCLSFCN,A.FILE_MIDCLSFCN,A.FILE_SMLCLSFCN
+									,A.REF_KEY,A.FILE_INFO,A.REG_DT,A.REG_ID,B.FILE_PATH AS FILE_CNT
+						FROM	TN_COM_ATTACH A LEFT OUTER JOIN TB_COM_FILE_STAT B
+						ON 	A.ORG_FILE_NM = B.FILE_NM AND A.FILE_PATH = B.FILE_PATH
+						WHERE		A.DEL_YN = 'N'
+						AND	  	A.REF_KEY = :vo.ref_key
+					#if(!$vo.file_bigclsfcn.equals(""))
+						AND   	A.FILE_BIGCLSFCN = :vo.file_bigclsfcn
+					#end
+					#if(!$vo.file_midclsfcn.equals(""))
+						AND   	A.FILE_MIDCLSFCN = :vo.file_midclsfcn
+					#end
+					#if(!$vo.file_smlclsfcn.equals(""))
+						AND   	A.FILE_SMLCLSFCN = :vo.file_smlclsfcn
+					#end
+					    --AND	A.SYS_CD = B.SYS_CD(+)
+						) T
+			GROUP BY T.FILE_ID,T.FILE_PATH,T.ORG_FILE_NM,T.FILE_SRT,T.FILE_SZ,T.SYS_CD,T.FILE_BIGCLSFCN,T.FILE_MIDCLSFCN,T.FILE_SMLCLSFCN
+					,T.REF_KEY,T.FILE_INFO,T.REG_DT,T.REG_ID
+			ORDER BY T.FILE_SRT		
+		    ]]>
+		  </statement>
+		</query>
+
+		<!-- ClmsFile : 첨부파일 목록 조회(라이브러리가 아닐 경우) : 신남원 : 2011.08.04-->
+		<query id="clms.common.listClmsFile2" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+			SELECT FILE_ID
+					,REPLACE(FILE_PATH,'\','\\') AS FILE_PATH
+					,ORG_FILE_NM
+					,FILE_SRT
+					,CAST(FILE_SZ AS NUMERIC) AS FILE_SZ
+					,SYS_CD
+					,FILE_BIGCLSFCN
+					,FILE_MIDCLSFCN
+					,FILE_SMLCLSFCN
+					,REF_KEY
+					,FILE_INFO
+					,REG_DT
+					,REG_ID
+					,CAST(0 AS NUMERIC) AS DN_CNT
+			FROM	TN_COM_ATTACH
+			WHERE	DEL_YN = 'N'
+			AND	  	REF_KEY = :vo.ref_key
+		#if(!$vo.file_bigclsfcn.equals(""))
+			AND   	FILE_BIGCLSFCN = :vo.file_bigclsfcn
+		#end
+		#if(!$vo.file_midclsfcn.equals(""))
+			AND   	FILE_MIDCLSFCN = :vo.file_midclsfcn
+		#end
+		#if(!$vo.file_smlclsfcn.equals(""))
+			AND   	FILE_SMLCLSFCN = :vo.file_smlclsfcn
+		#end
+			ORDER BY FILE_SRT DESC
+		    ]]>
+		  </statement>
+		</query>
+				
+		<!-- ClmsFile : 첨부파일 추가 : 신남원 : 2011.08.04-->		
+		<query id="clms.common.insertClmsFile" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    INSERT INTO TN_COM_ATTACH (
+			         FILE_ID
+	               , FILE_PATH
+	               , ORG_FILE_NM
+	               , FILE_SRT
+	               , FILE_SZ
+	               , SYS_CD
+	               , FILE_BIGCLSFCN
+	               , FILE_MIDCLSFCN
+	               , FILE_SMLCLSFCN
+	               , REF_KEY
+	               , FILE_INFO
+	               , REG_DT
+	               , REG_ID
+	               , DEL_YN
+			) VALUES (
+		           cast(replace(newid(), '-','') as char(32)) /*:vo.file_id*/
+		          ,:vo.file_path
+		          ,:vo.org_file_nm
+		          ,:vo.file_srt
+		          ,:vo.file_sz
+		          ,:vo.sys_cd
+		          ,:vo.file_bigclsfcn
+		          ,:vo.file_midclsfcn
+		          ,:vo.file_smlclsfcn
+		          ,:vo.ref_key
+		          ,:vo.file_info
+		          , GETDATE()
+		          ,:vo.reg_id
+		          ,'N'
+		    )
+		    ]]>
+		  </statement>
+		</query>
+		
+		<!-- ClmsFile : 첨부파일 추가 : 신남원 : 2011.08.04-->		
+		<query id="clms.common.insertClmsFilePDF" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    INSERT INTO TN_COM_ATTACH (
+			         FILE_ID
+	               , FILE_PATH
+	               , ORG_FILE_NM
+	               , FILE_SRT
+	               , FILE_SZ
+	               , SYS_CD
+	               , FILE_BIGCLSFCN
+	               , FILE_MIDCLSFCN
+	               , FILE_SMLCLSFCN
+	               , REF_KEY
+	               , FILE_INFO
+	               , REG_DT
+	               , REG_ID
+	               , DEL_YN
+	               , OCR_WORK_TARGET
+	               , OCR_WORK_LANG
+			) VALUES (
+		           cast(replace(newid(), '-','') as char(32)) /*:vo.file_id*/
+		          ,:vo.file_path
+		          ,:vo.org_file_nm
+		          ,:vo.file_srt
+		          ,:vo.file_sz
+		          ,:vo.sys_cd
+		          ,:vo.file_bigclsfcn
+		          ,:vo.file_midclsfcn
+		          ,:vo.file_smlclsfcn
+		          ,:vo.ref_key
+		          ,:vo.file_info
+		          , GETDATE()
+		          ,:vo.reg_id
+		          ,'N'
+		          ,'N'
+		          ,UPPER(:vo.ocr_work_lang)
+		    )
+		    ]]>
+		  </statement>
+		</query>
+		
+		<!-- ClmsFile : 기존 계약서 파일 삭제 : 신남원 : 2011.08.04-->			
+		<query id="clms.common.deleteBeforeCntrtFile" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    UPDATE	TN_COM_ATTACH
+		    SET		DEL_YN = 'Y'
+		    	,	DEL_ID = :vo.del_id
+		    	,	DEL_DT = GETDATE()
+			WHERE	REF_KEY = :vo.ref_key	 
+			AND  	FILE_BIGCLSFCN = :vo.file_bigclsfcn
+			AND    	FILE_MIDCLSFCN = :vo.file_midclsfcn
+			#if(!$vo.file_smlclsfcn.equals(""))
+				AND    	FILE_SMLCLSFCN = :vo.file_smlclsfcn
+			#end
+			AND		DEL_YN = 'N'
+			--AND	SYS_CD = :vo.sys_cd
+		    ]]>
+		  </statement>
+		</query>
+				
+		<!-- ClmsFile : 첨부파일 삭제 : 신남원 : 2011.08.04-->
+		<!-- Sungwoo Replaced condition -->			
+		<query id="clms.common.deleteClmsFile" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    UPDATE	TN_COM_ATTACH
+		    SET		DEL_YN = 'Y'
+		    	,	DEL_ID = :vo.del_id
+		    	,	DEL_DT = GETDATE()
+			WHERE	(DEL_YN = 'N' OR DEL_YN IS NULL)  	
+			AND		REF_KEY = :vo.ref_key	
+		#if($vo.file_bigclsfcn != "null" && !$vo.file_bigclsfcn.equals(""))
+			AND  	FILE_BIGCLSFCN = :vo.file_bigclsfcn
+		#end
+		#if($vo.file_midclsfcn != "null" && !$vo.file_midclsfcn.equals(""))
+			AND    	FILE_MIDCLSFCN = :vo.file_midclsfcn
+		#end
+		#if($vo.file_smlclsfcn != "null" && !$vo.file_smlclsfcn.equals(""))
+			AND    	FILE_SMLCLSFCN = :vo.file_smlclsfcn
+		#end
+		#if($vo.file_id != "null" && !$vo.file_id.equals(""))
+			AND		FILE_ID = :vo.file_id
+		#end
+			--AND		SYS_CD = :vo.sys_cd
+		    ]]>
+		  </statement>
+		</query>
+		
+		<!-- ClmsFile : 첨부파일 상세 조회 : 신남원 : 2011.08.04-->
+		<query id="clms.common.detailClmsFile" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+			SELECT FILE_ID
+			      ,FILE_PATH
+			      ,ORG_FILE_NM
+			      ,FILE_SRT
+			      ,FILE_SZ
+			      ,SYS_CD
+			      ,FILE_BIGCLSFCN
+			      ,FILE_MIDCLSFCN
+			      ,FILE_SMLCLSFCN
+			      ,REF_KEY
+			      ,FILE_INFO
+			      ,REG_DT
+			      ,REG_ID
+			      ,0 AS DN_CNT
+			FROM	TN_COM_ATTACH
+			WHERE DEL_YN = 'N'
+			--AND	  SYS_CD = :vo.sys_cd
+			AND   FILE_ID = :vo.file_id
+		    ]]>
+		  </statement>
+		</query>		
+		
+		<!-- ClmsFile : 첨부파일 순서 max값 구하기 : 신남원 : 2011.08.04-->
+		<query id="clms.common.maxFileSrt" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+			SELECT  ISNULL(MAX(FILE_SRT),0) AS MAX_FILE_SRT
+			FROM	TN_COM_ATTACH
+			WHERE	REF_KEY = :vo.ref_key	  
+		#if(!$vo.file_bigclsfcn.equals(""))
+			AND  	FILE_BIGCLSFCN = :vo.file_bigclsfcn
+		#end
+		#if(!$vo.file_midclsfcn.equals(""))
+			AND    	FILE_MIDCLSFCN = :vo.file_midclsfcn
+		#end
+		#if(!$vo.file_smlclsfcn.equals(""))
+			AND    	FILE_SMLCLSFCN = :vo.file_smlclsfcn
+		#end
+		    --AND	SYS_CD = :vo.sys_cd
+		    ]]>
+		  </statement>
+		</query>	
+
+		<!-- ClmsFile : 계약서일 경우 기존 첨부파일 명 변경  : 신남원 : 2011.10.08-->
+		<query id="clms.common.modifyBeforeCntrtFile" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+			UPDATE TN_COM_ATTACH
+			SET 	ORG_FILE_NM = :vo.newFileNm + '_' + :vo.fileVersion + '.' + FILE_INFO
+			WHERE	REF_KEY = :vo.ref_key
+		#if(!$vo.file_bigclsfcn.equals(""))
+			AND  	FILE_BIGCLSFCN = :vo.file_bigclsfcn
+		#end
+		#if(!$vo.file_midclsfcn.equals(""))
+			AND    	FILE_MIDCLSFCN = :vo.file_midclsfcn
+		#end
+		#if(!$vo.file_smlclsfcn.equals(""))
+			AND    	FILE_SMLCLSFCN = :vo.file_smlclsfcn
+		#end			
+			AND		DEL_YN = 'N'
+		    ]]>
+		  </statement>
+		</query>	
+
+		<!-- ClmsFile : 라이브러리일 경우 기존 첨부파일 명 변경  : 신남원 : 2011.10.08-->
+		<query id="clms.common.modifyBeforeLibFile" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+			UPDATE TN_COM_ATTACH
+			SET ORG_FILE_NM = :vo.newFileNm + '_' + to_char(file_srt) + '.' + file_info
+			where FILE_BIGCLSFCN = :vo.file_bigclsfcn
+			and REF_KEY = :vo.ref_key	
+		    ]]>
+		  </statement>
+		</query>	
+
+		<!-- ClmsFile : 첨부파일 버전  max값 구하기 : 신남원 : 2011.10.08-->
+		<query id="clms.common.getMaxFileNm" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+			SELECT  ORG_FILE_NM, FILE_INFO
+			FROM	TN_COM_ATTACH
+			WHERE	FILE_BIGCLSFCN = 'F012'
+			AND    	FILE_MIDCLSFCN = 'F01202'
+			AND		(FILE_SMLCLSFCN = 'F0120201' OR FILE_SMLCLSFCN = 'F0120202' OR FILE_SMLCLSFCN = 'F0120203')
+			AND		REF_KEY LIKE :cntrt_id + '@' + '%'
+			AND		DEL_YN = 'N'
+			ORDER BY REG_DT DESC 
+		    ]]>
+		  </statement>
+		</query>	
+		
+		<!-- ClmsFile : 의뢰차수 구하기 -->
+		<query id="clms.common.getCnsdLevel" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    SELECT CNSD_LEVEL, PLNDBN_REQ_YN 
+			FROM TN_CLM_CONT_CNSDREQ 
+			WHERE CNSDREQ_ID = :cnsdreq_id
+		    ]]>
+		  </statement>
+		</query>	
+
+		
+		<!-- ClmsFile : 계약서 첨부파일 정보 : 신남원 : 2011.10.08-->
+		<query id="clms.common.getCntrtFileInfo" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+			SELECT  ORG_FILE_NM, FILE_INFO
+			FROM	TN_COM_ATTACH
+			WHERE	REF_KEY = :vo.ref_key
+		#if(!$vo.file_bigclsfcn.equals(""))
+			AND  	FILE_BIGCLSFCN = :vo.file_bigclsfcn
+		#end
+		#if(!$vo.file_midclsfcn.equals(""))
+			AND    	FILE_MIDCLSFCN = :vo.file_midclsfcn
+		#end
+		#if(!$vo.file_smlclsfcn.equals(""))
+			AND		FILE_SMLCLSFCN = :vo.file_smlclsfcn
+		#end
+			AND		DEL_YN='N'
+			--AND	SYS_CD = :vo.sys_cd
+		    ]]>
+		  </statement>
+		</query>
+				
+		<!-- ClmsFile : 계약서정보 : 신남원 : 2011.10.08-->
+		<query id="clms.common.getCntrtInfo" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+			SELECT  CNTRT_ID, REG_OPERDIV, CNTRT_OPPNT_CD, BIZ_CLSFCN, DEPTH_CLSFCN, CNCLSNPURPS_BIGCLSFCN, CNCLSNPURPS_MIDCLSFCN
+			FROM	TN_CLM_CONTRACT_MASTER
+			WHERE   CNTRT_ID = :cntrt_id
+			AND		DEL_YN = 'N'
+		    ]]>
+		  </statement>
+		</query>
+						
+		<!-- ClmsFile : 파일명 작성을 위한 코드명 구하기 : 신남원 : 2011.10.08-->
+		<query id="clms.common.getCodeName" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    SELECT	CASE WHEN :locale_cd = 'ko' THEN CD_NM
+		    			 WHEN :locale_cd = 'fr' THEN CD_NM_FRA
+		    			 WHEN :locale_cd = 'de' THEN CD_NM_DEU
+		    			 ELSE CD_NM_ENG
+		    		END AS CD_NM
+		    FROM	TB_COM_CD
+			WHERE	SYS_CD = :sys_cd
+			AND		GRP_CD = :grp_cd
+			AND		CD	= :cd
+			AND		USE_YN = 'Y'
+		    ]]>
+		  </statement>
+		</query>	
+
+		<!-- ClmsFile : 파일명 작성을 위한 계약코드명 구하기 : 신남원 : 2011.10.08-->
+		<query id="clms.common.getCntrtCodeName" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    SELECT	CASE WHEN :locale_cd = 'ko' THEN CD_NM
+		    			 WHEN :locale_cd = 'fr' THEN CD_NM_FRA
+		    			 WHEN :locale_cd = 'de' THEN CD_NM_DEU
+		    			 ELSE CD_NM_ENG
+		    		END AS CD_NM
+		    FROM	TN_COM_CONTRACTTYPE_CD
+			WHERE UP_TYPE_CD = :grp_cd
+			AND		TYPE_CD = :cd
+			AND		USE_YN = 'Y'
+		    ]]>
+		  </statement>
+		</query>
+		
+		<!-- ClmsFile : 파일명 작성을 위한 계약사업부명 구하기 : 신남원 : 2011.10.08  김재원 수정 사업부 명칭은 약어로 변경 ORGNZ_NM에서 ORGNZ_NM_ABBR-->
+		<query id="clms.common.getDivName" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    SELECT	CASE WHEN :locale_cd = 'ko' THEN ORGNZ_NM_ABBR    
+		    			 ELSE ORGNZ_NM_ENG
+		    		END AS CD_NM
+		    FROM	TN_CLM_UNITORGNZ
+			WHERE 	ORGNZ_CD = :cd
+			AND		DEL_YN = 'N'
+		    ]]>
+		  </statement>
+		</query>
+
+		<!-- ClmsFile : 계약 상대방 명 구하기 : 신남원 : 2011.10.08-->
+		<query id="clms.common.getOppntName" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    SELECT  CUSTOMER_NM1,CUSTOMER_NM2,REPLACE(NATION,',','') NATION
+		    FROM	TN_CLM_CUSTOMER
+			WHERE 	CUSTOMER_CD = :cd
+		    ]]>
+		  </statement>
+		</query>
+				
+	    <!-- MailFile : 첨부파일 리스트 조회 : 신남원 : 2011.09.21-->
+	    <query id="clms.common.listMailFile" isCamelCase="false">
+			<statement>
+		    <![CDATA[
+			SELECT MODULE_ID 
+				 , MIS_ID
+			     , ISEQ_ID AS SEQUENCE
+			     , FILE_NAME 
+			     , LOCAL_PATH AS FILE_PATH
+			     , '0' AS FILE_SIZE
+			     , COUNT(*) OVER() AS TOTAL_CNT
+			  FROM TB_COM_ATTACH_ETY_CSVO 
+			 WHERE MODULE_ID = :vo.module_id 
+			   AND MIS_ID    = :vo.mis_id
+			 ORDER BY ISEQ_ID ASC 
+		    ]]>
+			</statement>
+	    </query>
+	    
+	    <!-- MailFile : 첨부파일 저장 : 신남원 : 2011.09.21-->
+		<query id="clms.common.insertMailFile">
+			<statement>
+			<![CDATA[
+			INSERT INTO TB_COM_ATTACH_ETY_CSVO
+				(
+			       MODULE_ID
+				  ,MIS_ID
+				  ,ISEQ_ID
+				  ,FILE_NAME
+				  ,LOCAL_PATH
+				)
+			VALUES
+				(
+			       :vo.module_id
+				  ,:vo.mis_id
+				  ,:vo.sequence
+				  ,:vo.file_name
+				  ,:vo.file_path
+				)
+			]]>
+			</statement>
+		</query>
+			
+	    <!-- MailFile : 첨부파일 삭제 : 신남원 : 2011.09.21-->
+		<query id="clms.common.deleteMailFile">
+			<statement>
+		    <![CDATA[
+			DELETE TB_COM_ATTACH_ETY_CSVO 
+			 WHERE MODULE_ID = :vo.module_id 
+			   AND MIS_ID    = :vo.mis_id
+		#if($vo.file_del_mode.equals("PART"))
+			   AND ISEQ_ID   = :vo.sequence
+		#end 			   
+		    ]]>
+			</statement>
+	    </query>		
+	    
+		<!-- MailFile : 첨부파일 상세 조회 : 신남원 : 2011.09.21-->
+	    <query id="clms.common.detailMailFile" isCamelCase="false">
+			<statement>
+		    <![CDATA[
+			SELECT MODULE_ID 
+				 , MIS_ID
+			     , ISEQ_ID AS SEQUENCE
+			     , FILE_NAME 
+			     , LOCAL_PATH AS FILE_PATH
+			     , '0' AS FILE_SIZE
+			  FROM TB_COM_ATTACH_ETY_CSVO 
+			 WHERE MODULE_ID = :vo.module_id 
+			   AND MIS_ID    = :vo.mis_id
+			   AND ISEQ_ID = :vo.sequence
+			 ORDER BY ISEQ_ID ASC 
+		    ]]>
+			</statement>
+	    </query>
+	    
+		<!-- MailFile : 첨부파일 순번 Max 값 구하기 : 신남원 : 2011.09.21-->
+	    <query id="clms.common.maxMailFileSeqNo" isCamelCase="false">
+			<statement>
+		    <![CDATA[
+			SELECT ISNULL(MAX(ISEQ_ID),0) AS MAX_SEQ_NO
+			  FROM TB_COM_ATTACH_ETY_CSVO 
+			 WHERE MODULE_ID = :vo.module_id 
+			   AND MIS_ID    = :vo.mis_id
+		    ]]>
+			</statement>
+	    </query>
+	    	    
+	    <!-- ApprovalFile : 첨부파일 리스트 조회 : 신남원 : 2011.09.21-->
+		<query id="clms.common.listApprovalFile" isCamelCase="false">
+			<statement>
+		    <![CDATA[
+			SELECT MODULE_ID
+				 , MIS_ID
+				 , SEQUENCE 
+			     , FILE_NAME 
+			     , FILE_SIZE 
+			     , STORE_LOCATION AS FILE_PATH
+			     , COUNT(*) OVER() AS TOTAL_CNT
+			  FROM TB_COM_ATTACHMENT_WSVO 
+			 WHERE MODULE_ID = :vo.module_id 
+			   AND MIS_ID    = :vo.mis_id
+		     ORDER BY TO_NUMBER(SEQUENCE) ASC
+		    ]]>
+			</statement>
+	    </query>
+	    
+	    <!-- ApprovalFile : 첨부파일 저장 : 신남원 : 2011.09.21-->
+		<query id="clms.common.insertApprovalFile" parameterClass="ApprovalAttachmentVO" resultClass="int">
+			<statement>
+			<![CDATA[
+			INSERT INTO TB_COM_ATTACHMENT_WSVO
+				(
+				   MODULE_ID
+			     , MIS_ID
+			     , SEQUENCE
+			     , FILE_NAME
+			     , FILE_SIZE
+			     , STORE_LOCATION
+				)
+			VALUES
+				(
+				   :vo.module_id
+			     , :vo.mis_id
+			     , :vo.sequence
+			     , :vo.file_name
+			     , :vo.file_size
+			     , :vo.file_path
+				)
+			]]>
+			</statement>
+		</query>	
+		
+		<!-- ApprovalFile : 첨부파일삭제 : 신남원 : 2011.09.21-->
+		<query id="clms.common.deleteApprovalFile">
+			<statement>
+		    <![CDATA[
+			DELETE TB_COM_ATTACHMENT_WSVO 
+			 WHERE MODULE_ID = :vo.module_id 
+			   AND MIS_ID    = :vo.mis_id
+		#if($vo.file_del_mode.equals("PART"))
+			   AND SEQUENCE   = :vo.sequence
+		#end			   
+		    ]]>
+			</statement>
+	    </query>
+	    		
+	    <!-- ApprovalFile : 첨부파일 상세 조회 : 신남원 : 2011.09.21-->
+		<query id="clms.common.detailApprovalFile" isCamelCase="false">
+			<statement>
+		    <![CDATA[
+			SELECT MODULE_ID
+				 , MIS_ID
+				 , SEQUENCE 
+			     , FILE_NAME 
+			     , FILE_SIZE 
+			     , STORE_LOCATION AS FILE_PATH
+			  FROM TB_COM_ATTACHMENT_WSVO 
+			 WHERE MODULE_ID = :vo.module_id 
+			   AND MIS_ID    = :vo.mis_id
+			   AND SEQUENCE  = :vo.sequence
+		     ORDER BY TO_NUMBER(SEQUENCE) ASC
+		    ]]>
+			</statement>
+	    </query>	    		  
+	    		
+		<!-- ApprovalFile : 첨부파일 순번 Max 값 구하기 : 신남원 : 2011.09.21-->
+	    <query id="clms.common.maxApprovalFileSeqNo" isCamelCase="false">
+			<statement>
+		    <![CDATA[
+			SELECT ISNULL(MAX(SEQUENCE),0) AS MAX_SEQ_NO
+			  FROM TB_COM_ATTACHMENT_WSVO 
+			 WHERE MODULE_ID = :vo.module_id 
+			   AND MIS_ID    = :vo.mis_id
+		    ]]>
+			</statement>
+	    </query>
+	    
+	    <!-- 첨부파일 여부 -->
+	    <query id="clms.common.getClmsFilePageCheck" isCamelCase="false">
+			<statement>
+		    <![CDATA[
+			SELECT  1
+			 WHERE  EXISTS (
+			                    SELECT 1 
+			                      FROM TN_COM_ATTACH			                       
+			                     WHERE	REF_KEY = :vo.ref_key
+								#if(!$vo.file_bigclsfcn.equals(""))
+								   AND	FILE_BIGCLSFCN = :vo.file_bigclsfcn
+								#end
+								#if(!$vo.file_midclsfcn.equals(""))
+								   AND	FILE_MIDCLSFCN = :vo.file_midclsfcn
+								#end
+								#if(!$vo.file_smlclsfcn.equals(""))
+								   AND	FILE_SMLCLSFCN = :vo.file_smlclsfcn
+								#end
+								   AND	DEL_YN = 'N'
+			                 )
+		    ]]>
+			</statement>
+	    </query>
+	    	    		 
+	</queries>
+</queryservice>

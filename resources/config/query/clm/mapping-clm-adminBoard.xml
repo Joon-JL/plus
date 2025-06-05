@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+    <queries>
+    
+    	<!-- 지식공유 목록 조회 : 2011.09.01 : 신남원 -->
+		<query id="clm.counsel.listBoard" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    SELECT 	X.*, 
+		    		CASE WHEN :vo.session_user_locale = 'ko' THEN Y.CD_NM
+		    			 WHEN :vo.session_user_locale = 'fr' THEN Y.CD_NM_FRA
+		    			 WHEN :vo.session_user_locale = 'de' THEN Y.CD_NM_DEU
+		    			 WHEN :vo.session_user_locale = 'it' THEN Y.CD_NM_ITA
+		    			 WHEN :vo.session_user_locale = 'es' THEN Y.CD_NM_ESP
+		    			 ELSE Y.CD_NM_ENG
+		    		END AS RD_TRGT1_NM,
+		    		CASE WHEN :vo.session_user_locale = 'ko' THEN Z.CD_NM
+		    			 WHEN :vo.session_user_locale = 'fr' THEN Z.CD_NM_FRA
+		    			 WHEN :vo.session_user_locale = 'de' THEN Z.CD_NM_DEU
+		    			 WHEN :vo.session_user_locale = 'it' THEN Z.CD_NM_ITA
+		    			 WHEN :vo.session_user_locale = 'es' THEN Z.CD_NM_ESP
+		    			 ELSE Z.CD_NM_ENG
+		    		END AS RD_TRGT2_NM
+		    FROM	(
+				   	SELECT *
+				    FROM	(
+							SELECT rownum RN, t.*, COUNT(1) over() TOTAL_CNT
+						    FROM	(
+									SELECT SEQNO, TITLE, CONT, RDCNT, RD_TRGT1, RD_TRGT2 
+								    	 , CASE WHEN ANNCE_STARTDAY = '00000000' THEN ''
+								    	   ELSE ANNCE_STARTDAY
+								    	   END ANNCE_STARTDAY
+								    	 , CASE WHEN ANNCE_ENDDAY = '99999999' THEN ''
+								    	   ELSE ANNCE_ENDDAY
+								    	   END ANNCE_ENDDAY
+										 , TO_CHAR(REG_DT, 'YYYYMMDD') AS REGDT, REG_DT, REG_ID, REG_NM, REGMAN_JIKGUP_NM, REG_DEPT_NM
+										 , CASE WHEN REG_DT > SYSDATE-56 THEN 'NEW'
+												ELSE ''
+										   END NEW_YN
+								    FROM 	TN_CLM_ANNOUNCE
+									WHERE	SEQNO IN (SELECT 	SEQNO
+													  FROM		TN_CLM_ANNOUNCE
+													  WHERE		DEL_YN='N'
+													  AND		ANNCE_GBN = 'C01301'
+													  AND		RD_TRGT1 = 'C01601' 
+													#if(!$vo.manager_yn.equals("Y"))	
+													  AND		RD_TRGT2 = 'C05701'
+													#end					
+													  AND ANNCE_STARTDAY < TO_CHAR(SYSDATE, 'YYYYMMDD')
+                            					      AND ANNCE_ENDDAY > TO_CHAR(SYSDATE, 'YYYYMMDD')
+													
+													  UNION
+													
+													  SELECT 	SEQNO
+													  FROM 		TN_CLM_ANNOUNCE
+													  WHERE		DEL_YN='N'
+													  AND		ANNCE_GBN = 'C01301'
+													#if(!$vo.manager_yn.equals("Y"))	
+													  AND		RD_TRGT2 = 'C05701'
+													#end					
+													  AND		RD_TRGT1 = 'C01602' 
+													  AND 		SEQNO IN (SELECT DISTINCT SEQNO 
+																	  		FROM TN_CLM_ANNCE_TRGTORGNZ 
+																	  		WHERE ORGNZ_CD = :vo.session_blngt_orgnz)
+													  AND ANNCE_STARTDAY < TO_CHAR(SYSDATE, 'YYYYMMDD')
+                            						  AND ANNCE_ENDDAY > TO_CHAR(SYSDATE, 'YYYYMMDD')									
+													 )
+					        #if (!$vo.srch_keyword_content.equals(""))
+						    	#if($vo.srch_keyword.equals("title"))
+									AND		UPPER(TITLE) LIKE '%' + :vo.srch_keyword_content + '%' 
+								#elseif($vo.srch_keyword.equals("reg_nm"))
+									AND		UPPER(REG_NM) LIKE '%' + :vo.srch_keyword_content + '%'
+								#else
+									AND		UPPER(CONT) LIKE '%' + :vo.srch_keyword_content + '%'
+								#end
+							#end
+								#if(!$vo.srch_start_dt.equals(""))
+									AND		TO_CHAR(REG_DT, 'YYYYMMDD') >= :vo.srch_start_dt
+								#end
+								#if(!$vo.srch_end_dt.equals(""))
+									AND		TO_CHAR(REG_DT, 'YYYYMMDD') <= :vo.srch_end_dt
+								#end		
+									ORDER BY REG_DT DESC, SEQNO DESC
+								     ) t
+							 )
+				    WHERE RN between :vo.start_index and :vo.end_index
+				    ) X, TB_COM_CD Y, TB_COM_CD Z
+			WHERE	Y.SYS_CD = 'CLM'
+			AND   	Y.GRP_CD = 'C016'
+			AND		X.RD_TRGT1 = Y.CD
+			AND		Z.SYS_CD = 'CLM'
+			AND		Z.GRP_CD = 'C057'
+			AND   	X.RD_TRGT2 = Z.CD
+			ORDER BY X.RN
+		    ]]>
+		  </statement>
+		</query>
+		    
+    	<!-- 공지사항 목록 조회 : 2011.09.01 : 신남원 -->
+		<query id="clm.admin.listBoard" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    SELECT MASTER.*, TO_CHAR(DETAIL1.ORG_NM) AS ORGNZ_NM, DETAIL2.ORGNZ_NMS
+		    FROM	(		    
+				    SELECT 	X.*, 
+				    		CASE WHEN :vo.session_user_locale = 'ko' THEN Y.CD_NM
+				    			 WHEN :vo.session_user_locale = 'fr' THEN Y.CD_NM_FRA
+				    			 WHEN :vo.session_user_locale = 'de' THEN Y.CD_NM_DEU
+				    			 WHEN :vo.session_user_locale = 'it' THEN Y.CD_NM_ITA
+				    			 WHEN :vo.session_user_locale = 'es' THEN Y.CD_NM_ESP
+				    			 ELSE Y.CD_NM_ENG
+				    		END AS RD_TRGT1_NM,
+				    		CASE WHEN :vo.session_user_locale = 'ko' THEN Z.CD_NM
+				    			 WHEN :vo.session_user_locale = 'fr' THEN Z.CD_NM_FRA
+				    			 WHEN :vo.session_user_locale = 'de' THEN Z.CD_NM_DEU
+				    			 WHEN :vo.session_user_locale = 'it' THEN Z.CD_NM_ITA
+				    			 WHEN :vo.session_user_locale = 'es' THEN Z.CD_NM_ESP
+				    			 ELSE Z.CD_NM_ENG
+				    		END AS RD_TRGT2_NM
+				    FROM	(
+						   	SELECT *
+						    FROM	(
+									SELECT rownum RN, t.*, COUNT(1) over() TOTAL_CNT
+								    FROM	(
+											SELECT SEQNO, TITLE, TITLE_EN, CONT, CONT_EN, RDCNT, RD_TRGT1, RD_TRGT2, SEC_YN 
+										    	 , CASE WHEN ANNCE_STARTDAY = '00000000' THEN ''
+										    	   ELSE ANNCE_STARTDAY
+										    	   END ANNCE_STARTDAY
+										    	 , CASE WHEN ANNCE_ENDDAY = '99999999' THEN ''
+										    	   ELSE ANNCE_ENDDAY
+										    	   END ANNCE_ENDDAY
+												 , TO_CHAR(REG_DT, 'YYYYMMDD') AS REGDT, REG_DT, REG_ID, REG_NM, REGMAN_JIKGUP_NM, REG_DEPT_NM
+												 , CASE WHEN REG_DT > SYSDATE-56 THEN 'NEW'
+														ELSE ''
+										   		   END NEW_YN
+										    FROM 	TN_CLM_ANNOUNCE
+										    WHERE	DEL_YN='N'
+										    AND		ANNCE_GBN = 'C01301'
+							        #if (!$vo.srch_keyword_content.equals(""))
+								    	#if($vo.srch_keyword.equals("title"))
+											AND		UPPER(TITLE) LIKE '%' + :vo.srch_keyword_content + '%' 
+										#elseif($vo.srch_keyword.equals("reg_nm"))
+											AND		UPPER(REG_NM) LIKE '%' + :vo.srch_keyword_content + '%'
+										#else
+											AND		UPPER(CONT) LIKE '%' + :vo.srch_keyword_content + '%'
+										#end
+									#end
+										#if(!$vo.srch_start_dt.equals(""))
+											AND		TO_CHAR(REG_DT, 'YYYYMMDD') >= :vo.srch_start_dt
+										#end
+										#if(!$vo.srch_end_dt.equals(""))
+											AND		TO_CHAR(REG_DT, 'YYYYMMDD') <= :vo.srch_end_dt
+										#end							
+											ORDER BY REG_DT DESC, SEQNO DESC
+										     ) t
+									 )
+						    WHERE RN between :vo.start_index and :vo.end_index
+						    ) X, TB_COM_CD Y, TB_COM_CD Z
+					WHERE	Y.SYS_CD = 'CLM'
+					AND   	Y.GRP_CD = 'C016'
+					AND		X.RD_TRGT1 = Y.CD
+					AND		Z.SYS_CD = 'CLM'
+					AND		Z.GRP_CD = 'C057'
+					AND   	X.RD_TRGT2 = Z.CD
+					) MASTER, (
+								SELECT M.SEQNO, 
+											CASE WHEN M.ORGNZ_CNT > 1 THEN 
+												CASE WHEN :vo.session_user_locale = 'ko' THEN
+													D.ORGNZ_NM + ' 외 ' + TO_CHAR(M.ORGNZ_CNT - 1) + '개'
+												ELSE
+													D.ORGNZ_NM_ENG + ' and ' + TO_CHAR(M.ORGNZ_CNT - 1) + ' others'
+												END
+												   ELSE 
+                           						CASE WHEN :vo.session_user_locale = 'ko' THEN
+                            						ISNULL(D.ORGNZ_NM, '')
+                            					ELSE
+                            						ISNULL(D.ORGNZ_NM_ENG, '')
+                            					END
+											END AS ORG_NM
+								FROM	(
+											SELECT SEQNO, MIN(ORGNZ_CD) AS ORGNZ_CD, COUNT(ORGNZ_CD) AS ORGNZ_CNT
+											FROM	TN_CLM_ANNCE_TRGTORGNZ
+											GROUP BY SEQNO
+											) M, TN_CLM_UNITORGNZ D
+								WHERE M.ORGNZ_CD = D.ORGNZ_CD
+								AND		D.DEL_YN = 'N'						
+							  )	DETAIL1, (
+									  	SELECT SEQNO, SUBSTRING(MAX(SYS_CONNECT_BY_PATH(ORGNZ_NM, ', ')), 2) AS ORGNZ_NMS
+										FROM	(
+													SELECT O.SEQNO, P.ORGNZ_NM, row_number() OVER(PARTITION BY O.SEQNO ORDER BY P.ORGNZ_NM ) AS rn
+													FROM 	TN_CLM_ANNCE_TRGTORGNZ O, TN_CLM_UNITORGNZ P
+													WHERE O.ORGNZ_CD = P.ORGNZ_CD
+													)
+										START WITH rn = 1
+										CONNECT BY PRIOR rn = rn - 1 AND PRIOR SEQNO = SEQNO
+										GROUP BY SEQNO
+							  			 ) DETAIL2
+			WHERE 	MASTER.SEQNO = DETAIL1.SEQNO(+)
+			AND		MASTER.SEQNO = DETAIL2.SEQNO(+)		
+			ORDER BY MASTER.RN			
+		    ]]>
+		  </statement>
+		</query>
+		
+		<!-- 공지사항 등록 : 2011.09.01 : 신남원 -->
+		<query id="clm.admin.insertBoard" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    INSERT INTO TN_CLM_ANNOUNCE (
+	           		 SEQNO
+	               , ANNCE_GBN
+	               , TITLE
+	               , TITLE_EN
+	               , CONT
+	               , CONT_EN
+	               , RD_TRGT1
+	               , RD_TRGT2
+	               , SEC_YN
+	               , ANNCE_STARTDAY
+	               , ANNCE_ENDDAY
+	               , REG_DT
+	               , REG_ID
+	               , REG_NM
+	               , REGMAN_JIKGUP_NM
+	               , REG_DEPT_NM
+	               , DEL_YN
+		        ) VALUES (
+		           :vo.seqno
+		          ,'C01301'
+		          ,:vo.title
+		          ,:vo.title_en
+		          ,:vo.cont
+		          ,:vo.cont_en
+		          ,:vo.rd_trgt1
+		          ,:vo.rd_trgt2
+		          ,:vo.sec_yn
+		          ,:vo.annce_startday
+		          ,:vo.annce_endday
+		          ,SYSDATE
+		          ,:vo.reg_id
+		          ,:vo.reg_nm
+		          ,:vo.regman_jikgup_nm
+		          ,:vo.reg_dept_nm
+		          ,'N'
+		        )
+		    ]]>
+		  </statement>
+		</query>
+
+		<!-- 공지사항 조직 조회 : 2011.09.05 : 신남원 -->
+		<query id="clm.admin.listBoardOrgnz" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    SELECT  A.SEQNO, A.ORGNZ_CD, B.ORGNZ_NM
+		    FROM	TN_CLM_ANNCE_TRGTORGNZ A, TN_CLM_UNITORGNZ B
+			WHERE 	A.ORGNZ_CD = B.ORGNZ_CD
+			AND		A.SEQNO = :vo.seqno
+		    ]]>
+		  </statement>
+		</query>		
+		
+		<!-- 공지사항 조직 등록 : 2011.09.05 : 신남원 -->
+		<query id="clm.admin.insertBoardOrgnz" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    INSERT INTO TN_CLM_ANNCE_TRGTORGNZ (
+	           		 SEQNO
+	           		,ORGNZ_CD
+		        ) VALUES (
+		           :vo.seqno
+		          ,:vo.orgnz_cd
+		        )
+		    ]]>
+		  </statement>
+		</query>		
+		
+		<!-- 공지사항 조직 삭제 : 2011.09.05 : 신남원 -->
+		<query id="clm.admin.deleteBoardOrgnz" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    DELETE FROM TN_CLM_ANNCE_TRGTORGNZ
+		    WHERE SEQNO = :vo.seqno
+		    ]]>
+		  </statement>
+		</query>	
+				
+		<!-- 공지사항 MAX SEQ_NO : 2011.09.01 : 신남원 -->
+		<query id="clm.admin.maxSeqNoBoard" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+	        SELECT MAX(SEQNO) AS MAX_SEQ_NO FROM TN_CLM_ANNOUNCE
+		    ]]>
+		  </statement>
+		</query>
+				
+		<!-- 공지사항 상세 : 2011.09.01 : 신남원 -->
+		<query id="clm.admin.detailBoard" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    SELECT A.*,
+		    		CASE WHEN :vo.session_user_locale = 'ko' THEN B.CD_NM
+		    			 WHEN :vo.session_user_locale = 'fr' THEN B.CD_NM_FRA
+		    			 WHEN :vo.session_user_locale = 'de' THEN B.CD_NM_DEU
+		    			 WHEN :vo.session_user_locale = 'it' THEN B.CD_NM_ITA
+		    			 WHEN :vo.session_user_locale = 'es' THEN B.CD_NM_ESP
+		    			 ELSE B.CD_NM_ENG
+		    		END AS RD_TRGT1_NM,
+		    		CASE WHEN :vo.session_user_locale = 'ko' THEN C.CD_NM
+		    			 WHEN :vo.session_user_locale = 'fr' THEN C.CD_NM_FRA
+		    			 WHEN :vo.session_user_locale = 'de' THEN C.CD_NM_DEU
+		    			 WHEN :vo.session_user_locale = 'it' THEN C.CD_NM_ITA
+		    			 WHEN :vo.session_user_locale = 'es' THEN C.CD_NM_ESP
+		    			 ELSE C.CD_NM_ENG
+		    		END AS RD_TRGT2_NM
+			FROM	(
+				    SELECT 	 SEQNO
+					        ,TITLE
+					        ,TITLE_EN
+					        ,CONT
+					        ,ISNULL(CONT_EN, ' ') CONT_EN
+					        ,RDCNT
+					        ,RD_TRGT1
+					        ,RD_TRGT2
+					       , CASE WHEN ANNCE_STARTDAY = '00000000' THEN ''
+					    	      ELSE ANNCE_STARTDAY
+					    	 END ANNCE_STARTDAY
+				    	   , CASE WHEN ANNCE_ENDDAY = '99999999' THEN ''
+				    	          ELSE ANNCE_ENDDAY
+				    	     END ANNCE_ENDDAY
+					        , TO_CHAR(REG_DT, 'YYYYMMDD') AS REG_DT
+					        ,REG_ID
+					        ,REG_NM
+					        ,REGMAN_JIKGUP_NM
+					        ,REG_DEPT_NM
+					        ,SEC_YN
+				    FROM 	TN_CLM_ANNOUNCE
+				    WHERE 	SEQNO = :vo.seqno
+				    AND		ANNCE_GBN = 'C01301'
+				    AND		DEL_YN ='N'
+				    ) A, TB_COM_CD B, TB_COM_CD C
+			WHERE	B.SYS_CD = 'CLM'
+			AND   	B.GRP_CD = 'C016'
+			AND		A.RD_TRGT1 = B.CD
+			AND		C.SYS_CD = 'CLM'
+			AND		C.GRP_CD = 'C057'
+			AND   	A.RD_TRGT2 = C.CD 
+		    ]]>
+		  </statement>
+		</query>
+		
+		<!-- 공지사항 조회수 증가 : 2011.09.01 : 신남원 -->
+		<query id="clm.admin.modifyRdcntBoard" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+	        UPDATE 	TN_CLM_ANNOUNCE
+	        SET		RDCNT = RDCNT + 1
+		    WHERE	SEQNO = :vo.seqno
+		    AND	 	DEL_YN = 'N'	
+		    ]]>
+		  </statement>
+		</query>		
+		
+		<!-- 공지사항 수정 : 2011.09.01 : 신남원 -->
+		<query id="clm.admin.modifyBoard" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+	        UPDATE TN_CLM_ANNOUNCE
+	        SET	TITLE = :vo.title
+	          , TITLE_EN = :vo.title_en
+              , CONT = :vo.cont
+              , CONT_EN = :vo.cont_en
+              ,	RD_TRGT1 = :vo.rd_trgt1
+              ,	RD_TRGT2 = :vo.rd_trgt2
+              , ANNCE_STARTDAY = :vo.annce_startday
+              , ANNCE_ENDDAY = :vo.annce_endday
+              , SEC_YN = :vo.sec_yn
+              , MOD_DT = SYSDATE
+              , MOD_ID = :vo.mod_id
+              , MOD_NM = :vo.mod_nm
+	        WHERE SEQNO = :vo.seqno
+		    ]]>
+		  </statement>
+		</query>
+		
+		<!-- 공지사항 삭제 : 2011.09.01 : 신남원 -->
+		<query id="clm.admin.deleteBoard" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    UPDATE	TN_CLM_ANNOUNCE
+		    SET		DEL_YN = 'Y'
+		    	  ,	DEL_ID = :vo.del_id
+		    	  , DEL_DT = SYSDATE
+		    	  , DEL_NM = :vo.del_nm
+		    WHERE	SEQNO = :vo.seqno
+		    ]]>
+		  </statement>
+		</query>
+		
+		<!-- 공지사항 권한 체크 정보 : 2011.09.01 : 신남원 -->
+		<query id="clm.admin.authBoard" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    SELECT 	 SEQNO, ANNCE_GBN, TITLE, CONT_TYPE, CONT, RDCNT, ANNCE_STARTDAY, ANNCE_ENDDAY, RD_TRGT1, RD_TRGT2, REGMAN_JIKGUP_NM
+					,REG_DEPT_NM, REG_DT, REG_ID, REG_NM, MOD_DT, MOD_ID, MOD_NM, DEL_YN, DEL_DT, DEL_ID, DEL_NM
+		    FROM 	TN_CLM_ANNOUNCE
+		    WHERE 	SEQNO = :vo.seqno
+		    AND		(DEL_YN IS NULL OR DEL_YN ='N')
+		    ]]>
+		  </statement>
+		</query>
+		
+		
+    	<!-- 공지사항 목록 조회 : 2011.09.19 : 김형준, 2012.3.2 공지기간 만료 건 안보이게 수정 : 김형준-->
+		<query id="clm.admin.listBoardByMain" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    SELECT 	X.*, 
+		    		CASE WHEN :vo.session_user_locale = 'ko' THEN Y.CD_NM
+		    			 WHEN :vo.session_user_locale = 'fr' THEN Y.CD_NM_FRA
+		    			 WHEN :vo.session_user_locale = 'de' THEN Y.CD_NM_DEU
+		    			 WHEN :vo.session_user_locale = 'it' THEN Y.CD_NM_ITA
+		    			 WHEN :vo.session_user_locale = 'es' THEN Y.CD_NM_ESP
+		    			 ELSE Y.CD_NM_ENG
+		    		END AS RD_TRGT1_NM,
+		    		CASE WHEN :vo.session_user_locale = 'ko' THEN Z.CD_NM
+		    			 WHEN :vo.session_user_locale = 'fr' THEN Z.CD_NM_FRA
+		    			 WHEN :vo.session_user_locale = 'de' THEN Z.CD_NM_DEU
+		    			 WHEN :vo.session_user_locale = 'it' THEN Z.CD_NM_ITA
+		    			 WHEN :vo.session_user_locale = 'es' THEN Z.CD_NM_ESP
+		    			 ELSE Z.CD_NM_ENG
+		    		END AS RD_TRGT2_NM
+		    FROM	(
+				   	SELECT *
+				    FROM	(
+							SELECT rownum RN, t.*, COUNT(1) over() TOTAL_CNT
+						    FROM	(
+									SELECT SEQNO, TITLE, TITLE_EN, CONT, CONT_EN, RDCNT, RD_TRGT1, RD_TRGT2 
+								    	 , CASE WHEN ANNCE_STARTDAY = '00000000' THEN ''
+								    	   ELSE ANNCE_STARTDAY
+								    	   END ANNCE_STARTDAY
+								    	 , CASE WHEN ANNCE_ENDDAY = '99999999' THEN ''
+								    	   ELSE ANNCE_ENDDAY
+								    	   END ANNCE_ENDDAY
+										 , TO_CHAR(REG_DT, 'YYYYMMDD') AS REGDT, REG_DT, REG_ID, REG_NM, REGMAN_JIKGUP_NM, REG_DEPT_NM
+										 , CASE WHEN REG_DT > SYSDATE-56 THEN 'NEW'
+												ELSE ''
+										   END NEW_YN
+								    FROM 	TN_CLM_ANNOUNCE
+								    WHERE   SEQNO IN (SELECT 	SEQNO
+													  FROM	TN_CLM_ANNOUNCE
+													  WHERE	DEL_YN='N'
+													  AND		ANNCE_GBN = 'C01301'
+													  AND		RD_TRGT1 = 'C01601' 
+													#if(!$vo.manager_yn.equals("Y"))	
+													  AND		RD_TRGT2 = 'C05701'
+													#end					
+													  AND ANNCE_STARTDAY < TO_CHAR(SYSDATE, 'YYYYMMDD')
+                            						  AND ANNCE_ENDDAY > TO_CHAR(SYSDATE, 'YYYYMMDD')
+													
+													  UNION
+													
+													  SELECT SEQNO
+													  FROM 	TN_CLM_ANNOUNCE
+													  WHERE	DEL_YN='N'
+													  AND	ANNCE_GBN = 'C01301'
+													#if(!$vo.manager_yn.equals("Y"))	
+													  AND	RD_TRGT2 = 'C05701'
+													#end					
+													  AND	RD_TRGT1 = 'C01602' 
+													  AND 	SEQNO IN (SELECT DISTINCT SEQNO 
+																	  FROM TN_CLM_ANNCE_TRGTORGNZ 
+																	  WHERE ORGNZ_CD = :vo.session_blngt_orgnz)
+													  AND ANNCE_STARTDAY < TO_CHAR(SYSDATE, 'YYYYMMDD')
+                            						  AND ANNCE_ENDDAY > TO_CHAR(SYSDATE, 'YYYYMMDD')
+													 )
+									ORDER BY REG_DT DESC, SEQNO DESC					
+								     ) t
+							 )
+				    WHERE RN between :vo.start_index and :vo.end_index
+				    ) X, TB_COM_CD Y, TB_COM_CD Z
+			WHERE	Y.SYS_CD = 'CLM'
+			AND   	Y.GRP_CD = 'C016'
+			AND		X.RD_TRGT1 = Y.CD
+			AND		Z.SYS_CD = 'CLM'
+			AND		Z.GRP_CD = 'C057'
+			AND   	X.RD_TRGT2 = Z.CD
+		    ]]>
+		  </statement>
+		</query>		
+				
+    </queries>
+</queryservice>		

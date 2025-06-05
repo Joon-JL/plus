@@ -1,0 +1,138 @@
+@charset "utf-8";
+
+html {height:100%; scrollbar-face-color: #FFFFFF; scrollbar-shadow-color: #CCCCCC; scrollbar-highlight-color: #CCCCCC; scrollbar-3dlight-color: #FFFFFF; scrollbar-darkshadow-color: #FFFFFF;  scrollbar-track-color: #F7F7F7; scrollbar-arrow-color: #B8B8B8;}
+body {margin:0; padding:0; height:100%; font-family:Dotum, tahoma, Arial;color:#363636;font-size:12px;background:#fff;*word-break:break-all;-ms-word-break:break-all; border:0}
+ul, ol, li {list-style:none;padding:0; margin:0}
+img {vertical-align:middle;padding:0; margin:0; border:0}
+a {font-family:tahoma; text-decoration:none; cursor:pointer;}
+a:hover {color:#17549f; text-decoration:none; font-family:tahoma;}
+*:focus {outline: none;}
+ 
+
+/* Wrap */
+#topWrap { padding:0px; _overflow-x:hidden; margin:0; top:0px; left:0; width:100%;}
+#header { padding-top:0px;}
+.mainC1 {position:relative; width:1024px; height:100%; left:50%; margin: 0 0 0 -512px;}
+.mainC2 {position:relative; width:1450px; height:100%; left:50%; margin: 0 0 0 -512px;}
+#util {height:38px;background:#fff}
+#gnbWrap {width:100%; height:62px;background:url(../../../images/las/ko/common/bg_new_gnb.gif) repeat-x left -38px;}
+
+
+/* Logo */
+#header a.h1_logo img  {margin:7px 0 5px 10px;}
+#header .pncacc {}
+#header .pncacc img {margin:7px 0 5px 7px; }
+
+/* Utility */
+#util {}
+#util ul {top:10px;right:12px;position:absolute;}
+#util ul li {float:left;}
+#util ul li a {font-size:11px;color:#727272; vertical-align:middle; }
+#util ul li a:hover {color:#3c85c9;}
+#util ul li a img {background:none;margin:0px;padding:0}
+
+#util ul li a.user {font-family:Tahoma; font-size:11px; color:#727272; background:url(../../../images/las/ko/icon/ico_user.gif) no-repeat 0 1px; padding-left:14px; margin-right:10px;line-height:170%; text-decoration:none;  }
+#util ul li.lang_sel {width:74px; height:22px; margin:0px 5px 0 5px;position:relative;}
+#util ul li.lang_sel .lang_select {color:#555555;position:absolute;top:0px;left:0px;width:74px;height:22px;font-size:11px; line-height:170%; font-family:Tahoma; font-weight:normal;background:url(../../../images/las/ko/icon/lang_sel_bg.gif) no-repeat; border:0;text-indent:7px;padding:0}
+
+
+/*** GNB ***/
+
+
+.gnb {background:url(../../../images/las/ko/common/bg_gnb.gif) repeat-x left top;position:relative;height:62px;  overflow:hidden;padding-left:10px;}
+.gnb ul {  margin:0 0 0 3px; }
+.gnb ul li {float:left;  height:35px;  margin-top:1px;}
+.gnb ul li a {display:inline-block; color:#fff; text-decoration:none;  font:bold 11px Tahoma; padding:10px 11px 0 7px; height:40px;  margin:0; text-align:center; }
+.gnb ul li a:hover {font:bold 11px Tahoma;color:#fff;}
+.gnb ul li a.on {font:bold 11px Tahoma;color:#fff;}
+.gnb ul li.on { height:36px; background:url('../../../images/las/ko/new2011/bg_gnb_a_new_bg_l.png') left 3px no-repeat;}
+.gnb ul li.on a {background:url('../../../images/las/ko/new2011/bg_gnb_a_new_bg_r.png') right 3px no-repeat; color:#F4F4F4;}
+.gnb ul li.on a:hover {background:url('../../../images/las/ko/new2011/bg_gnb_a_new_bg_r.png') right 3px no-repeat; color:#F4F4F4;}
+.gnb ul li.on li a {background:none;}
+.gnb ul li.on li a:hover {background:none;}
+
+.gnb ul ul {display:none; overflow:hidden; position:absolute; top:38px; left:3px; min-width:980px; height:20px; margin:0; padding-left:21px; background:none; color:#7098d7; text-align:left; font-weight:bold;}
+.gnb ul li.on ul li {position:static; float:left; height:23px; width:auto; padding-left:7px; margin-left:auto; font-size:11px;  margin-right:17px;  margin-top:5px; background:url(../../../images/las/ko/new2011/dot_arrow.gif) left 4px no-repeat;}
+.gnb ul li.on ul {display:block;width:1100px;}
+
+
+.gnb ul li ul  { height:22px; }
+.gnb ul li.on ul li a {display:inline; width:auto; height:auto; margin:0; padding:00;  font:normal 11px tahoma; text-align:left; color:#666;}
+.gnb ul li.on ul li a:hover {display:inline; width:auto; height:auto; margin:0; font:normal 11px tahoma;text-align:left; background:none; color:#3f5fa7;}
+
+
+.gnb ul li.line {float:left;  height:12px; width:1px; margin-top:12px;   margin-right:4px;  background:#474747;}
+
+
+
+/* Menu Toggle*/
+.gnb .util_hidden_m {float:left; margin:9px 20px 0 0 }
+.gnb .util_hidden_m img {cursor:pointer }
+.gnb .util_hidden {float:right; margin:9px 20px 0 0 }
+.gnb .util_hidden img {cursor:pointer }
+
+
+/* Top Menu Background Color Area */
+#leftWrap {margin:0px 0 0 10px; width:170px; height:100%; _overflow-x:hidden; }
+
+/* Show/Hide */
+#leftWrap .hide {position:absolute; right:0; top:0; cursor:pointer; z-index:10; background:#fff url(../../../images/las/ko/common/bg_left_hide.gif) no-repeat 3px top; width:18px; height:100%;}
+#leftWrap .show {position:absolute; left:00px; top:0; cursor:pointer; z-index:1 !important;background:#fff url(../../../images/las/ko/common/bg_left_show.gif) no-repeat left top; width:16px;height:100%;}
+#leftMenu {overflow-x:hidden; overflow-y:auto; height:100%;z-index:1 !important;}
+#left_colum {}
+:root #left_colum {}
+
+/*** Nav ***/
+.nav {z-index:20 !important; }
+.nav h2 {font:bold 12px/34px Tahoma;  line-height:120%; width:142px; color:#333;  margin-top:0px; margin-bottom:0px; padding-left:8px; padding-top:5px; padding-bottom:12px;background:url(../../../images/las/ko/common/menu_titlebg2.gif) repeat-x left bottom; }
+.nav h2 div {width:100px; height:5px; margin-top:5px;margin-bottom:7px; background:#fff url(../../../images/las/ko/common/menu_titlebg.gif) no-repeat 2px 0px;}
+*:first-child+html .nav h2 div {margin-top:8px;margin-bottom:5px;}
+.nav ul {}
+.nav ul li a {display:block; width:125px; margin-top:4px; font-size:11px; border-bottom:1px solid #e5e5e5; font-family:Tahoma;  padding:7px 5px 6px 17px; line-height:14px; background:url(../../../images/las/ko/icon/bu_plus.gif) no-repeat 5px 10px; color:#454545;}
+*html .nav ul li a {width:; }
+.nav ul li a:hover { font-family:Tahoma;color:#45549B;text-decoration:none;}
+.nav ul li a.on { font-family:Tahoma;width:125px; margin-top:4px; border-bottom:1px solid #e5e5e5; color:#45549B; font-weight:bold;background:url(../../../images/las/ko/icon/bu_minus.gif) no-repeat 5px 10px;}
+.nav ul li a.minus {color:#046fb4; background:url(../../../images/las/ko/icon/bu_minus.gif) no-repeat 0px 9px}
+.nav ul li a.plus {display:block;  padding:7px 5px 6px 12px; line-height:14px; background:url(../../../images/las/ko/icon/bu_plus.gif) no-repeat 0px 9px; color:#454545;}
+.nav ul li a.select { font-family:Tahoma;display:block;  color:#046fb4; font-weight:bold; padding:7px 5px 6px 12px; line-height:14px; background:url(../../../images/las/ko/icon/bu_plus.gif) no-repeat 0px 9px; }
+.nav ul li ul {width:147px; background:#f8fafb; margin:0 0 0 0px; border-bottom:1px solid #e5e5e5; padding-bottom:5px}
+.nav ul li ul li {border:none;}
+.nav ul li ul li a { display:block; width:135px; border-bottom:0px solid #e5e5e5; font-family:Tahoma; font-size:11px;  _display:inline-block; padding:2px 0 1px 12px; line-height:14px; background:url(../../../images/las/ko/icon/bu_dot_m.gif) no-repeat 4px 7px; color:#666;}
+.nav ul li ul li a:hover {width:135px; font-family:Tahoma; border-bottom:0px; background:#e9ecf1 url(../../../images/las/ko/icon/bu_dot_select.gif) no-repeat 5px 7px; text-decoration:none; font-weight:normal;}
+.nav ul li ul li a.on {width:135px; font-family:Tahoma; border-bottom:0px;  background:#e9ecf1 url(../../../images/las/ko/icon/bu_dot_select.gif) no-repeat 5px 7px; text-decoration:none; font-weight:normal;}
+
+
+/*** mywork ***/
+#left_count_show {margin-top:10px;}
+.box_table     {width:143px;height:*; margin-left:3px; }
+.box_table_top     {width:143px; height:25px; font:bold 11px Tahoma; line-height:230%; overflow:hidden; background:url(../../../images/las/ko/common/box_table_top.jpg) no-repeat}
+.box_table_top span {margin-left:30px;color:#fff}
+
+.box_table_mid     {width:143px; height:*; padding:1px 0 3px 8px; line-height:140%;   background:url(../../../images/las/ko/common/box_table_mid.jpg) repeat-y}
+*:first-child+html .box_table_mid {padding:7px 0 3px 10px; }
+
+.box_table_mid .section  {width:117px;padding-left:7px;color:#444; cursor:pointer;   margin-top:7px; margin-bottom:3px; background:url(../../../images/las/ko/icon/bu_dot_gray_s.gif) no-repeat 3px 6px; font:bold 11px Tahoma; }
+.box_table_mid .section span {color:#EB7400;font-weight:bold;text-decoration:none; font-weight:normal;}
+
+
+.box_table_mid .section_sub {width:125px;height:*; margin-top:2px; }
+.box_table_mid .section_sub .sub_top {width:125px; height:2px; background:url(../../../images/las/ko/common/box_tablein_top.gif) no-repeat}
+.box_table_mid .section_sub .sub_mid {width:125px; height:*; background:url(../../../images/las/ko/common/box_tablein_mid.gif) repeat-y;padding:3px 3px 2px 3px } 
+.box_table_mid .section_sub .sub_mid table  {}
+.box_table_mid .section_sub .sub_mid table th {vertical-align:top; background:url(../../../images/las/ko/icon/bu_dot_gray_c.gif) no-repeat 0 6px;padding-left:6px;font-size:11px;font-family:Tahoma; font-size:11px;line-height:100%; font-weight:normal; width:75px;height:16px;color:#464675; text-align:left}
+.box_table_mid .section_sub .sub_mid table th a {font-size:11px;color:#464675; }
+.box_table_mid .section_sub .sub_mid table th a:hover {color:#464675;text-decoration:underline;}
+.box_table_mid .section_sub .sub_mid table td {font-family:Tahoma; font-size:11px; font-weight:normal; color:#686868;height:16px;line-height:100%; vertical-align:top}
+.box_table_mid .section_sub .sub_mid table td a {color:#686868; font-weight:normal;}
+.box_table_mid .section_sub .sub_mid table td a:hover {color:#686868;text-decoration:underline; font-weight::normal;}
+.box_table_mid .section_sub .sub_btm {width:125px; height:2px; background:url(../../../images/las/ko/common/box_tablein_btm.gif) no-repeat}
+
+
+.box_table_mid li {padding-left:19px; margin:0px 0 0 0; font-size:11px;  background:url(../../..images/las/ko/common/box_table_arr01.gif) no-repeat 9px 2px }
+.box_table_mid li a {color:#606060; font-weight:normal; }
+.box_table_mid li a:hover {color:#4483E1; text-decoration:underline; font-weight:normal}
+
+.box_table_btm     {width:143px; height:10px; background:url(../../../images/las/ko/common/box_table_btm.jpg) no-repeat}
+
+.hr_line {border-bottom:1px solid #E5E5E5; margin-bottom:5px; width:117px;height:1px;} 
+*html .hr_line {border-bottom:1px solid #E5E5E5; margin-bottom:5px; margin-top:-15px; width:117px;height:1px;} 

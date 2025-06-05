@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+    <queries>
+    	<!-- 목록 -->
+        <query id="clm.admin.listApprovalPath" isCamelCase="false">
+            <statement>
+            <![CDATA[
+            SELECT *
+              FROM(   SELECT ROW_NUMBER() OVER (ORDER BY CAST(PATH_ID AS NUMERIC) DESC) RN,
+              			t.*, CAST(COUNT(1) over() AS NUMERIC) TOTAL_CNT
+		                FROM ( SELECT COMP_CD, PATH_ID, PATH_NM, COMMENTS,PRIORITY, USE_YN
+		                ,(select ISNULL(a.user_nm,'')+'/'+ISNULL(a.JIKGUN_NM,'')+'/'+ISNULL(a.dept_nm,'') as REG_ID from tb_com_user a where a.USER_ID =REG_ID) as REG_ID
+		                ,(CONVERT(VARCHAR, REG_DT, 23)) as REG_DT, MOD_ID, MOD_DT
+								  FROM  TN_CLM_APPROVAL_CONT
+								  WHERE DEL_YN <> 'Y'
+								  --AND COMP_CD = :vo.comp_cd
+		     
+		            		 ) t
+		            WHERE 1=1 
+		            	#if (!$vo.srch_path_name.equals(""))
+							AND	path_nm like  '%' + :vo.srch_path_name + '%'
+					    #end
+					    #if (!$vo.srch_loc_gbn.equals(""))
+							AND	comp_cd like  '%' + :vo.srch_loc_gbn + '%'
+					    #end
+					    #if (!$vo.srch_use_yn.equals("") && !$vo.srch_use_yn.equals("all"))
+							AND	use_yn = :vo.srch_use_yn
+					    #end
+            		) TA
+            WHERE RN between :vo.start_index and :vo.end_index
+                ORDER BY CAST(PATH_ID AS NUMERIC) DESC
+            ]]>
+            </statement>
+        </query>
+
+	<!-- key -->
+        <query id="clm.admin.PathidKey" isCamelCase="false">
+            <statement>
+            <![CDATA[
+            select next value for SeqPathid as path_id
+            ]]>
+            </statement>
+        </query>
+       
+
+
+	<!-- ApprovalPath Head 정보 등록 -->
+	<query id="clm.admin.insertApprovalPath" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    
+				    INSERT INTO TN_CLM_APPROVAL_CONT (
+				    		 COMP_CD
+						    ,PATH_ID
+						    ,PATH_NM
+						    ,COMMENTS
+						    ,PRIORITY
+						    ,USE_YN
+						    ,REG_ID
+						    ,REG_DT
+						    ,MOD_ID
+						    ,MOD_DT
+						    ,DEL_YN
+						    ,DEL_ID
+						    ,DEL_DT
+						    ,MANDATORY
+						    ,TYPE_1
+						    ,TYPE_2
+						    ,TYPE_3
+						    ,TYPE_4
+						     ) VALUES (
+				           :vo.comp_cd
+				          ,:vo.path_id
+				          ,:vo.path_nm
+				          ,:vo.comments
+				          ,:vo.priority
+				          ,:vo.use_yn
+				          ,:vo.reg_id
+				          ,GETDATE()
+				          ,''
+				          ,null
+				          ,'N'
+				          ,''
+				          ,null
+				          ,:vo.mandatory
+				          ,:vo.type_1
+						  ,:vo.type_2
+						  ,:vo.type_3
+						  ,:vo.type_4
+				        )
+		        
+		    ]]>
+		  </statement>
+		</query>
+
+	<!-- ApprovalPath CONDITION 정보 등록 -->
+	<query id="clm.admin.insertApprovalPathDetail" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+
+				    INSERT INTO TN_CLM_APPROVAL_CONT_DETAIL (
+						     PATH_ID
+						    ,CONDITION_ID
+						    ,OPERATION
+						    ,CONDITION
+						    ,CONDITION_OPTION
+						    ,CONDITION_VAL
+						    ,USE_YN
+						    ,DEL_YN
+						    ,DEL_ID
+						    ,DEL_DT
+						     ) VALUES (
+				           :vo.path_id
+				          ,:vo.condition_id
+				          ,:vo.operation
+				          ,:vo.condi_list_tmp
+				          ,:vo.condi_option_tmp
+				          ,:vo.condi_val_tmp
+						  ,:vo.use_yn
+						  ,'N'
+				          ,''
+				          ,null
+				        )
+		        
+		    ]]>
+		  </statement>
+		</query>
+		
+		
+
+	<!-- path 대상자 등록 -->
+	<query id="clm.admin.insertApprovalPathUserlist" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    
+				    INSERT INTO TN_CLM_APPROVAL_PATH(
+				    		 COMP_CD
+						    ,PATH_ID
+						    ,ROLE_USER_ID
+						    ,A_TYPE
+						    ,R_TYPE
+						    ,REG_ID
+						    ,REG_DT
+						    ,DEL_YN
+						    ,DEL_ID
+						    ,DEL_DT
+						    ,SORT_NO
+						     ) VALUES (
+				           :vo.comp_cd
+				          ,:vo.path_id
+				          ,:vo.user_id_tmp
+				          ,:vo.atype_val_tmp
+				          ,:vo.rtype_val_tmp
+				          ,:vo.reg_id
+				          ,GETDATE()
+				          ,'N'
+				          ,''
+				          ,null
+				          ,:vo.sort_no
+				        )
+		        
+		    ]]>
+		  </statement>
+		</query>
+
+
+	<!-- ApprovalPath Information 상세 -->
+        <query id="clm.admin.detailApprovalPath" isCamelCase="false">
+            <statement>
+            <![CDATA[
+            	SELECT COMP_CD, PATH_ID, PATH_NM, COMMENTS, PRIORITY, USE_YN, MANDATORY
+						,(select ISNULL(a.USER_NM_ENG,'')+'/'+ISNULL(a.JIKGUP_NM_ENG,'')+'/'+ISNULL(a.DEPT_NM_ENG,'') as REG_ID from tb_com_user a where a.USER_ID =REG_ID) as REG_ID
+						,(CONVERT(VARCHAR, REG_DT, 23)) as REG_DT, MOD_ID, MOD_DT 
+						,TYPE_1,TYPE_2,TYPE_3,TYPE_4
+						,(SELECT a.CD_NM_ENG FROM TN_COM_CONTRACTTYPE_CD a WHERE USE_YN = 'Y' and TYPE_CD = TYPE_1) as TYPE_1_nm
+						,(SELECT a.CD_NM_ENG FROM TN_COM_CONTRACTTYPE_CD a WHERE USE_YN = 'Y' and TYPE_CD = TYPE_2) as TYPE_2_nm
+						,(SELECT a.CD_NM_ENG FROM TN_COM_CONTRACTTYPE_CD a WHERE USE_YN = 'Y' and TYPE_CD = TYPE_3) as TYPE_3_nm
+						,(SELECT a.CD_NM_ENG FROM TN_COM_CONTRACTTYPE_CD a WHERE USE_YN = 'Y' and TYPE_CD = TYPE_4) as TYPE_4_nm
+				FROM TN_CLM_APPROVAL_CONT 
+				WHERE COMP_CD =  :vo.comp_cd 
+					AND PATH_ID =:vo.path_id
+            ]]>
+            </statement>
+        </query>
+        
+        <!-- Detail 상세 -->
+        <query id="clm.admin.detailApprovalPathDetail" isCamelCase="false">
+            <statement>
+            <![CDATA[
+            	SELECT PATH_ID,OPERATION,CONDITION,CONDITION_OPTION,CONDITION_VAL
+            	FROM TN_CLM_APPROVAL_CONT_DETAIL
+            	WHERE PATH_ID = :vo.path_id 
+
+            ]]>
+            </statement>
+        </query>
+        
+      <!-- Assigned Users 상세 -->
+        <query id="clm.admin.detailApprovalUsers" isCamelCase="false">
+            <statement>
+            <![CDATA[
+            	SELECT COMP_CD,PATH_ID,ROLE_USER_ID,A_TYPE,R_TYPE
+            		,CASE WHEN R_TYPE = 'r'
+						THEN (select a.role_nm from TN_CLM_ROLE_HEAD a where a.ROLE_CD =ROLE_USER_ID  and a.comp_cd=:vo.comp_cd)
+						ELSE (select ISNULL(a.USER_NM_ENG,'')+'/'+ISNULL(a.JIKGUP_NM_ENG,'')+'/'+ISNULL(a.DEPT_NM_ENG,'') as REG_ID from tb_com_user a where a.USER_ID =ROLE_USER_ID) 
+						END as user_nm
+						,(select ISNULL(a.USER_NM_ENG,'')+'/'+ISNULL(a.JIKGUP_NM_ENG,'')+'/'+ISNULL(a.DEPT_NM_ENG,'') as REG_ID from tb_com_user a where a.USER_ID =REG_ID) as REG_ID
+						,(CONVERT(VARCHAR, REG_DT, 23)) as REG_DT ,SORT_NO
+				FROM TN_CLM_APPROVAL_PATH
+ 				WHERE COMP_CD =  :vo.comp_cd 
+ 				AND PATH_ID=:vo.path_id
+ 				ORDER BY SORT_NO ASC
+            ]]>
+            </statement>
+        </query>
+        
+        <!--TN_CLM_APPROVAL_CONT 삭제 -->
+		<query id="clm.admin.deleteApprovalPathCont" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				UPDATE	TN_CLM_APPROVAL_CONT
+				   SET   DEL_YN = 'Y'
+				        ,DEL_DT  = GETDATE()
+						,DEL_ID = :vo.del_id
+				WHERE path_id = :vo.path_id
+				   AND comp_cd = :vo.comp_cd 
+			]]>
+			</statement>
+		</query>
+		
+		<!--TN_CLM_APPROVAL_CONT_DETAIL 삭제 -->
+		<query id="clm.admin.deleteApprovalPathContDetail" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				UPDATE	TN_CLM_APPROVAL_CONT_DETAIL
+				   SET   DEL_YN = 'Y'
+				        ,DEL_DT  = GETDATE()
+						,DEL_ID = :vo.del_id
+				WHERE path_id = :vo.path_id
+			]]>
+			</statement>
+		</query>
+		
+		<!--TN_CLM_APPROVAL_PATH 삭제 -->
+		<query id="clm.admin.deleteApprovalPathYn" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				UPDATE	TN_CLM_APPROVAL_PATH
+				   SET   DEL_YN = 'Y'
+				        ,DEL_DT  = GETDATE()
+						,DEL_ID = :vo.del_id
+				WHERE path_id = :vo.path_id
+				   AND comp_cd = :vo.comp_cd 
+			]]>
+			</statement>
+		</query>
+
+		<!-- 수정 -->
+		<query id="clm.admin.modifyApprovalPath" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				UPDATE	TN_CLM_APPROVAL_CONT
+				   SET	PATH_NM = :vo.path_nm
+				   ,COMMENTS = :vo.comments
+				   ,PRIORITY = :vo.priority
+				   ,USE_YN = :vo.use_yn
+				   ,MANDATORY = :vo.mandatory
+				   ,MOD_DT = GETDATE()
+				   ,MOD_ID = :vo.mod_id
+				   ,TYPE_1 = :vo.type_1
+				   ,TYPE_2 = :vo.type_2
+				   ,TYPE_3 = :vo.type_3
+				   ,TYPE_4 = :vo.type_4
+				WHERE path_id = :vo.path_id
+				   AND comp_cd = :vo.comp_cd 
+			]]>
+			</statement>
+		</query>  
+		
+		<!-- ApprovalPath 삭제 -->
+		<query id="clm.admin.deleteApprovalPath" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				DELETE FROM TN_CLM_APPROVAL_PATH
+				WHERE path_id = :vo.path_id
+				   AND comp_cd = :vo.comp_cd 
+			]]>
+			</statement>
+		</query>  
+		
+		<!-- APPROVAL_CONT_DETAIL 삭제 -->
+		<query id="clm.admin.deleteApprovalDetail" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				DELETE FROM TN_CLM_APPROVAL_CONT_DETAIL
+				WHERE path_id = :vo.path_id
+			]]>
+			</statement>
+		</query>  
+		
+		<!-- CONTRACTTYPE combo -->
+        <query id="clm.admin.combolist" isCamelCase="false">
+            <statement>
+            <![CDATA[
+            	SELECT TYPE_CD,UP_TYPE_CD,CD_NM_ENG as CD_NM
+				FROM TN_COM_CONTRACTTYPE_CD 
+				WHERE USE_YN = 'Y' 
+				and UP_TYPE_CD = :vo.up_type_cd
+				ORDER BY TYPE_CD
+            ]]>
+            </statement>
+        </query>
+        
+        <!-- Role combo -->
+        <query id="clm.admin.roleCombolist" isCamelCase="false">
+            <statement>
+            <![CDATA[
+            	SELECT ROLE_CD,ROLE_NM FROM TN_CLM_ROLE_HEAD
+            	WHERE USE_YN = 'Y' 
+            	and  DEL_YN <> 'Y'
+            	and COMP_CD =:vo.comp_cd 
+				ORDER BY ROLE_NM
+
+            ]]>
+            </statement>
+        </query>
+        
+        <!-- UserInfo 검색 -->
+		<query id="clm.admin.ApprovalUsersInfo" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				 SELECT CASE WHEN COUNT(*) > 0 THEN 'U'
+				 	 ELSE 'I' END AS VAL 
+				  FROM TB_COM_USER WHERE USER_ID = :vo.user_id_tmp
+			]]>
+			</statement>
+		</query>  
+        
+        <!-- excel download -->
+		<query id="clm.admin.listApprovalPathExcel" isCamelCase="false">
+			<statement>
+			<![CDATA[
+			        
+					
+					SELECT ROW_NUMBER() OVER (ORDER BY CAST(AA.PATH_ID AS NUMERIC) DESC) sort_no,AA.Path_nm,AA.Priority,AA.use_yn
+					,CASE WHEN AA.Mandatory = 'O' then 'Option' else 'Mandatory' end As Mandatory
+					,(SELECT a.CD_NM FROM TN_COM_CONTRACTTYPE_CD a WHERE USE_YN = 'Y' and TYPE_CD = AA.TYPE_1) as TYPE_1
+					,(SELECT a.CD_NM FROM TN_COM_CONTRACTTYPE_CD a WHERE USE_YN = 'Y' and TYPE_CD = AA.TYPE_2) as TYPE_2
+					,(SELECT a.CD_NM FROM TN_COM_CONTRACTTYPE_CD a WHERE USE_YN = 'Y' and TYPE_CD = AA.TYPE_3) as TYPE_3
+					,(SELECT a.CD_NM FROM TN_COM_CONTRACTTYPE_CD a WHERE USE_YN = 'Y' and TYPE_CD = AA.TYPE_4) as TYPE_4
+					,AA.OPERATION ,bb.approver from 
+					(select a.PATH_ID, a.PATH_NM,a.PRIORITY,a.USE_YN,a.MANDATORY,a.TYPE_1,a.TYPE_2,a.TYPE_3,a.TYPE_4,
+					(OPERATION +' '+ CASE WHEN b.CONDITION = 'C001' then 'CNTRT_AMT' when b.CONDITION = 'C002' then 'AUTO_RNEW_YN' when b.CONDITION = 'C003' then 'Mandatory provisions'  end 
+					 +' '+
+					CASE WHEN b.CONDITION_OPTION = '1' then '>' when b.CONDITION_OPTION = '2' then '=' when b.CONDITION_OPTION = '3' then '<'  end 
+					 +' '+
+					b.CONDITION_VAL) as OPERATION
+					FROM TN_CLM_APPROVAL_CONT a left OUTER JOIN TN_CLM_APPROVAL_CONT_DETAIL b ON a.PATH_ID = b.path_id
+					WHERE a.DEL_YN <> 'Y' 
+					AND a.COMP_CD = :vo.comp_cd ) aa,
+					
+					(SELECT c.path_id,STUFF(( 
+								SELECT CASE WHEN b.A_TYPE = '1' then 'APPROVE' else 'Consent' end  +'/'+	CASE WHEN b.R_TYPE = 'r' THEN (select a.role_nm from TN_CLM_ROLE_HEAD a where a.ROLE_CD =b.ROLE_USER_ID and a.COMP_CD = b.COMP_CD)
+											ELSE (select ISNULL(a.user_nm,'') from tb_com_user a where a.USER_ID =b.ROLE_USER_ID) 
+											END +'  '
+									FROM TN_CLM_APPROVAL_PATH b
+					 				WHERE b.COMP_CD =  :vo.comp_cd and b.PATH_ID = c.PATH_ID
+									FOR XML PATH ('')) ,1,0,'') as APPROVER
+									FROM  TN_CLM_APPROVAL_PATH  c 
+									WHERE c.DEL_YN <> 'Y'
+									--and c.COMP_CD =  :vo.comp_cd
+									GROUP BY c.path_id) bb
+					WHERE aa.PATH_ID = bb.PATH_ID
+
+		 		]]>
+			</statement>
+		</query>  
+        
+    </queries>
+</queryservice>

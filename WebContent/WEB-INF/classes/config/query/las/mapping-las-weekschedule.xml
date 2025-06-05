@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+    <queries>
+    
+<query id="las.weekSchedule.listPage" isCamelCase="false">
+  <statement>
+    <![CDATA[
+    		SELECT  *
+                  FROM  (
+                        SELECT  ROW_NUMBER() OVER(ORDER BY USER_SRT DESC ) RN
+                               ,COUNT(1) over() TOTAL_CNT
+                               ,t.*
+                          FROM  (
+						    SELECT  DISTINCT B.USER_ID,
+						    		B.USER_NM, 
+						    		A.YEAR, 
+						    		A.WEEKSEQ, 
+						    		B.USER_SRT,
+						    		A.CRNTWEEK_RSLT, 
+						    		A.NEXTWEEK_PLAN, 
+						    		A.REG_DT, 
+						    		A.REG_ID, 
+						    		A.REG_NM
+						      FROM (SELECT *
+						       		  FROM TN_LAS_WEEKSCHEDULE
+						       		 WHERE YEAR = :vo.year
+						       		   	AND WEEKSEQ = :vo.weekseq
+						       		#if(!$vo.session_auth_comp_cd.equals(""))
+										AND COMP_CD IN ($vo.session_auth_comp_cd)
+									#end
+									) A RIGHT OUTER JOIN TB_COM_USER B ON  A.USER_ID = B.USER_ID /* BY 성현 */
+						       	 /* ,TB_COM_USER B*/
+						       	   ,TB_COM_ROLE_USER C
+						     WHERE  
+						     		C.SYS_CD = 'LAS'
+						       AND  C.ROLE_CD IN ('RA01', 'RA02')
+							   AND  C.USER_ID = B.USER_ID
+							#if(!$vo.session_auth_comp_cd.equals(""))
+								AND B.COMP_CD IN ($vo.session_auth_comp_cd)
+							#end
+							/*  AND  B.USER_ID = A.USER_ID(+) */
+						     ) t
+            		)TT
+    ]]>
+  </statement>
+</query>
+
+
+<query id="las.weekSchedule.insert" isCamelCase="false">
+  <statement>
+    <![CDATA[
+    INSERT INTO TN_LAS_WEEKSCHEDULE (
+           USER_ID
+               , YEAR
+               , WEEKSEQ
+               , COMP_CD
+               , USER_NM
+               , CRNTWEEK_RSLT
+               , NEXTWEEK_PLAN
+               , REG_DT
+               , REG_ID
+               , REG_NM
+        ) VALUES (
+           :vo.user_id
+          ,:vo.year
+          ,:vo.weekseq
+          ,#if(!$vo.session_auth_comp_cd.equals(""))
+				($vo.session_auth_comp_cd)
+			#else
+				''
+			#end
+          ,:vo.user_nm
+          ,:vo.crntweek_rslt
+          ,:vo.nextweek_plan
+          ,GETDATE()
+          ,:vo.session_user_id
+          ,:vo.session_user_nm
+        )
+    ]]>
+  </statement>
+</query>
+
+
+<!-- 상세 조회 -->
+        <query id="las.weekSchedule.detail" isCamelCase="false">
+            <statement>
+            <![CDATA[
+            	SELECT B.USER_ID
+            		,B.USER_NM
+        			,A.YEAR
+       				,A.WEEKSEQ
+       				,A.COMP_CD
+       	 			,A.CRNTWEEK_RSLT
+        			,A.NEXTWEEK_PLAN
+        			/* ,TO_CHAR(A.REG_DT, 'yyyy-MM-dd') REG_DT */
+        			,CONVERT(VARCHAR, CONVERT(DATE, A.REG_DT), 23) AS REG_DT
+        			,A.REG_ID
+        			,A.REG_NM
+        			/* ,TO_CHAR(A.MOD_DT, 'yyyy-MM-dd') MOD_DT */
+        			,CONVERT(VARCHAR, CONVERT(DATE, A.MOD_DT), 23) AS MOD_DT
+        			,A.MOD_ID
+        			,A.MOD_NM
+           FROM (SELECT  *
+           		   FROM  TN_LAS_WEEKSCHEDULE 
+           		  WHERE  YEAR = :vo.year
+             	    AND  WEEKSEQ = :vo.weekseq
+             	#if(!$vo.session_auth_comp_cd.equals(""))
+					AND COMP_CD IN ($vo.session_auth_comp_cd)
+				#end
+             	 ) A RIGHT OUTER JOIN TB_COM_USER B ON  A.USER_ID = B.USER_ID /* BY 성현 */
+           		/* TB_COM_USER B */
+           WHERE B.USER_ID = :vo.user_id
+            /* AND B.USER_ID = A.USER_ID(+) */
+            ]]>
+            </statement>
+        </query>
+
+
+<!-- 조회 -->
+        <query id="las.weekSchedule.existYn" isCamelCase="false">
+            <statement>
+            <![CDATA[
+            	SELECT USER_ID
+        			  ,YEAR
+       				  ,WEEKSEQ
+       				  ,COMP_CD
+        			  ,USER_NM
+       	 			  ,CRNTWEEK_RSLT
+        			  ,NEXTWEEK_PLAN
+        			  /* ,TO_CHAR(REG_DT, 'yyyy-MM-dd') REG_DT */
+        			  ,CONVERT(VARCHAR, CONVERT(DATE, REG_DT), 23) AS REG_DT
+        			  ,REG_ID
+        		  	  ,REG_NM
+        		 	  /* ,TO_CHAR(MOD_DT, 'yyyy-MM-dd') MOD_DT */
+        		 	  ,CONVERT(VARCHAR, CONVERT(DATE, MOD_DT), 23) AS MOD_DT
+        			  ,MOD_ID
+        			  ,MOD_NM
+         		  FROM  TN_LAS_WEEKSCHEDULE 
+           	     WHERE  USER_ID = :vo.user_id
+           	       AND  YEAR = :vo.year
+             	   AND  WEEKSEQ = :vo.weekseq
+             	#if(!$vo.session_auth_comp_cd.equals(""))
+					AND COMP_CD IN ($vo.session_auth_comp_cd)
+				#end
+            ]]>
+            </statement>
+        </query>
+        
+        
+
+
+<query id="las.weekSchedule.modify" isCamelCase="false">
+  <statement>
+    <![CDATA[
+         UPDATE TN_LAS_WEEKSCHEDULE
+          SET  
+               CRNTWEEK_RSLT = :vo.crntweek_rslt
+              , NEXTWEEK_PLAN = :vo.nextweek_plan              
+              , MOD_DT = GETDATE()
+              , MOD_ID = :vo.session_user_id
+              , MOD_NM = :vo.session_user_nm
+         WHERE 1=1
+         	AND YEAR = :vo.year
+         	AND WEEKSEQ = :vo.weekseq
+         	AND USER_ID = :vo.user_id
+        #if(!$vo.session_auth_comp_cd.equals(""))
+		 	AND COMP_CD IN ($vo.session_auth_comp_cd)
+		#end
+    ]]>
+  </statement>
+</query>
+
+
+
+<query id="las.weekSchedule.excelDown" isCamelCase="false">
+  <statement>
+    <![CDATA[
+  
+    		SELECT  *
+                  FROM  (
+                        SELECT  ROW_NUMBER() OVER(ORDER BY REG_DT DESC ) RN
+                               ,COUNT(1) over() TOTAL_CNT
+                               ,t.*
+                          FROM  (
+				              SELECT USER_ID
+				                    ,YEAR
+				                    ,WEEKSEQ
+				                    ,USER_NM
+				                    ,CRNTWEEK_RSLT
+				                    ,NEXTWEEK_PLAN	
+				                    ,REG_DT
+				                    ,REG_ID
+				                    ,REG_NM
+				                    ,MOD_DT
+				                    ,MOD_ID
+				                    ,MOD_NM
+				              FROM TN_LAS_WEEKSCHEDULE
+				              WHERE YEAR = :vo.year
+				                AND WEEKSEQ = :vo.weekseq
+				            #if(!$vo.session_auth_comp_cd.equals(""))
+								AND COMP_CD IN ($vo.session_auth_comp_cd)
+							#end
+				              ORDER BY USER_ID) t
+            		ORDER BY RN ) 
+    ]]>
+  </statement>
+</query>
+
+<query id="las.weekSchedule.weeklyBatch" isCamelCase="false">
+  <statement>
+    <![CDATA[
+    
+        INSERT INTO TN_LAS_WEEKSCHEDULE
+			(
+				USER_ID, 
+				YEAR,
+				WEEKSEQ+1,
+				COMP_CD,
+				USER_NM, 
+				CRNTWEEK_RSLT, 
+				REG_DT, 
+				REG_ID, 
+				REG_NM
+			)
+
+				SELECT 
+						USER_ID, 
+						YEAR, 
+						WEEKSEQ,
+						COMP_CD, 
+						USER_NM, 
+						NEXTWEEK_PLAN, 
+						SYSDATE, 
+						REG_ID, 
+						REG_NM
+
+  				FROM 	TN_LAS_WEEKSCHEDULE
+
+ 				WHERE 	YEAR = (SELECT YEAR(SYSDATE) )
+
+   				AND 	WEEKSEQ = (SELECT TO_CHAR( SYSDATE, 'WW' ) )-1    
+        ]]>
+  </statement>
+</query>
+
+<query id="las.weekSchedule.annuallyBatch" isCamelCase="false">
+  <statement>
+    <![CDATA[
+    
+		INSERT INTO TN_LAS_WEEKSCHEDULE
+			(
+				USER_ID, 
+				YEAR(SYSDATE), 
+				'1', 
+				USER_NM, 
+				CRNTWEEK_RSLT, 
+				REG_DT, 
+				REG_ID, 
+				REG_NM
+			)
+
+			SELECT 
+					USER_ID, 
+					YEAR, 
+					WEEKSEQ, 
+					USER_NM, 
+					NEXTWEEK_PLAN, 
+					SYSDATE, 
+					REG_ID, 
+					REG_NM
+
+  			FROM 	TN_LAS_WEEKSCHEDULE
+
+ 			WHERE 	YEAR = (SELECT YEAR(SYSDATE) )-1
+
+   			AND 	WEEKSEQ = (SELECT MAX(TO_NUMBER(WEEKSEQ)) FROM TN_LAS_WEEKSCHEDULE WHERE YEAR = (SELECT YEAR(SYSDATE) )-1 )			
+    
+        ]]>
+  </statement>
+</query>
+
+    </queries>
+</queryservice>

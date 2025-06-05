@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+    <queries>
+    	<!-- 2011.08.31 심주완추가(계약선택팝업 )-->
+		<query id="clm.manage.listChooseContract" isCamelCase="false">
+            <statement>
+            <![CDATA[
+            SELECT ROWNUM RM
+			     , COUNT(CNTRT_ID) OVER() ROWSPAN
+			     , T.*
+			  FROM (
+			
+			        SELECT C.CNTRT_ID     
+			             , C.CNTRT_NM     
+			             , C.BIZ_CLSFCN   
+			             , CASE C.CNTRT_STATUS WHEN 'C02603' THEN 'Y'
+			                                                 ELSE 'N'
+			                END	DROP_YN                                 
+			             , (
+			                SELECT CASE WHEN :vo.session_user_locale = 'ko' THEN CD_NM
+			              				WHEN :vo.session_user_locale = 'fr' THEN CD_NM_FRA
+			              				WHEN :vo.session_user_locale = 'de' THEN CD_NM_DEU
+			              				ELSE CD_NM_ENG
+			              		   END CD_NM
+			                  FROM TN_COM_CONTRACTTYPE_CD 
+			                 WHERE TYPE_CD = C.BIZ_CLSFCN
+			               )              BIZ_CLSFCN_NM
+			             , C.DEPTH_CLSFCN
+			             , (
+			                SELECT CASE WHEN :vo.session_user_locale = 'ko' THEN CD_NM
+			              				WHEN :vo.session_user_locale = 'fr' THEN CD_NM_FRA
+			              				WHEN :vo.session_user_locale = 'de' THEN CD_NM_DEU
+			              				ELSE CD_NM_ENG
+			              		   END CD_NM
+			                  FROM TN_COM_CONTRACTTYPE_CD 
+			                 WHERE TYPE_CD = C.DEPTH_CLSFCN
+			               )              DEPTH_CLSFCN_NM
+			             , C.CNCLSNPURPS_BIGCLSFCN
+			             , (
+			                SELECT CASE WHEN :vo.session_user_locale = 'ko' THEN CD_NM
+			              				WHEN :vo.session_user_locale = 'fr' THEN CD_NM_FRA
+			              				WHEN :vo.session_user_locale = 'de' THEN CD_NM_DEU
+			              				ELSE CD_NM_ENG
+			              		   END CD_NM
+			                  FROM TN_COM_CONTRACTTYPE_CD 
+			                 WHERE TYPE_CD = C.CNCLSNPURPS_BIGCLSFCN
+			               )              CNCLSNPURPS_BIGCLSFCN_NM
+			             , C.CNCLSNPURPS_MIDCLSFCN
+			             , (
+			                SELECT CASE WHEN :vo.session_user_locale = 'ko' THEN CD_NM
+			              				WHEN :vo.session_user_locale = 'fr' THEN CD_NM_FRA
+			              				WHEN :vo.session_user_locale = 'de' THEN CD_NM_DEU
+			              				ELSE CD_NM_ENG
+			              		   END CD_NM
+			                  FROM TN_COM_CONTRACTTYPE_CD 
+			                 WHERE TYPE_CD = C.CNCLSNPURPS_MIDCLSFCN
+			               )              CNCLSNPURPS_MIDCLSFCN_NM
+			         FROM TN_CLM_CONT_CNSDREQ     A
+			            , TN_CLM_CONTRACT_CNSD     B
+			            , TN_CLM_CONTRACT_MASTER   C
+			        WHERE A.CNSDREQ_ID = B.CNSDREQ_ID
+			          AND B.CNTRT_ID   = C.CNTRT_ID
+			          AND A.CNSDREQ_ID = :vo.cnsdreq_id
+			          AND A.DEL_YN = 'N'
+			          AND C.DEL_YN = 'N'
+			          AND C.DEPTH_STATUS NOT IN ('C02603')
+			          
+			    ) T
+            ]]>
+            </statement>
+        </query>
+        <!-- 선택되지않은 계약은 Drop시킨다 -->
+        <query id="clm.manage.modifyChooseContract" isCamelCase="false">
+            <statement>
+            <![CDATA[
+	        UPDATE TN_CLM_CONTRACT_MASTER
+		   	   SET CNTRT_STATUS 					= 'C02603'
+		   	     , CNTRT_CHGE_DEMNDDAY				= to_char(sysdate, 'yyyyMMdd')
+		   	     , CNTRT_CHGE_DEMNDMAN_ID 			= :vo.session_user_id
+		   	     , CNTRT_CHGE_DEMNDMAN_NM			= :vo.session_user_nm
+		   	     , CASE WHEN :vo.session_user_locale = 'ko' THEN
+		   	     			CNTRT_CHGE_DEMND_CAUSE			= '품의작성 미선택으로 인한 DROP'
+		   	     		WHEN :vo.session_user_locale = 'fr' THEN
+		   	     			CNTRT_CHGE_DEMND_CAUSE			= 'Le fait de ne pas avoir sélectionné la commande ""Créer une demande d‘approbation"" a entraîné l‘abandon.'
+		   	     		WHEN :vo.session_user_locale = 'de' THEN
+		   	     			CNTRT_CHGE_DEMND_CAUSE			= 'Abgebrochen, da ""Genehmigungsantrag erstellen"" nicht ausgewählt wurde'
+		   	     		ELSE
+		   	     			CNTRT_CHGE_DEMND_CAUSE			= 'Dropped by not selecting the "Create Approval Request"'
+		   	     		END
+		   	     , CNTRT_CHGE_DEMND_DEPT_NM 		= :vo.session_dept_nm
+		   	     , CNTRT_CHGE_DEMNDMAN_JIKGUP_NM 	= :vo.session_jikgup_nm
+		   	     , MOD_DT							= SYSDATE
+		   	     , MOD_ID	 						= :vo.session_user_id
+		       	 , MOD_NM    						= :vo.session_user_nm
+		     WHERE CNTRT_ID	 						= :vo.cntrt_id   
+            ]]>
+            </statement>
+        </query>
+        
+        <query id="clm.manage.listApprovalValidation" isCamelCase="false" comment="계약유효성목록">
+		  	<statement>
+		    <![CDATA[
+		   SELECT 'Contract '+ CONVERT(VARCHAR, ROW_NUMBER() OVER(ORDER BY C.CNTRT_ID)) AS CNTRT_TITLE
+     			 , C.CNTRT_ID     
+			     , /*CASE COALESCE(C.EXPRT_NOTIDAY, 'Y')   
+			         WHEN 'Y' THEN 1
+			       ELSE 0
+			       END       
+			     + */	--신성우 주석처리 2014-04-03
+			     CASE COALESCE(C.CNCLSN_PLNDDAY, 'Y')  
+			         WHEN 'Y' THEN 1
+			       ELSE 0
+			       END     
+			     + CASE 
+			         WHEN C.SEAL_MTHD = 'C02101' THEN CASE COALESCE(C.SEAL_FFMTMAN_ID, 'Y') 
+			                                            WHEN 'Y' THEN 1
+		                                              ELSE 0
+			                                          END
+                   ELSE 
+                     CASE COALESCE(C.SIGN_PLNDMAN_ID, 'Y') 
+                       WHEN 'Y' THEN 1
+			         ELSE 0
+			         END   
+                    END AS NULL_CNT
+			     , (
+			        SELECT CONVERT(BIGINT, COUNT(*)) 
+			          FROM TN_CLM_CONT_EXECINFO 
+			         WHERE CNTRT_ID = C.CNTRT_ID
+			           AND DEL_YN = 'N'
+			       ) AS EXEC_CNT
+			     , (SELECT /* TO_CHAR(COUNT(*)) */
+			               CONVERT(BIGINT, COUNT(*)) 
+	                  FROM TB_COM_START_PROCESS_WSVO
+	               	 WHERE REF_KEY = A.CNSDREQ_ID 
+	              	   AND STATUS = '1' 
+	              	   AND APPRVL_CLSFCN = 'C03002'
+	               ) AS WSVO_CNT	              
+			  FROM TN_CLM_CONT_CNSDREQ A
+			     , TN_CLM_CONTRACT_CNSD B
+			     , TN_CLM_CONTRACT_MASTER C
+			 WHERE A.CNSDREQ_ID 	= B.CNSDREQ_ID
+			   AND B.CNTRT_ID 		= C.CNTRT_ID
+			   AND A.CNSDREQ_ID 	= :vo.cnsdreq_id
+		  ORDER BY C.CNTRT_ID
+	      	]]>
+			</statement>
+		</query>
+    </queries>
+</queryservice>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+
+	<!-- secfw Common DataSource -->
+	<bean id="secfw.txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	  <property name="dataSource" ref="secfw.dataSource"/>
+	</bean>
+
+	<bean id="profiler" class="x.y.SimpleProfiler">
+    	<!-- execute before the transactional advice (hence the lower order number) -->
+    	<property name="order" value="1"/>
+  	</bean>
+  
+	<tx:advice id="secfw.txAdvice" transaction-manager="secfw.txManager">
+		<tx:attributes>
+		<!-- 
+			<tx:method name="list*" read-only="true"/>
+			<tx:method name="get*" read-only="true"/>
+			<tx:method name="*" rollback-for="Exception" propagation="REQUIRED"/>
+		 -->
+		<!-- FOR DB2
+			<tx:method name="list*" read-only="true" isolation="READ_COMMITTED"/>
+			<tx:method name="get*" read-only="true" isolation="READ_COMMITTED"/>
+			<tx:method name="*" rollback-for="Exception" propagation="REQUIRED" isolation="READ_COMMITTED"/>
+		 -->
+
+			<tx:method name="*" rollback-for="Exception" propagation="REQUIRED"/>
+		</tx:attributes>
+	</tx:advice>
+    
+	<aop:config>
+		<aop:pointcut id="secfw.requiredTx" expression="execution(* *..*ServiceImpl.*(..)) AND !execution(* *..*ServiceImpl.list*(..)) AND !execution(* *..*ServiceImpl.count*(..))"/>
+		<aop:advisor advice-ref="secfw.txAdvice" order="2" pointcut-ref="secfw.requiredTx" />
+		
+		<aop:aspect id="profilingAspect" ref="profiler">
+      		<aop:pointcut id="serviceMethodWithReturnValue" expression="execution(!void *..*ServiceImpl.*(..))"/>
+      		<aop:around method="profile" pointcut-ref="serviceMethodWithReturnValue"/>
+    	</aop:aspect>
+    
+    
+	</aop:config>
+
+	<!-- User Transaction DataSource -->
+	<!-- 
+	<bean id="secfw.txManagerUtx" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	  <property name="dataSource" ref="secfw.dataSourceUtx"/>
+	</bean>
+	-->
+	
+</beans>

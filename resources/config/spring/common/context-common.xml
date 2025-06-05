@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+    xmlns:aop="http://www.springframework.org/schema/aop"    
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:config="http://www.anyframejava.org/schema/service"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    					http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+                        http://www.springframework.org/schema/aop 
+                        http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+                        http://www.anyframejava.org/schema/service
+                        http://www.anyframejava.org/schema/service/anyframe-core-service-2.0.xsd">
+
+
+	<!-- 공통코드 관련 서비스 -->                        
+	<bean id="common.clmsComService"
+		class="com.sec.common.clmscom.service.impl.CLMSCommonServiceImpl">
+		<property name="commonDAO" ref="secfw.commonDAO"/>
+		<property name="propertyService" ref="secfw.propertyService"/>
+	</bean>	
+
+ 	<!-- 파일첨부 : 신남원 : 2011.08.04 -->
+	<bean id="common.clmsFileService"
+	    class="com.sec.common.clmsfile.service.impl.ClmsFileServiceImpl" parent="secfw.commonService">
+	</bean>
+	
+</beans>

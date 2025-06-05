@@ -1,0 +1,49 @@
+﻿/*---------- sitemap ----------*/
+.sitemap_t1 { font: bold 12px "돋움"; color: #FFFFFF; background-image: url(/images/acts/sub/sitemap_bg_tt.gif); background-repeat: no-repeat;
+	height: 35px; width: 155px; vertical-align: top; padding: 8px 0 0 15px; }
+.sitemap_t2 { font-family: "굴림"; font-weight: bold; color: 0d62a5; vertical-alignb: center; 
+	background-image: url(/images/acts/sub/sitemap_bul_1.gif); background-repeat: no-repeat; background-position: left center; 
+	white-space: nowrap; height: 27px; padding-top: 4px; padding-left: 20px; }
+.sitemap_t3 { font-family: "굴림"; color: 666666; vertical-align: center;
+	background-image: url(/images/acts/sub/sitemap_bul_2.gif); background-repeat: no-repeat; background-position: left center;
+	white-space: nowrap; font-size:11px; height: 16px; padding-left: 20px; }
+.sitemap_t3 a:link { color: #666666; text-decoration: none; }
+.sitemap_t3 a:visited { color: #666666; text-decoration: none; }
+.sitemap_t3 a:active { color: #666666; text-decoration: none; }
+.sitemap_t3 a:hover { color: #666666; text-decoration: underline; }
+
+/*---------- team member ----------*/
+.team_serBg { height: 30px; background-color: #d7dde9; text-align: right; }
+.team_lay { padding-bottom: 5px; }
+.team_brdr { border-bottom: 1px solid ffffff; border-right: 1px solid ffffff; background-color: dddddd; }
+.team_tb { background-image: url(/images/acts/sub/team_tb.gif); background-repeat: repeat-x;
+	white-space: nowrap; height: 29px; padding-left: 8px; padding-top: 2px; color: 395386; font: bold 12px; }
+.team_tb a:link { color: #395386; text-decoration: none; font-weight: bold;}
+.team_tb a:visited { color: #395386; text-decoration: none; font-weight: bold;}
+.team_tb a:active { color: #395386; text-decoration: none; font-weight: bold;}
+.team_tb a:hover { color: #395386; text-decoration: underline; font-weight: bold;}
+.team_td { font: 12px "돋움"; color: 666666; background-color: ffffff; padding: 8px; line-height:16px; }
+.team_td_y { font: 12px "돋움"; color: 666666; background-color: fbffda; padding: 8px; line-height:16px; }
+.team_td_r{ font: 12px "돋움"; color: 666666; background-color: ffedfc; padding: 8px; line-height:16px; }
+.team_td_g{ font: 12px "돋움"; color: 666666; background-color: e8ffe3; padding: 8px; line-height:16px; }
+
+/*---------- team card ----------*/
+.teamCard_img_left{ background-image: url(/images/acts/sub/teamCard_img.jpg); background-repeat: no-repeat;
+	width:763px; height: 353px; padding-bottom: 12px; vertical-align: bottom; }
+.teamCard_img_bg{ background-image: url(/images/acts/sub/team_img_bg.gif); background-repeat: repeat-x; height: 353px; }
+.teamCard_ser_tx { font-weight: bold; color: #d3dce9; text-align: left; padding-left: 360px; }
+
+/*---------- member list ----------*/
+.member_list { height: 25px; text-align: left; font-weight: bold; color: 666666; }
+.member_list a:link { color: #0d62a5; text-decoration: none; font-weight: bold;}
+.member_list a:visited { color: #666666; text-decoration: none; font-weight: bold;}
+.member_list a:active { color: #0d62a5; text-decoration: none; font-weight: bold;}
+.member_list a:hover { color: #0d62a5; text-decoration: underline; font-weight: bold;}
+
+/*---------- my fold ------------*/
+.pick {font-size:12px; font-family:doutum; font-weight:normal; color:#333333;}
+.pick a {font-size:12px; font-family:doutum; font-weight:normal; color:#333333;}
+.pick a:link {text-decoration:none;color:#333333;}
+.pick a:visited {text-decoration:none;color:#333333;}
+.pick a:active {text-decoration:underline;color:#2f63da;}
+.pick a:hover {text-decoration:underline; color:#749aef;}

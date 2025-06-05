@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<!-- Main 컨틀롤 -->
+	<bean id="secfw.mainControl"
+		class="com.sds.secframework.main.control.MainController">
+		<property name="mainService"        ref="secfw.mainService" />
+		<property name="propertyService"    ref="secfw.propertyService" />
+		<property name="localeResolver"     ref="localeResolver" />
+		<property name="messageSource"      ref="messageSource" />
+		<property name="methodNameResolver" ref="paramResolver" />
+		<property name="lawConsultService" 	ref="las.lawConsultService"/>	<!-- 법무 자문 -->
+		<property name="considerationService"	ref="clm.reviewService"/> <!-- 계약검토 -->
+	</bean>
+</beans>

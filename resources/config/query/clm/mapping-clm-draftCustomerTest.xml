@@ -1,0 +1,632 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+    <queries>
+
+		
+		
+		<!-- 계약상대방 목록 : 2011.09.29 : dawn -->
+		<!-- 2014-03-18 Kevin. 필수 계약 체결율 관리 개발 위해 쿼리 대대적 수술 시행. -->
+		<query id="clm.draft.listCustomerTest" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		
+				  SELECT 	D.*,	
+				 					E.CD_NM AS NATION_NM ,	
+				 					dbo.LAS_CODE_NM('C072',D.VENDOR_TYPE,:vo.session_user_locale) AS VENDOR_TYPE_NM
+		          FROM (	 
+		          				SELECT * 
+		          				FROM (
+					          					SELECT B.*,	ROW_NUMBER () OVER (ORDER BY B.CUSTOMER_CD) AS RN,	COUNT(1) OVER() TOTAL_CNT
+					                          	FROM (	SELECT DISTINCT
+											                                       CASE WHEN SUBSTRING(A.SEC_CD, 0, 1) = 'G' THEN '1' ELSE '2'		END AS ENG_NMX ,
+											                                       CASE WHEN A.CUSTOMER_CD = A.GUDUN THEN '1' ELSE '2'	END AS NUM ,
+											                                       A.CUSTOMER_CD ,
+											                                       A.CUSTOMER_NM1 ,
+											                                       A.IV_NM1 ,
+											                                       A.GUDUN ,
+											                                       A.GUNAM ,
+											                                       A.DODUN ,
+											                                       A.DONAM ,
+											                                       A.HQDUN ,
+											                                       A.HQNAM ,
+											                                       A.CUSTOMER_SORT ,
+											                                       A.SEC_CD ,
+											                                       A.TAX_NO ,
+											                                       A.ERDAT ,
+											                                       A.STREET ,
+											                                       A.CITYN ,
+											                                       A.STAPR ,
+											                                       A.NATION ,
+											                                       A.POSTALCODE ,
+											                                       A.TELEPHONE1 ,
+											                                       A.REP_NM ,
+											                                       A.LINBU ,
+											                                       A.LEGST ,
+											                                       A.BUSOPEN ,
+											                                       A.BUSINESS_GUBN ,
+											                                       A.CEONM_ENG ,
+											                                       A.ADD_ENG ,
+											                                       A.REG_DT ,
+											                                       A.REG_ID ,
+											                                       A.REG_NM ,
+											                                       A.EMAIL,
+											                                       A.VAT_NO,
+											                                       A.HP_NO,
+											                                       A.GERP_CD,
+											                                       A.VENDOR_TYPE,
+											                                       A.MANDATORY,		/*20140-3-18 Kevin. MANDATORY 컬럼 추가 및 쿼리 튜닝*/
+											                                       A.TOP30CUS_YN   	/*2014-10-06 Hong Added */
+							                                  FROM  TN_CLM_CUSTOMER AS A(NOLOCK) 
+															  WHERE A.DEL_YN='N'
+															  AND A.SCUSTOMER_NM1 LIKE  '%' + :vo.srch_customer + '%'
+									                          #if(!$vo.session_auth_comp_cd.equals(""))
+									                            	AND A.COMP_CD = $vo.session_auth_comp_cd
+									                          #end
+									                          #if (!$vo.srch_gerp.equals(""))
+											                  		AND A.GERP_CD = :vo.srch_gerp
+															  #end 
+											                  #if (!$vo.srch_nation.equals(""))
+																	AND A.nation = :vo.srch_nation
+															  #end 
+															  #if (!$vo.srch_taxNo.equals(""))
+																	AND A.TAX_NO LIKE '%' + :vo.srch_taxNo + '%'
+															  #end
+															  #if(!$vo.srch_vendor_type.equals(""))
+															  		AND A.VENDOR_TYPE = :vo.srch_vendor_type
+															  #end
+												) B
+		                 		) C
+		         				WHERE C.RN BETWEEN :vo.start_index AND :vo.end_index 
+		         ) D
+		         LEFT OUTER JOIN (SELECT CD,
+		                              CASE  	WHEN :vo.session_user_locale = 'fr' THEN CD_NM_FRA
+					              					WHEN :vo.session_user_locale = 'de' THEN CD_NM_DEU
+					              	  ELSE CD_NM_ENG	END AS CD_NM
+		                          FROM TB_COM_CD(NOLOCK)
+		                          WHERE SYS_CD = 'LAS' AND GRP_CD = 'L2'
+		         ) E 	ON D.NATION = E.CD
+		 ]]>
+		  </statement>
+		</query> 
+		
+		
+		<!-- 2014-05-21 Hong. top30cus. -->
+		<query id="clm.draft.listTop30Cus" isCamelCase="false">
+		  <statement>
+		    <![CDATA[		
+				SELECT CUSTOMER_NM1, GERP_CD , COUNT(1) OVER() TOTAL_CNT
+				FROM TN_CLM_CUSTOMER WITH(NOLOCK)
+				WHERE TOP30CUS_YN='Y'
+					#if(!$vo.session_auth_comp_cd.equals(""))
+						AND COMP_CD = $vo.session_auth_comp_cd
+					#else 
+						AND 1=2
+					#end
+				ORDER BY CUSTOMER_NM1
+		 ]]>
+		  </statement>
+		</query> 
+		
+		
+		<!-- 계약상대방 신규등록(업체코드일련번호 구하기) : 2011.10.24 : dawn -->
+		<query id="clm.draft.customerCdSeq" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		        SELECT 'LAS'+LTRIM(RTRIM(CONVERT(VARCHAR(23)
+		              ,ISNULL(MAX(CONVERT(NUMERIC,SUBSTRING(CUSTOMER_CD, 4, 20))), 0) + 1 ))) AS MAX_CUSTOMER_CD
+				  FROM TN_CLM_CUSTOMER
+				 WHERE SUBSTRING(CUSTOMER_CD, 1, 3) = 'LAS'
+		    ]]>
+		  </statement>
+		</query>
+		
+		<!-- 계약상대방 신규등록(SEC_CD 일련번호 구하기) : 2011.10.24 : dawn -->
+		<query id="clm.draft.secCd" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		        SELECT :vo.nationRd + CONVERT(VARCHAR, CONVERT(BIGINT, ISNULL(MAX(SUBSTRING(SEC_CD,2,20)), 0)) + 1) MAX_SEC_CD 
+		          FROM TN_CLM_CUSTOMER
+		         WHERE SUBSTRING(SEC_CD, 1, 1) = :vo.nationRd
+		    ]]>
+		  </statement>
+		</query>
+		
+		<!-- 계약상대방 신규등록 : 2011.10.24 : dawn -->
+		<query id="clm.draft.insertCustomer" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		        INSERT INTO TN_CLM_CUSTOMER
+					 ( CUSTOMER_CD, COMP_CD, COMP_NM, CUSTOMER_NM1, IV_NM1, GUDUN
+					 , GUNAM, DODUN, DONAM, HQDUN, HQNAM
+					 , CUSTOMER_SORT, SEC_CD, TAX_NO, ERDAT
+				 	 , STREET, CITYN, STAPR, NATION
+					 , POSTALCODE, TELEPHONE1, REP_NM, LINBU
+					 , LEGST, BUSOPEN, BUSINESS_GUBN, CEONM_ENG
+					 , ADD_ENG, REG_DT, REG_ID, REG_NM, DEL_YN, EMAIL, VAT_NO
+					 , SCUSTOMER_NM1, SCUSTOMER_SORT, SGUNAM, SDONAM, SIV_NM1, HP_NO
+					 , GERP_CD, VENDOR_TYPE				 
+					 )VALUES(
+					   :vo.customer_cd,:vo.session_comp_cd,:vo.session_auth_comp_nm, :vo.customer_nm1, :vo.customer_nm1, :vo.customer_cd
+					 , :vo.customer_nm1, :vo.customer_cd, :vo.customer_nm1, :vo.customer_cd, :vo.customer_nm1
+					 , LEFT(:vo.customer_nm1,75), :vo.sec_cd, :vo.tax_no, REPLACE(CONVERT(VARCHAR, GETDATE(), 23),'-','')
+					 , :vo.street, :vo.stapr, :vo.stapr, :vo.nation
+					 , :vo.postalcode, :vo.telephone1, :vo.rep_nm, :vo.linbu
+					 , :vo.legst, :vo.busopen, :vo.business_gubn, :vo.rep_nm
+					 , :vo.street, GETDATE(), :vo.reg_id, :vo.reg_nm, 'N', :vo.email, :vo.vatno
+					 , LEFT(UPPER(:vo.customer_nm1),200), LEFT(UPPER(:vo.customer_nm1),75), UPPER(:vo.customer_nm1), UPPER(:vo.customer_nm1), UPPER(:vo.customer_nm1)
+					 , :vo.hp_input
+					 , :vo.gerp_cd, :vo.vendor_type
+					 )
+		    ]]>
+		  </statement>
+		</query>
+		
+		<!-- 계약상대방 신규등록 : 2011.10.24 : dawn -->
+		<query id="clm.draft.insertCustomerExcel" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		        INSERT INTO TN_CLM_CUSTOMER
+					 ( CUSTOMER_CD, COMP_CD, COMP_NM, CUSTOMER_NM1, IV_NM1, GUDUN
+					 , GUNAM, DODUN, DONAM, HQDUN, HQNAM
+					 , CUSTOMER_SORT, SEC_CD, TAX_NO, ERDAT
+				 	 , STREET, CITYN, STAPR, NATION
+					 , POSTALCODE, TELEPHONE1, REP_NM, LINBU
+					 , LEGST, BUSOPEN, BUSINESS_GUBN, CEONM_ENG
+					 , ADD_ENG, REG_DT, REG_ID, REG_NM, DEL_YN, EMAIL
+					 , SCUSTOMER_NM1, SCUSTOMER_SORT, SGUNAM, SDONAM, SIV_NM1, HP_NO
+					 , GERP_CD, VENDOR_TYPE				 
+					 )VALUES(
+					   :customer_cd,:session_comp_cd,:session_auth_comp_nm, :customer_nm1, :customer_nm1, :customer_cd
+					 , :customer_nm1, :customer_cd, :customer_nm1, :customer_cd, :customer_nm1
+					 , LEFT(:customer_nm1,75), :sec_cd, :tax_no, REPLACE(CONVERT(VARCHAR, GETDATE(), 23),'-','')
+					 , :street, :cityn, :stapr, :nation
+					 , :postalcode, :telephone1, :rep_nm, :linbu
+					 , :legst, :busopen, :business_gubn, :rep_nm
+					 , :street, GETDATE(), :reg_id, :reg_nm, 'N', :email
+					 , LEFT(UPPER(:customer_nm1),200), LEFT(UPPER(:customer_nm1),75), UPPER(:customer_nm1), UPPER(:customer_nm1), UPPER(:customer_nm1)
+					 , :hp_input
+					 , :gerp_cd, :vendor_type
+					 )
+		    ]]>
+		  </statement>
+		</query>
+		
+		<!-- 국가검색 : 2011.10.26 : dawn -->
+		<query id="clm.draft.nation" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		        SELECT CD
+				     , CD_NM
+				     , CD_ABBR_NM
+				     , CD_NM_ENG
+				     , CD_ABBR_NM_ENG
+				  FROM TB_COM_CD
+				 WHERE SYS_CD = 'LAS'
+				   AND GRP_CD = 'L2'
+				   AND CD_NM LIKE :vo.gu +'%'
+				   AND USE_YN = 'Y'
+				 ORDER BY CD_NM
+		    ]]>
+		  </statement>
+		</query>
+		
+		
+		<!-- 계약상대방 목록 : 2011.11.14 : 김재원 -->
+		<query id="clm.draft.detailCustomerTest" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		   SELECT C.* ,
+                  CASE
+                    WHEN C.NATION = 'KR' THEN '대한민국'
+                  ELSE D.CD_NM
+                  END AS NATION_NM ,
+                  E.CD_NM AS LEGST_NM ,
+                  F.CD_NM AS BUSOPEN_NM ,
+                  G.CD_NM AS BUSINESS_GUBN_NM
+             FROM (SELECT C.*
+                     FROM (SELECT B.*,
+                                  ROWNUM AS RN,
+                                  COUNT(1) OVER() TOTAL_CNT
+                            FROM (SELECT DISTINCT
+                                         CASE
+                                           WHEN SUBSTRING(A.SEC_CD, 0, 1) = 'G' THEN '1'
+                                         ELSE '2'
+                                         END AS ENG_NMX ,
+                                         CASE
+                                           WHEN A.CUSTOMER_CD = A.GUDUN THEN '1'
+                                         ELSE '2'
+                                         END AS NUM ,
+                                         A.CUSTOMER_CD ,
+                                         A.CUSTOMER_NM1 ,
+                                         A.IV_NM1 ,
+                                         A.GUDUN ,
+                                         A.GUNAM ,
+                                         A.DODUN ,
+                                         A.DONAM ,
+                                         A.HQDUN ,
+                                         A.HQNAM ,
+                                         A.CUSTOMER_SORT ,
+                                         A.SEC_CD ,
+                                         A.TAX_NO ,
+                                         A.ERDAT ,
+                                         A.STREET ,
+                                         A.CITYN ,
+                                         A.STAPR ,
+                                         A.NATION ,
+                                         A.POSTALCODE ,
+                                         A.TELEPHONE1 ,
+                                         A.REP_NM ,
+                                         A.LINBU ,
+                                         A.LEGST ,
+                                         A.BUSOPEN ,
+                                         A.BUSINESS_GUBN ,
+                                         A.CEONM_ENG ,
+                                         A.ADD_ENG ,
+                                         A.REG_DT ,
+                                         A.REG_ID ,
+                                         A.REG_NM ,
+                                         A.EMAIL
+                                    FROM TN_CLM_CUSTOMER A 
+                                   WHERE A.CUSTOMER_CD = :vo.customer_cd
+                                     AND A.DODUN =       :vo.dodun
+                                   ) B
+                            ORDER BY B.ENG_NMX,
+                                     B.GUNAM,
+                                     B.GUDUN,
+                                     B.NUM,
+                                     B.DONAM ) C
+                WHERE C.RN BETWEEN :vo.start_index AND :vo.end_index ) C,
+       (SELECT CD,
+               CASE WHEN :vo.session_user_locale = 'en' THEN CD_NM_ENG
+		    	    WHEN :vo.session_user_locale = 'fr' THEN CD_NM_FRA
+		    		WHEN :vo.session_user_locale = 'de' THEN CD_NM_DEU
+		    		WHEN :vo.session_user_locale = 'it' THEN CD_NM_ITA
+		    		WHEN :vo.session_user_locale = 'es' THEN CD_NM_ESP
+		       ELSE AS CD_NM
+		       END
+          FROM TB_COM_CD
+         WHERE SYS_CD = 'LAS'
+           AND GRP_CD = 'L2') D ,
+       (SELECT CD,
+               CASE WHEN :vo.session_user_locale = 'en' THEN CD_NM_ENG
+		    	    WHEN :vo.session_user_locale = 'fr' THEN CD_NM_FRA
+		    		WHEN :vo.session_user_locale = 'de' THEN CD_NM_DEU
+		    		WHEN :vo.session_user_locale = 'it' THEN CD_NM_ITA
+		    		WHEN :vo.session_user_locale = 'es' THEN CD_NM_ESP
+		       ELSE CD_NM
+		       END AS CD_NM
+          FROM TB_COM_CD
+         WHERE SYS_CD = 'LAS'
+           AND GRP_CD = 'C050') E ,
+       (SELECT CD,
+               CASE WHEN :vo.session_user_locale = 'en' THEN CD_NM_ENG
+		    	    WHEN :vo.session_user_locale = 'fr' THEN CD_NM_FRA
+		    		WHEN :vo.session_user_locale = 'de' THEN CD_NM_DEU
+		    		WHEN :vo.session_user_locale = 'it' THEN CD_NM_ITA
+		    		WHEN :vo.session_user_locale = 'es' THEN CD_NM_ESP
+		       ELSE CD_NM
+		       END AS CD_NM
+          FROM TB_COM_CD
+         WHERE SYS_CD = 'LAS'
+           AND GRP_CD = 'C051') F ,
+       (SELECT CD,
+               CASE WHEN :vo.session_user_locale = 'en' THEN CD_NM_ENG
+		    	    WHEN :vo.session_user_locale = 'fr' THEN CD_NM_FRA
+		    		WHEN :vo.session_user_locale = 'de' THEN CD_NM_DEU
+		    		WHEN :vo.session_user_locale = 'it' THEN CD_NM_ITA
+		    		WHEN :vo.session_user_locale = 'es' THEN CD_NM_ESP
+		       ELSE CD_NM
+		       END AS CD_NM
+          FROM TB_COM_CD
+         WHERE SYS_CD = 'LAS'
+           AND GRP_CD = 'C052') G
+ WHERE C.NATION = D.CD(+)
+   AND C.LEGST = E.CD(+)
+   AND C.BUSOPEN = F.CD(+)
+   AND C.BUSINESS_GUBN = G.CD(+)
+		 ]]>
+		  </statement>
+		</query> 
+
+
+<!-- 계약상대방 중복 체크 : 2011.11.14 : 김재원 -->
+		<query id="clm.draft.checkTexNo" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+			   SELECT CUSTOMER_NM1 as customer_nm1
+				     , TAX_NO
+				     , COUNT(*) AS CNT
+				  FROM TN_CLM_CUSTOMER
+				 WHERE TAX_NO = :vo.tax_no
+				 #if(!$vo.session_auth_comp_cd.equals(""))
+                   AND COMP_CD IN ($vo.session_auth_comp_cd)
+                 #end
+				 GROUP BY CUSTOMER_NM1, TAX_NO
+		    ]]>
+		  </statement>
+		</query>
+		
+		<!-- Registration 중복 체크 : 2013.12.05 : 홍성현 -->
+		<query id="clm.draft.checkRegistrationNo" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+			   SELECT TAX_NO
+				     , COUNT(*) AS CNT
+				  FROM TN_CLM_CUSTOMER
+				 WHERE TAX_NO = :vo.tax_no_detail	
+				 #if(!$vo.session_auth_comp_cd.equals(""))
+                   AND COMP_CD IN ($vo.session_auth_comp_cd)
+                 #end			
+				 GROUP BY TAX_NO
+		    ]]>
+		  </statement>
+		</query>
+		
+		<!-- Registration 수정 : 2013.12.05 : 홍성현 -->
+		<query id="clm.draft.modifyRegistrationNo" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+			   UPDATE TN_CLM_CUSTOMER
+			   SET
+			   	TAX_NO = :vo.tax_no_detail
+			   	,MOD_ID = :vo.session_user_id
+			   	,MOD_DT = GETDATE()
+				WHERE CUSTOMER_CD = :vo.customer_cd_detail
+		    ]]>
+		  </statement>
+		</query>
+		
+		<!-- 계약상대방 목록 : 2012.01.04 : 김재원 -->
+		<!-- 2014-03-20 Kevin. 엉망진창인 코드 뜯어 고침. -->
+		<query id="clm.draft.listCustomerPop" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+				
+					SELECT	A.CUSTOMER_CD ,
+									A.CUSTOMER_NM1 ,
+									A.IV_NM1 ,
+									A.SEC_CD ,
+									A.TAX_NO ,
+									A.STREET ,
+									A.CITYN ,
+									A.STAPR ,
+									A.NATION ,
+									A.POSTALCODE ,
+									A.TELEPHONE1 ,
+									A.REP_NM ,
+									A.REG_DT ,
+									A.REG_ID ,
+									A.REG_NM ,
+									A.EMAIL ,
+									A.VAT_NO,
+									A.GERP_CD ,
+									A.VENDOR_TYPE,
+									A.MANDATORY,
+									(CASE A.MANDATORY WHEN  'Y' THEN 'Yes' WHEN 'N' THEN 'No' Else 'Not Decided' END) AS MANDATORY_DESC,
+									B.CD_NM AS NATION_NM ,
+									dbo.LAS_CODE_NM('C072',A.VENDOR_TYPE,:vo.session_user_locale) AS VENDOR_TYPE_NM
+							FROM  TN_CLM_CUSTOMER A
+							LEFT OUTER JOIN TB_COM_CD AS B ON B.SYS_CD = 'LAS' AND B.GRP_CD = 'L2' AND B.CD = A.NATION
+							WHERE  A.CUSTOMER_CD =   :vo.customer_cd	
+							#if(!$vo.session_auth_comp_cd.equals(""))
+							AND A.COMP_CD IN ($vo.session_auth_comp_cd)
+							#end	
+		 
+			 ]]>
+		  </statement>
+		</query>  
+		
+		<query id="clm.draft.copyCustomer" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    INSERT INTO TH_CLM_CUSTOMER
+		    SELECT *
+		      FROM TN_CLM_CUSTOMER
+		     WHERE CUSTOMER_CD = :vo.customer_cd_detail
+		    ]]>
+		  </statement>
+		</query>
+		
+		
+		<query id="clm.draft.modifyCustomer" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    UPDATE TN_CLM_CUSTOMER
+		       SET CUSTOMER_NM1 = :vo.customer_nm1_detail
+		         , GUNAM = :vo.customer_nm1_detail
+		         , DONAM = :vo.customer_nm1_detail
+		         , HQNAM = :vo.customer_nm1_detail
+		         , CUSTOMER_SORT = LEFT(:vo.customer_nm1_detail,75)
+		         , SCUSTOMER_NM1 = LEFT(:vo.customer_nm1_detail,200)
+		         , SCUSTOMER_SORT = LEFT(:vo.customer_nm1_detail,75)
+		         , SGUNAM = :vo.customer_nm1_detail
+		         , SDONAM = :vo.customer_nm1_detail
+		         , REP_NM = :vo.rep_nm_detail
+		         /*** , LINBU = :vo.linbu_detail ***/
+		         , GERP_CD = :vo.gerp_cd_detail
+		         , VENDOR_TYPE = :vo.vendor_type_detail
+		         , TAX_NO = :vo.tax_no_detail
+		         /* 2014-08-19 Kevin. 화면에서 stapr_detail 값으로 city 값을 수정한다., STAPR = :vo.stapr_detail*/
+		         , CITYN = :vo.stapr_detail
+		         , STREET = :vo.street_detail
+		         , POSTALCODE = :vo.postalcode_detail
+		         , TELEPHONE1 = :vo.telephone1_detail
+		         , HP_NO = :vo.hp_no_detail
+		         , EMAIL = :vo.email_detail
+		         , VAT_NO = :vo.vatno_detail
+		         , NATION = :vo.nation_detail
+		         , LEGST = :vo.legst_detail
+		         , BUSOPEN = :vo.busopen_detail
+		         , BUSINESS_GUBN = :vo.business_gubn_detail
+		         , MOD_DT = GETDATE()
+		         , MOD_ID = :vo.session_user_id
+		         , MOD_NM = :vo.session_user_nm
+		         , MANDATORY = :vo.contract_required /*2014-03-18 Kevin Added*/
+		         , TOP30CUS_YN = :vo.cntrt_top30_cus_detail /*2014-10-06 Hong Added*/
+		     WHERE CUSTOMER_CD = :vo.customer_cd_detail
+		    ]]>
+		  </statement>
+		</query>
+		
+		<!--  국가 검색 : 13.12.02 홍성현 -->
+		<query id="clm.draft.listUserNation" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    	SELECT 
+		    		CD,
+		    		CASE WHEN :vo.session_user_locale = 'ko' THEN CD_NM
+					  WHEN :vo.session_user_locale = 'fr' THEN CD_NM_FRA
+				      WHEN :vo.session_user_locale = 'de' THEN CD_NM_DEU
+				      ELSE CD_NM_ENG
+			         END CD_NM
+		    	FROM TB_COM_CD 
+		    		WHERE SYS_CD = 'LAS' 
+					AND GRP_CD = 'L2' 
+					AND USE_YN = 'Y'
+					AND CD = (SELECT USEMAN_MNG_ITM2 FROM TB_COM_CD 
+								WHERE GRP_CD='COMP2' 
+								AND SYS_CD = 'LAS' AND USE_YN = 'Y'
+								AND CD=:vo.session_comp_cd)
+				ORDER BY CD_NM			   
+		    ]]>
+		  </statement>
+		</query>
+		
+		<query id="clm.draft.saveTempTable" isCamelCase="false" comment="엑셀 Temp insert">
+			<statement>
+		    <![CDATA[
+			DECLARE @RC int
+			DECLARE @TEMP_TABLE_NAME nvarchar(256) = :vo.tableNm
+			DECLARE @FileName nvarchar(MAX) = :vo.fileNm
+			DECLARE @RUN_IP nvarchar(50)= :vo.runIp
+			DECLARE @WORKSHEET_NAME nvarchar(256)= :vo.workSheetNm
+			DECLARE @O_MSG nvarchar(100) 
+			EXECUTE @RC = DBO.[SP_EXCEL_TEMP_INSERT] @TEMP_TABLE_NAME ,@FileName ,@RUN_IP, @WORKSHEET_NAME, @O_MSG OUTPUT 
+			SELECT @O_MSG as o_msg	
+			]]>
+		  	</statement>
+		</query>
+		
+		<query id="clm.draft.insertExcelToTable" isCamelCase="false" comment="엑셀 insert">
+			<statement>
+		    <![CDATA[
+		    DECLARE @RC int 
+			DECLARE @TEMP_TABLE_NAME nvarchar(256) = :vo.tableNm
+			DECLARE @UPLOAD_ID nvarchar(100) = :vo.session_user_id
+			DECLARE @COMP_CD nvarchar(10) = :vo.session_comp_cd
+			DECLARE @VC_FLAG nvarchar(1) = :vo.vendorType
+			DECLARE @O_MSG nvarchar(100) 
+			EXECUTE @RC = DBO.[SP_EXCEL_INSERT] @TEMP_TABLE_NAME, @UPLOAD_ID, @COMP_CD, @VC_FLAG, @O_MSG OUTPUT 
+			SELECT @O_MSG as o_msg
+			]]>
+		  	</statement>
+		</query>
+		
+		
+		<query id="clm.draft.listExcelError" isCamelCase="false" comment="엑셀 Error List">
+			<statement>
+		    <![CDATA[
+		    SELECT *
+		    FROM ( SELECT ROW_NUMBER() OVER (ORDER BY REG_DT DESC) RN, t.*, CAST(COUNT(1) over() AS NUMERIC) TOTAL_CNT
+		    		FROM (SELECT
+						    	TAB_NAME,
+						    	EX_CNT,
+						    	REG_DT
+						    FROM TN_CLM_CUSTOMER_UPLOAD
+						    WHERE UPLOAD_ID = :vo.session_user_id
+						    AND EX_CNT > 0
+						    #if (!$vo.srch_word3.equals(""))
+						    	AND TAB_NAME LIKE '%' + :vo.srch_word3 + '%'
+						    #end 
+						    #if (!$vo.srch_start_dt.equals(""))
+						    	AND REG_DT >= CONVERT(DATETIME, REPLACE( :vo.srch_start_dt ,'-',''), 112) /*YYYY-MM-DD*/
+						    #end
+						    #if (!$vo.srch_end_dt.equals(""))
+						    	AND REG_DT <= CONVERT(DATETIME, REPLACE( :vo.srch_end_dt ,'-',''), 112)+1 /*YYYY-MM-DD*/
+						    #end 
+						 ) t
+			)TA
+			WHERE RN between :vo.start_index and :vo.end_index
+            ORDER BY RN 
+			]]>
+		  	</statement>
+		</query>
+		
+		<query id="clm.draft.listExcelErrorDetail" isCamelCase="false" comment="엑셀 Error Detail">
+			<statement>
+		    <![CDATA[
+		    SELECT *
+		    FROM ( SELECT ROW_NUMBER() OVER (ORDER BY SEQ) RN, t.*, CAST(COUNT(1) over() AS NUMERIC) TOTAL_CNT
+		    		FROM (SELECT TAB_NAME, ALL_DATA, SEQ
+							FROM TN_CLM_CUSTOMER_EXCEPT
+							WHERE TAB_NAME = :vo.tableNm
+							AND COMP_CD = :vo.session_comp_cd 
+							#if (!$vo.srch_word.equals(""))
+						    	AND TAB_NAME LIKE '%' + :vo.srch_word + '%'
+						    #end 
+						    #if (!$vo.srch_word2.equals(""))
+						    	AND ALL_DATA LIKE '%' + :vo.srch_word2 + '%'
+						    #end 
+						 ) t
+			)TA
+			WHERE RN between :vo.start_index and :vo.end_index
+            ORDER BY RN 
+			]]>
+		  	</statement>
+		</query>
+		
+		<query id="clm.draft.excelInsertResult" isCamelCase="false" comment="엑셀 Error Detail">
+			<statement>
+		    <![CDATA[
+		    SELECT TOTAL, EX_CNT
+		    FROM TN_CLM_CUSTOMER_UPLOAD
+		    WHERE TAB_NAME = :vo.tableNm
+			AND UPLOAD_ID = :vo.session_user_id
+			]]>
+		  	</statement>
+		</query>
+		
+		<query id="clm.draft.overTop30Cus" isCamelCase="false" comment="overTop30Cus">
+			<statement>
+		    <![CDATA[
+		    SELECT 
+				 COUNT(*) AS CNT
+			FROM TN_CLM_CUSTOMER
+			WHERE COMP_CD=:vo.session_comp_cd
+			AND TOP30CUS_YN='Y'
+			]]>
+		  	</statement>
+		</query>
+		
+		
+		<query id="clm.draft.checkGerpCd" isCamelCase="false" comment="checkGerpCd">
+			<statement>
+		    <![CDATA[
+		    SELECT 
+				 COUNT(*) AS CNT
+			FROM TN_CLM_CUSTOMER
+			WHERE COMP_CD=:vo.session_comp_cd
+			AND GERP_CD=:vo.gerp_cd_detail
+			AND CUSTOMER_CD != :vo.customer_cd_detail
+			]]>
+		  	</statement>
+		</query>
+		
+		<query id="clm.draft.checkGerpCdNewInsert" isCamelCase="false" comment="checkGerpCdNewInsert">
+			<statement>
+		    <![CDATA[
+		    SELECT 
+				 COUNT(*) AS CNT
+			FROM TN_CLM_CUSTOMER
+			WHERE COMP_CD=:vo.session_comp_cd
+			AND GERP_CD=:vo.gerp_cd
+			]]>
+		  	</statement>
+		</query>
+		
+
+    </queries>
+</queryservice>

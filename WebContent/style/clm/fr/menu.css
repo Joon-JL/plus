@@ -1,0 +1,111 @@
+@charset "utf-8";
+@import url(default.css);
+
+/**************************************
+ *******  TopMenu Layout *************
+ **************************************/
+#topWrap {position:relative; min-width:1004px; padding:0 10px 0 10px; _overflow-x:hidden;}
+
+#header {position:relative; padding-bottom:49px; z-index:1; padding-top:3px;}
+
+/* Logo Area */
+/*#header .h1_logo {height:33px; width:207px; display:block}
+#header .h1_logo img {margin:6px 0 0 2px;}*/
+#header .h1_logo {height:33px; display:inline; }
+#header .h1_logo img {margin:6px 0 5px 2px;}
+
+/* //Logo Area */
+
+/* Utility */
+.utility  {position:absolute; top:13px; right:10px}
+.utility li {float:left;}
+.utility li a.user {font-family:dotum; color:#727272; background:none; padding-left:0; cursor:default;}
+.utility li a.user_request {vertical-align:top;background:none;padding-right:0; cursor:default;}
+*+html .utility li a.user_request {vertical-align:top;}
+.utility li a.end {background:none}
+.utility li a {font-size:11px;color:#727272;padding:0 5px; background:url(/images/clm/en/common/bg_bar_gray.gif) no-repeat right 1px;}
+.utility li a:hover {color:#3c85c9;}
+.utility li a.img {background:none; margin-top:-1px;}
+.utility li.confidential {padding-left:0; background:none; margin-top:-2px; }
+.utility li.search {padding-left:10px; background:none; margin-top:-2px}
+*+html .utility li.search {margin-top:-4px}
+.utility li.search a {padding:0 6px 0 0; background:none;}
+.utility select {font:normal 11px dotum;}
+.utility li.bg_none a {background:none;}
+
+/*** GNB ***/
+.gnb {position:absolute; width:100%; background:url(/images/clm/en/common/bg_new_gnb.png) no-repeat left top; height:62px; overflow:visible;}/* 2011-10-09 position, background, height ���� width �߰� */
+.gnb ul {background:url(/images/clm/en/common/bg_new_gnb_right.png) no-repeat right top; height:62px; margin:0 0 0 3px; text-align:center}/* 2011-10-09 background ���� */
+.gnb ul li {float:left;  height:36px; margin-left:1px;}
+.gnb ul li a {display:inline-block; /*width:128px;*/ color:#fff; font:bold 13px Nanum Gothic, Malgun Gothic, Dotum;  padding:8px 25px 0; height:36px; margin:0; text-align:center; }
+.gnb ul li a:hover {background:url(/images/clm/en/common/bg_on_gnb.gif) repeat-x left bottom; color:#0a0a0a;}
+.gnb ul li a.on { background:url(/images/clm/en/common/bg_on_gnb.gif) repeat-x left bottom; color:#0a0a0a;}
+.gnb span.collapse {position:absolute; right:13px; top:8px; }
+.gnb span.confidential {position: absolute; right:10px; top:5px; background:url(/images/clm/en/icon/ico_confidential.png) no-repeat left center; width:120px; height:23px}
+.gnb ul li.favorite {padding:5px 0 0 ;background:none;}
+.gnb ul li.favorite a {width:auto;}
+.gnb ul li.favorite a:hover {background:none; border:none;  padding:1px 0 0;}
+.gnb ul li a:hover {background:none; color:#fff;}
+.gnb ul li.on {background:url('/images/clm/en/new2011/bg_gnb_a_new_bg_l.gif') left 4px no-repeat;}
+.gnb ul li.on a {background:url('/images/clm/en/new2011/bg_gnb_a_new_bg_r.gif') right 4px no-repeat; color:#424242;}
+.gnb ul li.on a:hover {background:url('/images/clm/en/new2011/bg_gnb_a_new_bg_r.gif') right 4px no-repeat; color:#424242;}
+.gnb ul li.on li a {background:none;}
+.gnb ul li.on li a:hover {background:none;}
+.gnb ul li.on li { background:url('/images/clm/en/new2011/bg_gnb_a_bg2.gif') left top repeat-x; }
+.gnb ul ul {display:none; overflow:hidden; position:absolute; top:33px; left:3px; min-width:980px; height:24px; margin:0; padding-left:21px; background:none; color:#7098d7; text-align:left; font-weight:bold;}/* 2011-10-09 border ���� ����, top, background ���� */
+.gnb ul li.on ul li {position:static; float:left; height:23px; width:auto; padding-left:7px; margin-left:auto; margin-right:17px; background:url('/images/clm/en/new2011/dot_arrow.gif') left 12px no-repeat;}
+.gnb ul li.on ul {display:block;}
+.gnb ul ul li.last-menu {margin-right:0;}
+.gnb ul ul li a {display:inline; width:auto; height:auto; margin:0; padding:0; font:normal 12px/30px dotum; text-align:left; color:#777777;}
+.gnb ul ul li a:hover {display:inline; width:auto; height:auto; margin:0; padding:0; font:normal 12px/30px dotum; letter-spacing:0px; text-align:left; background:none; color:#0061b6;}
+.gnb ul li.on ul li a {display:inline; width:auto; height:auto; margin:0; padding:0;font:normal 12px/30px dotum; text-align:left; color:#777777;}
+.gnb ul li.on ul li a:hover {display:inline; width:auto; height:auto; margin:0; padding:0; font:normal 12px/30px dotum; letter-spacing:0px; text-align:left; background:none; color:#3f6aa7;}
+
+/* Menu Toggle*/
+.gnb span.collapse {position:absolute; right:13px; top:8px;}
+.gnb span.confidential {position: absolute; right:10px; top:5px; background:url(/images/clm/en/icon/ico_confidential.png) no-repeat left center; width:120px; height:23px}
+
+
+
+
+
+/* Top Menu Sub */
+/*
+.gnb ul li.on ul.gnb_2depth_01 {min-width:980px; padding-left:22px;}
+.gnb ul li.on ul.gnb_2depth_02 {min-width:980px; padding-left:22px;}
+.gnb ul li.on ul.gnb_2depth_03 {min-width:980px; padding-left:241px;}
+.gnb ul li.on ul.gnb_2depth_04 {min-width:980px; padding-left:381px;}
+.gnb ul li.on ul.gnb_2depth_05 {min-width:980px; padding-left:272px;}
+.gnb ul li.on ul.gnb_2depth_06 {min-width:980px; padding-left:630px;}
+.gnb ul li.on ul.gnb_2depth_07 {min-width:980px; padding-left:146px;}
+.gnb ul li.on ul.gnb_2depth_08 {min-width:980px; padding-left:364px;}
+*/
+/**************************************
+ *******  LeftMenu Layout *************
+ **************************************/
+ 
+#leftWrap {margin:0px 0 0 10px; width:170px; height:100%; _overflow-x:hidden; }
+
+/* Show/Hide */
+#leftWrap .hide {position:absolute; right:0; top:0; cursor:pointer; z-index:10; background:#fff url(/images/clm/en/common/bg_left_hide.gif) no-repeat 3px top; width:18px; height:100%;}
+#leftWrap .show {position:absolute; left:10px; top:0; cursor:pointer; z-index:1 !important;background:#fff url(/images/clm/en/common/bg_left_show.gif) no-repeat left top; width:16px;height:100%;}
+
+#leftMenu {overflow-x:hidden; overflow-y:auto; height:100%;z-index:1 !important;}
+#left_colum {}
+:root #left_colum {}
+
+/*** Nav ***/
+.nav {width:170px;z-index:20 !important;}
+.nav h2 {font:bold 15px/34px Nanum Gothic, Malgun Gothic, Dotum; color:#333; height:60px;  margin-top:0px; margin-bottom:0px; text-indent:10px; padding-top:11px; background:#fff url(/images/clm/en/common/menu_titlebg.gif) no-repeat left top;}
+
+.nav ul li a {display:block;  padding:7px 5px 6px 17px; line-height:14px; width:128px; background:url(/images/clm/en/icon/bu_plus.gif) no-repeat 5px 8px; color:#454545;}
+.nav ul li a:hover {color:#45549B;}
+.nav ul li a.on {color:#45549B; font-weight:bold;background:url(/images/clm/en/icon/bu_minus.gif) no-repeat 5px 8px; border-bottom:0px solid #e5e5e5;}
+.nav ul li a.minus {color:#046fb4; background:url(/images/clm/en/icon/bu_minus.gif) no-repeat 0px 9px}
+.nav ul li a.plus {display:block;  padding:7px 5px 6px 12px; line-height:14px; background:url(/images/clm/en/icon/bu_plus.gif) no-repeat 0px 9px; color:#454545;}
+.nav ul li a.select {display:block;  color:#046fb4; font-weight:bold; padding:7px 5px 6px 12px; line-height:14px; background:url(/images/clm/en/icon/bu_plus.gif) no-repeat 0px 9px; }
+.nav ul li ul {background:#f8fafb; margin:0 0 0 5px; width:145px; border-bottom:1px solid #e5e5e5;}
+.nav ul li ul li {border:none;}
+.nav ul li ul li a {display:block; _display:inline-block; padding:5px 0 4px 12px; line-height:15px; background:url(/images/clm/en/icon/bu_dot_m.gif) no-repeat 6px 10px; color:#666;}
+.nav ul li ul li a:hover {background:#e4eef3 url(/images/clm/en/icon/bu_dot_select.gif) no-repeat 6px 10px; text-decoration:none; font-weight:normal;}
+.nav ul li ul li a.on {background:#e9ecf1 url(/images/clm/en/icon/bu_dot_select.gif) no-repeat 6px 10px; text-decoration:none; font-weight:normal;}

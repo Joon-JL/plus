@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+    <queries>
+    	<!-- XI 연계-->
+ 		<query id="com.sec.common.getXIRateData.insert" isCamelCase="false">                                                                                 
+			<statement>                                                                                                   
+				<![CDATA[
+    				
+				    INSERT INTO TN_INF_GTNE_CURRENCY (
+							         CO_CD
+					               , C_DT
+					               , CURRENCY
+					               , CSRATE
+					               , CBRATE
+					               , TTSRATE
+					               , TTBRATE
+					               , ARRATE
+					               , INS_DT
+					               , INS_ID
+					               , USDAR
+							) VALUES (
+						           :vo.co_cd
+						          ,:vo.c_dt
+						          ,:vo.currency
+						          ,'0.00'
+						          ,'0.00'
+						          ,'0.00'
+						          ,'0.00'
+						          ,:vo.arrate
+						          , SYSDATE
+						          ,'SYSTEMBATCH'
+						          ,'0.00'
+						    )
+    
+		    ]]>
+		  </statement>
+		</query>
+    </queries>
+</queryservice>

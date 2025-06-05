@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<!-- 권한 에러 -->
+	<bean id="clm.notice.err.noauth"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/clm/error/ErrorBoardAuth.jsp" />
+	</bean>		
+
+	<!-- Intro 페이지로 이동 -->
+	<bean id="clm.introForward"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/clm/ClmIntro.jsp" />
+	</bean>	
+	
+	<!-- LoginIntro 페이지로 이동 -->
+	<bean id="clm.loginIntroForward"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/secfw/volatile/LoginPage.jsp" />
+	</bean>
+
+	<!-- 이미지 보기 팝업으로 Forwarding -->
+	<bean id="clm.imageViewPopForward"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/clm/common/popup/ImageViewPop.jsp" />
+	</bean>		
+	
+
+	<!-- Progress Forwarding -->
+	<bean id="clm.progressForward"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/secfw/common/CommonProgress.jsp" />
+	</bean>
+	
+	<!-- Progress Forwarding -->
+	<bean id="clm.blankPageForward"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/secfw/common/CommonBlank.jsp" />
+	</bean>		
+				
+	<!-- 유효값 체크 -->
+	<bean id="clm.testValidation"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/clm/comm/test/testValidation.jsp" />
+	</bean>
+		
+	<!-- clm.contractCnt -->
+	<bean id="clm.contractCnt"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/clm/contract/ContractCnt.jsp" />
+	</bean>
+	
+	<!-- clm.page reload -->
+	<bean id="clm.pageReload"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/clm/main/page_reload.jsp" />
+	</bean>
+	<!-- clm.page reload -->
+	<bean id="clm.cntrtAlert"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/common/AlertApprovalPopup.jsp" />
+	</bean>
+	<!-- Eyeon 페이지로 이동 -->
+	<bean id="isaliveControl"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/isalive.jsp" />
+	</bean>	
+</beans>

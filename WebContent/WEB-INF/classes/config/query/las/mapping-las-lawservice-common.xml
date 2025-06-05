@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+    <queries>
+		<query id="las.lws.auth.lawfirm" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    	SELECT	LAWFIRM_ID,
+		    			LAWFIRM_NM,
+		    			TO_CHAR(REG_DT, 'YYYYMMDD') AS REG_DT, 
+		    			REG_ID, 
+		    			REG_NM
+				FROM 	TN_LAS_LAWFIRMMNG
+				WHERE	LAWFIRM_ID = :vo.auth_str_id
+		    ]]>
+		  </statement>
+		</query>		
+		<query id="las.lws.auth.lawyer" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    	SELECT	LWR_NO,
+		    			LWR_NM,
+		    			TO_CHAR(REG_DT, 'YYYYMMDD') AS REG_DT, 
+		    			REG_ID, 
+		    			REG_NM
+				FROM 	TN_LAS_LAWYERMNG
+				WHERE	LWR_NO = :vo.auth_str_id
+		    ]]>
+		  </statement>
+		</query>
+		<query id="las.lws.auth.event" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    	SELECT	EVENT_NO,
+		    			EVENT_NM,
+		    			TO_CHAR(REG_DT, 'YYYYMMDD') AS REG_DT, 
+		    			REG_ID, 
+		    			REG_NM
+				FROM 	TN_LAS_EVENTMNG 
+				WHERE	EVENT_NO = :vo.auth_str_id
+		    ]]>
+		  </statement>
+		</query>
+		<query id="las.lws.auth.acpt" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    	SELECT	ACPT_NO,
+		    			TO_CHAR(REG_DT, 'YYYYMMDD') AS REG_DT, 
+		    			REG_ID, 
+		    			REG_NM
+				FROM 	TN_LAS_EVENT_ACCEPT 
+				WHERE	ACPT_NO = :vo.auth_str_id
+		    ]]>
+		  </statement>
+		</query>
+		<query id="las.lws.auth.remitcert" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    	SELECT	REMITCERT_NO,
+		    			TO_CHAR(REG_DT, 'YYYYMMDD') AS REG_DT, 
+		    			REG_ID, 
+		    			REG_NM
+				FROM 	TN_LAS_LAWFIRM_REMITCERT
+				WHERE	REMITCERT_NO = :vo.auth_str_id
+		    ]]>
+		  </statement>
+		</query>
+    </queries>
+</queryservice>

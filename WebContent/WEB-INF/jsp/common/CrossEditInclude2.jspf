@@ -1,0 +1,104 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="com.sds.secframework.common.util.StringUtil" %>
+
+<%--
+  /***************************************************************************************
+  * @CrossEditInclude.jspf
+  * @Creator     - 박 동 순
+  * @Create Date - 2013.07.25
+  * @Update      -
+  * @Update Date -
+  * @Note		 - CrossEditor
+ *****************************************************************************************/
+--%>
+
+<script type="text/javascript">
+
+
+	var contentValue = document.getElementById("namo_cntnt").value; // Hidden 값 참조
+	var CrossEditor = new NamoSE('namoeditor');	
+
+	var contentValue2 = document.getElementById("namo_cntnt2").value; // Hidden 값 참조
+	var CrossEditor2 = new NamoSE('namoeditor2');	
+	
+	var CrossEditorHeight = ""; // Hidden 값 참조
+	var CrossEditorCss = ""; // Hidden 값 참조
+	
+	var NamoAttachSaveDir = "<spring:message code='secfw.namo.attach.dir'/>"; // 프로퍼티에서 저장 경로를 가져온다.
+	var NamoAttachUrl = "<spring:message code='secfw.namo.http.url'/>"; // 프로퍼티에서 저장 경로를 가져온다.
+	
+	if(document.getElementById("namo_height") != null)
+	{
+		CrossEditorHeight = document.getElementById("namo_height").value;
+		CrossEditor.params.Height = CrossEditorHeight;
+	}
+	
+	if(document.getElementById("namo_css") != null)
+	{
+		CrossEditorCss = document.getElementById("namo_css").value;
+		CrossEditor.params.Css = CrossEditorCss;
+	}
+	
+	CrossEditor.params.ImageSavePath = NamoAttachUrl + "&imagePhysicalPath=" + NamoAttachSaveDir;
+
+
+	
+	var CrossEditorHeight2 = ""; // Hidden 값 참조
+	var CrossEditorCss2 = ""; // Hidden 값 참조
+	
+	var NamoAttachSaveDir2 = "<spring:message code='secfw.namo.attach.dir'/>"; // 프로퍼티에서 저장 경로를 가져온다.
+	var NamoAttachUrl2 = "<spring:message code='secfw.namo.http.url'/>"; // 프로퍼티에서 저장 경로를 가져온다.
+	
+	if(document.getElementById("namo_height2") != null)
+	{
+		CrossEditorHeight2 = document.getElementById("namo_height2").value;
+		CrossEditor2.params.Height = CrossEditorHeight2;
+	}
+
+	if(document.getElementById("namo_css2") != null)
+	{
+		CrossEditorCss2 = document.getElementById("namo_css2").value;
+		CrossEditor2.params.Css = CrossEditorCss2;
+	}
+	
+	CrossEditor2.params.ImageSavePath = NamoAttachUrl2 + "&imagePhysicalPath=" + NamoAttachSaveDir2;	
+	
+	var CrossEditorOrgHead = "";	
+	var CrossEditorOrgHead2 = "";
+	
+	CrossEditor.params.UserLang = "enu";
+	
+	CrossEditor.ShowTab(false);
+	
+	CrossEditor2.params.UserLang = "enu";
+	
+	CrossEditor2.ShowTab(false);
+	
+	CrossEditor.EditorStart();
+	CrossEditor2.EditorStart();
+	
+	
+	function OnInitCompleted(e){
+		
+		if(e.editorTarget == CrossEditor)
+		{
+			CrossEditorOrgHead = e.editorTarget.GetHeadValue();
+			
+		}else if(e.editorTarget == CrossEditor2)
+		{
+			CrossEditorOrgHead2 = e.editorTarget.GetHeadValue();	
+		}	
+		
+				
+		if(e.editorTarget == CrossEditor)
+		{
+			e.editorTarget.SetValue(contentValue); // 컨텐츠 내용 에디터 삽입
+			
+		}else if(e.editorTarget == CrossEditor2)
+		{
+			CrossEditor2.SetValue(contentValue2); // 컨텐츠 내용 에디터 삽입	
+		}			
+		
+		
+	}					
+</script>

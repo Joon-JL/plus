@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration 
+    xmlns:log4j="http://jakarta.apache.org/log4j/" 
+    debug="true">
+    
+    <appender name="console" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %5p [%c] %m%n" />
+        </layout>   
+    </appender>
+    
+    <!-- log file appender -->
+    <appender name="logfile-daily" class="org.apache.log4j.DailyRollingFileAppender">
+    	<param name="file" value="c:/Samsung/Projects/003-selmsplus/Dev/workspace/CLMS/log/clms.0.1.log"/>
+    	<param name="Append" value="true"/>
+    	<param name="DatePattern" value="'.'yyyy-MM-dd"/>
+    	<layout class="org.apache.log4j.PatternLayout">
+    		<param name="ConversionPattern" value="%d %-5p [%t] %-17c{2} (%13F:%L) %3x - %m%n"/>
+    	</layout>
+    </appender>
+    
+    <!-- log file appender jsp -->   
+    <appender name="jspcommon-logfile-daily" class="org.apache.log4j.DailyRollingFileAppender">
+    	<param name="file" value="c:/Samsung/Projects/003-selmsplus/log/jspcommon.0.1.log"/>
+    	<param name="Append" value="true"/>
+    	<param name="DatePattern" value="'.'yyyy-MM-dd"/>
+    	<layout class="org.apache.log4j.PatternLayout">
+    		<param name="ConversionPattern" value="%d %-5p [%t] %-17c{2} (%13F:%L) %3x - %m%n"/>
+    	</layout>
+    </appender>  
+
+    <!-- log file appender sql and result -->
+    <appender name="sql.result-logfile-daily" class="org.apache.log4j.DailyRollingFileAppender">
+    	<param name="file" value="c:/Samsung/Projects/003-selmsplus/log/sql.result.0.1.log"/>
+    	<param name="Append" value="true"/>
+    	<param name="DatePattern" value="'.'yyyy-MM-dd"/>
+    	<layout class="org.apache.log4j.PatternLayout">
+    		<param name="ConversionPattern" value="%d %-5p [%t] %-17c{2} (%13F:%L) %3x - %m%n"/>
+    	</layout>
+    </appender>  
+    
+    
+    <!-- log file appender sql -->   
+    <appender name="sql-logfile-daily" class="org.apache.log4j.DailyRollingFileAppender">
+    	<param name="file" value="c:/Samsung/Projects/003-selmsplus/log/sql.0.1.log"/>
+    	<param name="Append" value="true"/>
+    	<param name="DatePattern" value="'.'yyyy-MM-dd"/>
+    	<layout class="org.apache.log4j.PatternLayout">
+    		<param name="ConversionPattern" value="%d %-5p [%t] %-17c{2} (%13F:%L) %3x - %m%n"/>
+    	</layout>
+    </appender>
+    
+    <logger name="com.sds.secframework" additivity="false">
+        <level value="info"/>
+        <appender-ref ref="console"/>
+        <appender-ref ref="logfile-daily"/>
+    </logger>
+    
+    <logger name="com.sec" additivity="false">
+        <level value="info"/>
+        <appender-ref ref="console"/>
+        <appender-ref ref="logfile-daily"/>
+    </logger>   
+
+    <logger name="jspcommon" additivity="false">
+        <level value="info"/>
+        <appender-ref ref="jspcommon-logfile-daily"/>
+    </logger>
+   
+    <!-- log SQL (pre-execution) plus exceptions caused by SQL -->
+	<logger name="jdbc.sqlonly" additivity="false">
+		<level value="info" />
+		<appender-ref ref="console" />
+        <appender-ref ref="sql-logfile-daily"/>
+        <appender-ref ref="sql.result-logfile-daily"/>        
+	</logger>
+
+	<!-- log SQL with timing information, post execution -->
+	<logger name="jdbc.sqltiming" additivity="false">
+		<level value="error" />
+		<appender-ref ref="console" />
+        <appender-ref ref="logfile-daily"/>		
+	</logger>
+
+	<!-- only use the two logs below to trace ALL JDBC information,
+		NOTE:  This can be very voluminous!  -->
+
+	<!-- log all jdbc calls except ResultSet calls -->
+	<logger name="jdbc.audit" additivity="false">
+		<level value="error" />
+		<appender-ref ref="console" />
+        <appender-ref ref="logfile-daily"/>		
+	</logger>
+	
+	<!-- log the jdbc ResultSet calls -->
+	<logger name="jdbc.resultset" additivity="false">
+		<level value="info" />
+        <appender-ref ref="sql.result-logfile-daily"/>		
+	</logger>  
+	   
+	<logger name="org.springframework" additivity="false">
+		<level value="info" />
+		<appender-ref ref="console" />
+        <appender-ref ref="logfile-daily"/>		
+	</logger>    	  
+	<logger name="org.apache" additivity="false">
+		<level value="info" />
+		<appender-ref ref="console" />
+        <appender-ref ref="logfile-daily"/>		
+	</logger>   
+	 
+	<logger name="anyframe.core.query" additivity="false">
+		<level value="error" />
+		<appender-ref ref="console" />
+        <appender-ref ref="logfile-daily"/>		
+	</logger> 
+ 	 	
+	<root>
+        <level value="info"/>
+        <appender-ref ref="console"/>
+        <appender-ref ref="logfile-daily"/>        
+    </root>             
+</log4j:configuration>

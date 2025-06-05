@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+<queryservice>
+    <queries>
+    
+<query id="las.lawservice.listRemitCert" isCamelCase="false">
+  <statement>
+    <![CDATA[
+    
+          
+    	     SELECT *
+              FROM ( SELECT rownum RN, t.*, COUNT(1) over() TOTAL_CNT
+                     FROM (
+
+    			SELECT 	DISTINCT 
+    					 A.REMITCERT_NO
+        				,A.LAWFIRM_ID
+        				,A.REMITCERT_NM
+        				,TO_CHAR(TO_DATE(A.REMITDAY, 'YYYY-MM-DD'),'YYYY-MM-DD') AS REMITDAY	
+        				,A.INVOICE_NO
+        				,A.CONT
+        				,TO_CHAR(A.REG_DT, 'YYYY-MM-DD') AS REG_DT
+        				,A.REG_ID
+        				,A.REG_NM
+        				,TO_CHAR(A.MOD_DT, 'YYYY-MM-DD') AS MOD_DT
+        				,A.MOD_ID
+        				,A.MOD_NM
+        				,ISNULL(B.REF_KEY,'N') AS UPFILE_YN
+        		
+        		FROM 	TN_LAS_LAWFIRM_REMITCERT A
+        				,(SELECT * FROM TN_COM_ATTACH WHERE FILE_MIDCLSFCN = 'F00507') B
+        		
+        		WHERE   A.DEL_YN = 'N'  
+        				AND A.REMITCERT_NO = B.REF_KEY(+) 
+        				AND A.LAWFIRM_ID = :vo.lawfirm_id 
+           
+           
+           			 ) t
+            		ORDER BY RN 
+            		)
+          
+           
+    ]]>
+  </statement>
+</query>
+
+
+<query id="las.lawservice.insertLawfirmRemitCert" isCamelCase="false">
+  <statement>
+    <![CDATA[
+  
+    INSERT INTO TN_LAS_LAWFIRM_REMITCERT (
+           REMITCERT_NO
+               , LAWFIRM_ID
+               , REMITCERT_NM
+               , REMITDAY
+               , INVOICE_NO
+               , CONT
+               , REG_DT
+               , REG_ID
+               , REG_NM
+               , MOD_DT
+               , MOD_ID
+               , MOD_NM
+               , DEL_YN
+               , DEL_DT
+               , DEL_ID
+               , DEL_NM
+        ) VALUES (
+           :vo.remitcert_no
+          ,:vo.lawfirm_id
+          ,:vo.remitcert_nm
+          ,:vo.remitday
+          ,:vo.invoice_no
+          ,:vo.cont
+          ,SYSDATE
+          ,:vo.reg_id
+          ,:vo.reg_nm
+          ,''
+          ,''
+          ,''
+          ,'N'
+          ,''
+          ,''
+          ,''
+        )
+        
+    ]]>
+  </statement>
+</query>
+
+
+<query id="las.lawservice.modifyLawfirmRemitCert" isCamelCase="false">
+  <statement>
+    <![CDATA[
+         UPDATE TN_LAS_LAWFIRM_REMITCERT
+          	SET 
+                REMITCERT_NM = :vo.remitcert_nm
+              , REMITDAY = :vo.remitday
+              -- , INVOICE_NO = :vo.invoice_no
+              , CONT = :vo.cont
+              , MOD_DT = SYSDATE
+              , MOD_ID = :vo.mod_id
+              , MOD_NM = :vo.mod_nm
+              
+          WHERE REMITCERT_NO = :vo.remitcert_no
+    ]]>
+  </statement>
+</query>
+
+<query id="las.lawservice.detailLawfirmRemitCert" isCamelCase="false">
+  <statement>
+    <![CDATA[
+			
+			SELECT   A.REMITCERT_NO
+        			,A.LAWFIRM_ID
+        			,A.REMITCERT_NM
+        			,TO_CHAR(TO_DATE(A.REMITDAY, 'YYYY-MM-DD'),'YYYY-MM-DD') AS REMITDAY	
+        			,A.INVOICE_NO
+        			,A.CONT
+        			,TO_CHAR(A.REG_DT, 'YYYY-MM-DD') AS REG_DT
+        			,A.REG_ID
+        			,A.REG_NM
+        			,TO_CHAR(A.MOD_DT, 'YYYY-MM-DD') AS MOD_DT
+        			,A.MOD_ID
+        			,A.MOD_NM
+        			,B.LAWFIRM_NM
+        
+			FROM 	 TN_LAS_LAWFIRM_REMITCERT A 
+					,(SELECT LAWFIRM_ID , LAWFIRM_NM FROM TN_LAS_LAWFIRMMNG ) B     
+
+			WHERE 	A.DEL_YN = 'N' 
+					AND A.LAWFIRM_ID = B.LAWFIRM_ID(+) 
+					AND A.REMITCERT_NO = :vo.remitcert_no 
+           
+    ]]>
+  </statement>
+</query>
+
+
+<query id="las.lawservice.deleteLawfirmRemitCert" isCamelCase="false">
+  <statement>
+    <![CDATA[
+   
+                UPDATE  TN_LAS_LAWFIRM_REMITCERT
+                   SET  DEL_YN = 'Y' 
+	        	      , DEL_DT = SYSDATE 
+    	        	  , DEL_ID = :vo.del_id
+        	     	  , DEL_NM = :vo.del_nm 
+                  WHERE REMITCERT_NO = :vo.remitcert_no		
+
+    ]]>
+  </statement>
+</query>
+    </queries>
+</queryservice>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+	<queries>
+	
+        <!-- 
+        *************************************************************
+        # 첨부파일
+        ******************************************************************
+        -->
+        <!-- 파일 목록조회 -->
+        <query id="secfw.file.listAttachFileInfo" isCamelCase="false">
+            <statement>
+            <![CDATA[
+				SELECT SYS_CD
+				      ,FILE_REF_NO
+					  ,SEQ_NO
+					  ,FILE_PATH
+					  ,FILE_NM
+					  ,FILE_SIZE
+					  ,FILE_INFO
+					  ,MENU_ID
+				  FROM TB_COM_ATTACH_FILE
+				 WHERE SYS_CD      = :sys_cd
+				   AND FILE_REF_NO = :file_ref_no
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 파일상세조회(1개 파일상세)-->
+        <query id="secfw.file.getAttachFileInfo" isCamelCase="false">
+            <statement>
+            <![CDATA[
+				SELECT SYS_CD
+				      ,FILE_REF_NO
+					  ,SEQ_NO
+					  ,FILE_PATH
+					  ,FILE_NM
+					  ,FILE_SIZE
+					  ,FILE_INFO
+					  ,MENU_ID
+				  FROM TB_COM_ATTACH_FILE
+				 WHERE SYS_CD      = :sys_cd
+				   AND FILE_REF_NO = :file_ref_no
+				   AND SEQ_NO      = :seq_no
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 파일 등록 -->
+        <query id="secfw.file.insertAttachFile">
+            <statement>
+            <![CDATA[
+				INSERT INTO TB_COM_ATTACH_FILE (
+					   SYS_CD
+				      ,FILE_REF_NO
+					  ,SEQ_NO
+					  ,FILE_PATH
+					  ,FILE_NM
+					  ,FILE_SIZE
+					  ,FILE_INFO
+					  ,MENU_ID
+				) VALUES (
+					   :vo.sys_cd
+				      ,:vo.file_ref_no
+					  ,:vo.seq_no
+					  ,:vo.file_path
+					  ,:vo.file_nm
+					  ,:vo.file_size
+					  ,:vo.file_info
+					  ,:vo.menu_id
+				)
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 파일삭제 -->
+        <query id="secfw.file.deleteAttachFile">
+            <statement>
+            <![CDATA[
+				DELETE TB_COM_ATTACH_FILE
+				 WHERE SYS_CD      = :vo.sys_cd
+				   AND FILE_REF_NO = :vo.file_ref_no
+				 #if ($vo.seq_no && !$vo.seq_no == 99999))
+				   AND SEQ_NO      = :vo.seq_no
+				 #end
+            ]]>
+            </statement>
+        </query>
+            
+       <!-- 파일삭제 -->
+        <query id="secfw.file.deleteAttachFileAll">
+            <statement>
+            <![CDATA[
+				DELETE TB_COM_ATTACH_FILE
+				 WHERE SYS_CD      = :vo.sys_cd
+				   AND FILE_REF_NO = :vo.file_ref_no
+            ]]>
+            </statement>            
+        </query>
+        					
+	</queries>
+</queryservice>

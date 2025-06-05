@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<!-- 권한체크  handler -->
+	<bean id="las.commHandlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="order" value="1"/>
+		<property name="interceptors">
+			<list>
+				<ref bean="secfw.clmsInterceptor"/>
+				<ref bean="secfw.classMethodAuthInterceptor"/>
+				<ref bean="secfw.menuInterceptor"/>	
+			</list>
+		</property>
+		<property name="alwaysUseFullPath" value="true"/>
+		<property name="mappings">
+			<props>
+				<!-- 계약검토  -->
+				<!--prop key="/las/contractmanager/consideration.do">las.considerationControl</prop-->		<!-- 의뢰내역  -->
+							
+
+				<prop key="/las/contractmanager/speakContract.do">las.speakContractControl</prop> 		<!-- 구두계약 -->
+				<prop key="/las/lawconsulting/speakConsult.do">las.speakConsultControl</prop>			<!-- 구두자문 -->
+				
+				<!-- 법률자문 -->
+				<prop key="/las/lawconsulting/lawConsult.do">las.lawConsultControl</prop>			<!-- 법률자문 -->
+				
+				<!-- 주요사안 
+				<prop key="/las/mainproject/mainproject.do">las.mainProjectControl</prop>
+				-->
+				<!-- 소송관리
+				<prop key="/las/lawsuitmanager/lawsuit.do">las.lawSuitControl</prop>
+				 -->
+				<!-- 
+				<prop key="/las/lawsuitmanager/lawsuitmng.do">las.lawSuitMngControl</prop>
+				 -->
+				<!-- 법률정보 -->
+				<prop key="/las/lawinformation/mainLawInfo.do">las.mainLawInfoControl</prop>	<!--주요입법동향/법무사례-->
+				<prop key="/las/lawinformation/library.do">las.libraryControl</prop> 			<!-- 국내/해외 계약서 Library -->
+				<prop key="/las/lawinformation/guidenedu.do">las.guideneduControl</prop>		<!-- 임직원법무교육자료 -->
+				
+				<!-- 법무게시판 -->
+				<prop key="/las/board/notice.do">las.noticeControl</prop>				<!-- 공지 -->
+				<prop key="/las/board/bbs.do">las.board.bbsControl</prop>				<!-- 열린마당  -->
+				<prop key="/las/board/weekSchedule.do">las.weekScheduleControl</prop>				<!-- 일정관리  -->
+				<prop key="/las/board/opinionAcceptance.do">las.opinionAcceptanceControl</prop>		<!-- 타법인 의견 수렴  -->
+				
+				<!-- 통계 -->
+				<prop key="/las/statistics/statisticsWeek.do">las.statisticsWeekControl</prop>	<!-- 주간업무 -->
+				<prop key="/las/statistics/statisticsMonth.do">las.statisticsMonthControl</prop>	<!-- 월간업무 -->
+				<prop key="/las/statistics/statistics.do">las.statisticsControl</prop>	<!-- 통계 -->
+				
+				<!-- 2014-04-30 Kevin added. Statistics for GERP contract rate -->
+				<prop key="/las/statistics/gerpStatistics.do">las.statisticsGERPControl</prop>	
+				
+				<!-- 로펌 -->
+				<prop key="/las/lawservice/lawfirmManage.do">las.lawservice.lawfirmManageControl</prop>	<!-- 로펌관리 -->
+				<prop key="/las/lawservice/lawyerManage.do">las.lawservice.lawyerManageControl</prop>	<!-- 변호사관리 -->
+				<prop key="/las/lawservice/eventManage.do">las.lawservice.eventManageControl</prop>		<!-- 사건관리 -->	
+				<prop key="/las/lawservice/eventAcceptSrvCost.do">las.lawservice.eventAcceptSrvCostControl</prop><!-- 용역비 -->
+				<prop key="/las/lawservice/lawServiceSearch.do">las.lawservice.lawServiceSearchControl</prop><!-- 검색 -->
+				<prop key="/las/lawservice/lawServiceStatistic.do">las.lawservice.lawServiceStatisticControl</prop><!-- 검색 -->				
+				<prop key="/las/lawservice/lawfirmRemitCert.do">las.lawservice.lawfirmRemitCertControl</prop><!-- 송금증 -->
+				
+				
+				
+				<!-- 전자검토자 -->
+				<prop key="/las/elecReviewer/elecReviewer.do">las.elecReviewerControl</prop>			<!-- 전자검토자 -->	
+				
+			</props>
+		</property>
+	</bean>	
+	
+	<!-- 권한체크 안하는 handler -->
+	<bean id="las.commNoAuthHandlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="order" value="1"/>
+		<property name="alwaysUseFullPath" value="true"/>
+		<property name="mappings">
+			<props>
+<!-- 				<prop key="/las/outlookLogin.do">las.outlookForward</prop>아웃룩 sso 	 -->
+				<prop key="/las/intro.do">las.introForward</prop><!-- 인트로 --> 
+				<prop key="/las/intro_OTP.do">las.introForward_OTP</prop><!-- FERNANDO (MFA project) Jan/2024 -->
+				<prop key="/las/introNotice.do">las.introNoticeForward</prop><!-- 미 사용자 공지 인트로 -->
+				<prop key="/las/introSubsidiary.do">las.introSubsidiaryForward</prop><!-- 지법인 공지 -->
+				<prop key="/las/loginIntro.do">las.loginIntroForward</prop><!-- 로그인화면 -->
+				<prop key="/las/imageViewPop.do">las.imageViewPopForward</prop><!-- 이미지 보기 팝업 -->
+				<prop key="/las/progress.do">las.progressForward</prop><!-- Progress -->
+				<prop key="/las/blank.do">las.blankPageForward</prop><!-- Progress -->
+				<prop key="/las/lawinformation/lawPrecedent.do">las.lawPrecedentForward</prop>	<!-- 임직원법무교육자료 -->
+				<prop key="/las/rd.do">las.reportForward</prop>			<!-- 법률자문 -->
+				
+								
+				<!-- 법무캘린더 -->
+				<prop key="/las/cal.do">las.calendar.CalendarControl</prop><!-- 캘린더 -->	
+				
+				<!--  추후 권한체크 핸들러로 옮겨야할 목록 -->				
+				<prop key="/las/lawconsulting/lawConsult.do">las.lawConsultControl</prop>			<!-- 법률자문 -->
+				<!-- 주요사안 
+				<prop key="/las/mainproject/mainproject.do">las.mainProjectControl</prop>
+				-->
+				<prop key="/las/openPopVD.do">las.openPopVDForward</prop>			<!-- 오픈팝업 - 영상-->
+				<prop key="/las/openPopMobile.do">las.openPopMobileForward</prop>	<!-- 오픈팝업 - 무선-->
+				<prop key="/las/openPopME.do">las.openPopMEForward</prop>			<!-- 오픈팝업 - 메모리-->
+				<prop key="/las/openPopMSC.do">las.openPopMSCForward</prop>			<!-- 오픈팝업 - Media Solution 센터 -->
+				<prop key="/las/openPopDS.do">las.openPopDSForward</prop>			<!-- 오픈팝업 - DS -->
+				
+				<prop key="/las/pageReload.do">las.pageReload</prop> <!-- 페이지 리로드용url -->
+				<prop key="/las/cntrtAlert.do">las.cntrtAlert</prop> <!-- 페이지 리로드용url -->
+				<!-- 개발전 알림페이지 -->
+				<prop key="/las/blankForwardPage.do">las.blankAlertForward</prop><!-- Progress -->
+				
+			
+			</props>
+		</property>
+	</bean>
+	
+</beans>

@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+    xmlns:aop="http://www.springframework.org/schema/aop"    
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:config="http://www.anyframejava.org/schema/service"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    					http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+                        http://www.springframework.org/schema/aop 
+                        http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+                        http://www.anyframejava.org/schema/service
+                        http://www.anyframejava.org/schema/service/anyframe-core-service-2.0.xsd">
+
+	<!-- 사내외 주요 발간지 --> 
+	<bean id="clm.publicationService" class="com.sec.clm.refer.service.impl.PublicationServiceImpl" parent="secfw.commonService">		
+		<property name="idGenerationService" ref="secfw.idGen.auth.boardService" />
+	</bean>
+	
+	<!-- combo service -->
+	<bean id="clm.comboService" class="com.sds.secframework.util.service.impl.ComboServiceImpl" parent="secfw.commonService">		
+	</bean>
+	
+	<!-- Admin - 계약유형&분류관리 - 계약분류관리 -->
+	<bean id="clm.dimensionService" class="com.sec.clm.admin.service.impl.DimensionServiceImpl" parent="secfw.commonService">
+	</bean>
+	
+	<!-- Admin - 계약유형&분류관리 - 계약분류상세관리 --> 
+	<bean id="clm.subjectService" class="com.sec.clm.admin.service.impl.SubjectServiceImpl" parent="secfw.commonService">
+	</bean>
+	
+	<!-- Admin - 계약유형&분류관리 - 계약유형관리 --> 
+	<bean id="clm.typeService" class="com.sec.clm.admin.service.impl.TypeServiceImpl" parent="secfw.commonService">
+	</bean>
+	
+	<!-- 계약관리> 계약공통목록 : 신남원 : 2011.09.29 -->
+	<bean id="clm.manageService" class="com.sec.clm.manage.service.impl.ManageServiceImpl" parent="secfw.commonService"> 		
+	</bean> 
+	
+	<!-- 계약관리> MyContract  : 신남원: 2011.10.04 -->
+	<bean id="clm.myContractService" class="com.sec.clm.manage.service.impl.MyContractServiceImpl" parent="secfw.commonService">
+	</bean>	                                  
+	
+	<!-- 계약관리> MyApproval  : 심주완: 2011.10.03 -->
+	<bean id="clm.myApprovalService" class="com.sec.clm.manage.service.impl.MyApprovalServiceImpl" parent="secfw.commonService">
+		<property name="mailSendService" ref="clm.mailSendService" />
+	</bean>
+	
+	<!-- 계약관리> 계약체결 -->
+	<bean id="clm.consultationService" class="com.sec.clm.manage.service.impl.ConsultationServiceImpl" parent="secfw.commonService">
+		<property name="mailSendService" ref="clm.mailSendService" />
+		<property name="esbMailService" ref="secfw.esbMailService" />
+		<property name="esbOrgService"      ref="secfw.esbOrgService" />
+		<!-- 2015-01-11 Kevin added. -->
+		<property name="propertyService"    ref="secfw.propertyService" />
+	</bean> 	                                  
+	
+	<!-- 계약관리 > 계약이행 : 신승완 2011.09.05-->	
+	<bean id="clm.executionService" class="com.sec.clm.manage.service.impl.ExecutionServiceImpl" parent="secfw.commonService">
+		<property name="consultationService" ref="clm.consultationService" />
+	</bean>
+	
+	<!-- 계약관리 > 계약종료 : 신승완 2011.09.30-->
+	<bean id="clm.completionService" class="com.sec.clm.manage.service.impl.CompletionServiceImpl" parent="secfw.commonService">
+		<property name="mailSendService" ref="clm.mailSendService" />
+		<property name="consultationService" ref="clm.consultationService" />
+	</bean> 
+	
+	<!-- 계약관리> 체결후 등록 심우규 12.23 추가 -->
+ 	<bean id="clm.registrationService" class="com.sec.clm.manage.service.impl.RegistrationServiceImpl" parent="secfw.commonService"> 	 
+ 		<property name="mailSendService" ref="clm.mailSendService" />		 		 		
+	</bean> 
+	
+
+	<!-- 계약관리 > 계약서담당자변경요청 : 신남원 : 2011.09.27-->	
+	<bean id="clm.manageRequestService" class="com.sec.clm.manage.service.impl.RequestServiceImpl" parent="secfw.commonService">
+		<property name="mailSendService" ref="clm.mailSendService" />
+	</bean> 
+
+	<!-- 계약관리규정 > 프로세스&규정지침서 : 신남원 : 2011.09.06 -->
+	<bean id="clm.ruleRegulationService" class="com.sec.clm.rule.service.impl.RegulationServiceImpl" parent="secfw.commonService">
+	</bean> 	
+	
+	<!-- 계약서라이브러리 > reference계약서 : 신남원 : 2011.08.29 -->
+	<bean id="clm.refContractService" class="com.sec.clm.draft.service.impl.RefContractServiceImpl" parent="secfw.commonService">
+	</bean> 	
+	
+	<!-- 계약서라이브러리 > 표준 Template : 신남원 : 2011.08.31 -->
+	<bean id="clm.templateService" class="com.sec.clm.draft.service.impl.TemplateServiceImpl" parent="secfw.commonService">
+	</bean> 	
+
+	<!-- 계약서라이브러리 > 표준 조항 : 신남원 : 2011.08.31 -->
+	<bean id="clm.itemLibraryService" class="com.sec.clm.draft.service.impl.ItemLibraryServiceImpl" parent="secfw.commonService">
+	</bean>
+	
+	<!-- 계약서라이브러리 > 계약서 Library 유형별 조회 : 신승완 : 2011.08.31--> 
+	<bean id="clm.libReviewService" class="com.sec.clm.draft.service.impl.LibReviewServiceImpl" parent="secfw.commonService">
+	</bean>
+
+	<!-- 계약서라이브러리 > 표준 Template 거래상대방 팝업: dawn : 2011.09.29 -->
+	<bean id="clm.customerService" class="com.sec.clm.draft.service.impl.CustomerServiceImpl" parent="secfw.commonService">
+	</bean>
+	
+	<!-- Admin > 프로세스&규정지침서 : 신남원 : 2011.09.06 -->
+	<bean id="clm.adminRegulationService" class="com.sec.clm.admin.service.impl.RegulationServiceImpl" parent="secfw.commonService">
+	</bean> 
+	
+	<!-- Admin > 계약유형별 속성관리 > 계약속성관리 -->
+	<bean id="clm.cntrBasicAttrMngService" class="com.sec.clm.admin.service.impl.CntrBasicAttrMngServiceImpl" parent="secfw.commonService">
+	</bean>
+
+	<!-- Admin > 공지사항....  > 공지사항 : 신남원: 2011.09.01 -->
+	<bean id="clm.adminBoardService" class="com.sec.clm.admin.service.impl.BoardServiceImpl" parent="secfw.commonService">
+	</bean>
+
+	<!-- Admin > 공지사항.... > FAQ : 신남원: 2011.09.05 -->
+	<bean id="clm.adminFaqService" class="com.sec.clm.admin.service.impl.FaqServiceImpl" parent="secfw.commonService">
+	</bean>
+			
+	<!-- Admin > 계약유형별 속성관리 > 계약유형별속성관리 -->
+	<bean id="clm.cntrTypeBasicInfoMngService" class="com.sec.clm.admin.service.impl.CntrTypeBasicInfoMngServiceImpl" parent="secfw.commonService">
+	</bean>
+	
+	<!-- Admin > 표준프로세스관리 > 전결규정 -->
+	<bean id="clm.adminDecideArbitrarilyReService" class="com.sec.clm.admin.service.impl.DecideArbitrarilyReServiceImpl" parent="secfw.commonService">
+	</bean>
+	
+	<!-- Counsel > QNA : 정다운: 2011.09.06 -->
+	<bean id="clm.counselQnaService" class="com.sec.clm.counsel.service.impl.QnaServiceImpl" parent="secfw.commonService">
+	</bean>
+	
+	<!-- 미체결사유 조회 : 심주완 : 2011.09.05--> 
+	<bean id="clm.conclusionDelayService" class="com.sec.clm.manage.service.impl.ConclusionDelayServiceImpl" parent="secfw.commonService">
+	</bean>
+	
+	<!-- 계약지식공유 > 계약법률용어 : 유영섭: 2011.09.06 -->
+	<bean id="clm.lawTermsService" class="com.sec.clm.share.service.impl.LawTermsServiceImpl" parent="secfw.commonService">
+	</bean>
+	
+	<!-- 계약지식공유 > 계약체결시 유의사항 : 유영섭: 2011.09.16 -->
+	<bean id="clm.contractAttentionService" class="com.sec.clm.share.service.impl.ContractAttentionServiceImpl" parent="secfw.commonService">
+	</bean>		
+	
+	<!-- 계약유형선택팝업  : 심주완: 2011.09.25 -->
+	<bean id="clm.chooseContractTypeService" class="com.sec.clm.manage.service.impl.ChooseContractTypeServiceImpl" parent="secfw.commonService">
+	</bean>
+	
+	<!-- 계약선택팝업  : 심주완: 2011.09.25 -->
+	<bean id="clm.chooseContractService" class="com.sec.clm.manage.service.impl.ChooseContractServiceImpl" parent="secfw.commonService">
+	</bean>
+	
+	<!-- 계약유형선택팝업  : 심주완: 2011.09.25 -->
+	<bean id="clm.chooseClientService" class="com.sec.clm.manage.service.impl.ChooseClientServiceImpl" parent="secfw.commonService">
+	</bean>
+	
+	<!-- 날인담당자선택팝업  : 심주완: 2011.09.29 -->
+	<bean id="clm.chooseSealPersonService" class="com.sec.clm.manage.service.impl.ChooseSealPersonServiceImpl" parent="secfw.commonService">
+	</bean>
+	
+	<!-- About CLM 관리  : dawn : 2011.10.05 -->
+	<bean id="clm.aboutClmManageService" class="com.sec.clm.admin.service.impl.AboutClmManageServiceImpl" parent="secfw.commonService">
+	</bean>
+	
+	<!-- 계약지식공유 > 주요 거래선 유형별 협상 포인트: 유영섭: 2011.09.30 -->
+	<bean id="clm.ContractNegoPointService" class="com.sec.clm.share.service.impl.ContractNegoPointServiceImpl" parent="secfw.commonService">
+	</bean>
+	
+	<!-- 계약관리> 계약등록-->
+	<bean id="clm.conclusionService" class="com.sec.clm.manage.service.impl.ConclusionServiceImpl" parent="secfw.commonService">
+		<property name="mailSendService" ref="clm.mailSendService" />
+		<property name="consultationService" ref="clm.consultationService" />
+		<property name="legacyInterfaceService"  ref="secfw.legacyInfService" />   
+	</bean>
+	
+	<!-- 메일전송서비스  : 심주완: 2011.10.05 -->
+	<bean id="clm.mailSendService" class="com.sec.clm.manage.service.impl.MailSendServiceImpl" parent="secfw.commonService">
+	<property name="esbMailService" ref="secfw.esbMailService" />
+		<property name="esbOrgService" ref="secfw.esbOrgService" />
+	</bean>
+	
+		<!-- 계약관리> 계약검토 -->
+ 	<bean id="clm.considerationService" class="com.sec.clm.manage.service.impl.ConsiderationServiceImpl" parent="secfw.commonService">
+ 		<property name="mailSendService" ref="clm.mailSendService" />		 		 		
+	</bean> 
+	
+	<!-- 계약검토 - 의뢰내역 -->
+ 	<bean id="clm.reviewService" class="com.sec.clm.review.service.impl.ConsiderationServiceImpl" parent="secfw.commonService">
+ 		<property name="mailSendService" ref="clm.mailSendService" />
+ 		 <property name="considerationHQService" ref="clm.reviewHQService"/>
+	</bean>
+	
+	<!-- 계약검토 - 본사검토 박병주 2014.04.24 -->
+ 	<bean id="clm.reviewHQService" class="com.sec.clm.review.service.impl.ConsiderationHQServiceImpl" parent="secfw.commonService">
+ 		<property name="esbMailService" ref="secfw.esbMailService"/>
+	</bean>
+	
+	<!-- secfw.clmsComService	 -->
+	<bean id="secfw.clmsComService" class="com.sec.common.clmscom.service.impl.CLMSCommonServiceImpl" parent="secfw.commonService">
+	</bean>
+	
+	<!-- 계약관리 > MyNotice: 유영섭: 2011.10.14 -->
+	<bean id="clm.myNoticeService" class="com.sec.clm.manage.service.impl.MyNoticeServiceImpl" parent="secfw.commonService">
+	</bean>
+	
+	<!-- 계약관리 > 계약상대방검색 신규등록 팝업 : dawn : 2011.10.21 -->
+	<bean id="clm.customerNewService" class="com.sec.clm.draft.service.impl.CustomerNewServiceImpl" parent="secfw.commonService">
+	</bean>
+	
+	<!-- 계약관리 > 엑셀 업로드 : dawn : 2013.12.27 -->
+	<bean id="clm.excelUploadService" class="com.sec.clm.draft.service.impl.ExcelUploadServiceImpl" parent="secfw.commonService">
+	</bean>
+	
+	<!-- 계약관리 > 국가검색 팝업 : dawn : 2011.10.26 -->
+	<bean id="clm.nationService" class="com.sec.clm.draft.service.impl.NationServiceImpl" parent="secfw.commonService">
+	</bean>
+	
+	<!-- 계약관리 > 계약상대방 검색 팝업테스트 : dawn : 2011.10.26 -->
+	<bean id="clm.customerTestService" class="com.sec.clm.draft.service.impl.CustomerTestServiceImpl" parent="secfw.commonService">
+	</bean>
+	
+	<!-- 표준계약서> 표준계약서팝업 -->
+	<bean id="clm.stdContractService" class="com.sec.clm.draft.service.impl.StdContractServiceImpl" parent="secfw.commonService">
+	</bean> 
+	
+	<!-- 계약관리> 날인 신청/ 처리 관리  : 2013.05 -->
+	<bean id="clm.SignManageService" class="com.sec.clm.sign.service.impl.SignManageServiceImpl" parent="secfw.commonService">
+	</bean>
+	
+	<!-- 검색엔진 테스트 -->
+	<bean id="clm.searchService" class="com.sec.clm.search.service.impl.SearchServiceImpl" parent="secfw.commonService">
+	</bean>	  
+	
+	<!--  Admin > Role Control -->
+	<bean id="clm.RoleService" class="com.sec.clm.admin.service.impl.RoleServiceImpl" parent="secfw.commonService">
+		<property name="userService" ref="secfw.userService" />
+	</bean>
+	
+	<!--  Admin > ApprovalPath Control -->
+	<bean id="clm.ApprovalPathService" class="com.sec.clm.admin.service.impl.ApprovalPathServiceImpl" parent="secfw.commonService">
+		<property name="userService" ref="secfw.userService" />
+	</bean>
+	
+</beans>
