@@ -1031,6 +1031,7 @@
 		<dependency>
 		    <artifactId>model.outldap.samsung.net</artifactId>
 		    <groupId>OrgService</groupId>
+		    <version>1.0</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/OrgService.jar</systemPath>
 		</dependency>
