@@ -1155,9 +1155,9 @@
 		    <systemPath>${projectLibFolder}/spring-beans-2.5.6.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>org.springframework.context</artifactId>
+		    <groupId>spring-context</groupId>
+		    <version>2.5.6</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/spring-context-2.5.6.jar</systemPath>
 		</dependency>
