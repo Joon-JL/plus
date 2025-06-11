@@ -413,9 +413,9 @@
 		    <systemPath>${projectLibFolder}/commons-codec-1.3.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>org.apache.commons</artifactId>
+		    <groupId>commons-collections</groupId>
+		    <version>3.2.1</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/commons-collections-3.2.1.jar</systemPath>
 		</dependency>
