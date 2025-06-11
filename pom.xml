@@ -203,9 +203,9 @@
 		    <systemPath>${projectLibFolder}/anyframe.web.common-3.2.0.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>anyframe.web.springmvc.controller</artifactId>
+		    <groupId>anyframe.web.springmvc</groupId>
+		    <version>3.2.0</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/anyframe.web.springmvc-3.2.0.jar</systemPath>
 		</dependency>
