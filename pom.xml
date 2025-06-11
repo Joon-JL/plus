@@ -469,9 +469,9 @@
 		    <systemPath>${projectLibFolder}/commons-lang-2.1.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>org.apache.commons.logging</artifactId>
+		    <groupId>commons-logging</groupId>
+		    <version>1.0.4</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/commons-logging-1.0.4.jar</systemPath>
 		</dependency>
@@ -777,9 +777,9 @@
 		    <systemPath>${projectLibFolder}/jaxen-1.1.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>javax.xml.rpc</artifactId>
+		    <groupId>jaxrpc</groupId>
+		    <version>1.0</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/jaxrpc.jar</systemPath>
 		</dependency>
