@@ -1029,9 +1029,8 @@
 		    <systemPath>${projectLibFolder}/org.springplugins.web-1.0.0.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>model.outldap.samsung.net</artifactId>
+		    <groupId>OrgService</groupId>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/OrgService.jar</systemPath>
 		</dependency>
