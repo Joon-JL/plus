@@ -980,9 +980,9 @@
 		    <systemPath>${projectLibFolder}/mail.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>samsung.esb.mail.secuservice</artifactId>
+		    <groupId>MLDeliveryStatusInquiryService</groupId>
+		    <version>1.0</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/MLDeliveryStatusInquiryService.jar</systemPath>
 		</dependency>
