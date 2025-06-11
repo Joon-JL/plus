@@ -154,9 +154,9 @@
 		    <systemPath>${projectLibFolder}/anyframe.core.properties-3.2.0.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>anyframe.core.query</artifactId>
+		    <groupId>anyframe.core.query</groupId>
+		    <version>3.2.0</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/anyframe.core.query-3.2.0.jar</systemPath>
 		</dependency>
