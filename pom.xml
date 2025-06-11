@@ -882,9 +882,9 @@
 		    <systemPath>${projectLibFolder}/json-lib-2.2.1-jdk13.jar</systemPath>
 		</dependency>-->
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>net.sf.json</artifactId>
+		    <groupId>json-lib</groupId>
+		    <version>2.3-jdk13</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/json-lib-2.3-jdk13.jar</systemPath>
 		</dependency>
