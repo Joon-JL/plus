@@ -938,9 +938,9 @@
 		    <systemPath>${projectLibFolder}/junit-4.4.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>jxl</artifactId>
+		    <groupId>jxl</groupId>
+		    <version>2.6</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/jxl-2.6.jar</systemPath>
 		</dependency>
