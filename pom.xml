@@ -672,30 +672,30 @@
 		    <systemPath>${projectLibFolder}/htmlparser-1.0.5.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>org.apache.http</artifactId>
+		    <artifactId>org.apache</artifactId>
 		    <groupId>httpclient</groupId>
 		    <version>4.0.3</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/httpclient-4.0.3.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>org.apache</artifactId>
+		    <groupId>httpcore</groupId>
+		    <version>4.1</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/httpcore-4.1.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>org.apache</artifactId>
+		    <groupId>httpcore-nio</groupId>
+		    <version>4.1</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/httpcore-nio-4.1.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>org.apache</artifactId>
+		    <groupId>httpmime</groupId>
+		    <version>4.0.3</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/httpmime-4.0.3.jar</systemPath>
 		</dependency>
