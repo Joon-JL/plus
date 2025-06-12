@@ -441,9 +441,9 @@
 		    <systemPath>${projectLibFolder}/commons-discovery-0.2.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>org.apache.commons.fileupload</artifactId>
+		    <groupId>commons-fileupload</groupId>
+		    <version>1.2</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/commons-fileupload-1.2.jar</systemPath>
 		</dependency>
@@ -532,9 +532,9 @@
 		    <systemPath>${projectLibFolder}/db2jcc.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>devpia.dextupload</artifactId>
+		    <groupId>DEXTUploadJ15_1.0.6.0</groupId>
+		    <version>1.0</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/DEXTUploadJ15_1.0.6.0.jar</systemPath>
 		</dependency>
@@ -658,9 +658,9 @@
 		    <systemPath>${projectLibFolder}/hibernate-3.2.6.ga.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>org.hsqldb.lib</artifactId>
+		    <groupId>hsqldb</groupId>
+		    <version>1.8.0.10</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/hsqldb-1.8.0.10.jar</systemPath>
 		</dependency>
@@ -931,9 +931,9 @@
 		    <systemPath>${projectLibFolder}/junit-3.8.1.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>org.junit</artifactId>
+		    <groupId>junit</groupId>
+		    <version>4.4</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/junit-4.4.jar</systemPath>
 		</dependency>
@@ -1218,9 +1218,9 @@
 		    <systemPath>${projectLibFolder}/spring-security-taglibs-2.0.4.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>org.springframework.test</artifactId>
+		    <groupId>spring-test</groupId>
+		    <version>2.5.6</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/spring-test-2.5.6.jar</systemPath>
 		</dependency>
