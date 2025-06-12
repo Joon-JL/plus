@@ -238,9 +238,9 @@
 		    <systemPath>${projectLibFolder}/aopalliance-1.0.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>samsung.esb.approval.vo</artifactId>
+		    <groupId>APStatusInquiryService</groupId>
+		    <version>1.0</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/APStatusInquiryService.jar</systemPath>
 		</dependency>
