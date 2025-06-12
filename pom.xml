@@ -44,7 +44,7 @@
 		<dependency>
 		    <artifactId>..</artifactId>
 		    <groupId>..</groupId>
-		    <version>..</version>
+		    <version>0.4.0</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/abdera-extensions-html-0.4.0-incubating.jar</systemPath>
 		</dependency>
