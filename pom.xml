@@ -266,23 +266,23 @@
 		    <systemPath>${projectLibFolder}/asm-util-2.2.2.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>org.aspectj</artifactId>
+		    <groupId>aspectjrt</groupId>
+		    <version>1.5.4</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/aspectjrt-1.5.4.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>org.aspectj</artifactId>
+		    <groupId>aspectjtools</groupId>
+		    <version>1.5.4</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/aspectjtools-1.5.4.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>org.aspectj</artifactId>
+		    <groupId>aspectjweaver</groupId>
+		    <version>1.5.4</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/aspectjweaver-1.5.4.jar</systemPath>
 		</dependency>
