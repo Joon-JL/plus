@@ -287,9 +287,9 @@
 		    <systemPath>${projectLibFolder}/aspectjweaver-1.5.4.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>com.autonomy.aci</artifactId>
+		    <groupId>AutonomyACIAPI</groupId>
+		    <version>4.9.3</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/AutonomyACIAPI-4.9.3.jar</systemPath>
 		</dependency>
@@ -448,9 +448,9 @@
 		    <systemPath>${projectLibFolder}/commons-fileupload-1.2.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>org.apache.commons.httpclient</artifactId>
+		    <groupId>commons-httpclient</groupId>
+		    <version>3.1</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/commons-httpclient-3.1.jar</systemPath>
 		</dependency>
@@ -791,9 +791,9 @@
 		    <systemPath>${projectLibFolder}/jce-jdk13-125.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>org.jfree.util</artifactId>
+		    <groupId>jcommon</groupId>
+		    <version>1.0.12</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/jcommon-1.0.12.jar</systemPath>
 		</dependency>
@@ -812,9 +812,9 @@
 		    <systemPath>${projectLibFolder}/jdt-compiler-3.1.1.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>org.codehaus.jettison.jso</artifactId>
+		    <groupId>jettison</groupId>
+		    <version>1.0</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/jettison-1.0.jar</systemPath>
 		</dependency>
