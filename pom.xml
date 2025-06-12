@@ -462,9 +462,9 @@
 		    <systemPath>${projectLibFolder}/commons-io-1.4.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>org.apache.commons</artifactId>
+		    <groupId>commons-lang</groupId>
+		    <version>2.1</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/commons-lang-2.1.jar</systemPath>
 		</dependency>
