@@ -1064,16 +1064,16 @@
 		    <systemPath>${projectLibFolder}/poi-3.8-20120326.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>org.apache.poi</artifactId>
+		    <groupId>poi-ooxml</groupId>
+		    <version>3.8-20120326</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/poi-ooxml-3.8-20120326.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>org.apache.poi</artifactId>
+		    <groupId>poi-ooxml-schemas</groupId>
+		    <version>3.8-20120326</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/poi-ooxml-schemas-3.8-20120326.jar</systemPath>
 		</dependency>
