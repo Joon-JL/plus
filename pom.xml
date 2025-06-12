@@ -112,9 +112,9 @@
 		    <systemPath>${projectLibFolder}/anyframe-template-flex-services.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>anyframe.common.util</artifactId>
+		    <groupId>anyframe.common</groupId>
+		    <version>3.2.0</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/anyframe.common-3.2.0.jar</systemPath>
 		</dependency>
@@ -609,9 +609,9 @@
 		    <systemPath>${projectLibFolder}/flex-messaging-common.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>flex.messaging.io</artifactId>
+		    <groupId>flex-messaging-core</groupId>
+		    <version>1.0</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/flex-messaging-core.jar</systemPath>
 		</dependency>
@@ -854,9 +854,9 @@
 		    <systemPath>${projectLibFolder}/jmdns-1.0.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>org.joda.time</artifactId>
+		    <groupId>joda-time</groupId>
+		    <version>1.1</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/joda-time-1.1.jar</systemPath>
 		</dependency>
@@ -973,9 +973,9 @@
 		    <systemPath>${projectLibFolder}/log4jdbc-1.2.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>javax.mail</artifactId>
+		    <groupId>mail</groupId>
+		    <version>1.0</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/mail.jar</systemPath>
 		</dependency>
@@ -1106,9 +1106,9 @@
 		    <systemPath>${projectLibFolder}/saaj.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>com.sap.mw.jco</artifactId>
+		    <groupId>sapjco</groupId>
+		    <version>1.0</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/sapjco.jar</systemPath>
 		</dependency>
@@ -1169,9 +1169,9 @@
 		    <systemPath>${projectLibFolder}/spring-context-support-2.5.6.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>org.springframework.core</artifactId>
+		    <groupId>spring-core</groupId>
+		    <version>2.5.6</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/spring-core-2.5.6.jar</systemPath>
 		</dependency>
