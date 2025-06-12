@@ -896,9 +896,9 @@
 		    <systemPath>${projectLibFolder}/jsr250-api-1.0.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>javax.ws.rs.core</artifactId>
+		    <groupId>jsr311-api</groupId>
+		    <version>0.8</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/jsr311-api-0.8.jar</systemPath>
 		</dependency>
