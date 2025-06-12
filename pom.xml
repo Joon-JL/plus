@@ -672,9 +672,9 @@
 		    <systemPath>${projectLibFolder}/htmlparser-1.0.5.jar</systemPath>
 		</dependency>
 		<dependency>
-		    <artifactId>..</artifactId>
-		    <groupId>..</groupId>
-		    <version>..</version>
+		    <artifactId>org.apache.http</artifactId>
+		    <groupId>httpclient</groupId>
+		    <version>4.0.3</version>
 		    <scope>system</scope>
 		    <systemPath>${projectLibFolder}/httpclient-4.0.3.jar</systemPath>
 		</dependency>
