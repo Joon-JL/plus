@@ -1515,7 +1515,8 @@
                 <coverageFileOrDirectory>./target/site/jacoco/jacoco.xml</coverageFileOrDirectory>
  
                 <!-- Coverage 정보 업로드시 신규/변경 파일을 필터링하기 위한 파라미터 -->
-                <srcBasePath>src/main/java</srcBasePath>
+                <srcBasePath>src</srcBasePath>
+		<baseDate>1970-01-01</baseDate>
  
             </configuration>
         </plugin>
