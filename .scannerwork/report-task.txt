@@ -1,6 +1,0 @@
-projectKey=sdsdev_SEC-11P0024-SELMS_SELMS_master_Java
-serverUrl=https://sdsdev.co.kr/sonarqube1
-serverVersion=9.9.1.69595
-dashboardUrl=https://sdsdev.co.kr/sonarqube1/dashboard?id=sdsdev_SEC-11P0024-SELMS_SELMS_master_Java
-ceTaskId=AZD_fGVsATyql_dX0qZn
-ceTaskUrl=https://sdsdev.co.kr/sonarqube1/api/ce/task?id=AZD_fGVsATyql_dX0qZn

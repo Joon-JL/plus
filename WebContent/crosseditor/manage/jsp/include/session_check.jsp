@@ -1,1 +1,0 @@
-<%if(session.getAttribute("memId") == null){response.sendRedirect("../index.html");}%>

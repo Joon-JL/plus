@@ -1,2 +1,0 @@
-# selmsplus
-For DevOps 
