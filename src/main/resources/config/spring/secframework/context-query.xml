@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:config="http://www.anyframejava.org/schema/service"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://www.anyframejava.org/schema/service http://www.anyframejava.org/schema/service/anyframe-core-service-2.0.xsd">
+
+	<!-- secfw queryService -->	
+	<bean name="secfw.queryService" class="anyframe.core.query.impl.QueryServiceImpl">
+		<property name="jdbcTemplate" ref="secfw.jdbcTemplate"/>
+		<!-- <property name="pagingSQLGenerator" ref="pagingSQLGenerator"/>
+		 --><property name="sqlRepository" ref="sqlLoader"/>		
+	 	<!-- <property name="lobHandler" ref="lobHandler"/>		  -->
+	</bean>
+		
+    <bean id="secfw.jdbcTemplate" class="anyframe.core.query.impl.jdbc.PagingJdbcTemplate">
+      <property name="dataSource" ref="secfw.dataSource" />
+      <property name="exceptionTranslator" ref="exceptionTranslator" />
+    </bean>
+
+	<!-- pjt queryService -->	
+	<!-- 
+	<bean name="secfw.queryServiceUtx" class="anyframe.core.query.impl.QueryServiceImpl">
+		<property name="jdbcTemplate" ref="secfw.jdbcTemplateUtx"/>
+		<property name="pagingSQLGenerator" ref="pagingSQLGenerator"/>
+		<property name="sqlRepository" ref="sqlLoader"/>		
+		<property name="lobHandler" ref="lobHandler"/>		
+	</bean>
+		
+    <bean id="secfw.jdbcTemplateUtx" class="anyframe.core.query.impl.jdbc.PagingJdbcTemplate">
+      <property name="dataSource" ref="secfw.dataSourceUtx" />
+      <property name="exceptionTranslator" ref="exceptionTranslator" />
+    </bean>
+    -->
+	<!-- //pjt queryService -->
+	    
+    <bean id="exceptionTranslator" class="anyframe.core.query.impl.util.RawSQLExceptionTranslator"/>
+    		
+	<!-- LOB 설정 (ORACLE 용) -->	
+	<bean id="nativeJdbcExtractor" class="org.springframework.jdbc.support.nativejdbc.CommonsDbcpNativeJdbcExtractor" lazy-init="true" />
+	
+	<bean id="lobHandler" class="org.springframework.jdbc.support.lob.OracleLobHandler" lazy-init="true">
+		<property name="nativeJdbcExtractor" ref="nativeJdbcExtractor" />
+	</bean>
+	<!-- //LOB 설정 -->	
+	
+	<!-- LOB 설정(DB2 용) -->	
+	<!--
+	<bean id="nativeJdbcExtractor" class="org.springframework.jdbc.support.nativejdbc.CommonsDbcpNativeJdbcExtractor" lazy-init="true" />
+	<bean id="lobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler" lazy-init="true" />
+	-->
+	
+	<bean id="pagingSQLGenerator" class="anyframe.core.query.impl.jdbc.generator.HSQLPagingSQLGenerator"/>
+	
+	<!-- SQL Query Loader -->	
+	<bean name="sqlLoader" class="anyframe.core.query.impl.config.loader.SQLLoader">
+		<config:configuration>
+  		    <!-- xml files in classpath -->  		    
+  		    <filename>classpath:config/query/**/mapping-*.xml</filename>
+			<nullcheck type="VARCHAR" default-value="" />
+		<!-- 	<sqlload dynamic="true" frequency="5" />
+			<skiperror>true</skiperror> -->
+		</config:configuration>
+	</bean>
+	
+
+</beans>

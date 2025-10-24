@@ -1,0 +1,140 @@
+/***********************************************************
+ * File Name      		: approval.css
+ * File Type       	    : Style Sheet(css)
+ * Discription          : Compliance  Program Management System - approval.css
+ * Author               : bjkoo.k 
+ * Date                 : 2010.07.21
+ * Last update date     : 2010.07.21 
+***********************************************************/
+
+
+
+/* ===========  Common General Define ========= */
+
+@charset "utf-8"; 
+
+
+body, frameset {  scrollbar-3dlight-color:#d7d7d9; scrollbar-shadow-color:#d7d7d9; scrollbar-darkshadow-color:#fff; scrollbar-highlight-color:#fff;
+		scrollbar-base-color:#fff; scrollbar-track-color:#f2f2f2; scrollbar-face-color:#fff; scrollbar-arrow-color:#d7d7d9; overflow:auto;		
+		margin:0px 0px 0px 0px; padding:0px 0px 0px 0px; background-color:#fff; border:none }
+
+body, div, td { font-size:12px; color:#555555; font-family:Gulim,Tahoma; line-height:normal; cursor:default }
+img { border:none; cursor:auto }
+table { border:none; empty-cells:show }
+form { margin:0; padding:0 }
+input, textarea { font-family:Tahoma; font-size:12px; color:#555555;} 
+select, option  { font-family:Tahoma; font-size:12px; color:#555555; background-color:#fff; border:1px solid #bbbbbb }
+input { selector:expression(this.hideFocus=true) }
+a { cursor:pointer; selector:expression(this.hideFocus=true) }
+a:link { text-decoration:none }
+a:visited { text-decoration:none }
+a:hover { text-decoration:none }
+a:active { text-decoration:none }
+
+
+
+/* ===========  Table Zone ========= */
+input.IpTextLe {border:1 solid #bbb;background-color:#FFFFFF;FONT-SIZE: 12px;Font-family: 돋움;text-align:left;height:18}
+.basictit {font:12px "돋움",Arial;color:#42536f; font-weight:bold}
+
+
+#bodyDivBase { width:100%; height:100%; overflow-x:hidden; overflow-y:auto}
+
+#bodyDivIn { width:auto; height:100%;vertical-align:top; text-align:center}
+
+#bodyDivIn .top { text-align:left; padding-top:14; padding-left:10;height:39; width:auto; font:14px "돋움",Arial;color:#e4e7ec; white-space:nowrap; font-weight:bold;background:#244873 url(../../images/secfw/approval/top_bg.jpg) no-repeat }
+#bodyDivIn .top .left {float:left; text-align:left;width:10%; font:14px "돋움",Arial;color:#e4e7ec; white-space:nowrap; font-weight:bold;}
+#bodyDivIn .top .right { float:right; cursor:pointer;  margin-right:10; width:10;height:10;font:14px "돋움",Arial;color:#e4e7ec; white-space:nowrap; font-weight:bold;background:url(../../images/secfw/approval/btn_x.gif) repeat-x}
+
+#bodyDivIn .topline { border:1px solid #000; margin-bottom:15 }
+
+#bodyDivIn #tbl { width : 98%; border-top: 2px solid #88b0e1; border-left:1px solid #cfd0d1; border-right:1px solid #cfd0d1;border-bottom:1px solid #cfd0d1; font-size:12px; border-collapse:collapse; }
+#bodyDivIn #tbl  th {width :7%; padding:3 14 3 14; height:29; background:#f3f3f3 url(../../images/secfw/approval/table_line_tit.gif) repeat-x; font:12px "돋움",Arial;color:#42536f; white-space:nowrap; font-weight:bold; text-align:left}
+#bodyDivIn #tbl  td {padding:4 14 4 14;height:29; background:#f3f3f3 url(../../images/secfw/approval/table_line_tit.gif) repeat-x font:12px "돋움",Arial;color:#42536f; white-space:nowrap; font-weight:bold; text-align:left}
+#bodyDivIn #tbl  div  {float:left}
+
+#bodyDivIn #tbl .tip {position:absolute;float:left; width:30; height:12; cursor:pointer; margin-left:4; float:left; background:url(../../images/secfw/approval/icon_tip01.gif) no-repeat}
+#bodyDivIn #tbl .confirm {position:absolute;float:left; width:59; height:21; cursor:pointer; margin-left:4; float:left; background:url(../../images/secfw/approval/btn_confirmEng.gif) no-repeat}
+#bodyDivIn #tbl .opa {float:left; height:20; }
+
+#bodyDivIn #tbl .btm {padding:4 14 4 14; background:#eff1f0 url(../../images/secfw/approval/table_line_btm.gif) repeat-x; font:12px "돋움",Arial;color:#42536f; white-space:nowrap; font-weight:bold; text-align:left}
+#bodyDivIn #tbl .btm  #opa {float:left; width :150; border-collapse:collapse;}
+#bodyDivIn #tbl .btm  #opa td {padding:0; height:16; font:12px "돋움",Arial;color:#333; background:url(../../images/secfw/approval/table_td.gif)}
+#bodyDivIn #tbl .btm  #opa .row {width:65;height:17; cursor:pointer; background:url(../../images/secfw/approval/btn_rowEng.gif) no-repeat}
+#bodyDivIn #tbl .btm  #opa .row_no {width:66;height:17; cursor:pointer; background:url(../../images/secfw/approval/btn_row_noEng.gif) no-repeat}
+#bodyDivIn #tbl .btm  #opa .delete {width:57;height:17; cursor:pointer; background:url(../../images/secfw/approval/btn_deleteEng.gif) no-repeat}
+#bodyDivIn #tbl .btm  #opa .up {width:45;height:17; cursor:pointer; background:url(../../images/secfw/approval/btn_upEng.gif) no-repeat}
+#bodyDivIn #tbl .btm  #opa .down {width:52;height:17; cursor:pointer; background:url(../../images/secfw/approval/btn_downEng.gif) no-repeat}
+
+
+#bodyDivIn #tbl .con1 {background:#fff url(../../images/secfw/approval/table_line_con.gif) repeat-x;}
+#bodyDivIn #tbl .con1 .tip { float:left; width:30; height:12; cursor:pointer; margin-left:4; margin-top:5; float:left; background:url(../../images/secfw/approval/icon_tip02.gif) no-repeat}
+
+#bodyDivIn #tbl .con2 {background:#fff url(../../images/secfw/approval/table_td.gif) repeat-x; font:12px "돋움",Arial;color:#444; white-space:nowrap;}
+#bodyDivIn #tbl .con2  #opa {float:left;  border-collapse:collapse;}
+#bodyDivIn #tbl .con2  #opa td {padding:0; height:16; font:12px "돋움",Arial;color:#333; background:url(../../images/secfw/approval/table_td.gif)}
+#bodyDivIn #tbl .con2  #opa .file {width:64;height:17; margin-left:7;margin-top:2; cursor:pointer; background:url(../../images/secfw/approval/btn_file.gif) no-repeat}
+#bodyDivIn #tbl .con2  #opa .delete {width:45;height:17;  margin-left:3;margin-top:2; cursor:pointer; background:url(../../images/secfw/approval/btn_delete.gif) no-repeat}
+#bodyDivIn #tbl .con2  #opa .up {width:45;height:17;  margin-left:3;margin-top:2; cursor:pointer; background:url(../../images/secfw/approval/btn_up.gif) no-repeat}
+#bodyDivIn #tbl .con2  #opa .down {width:45;height:17;  margin-left:3;margin-top:2; cursor:pointer; background:url(../../images/secfw/approval/btn_down.gif) no-repeat}
+
+
+
+
+
+#bodyDivIn #file { width : 98%;  font-size:12px; border-collapse:collapse; }
+#bodyDivIn #file  th {width :7%; padding:3 14 3 14; height:29; background:#f3f3f3 url(../../images/secfw/approval/table_line_tit.gif) repeat-x; font:12px "돋움",Arial;color:#42536f; white-space:nowrap; font-weight:bold; text-align:left}
+#bodyDivIn #file  td {padding:4 0 4 0;height:29; background:#f3f3f3 url(../../images/secfw/approval/table_line_tit.gif) repeat-x font:12px "돋움",Arial;color:#42536f; white-space:nowrap; font-weight:bold; text-align:left}
+#bodyDivIn #file  div  {float:left}
+
+
+#bodyDivIn #file .con1 {background:#fff url(../../images/secfw/approval/table_td.gif) repeat-x; font:12px "돋움",Arial;color:#444; white-space:nowrap;}
+#bodyDivIn #file .con1  #opa {float:left;  border-collapse:collapse;}
+#bodyDivIn #file .con1  #opa td {padding:0; height:16; font:12px "돋움",Arial;color:#333; background:url(../../images/secfw/approval/table_td.gif)}
+#bodyDivIn #file .con1  #opa .file {width:82;height:17; margin-left:7;margin-top:2; cursor:pointer; background:url(../../images/secfw/approval/btn_fileEng.gif) no-repeat}
+#bodyDivIn #file .con1  #opa .delete {width:57;height:17;  margin-left:3;margin-top:2; cursor:pointer; background:url(../../images/secfw/approval/btn_deleteEng.gif) no-repeat}
+#bodyDivIn #file .con1  #opa .up {width:45;height:17;  margin-left:3;margin-top:2; cursor:pointer; background:url(../../images/secfw/approval/btn_upEng.gif) no-repeat}
+#bodyDivIn #file .con1  #opa .down {width:52;height:17;  margin-left:3;margin-top:2; cursor:pointer; background:url(../../images/secfw/approval/btn_downEng.gif) no-repeat}
+#bodyDivIn #file .con1  #opa .fileopen {width:113;height:17; margin-left:3;margin-top:2; cursor:pointer; background:url(../../images/secfw/approval/btn_fileopenEng.gif) no-repeat}
+#bodyDivIn #file .con1 .vol {float:right; font:12px "돋움",Arial;color:#333; white-space:nowrap;}
+#bodyDivIn #file .con1 .vol span { font:12px "돋움",Arial;color:#333; white-space:nowrap; font-weight:bold;}
+
+
+
+#bodyDivIn #file .con2 {background:#fff url(../../images/secfw/approval/table_td.gif) repeat-x; padding:5 0 5 0; }
+#bodyDivIn #file .con2  #option { width : 100%; background:#fff url(../../images/secfw/approval/table_td.gif) repeat-x; font-size:12px; border-collapse:collapse;border:1px solid #bebfc0; }
+#bodyDivIn #file .con2  #option th {  width :80%; padding-left:14; font:12px "돋움",Arial; font-weight:bold; color:#42536f;  background:#edeeee url(../../images/secfw/approval/table_td.gif)}
+#bodyDivIn #file .con2  #option td {  padding-left:14; border-bottom:1px solid #bebfc0; font:12px "돋움",Arial; color:#444;  background:#f7f7f7 url(../../images/secfw/approval/table_td.gif)}
+#bodyDivIn #file .con2  #option .thbg { width :10%;  font:12px "돋움",Arial;  font-weight:bold; color:#42536f;  background:#edeeee url(../../images/secfw/approval/table_td.gif)}
+#bodyDivIn #file .con2  #option .tdbg { width :10%;  font:12px "돋움",Arial; color:#444  white-space:nowrap; background:#f7f7f7 url(../../images/secfw/approval/table_td.gif)}
+#bodyDivIn #file .con2  #option  div {width:10%;  float:left; padding-right:5;}
+#bodyDivIn #file .con2  #option .open {position:absolute;float:left; width:13; height:13; cursor:pointer; margin-left:4; float:left; background:url(../../images/secfw/approval/btn_option_open.gif) no-repeat}
+#bodyDivIn #file .con2  #option .cal {float:left; width:15; height:13; cursor:pointer; margin-top:4; margin-right:4; float:left; background:url(../../images/secfw/approval/btn_cal.gif) no-repeat}
+#bodyDivIn #file .con2  #option  #opa {float:left;  border-collapse:collapse;}
+#bodyDivIn #file .con2  #option  #opa td {border-bottom:1px solid #fff;padding:0; height:16; font:12px "돋움",Arial;color:#333}
+
+
+
+/* ===========  BTN Zone ========= */
+#bodyDivIn #btn { width : 98%; font-size:12px; border-collapse:collapse; }
+
+#bodyDivIn #btn  td {padding-top :5;padding-bottom :3; font:12px "돋움",Arial;color:#42536f; white-space:nowrap; font-weight:bold; text-align:left}
+#bodyDivIn #btn  div  {float:left;padding-left : 5}
+#bodyDivIn #btn .btnw {float:left;}
+#bodyDivIn #btn .btnw .btnw_head {width:13;height:23; background:url(../../images/secfw/approval/btn_w_head.gif) no-repeat}
+#bodyDivIn #btn .btnw .btnw_mid {padding-left:3;letter-spacing:-1px; padding-top:6; cursor:pointer; height:23; font:11px "돋움",Arial;color:#2f3e63; white-space:nowrap; background:url(../../images/secfw/approval/btn_w_mid.gif) repeat-x}
+#bodyDivIn #btn .btnw .btnw_tail {width:12;height:23; background:url(../../images/secfw/approval/btn_w_tail.gif) no-repeat}
+
+#bodyDivIn #btn .btnb { float:right;}
+#bodyDivIn #btn .btnb .btnb_head {width:6;height:24; background:url(../../images/secfw/approval/btn_b_head.gif) no-repeat}
+#bodyDivIn #btn .btnb .btnb_mid {height:24;padding-left:3;padding-right:3;letter-spacing:-1px; padding-top:6; cursor:pointer; font:12px "돋움",Arial;color:#fff;font-weight:bold; white-space:nowrap; background:url(../../images/secfw/approval/btn_b_mid.gif) repeat-x}
+#bodyDivIn #btn .btnb .btnb_tail {width:8;height:24; background:url(../../images/secfw/approval/btn_b_tail.gif) no-repeat}
+
+
+/* ===========  POP Zone ========= */s
+
+#bodyDivIn #pop { width : 98%; b font-size:12px; border-collapse:collapse; border-bottom: 1px solid #999; margin-bottom:5}
+#bodyDivIn #pop td{  padding-left:14; font:12px "돋움",Arial; color:#444; }
+#bodyDivIn #pop .title {vertical-align:top; width :10%; padding-left:14; padding-top:5; font:12px "돋움",Arial; font-weight:bold; color:#42536f;white-space:nowrap;} 
+#bodyDivIn #pop .con { padding-bottom:5; float:left; width:98%; height:12; cursor:pointer; margin-left:4; margin-top:5; float:left; }
+#bodyDivIn #pop .line { border:1px solid #c9c9c9; height:1; margin-bottom:15 }

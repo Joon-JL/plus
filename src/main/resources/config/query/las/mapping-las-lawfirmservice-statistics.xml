@@ -1,0 +1,1278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+    <queries>
+		<query id="las.lawservice.listStasticsEvent" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		               
+					SELECT 
+						  		EVENT_NM, 
+						  		LAWFIRM_NM,
+								MAX(LAWSUIT_TRGT_NM) LAWSUIT_TRGT_CD , 
+								MAX(CRRNCY_UNIT) CRRNCY_UNIT, 
+								MAX(CNT) as cnt,   
+								TO_CHAR(SUM(exp01),'999,999,999,999.99') exp01 ,  TO_CHAR(SUM(for01),'999,999,999,999.99') for01 ,  
+								TO_CHAR(SUM(exp02),'999,999,999,999.99') exp02 ,  TO_CHAR(SUM(for02),'999,999,999,999.99') for02 ,  
+								TO_CHAR(SUM(exp03),'999,999,999,999.99') exp03 ,  TO_CHAR(SUM(for03),'999,999,999,999.99') for03 ,  
+								TO_CHAR(SUM(exp04),'999,999,999,999.99') exp04 ,  TO_CHAR(SUM(for04),'999,999,999,999.99') for04 ,  
+								TO_CHAR(SUM(exp05),'999,999,999,999.99') exp05 ,  TO_CHAR(SUM(for05),'999,999,999,999.99') for05 ,  
+								TO_CHAR(SUM(exp06),'999,999,999,999.99') exp06 ,  TO_CHAR(SUM(for06),'999,999,999,999.99') for06 ,  
+								TO_CHAR(SUM(exp07),'999,999,999,999.99') exp07 ,  TO_CHAR(SUM(for07),'999,999,999,999.99') for07 ,  
+								TO_CHAR(SUM(exp08),'999,999,999,999.99') exp08 ,  TO_CHAR(SUM(for08),'999,999,999,999.99') for08 ,  
+								TO_CHAR(SUM(exp09),'999,999,999,999.99') exp09 ,  TO_CHAR(SUM(for09),'999,999,999,999.99') for09 ,  
+								TO_CHAR(SUM(exp10),'999,999,999,999.99') exp10 ,  TO_CHAR(SUM(for10),'999,999,999,999.99') for10 ,  
+								TO_CHAR(SUM(exp11),'999,999,999,999.99') exp11 ,  TO_CHAR(SUM(for11),'999,999,999,999.99') for11 ,  
+								TO_CHAR(SUM(exp12),'999,999,999,999.99') exp12 ,  TO_CHAR(SUM(for12),'999,999,999,999.99') for12 ,  
+								TO_CHAR((SUM(exp01) + SUM(exp02) + SUM(exp03) + SUM(exp04) + SUM(exp05) + SUM(exp06) + SUM(exp07) + SUM(exp08) + SUM(exp09) + SUM(exp10) + SUM(exp11) + SUM(exp12)),'999,999,999,999.99') as expsum, 
+								TO_CHAR((SUM(for01) + SUM(for02) + SUM(for03) + SUM(for04) + SUM(for05) + SUM(for06) + SUM(for07) + SUM(for08) + SUM(for09) + SUM(for10) + SUM(for11) + SUM(for12)),'999,999,999,999.99') as forsum  
+					FROM  
+								(  
+									SELECT   
+											COUNT(*) OVER () CNT, 
+											exp2.EVENT_NM , 
+											exp3.LAWFIRM_NM , 
+											exp2.LAWSUIT_TRGT , 
+											exp1.CRRNCY_UNIT CRRNCY_UNIT ,  
+											exp4.CD_NM LAWSUIT_TRGT_NM,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'01', TOT_REMIT_AMT,0),0) as exp01,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'01', TOTAMT,0),0) as for01,  		 
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'02', TOT_REMIT_AMT,0),0) as exp02,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'02', TOTAMT,0),0) as for02,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'03', TOT_REMIT_AMT,0),0) as exp03,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'03', TOTAMT,0),0) as for03,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'04', TOT_REMIT_AMT,0),0) as exp04,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'04', TOTAMT,0),0) as for04,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'05', TOT_REMIT_AMT,0),0) as exp05,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'05', TOTAMT,0),0) as for05,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'06', TOT_REMIT_AMT,0),0) as exp06,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'06', TOTAMT,0),0) as for06,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'07', TOT_REMIT_AMT,0),0) as exp07,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'07', TOTAMT,0),0) as for07,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'08', TOT_REMIT_AMT,0),0) as exp08,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'08', TOTAMT,0),0) as for08,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'09', TOT_REMIT_AMT,0),0) as exp09,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'09', TOTAMT,0),0) as for09,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'10', TOT_REMIT_AMT,0),0) as exp10,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'10', TOTAMT,0),0) as for10,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'11', TOT_REMIT_AMT,0),0) as exp11,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'11', TOTAMT,0),0) as for11,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'12', TOT_REMIT_AMT,0),0) as exp12,  	
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'12', TOTAMT,0),0) as for12  
+									FROM  
+											(	SELECT  
+															A.EVENT_NO, 
+															A.LAWFIRM_ID, 
+															
+															#if ($vo.srch_year_type.equals("SRCH_REMITDAY"))
+																 SUBSTRING(B.REMITDAY,1,6) AS ex_month ,
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_ACPTDAY"))
+ 																SUBSTRING(A.ACPTDAY,1,6) AS ex_month , 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_SRVCSTARTDAY"))
+															 	SUBSTRING(A.SRVCENDDAY,1,6) AS ex_month ,	 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_CLAIMDAY"))
+															 	SUBSTRING(A.CLAIMDAY,1,6) AS ex_month ,
+															#end 
+															
+															MAX(A.CRRNCY_UNIT) CRRNCY_UNIT, 
+															SUM(B.TOTAMT) TOTAMT, 
+															SUM(B.TOT_REMIT_AMT) TOT_REMIT_AMT  
+												FROM  
+															TN_LAS_EVENT_ACCEPT A, 
+															TN_LAS_EVENT_ACCEPT_SRVCCOST B, 
+															TN_LAS_EVENTMNG C  
+												WHERE  				
+															A.ACPT_NO = B.ACPT_NO   
+								  				AND 		A.EVENT_NO = c.EVENT_NO  
+                  											
+                  											#if ($vo.srch_year_type.equals("SRCH_REMITDAY"))
+																 AND B.REMITDAY LIKE :vo.srch_year  + '%'	 
+																 AND B.REMITDAY IS NOT NULL   
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_ACPTDAY"))
+															 	AND A.ACPTDAY LIKE :vo.srch_year + '%'	 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_SRVCSTARTDAY"))
+															 	AND A.SRVCENDDAY LIKE :vo.srch_year  + '%'	 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_CLAIMDAY"))
+															 	AND A.CLAIMDAY LIKE :vo.srch_year + '%'	 
+															#end 
+															
+															#if (!$vo.srch_group_cd.equals(""))
+												 				--AND B.INTNL_DEPT_CD LIKE '%' + :vo.srch_group_cd  + '%'
+												 				AND B.DEPT_NM LIKE '%' +  :vo.srch_group_cd  + '%'	
+															#end 
+															
+															#if (!$vo.srch_event_no.equals(""))
+																 AND A.EVENT_NO = :vo.srch_event_no 	
+															#end 	
+															
+															#if (!$vo.srch_lawfirm_id.equals(""))
+															 	AND A.LAWFIRM_ID = :vo.srch_lawfirm_id	 
+															#end 	
+															
+															#if (!$vo.srch_kbn1.equals(""))
+															     AND C.EVENT_GBN1 = :vo.srch_kbn1 
+															         #if (!$vo.srch_kbn2.equals(""))
+															              AND C.EVENT_GBN2 = :vo.srch_kbn2                    
+															         #end
+															#end	
+															
+															#if (!$vo.srch_lawsuit_trgt_cd.equals(""))
+															 	AND C.LAWSUIT_TRGT = :vo.srch_lawsuit_trgt_cd	 
+															#end 	
+											
+												
+												GROUP BY 	A.EVENT_NO, LAWFIRM_ID,  
+												
+															#if ($vo.srch_year_type.equals("SRCH_REMITDAY"))
+																 SUBSTRING(B.REMITDAY,1,6) 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_ACPTDAY"))
+ 																SUBSTRING(A.ACPTDAY,1,6)
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_SRVCSTARTDAY"))
+															 	SUBSTRING(A.SRVCENDDAY,1,6) 	 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_CLAIMDAY"))
+															 	SUBSTRING(A.CLAIMDAY,1,6) 
+															#end 				
+						 					
+						 					) exp1,  
+						   					
+						   					TN_LAS_EVENTMNG exp2,  
+											( SELECT * from TN_LAS_LAWFIRMMNG ) exp3,      
+											( SELECT CD, CD_NM from TB_COM_CD where GRP_CD = '105' ) exp4      				
+					
+									WHERE	exp1.EVENT_NO  = exp2.EVENT_NO and  
+					       					exp1.LAWFIRM_ID  = exp3.LAWFIRM_ID and 
+				         					exp2.LAWSUIT_TRGT = exp4.CD(+)  
+                 							
+	
+					
+								) ext1  
+				 
+					GROUP BY 	ext1.EVENT_NM, ext1.LAWFIRM_NM  
+		           
+		    ]]>
+		  </statement>
+		</query>
+		
+		<query id="las.lawservice.listStasticsLawfirm" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+
+					SELECT 
+								LAWFIRM_NM, 
+								EVENT_NM,
+								MAX(CRRNCY_UNIT) CRRNCY_UNIT,
+								MAX(CNT) as cnt,
+								MAX(LAWSUIT_TRGT_NM) LAWSUIT_TRGT_CD,								  
+								TO_CHAR(SUM(exp01),'999,999,999,999.99') exp01 ,  TO_CHAR(SUM(for01),'999,999,999,999.99') for01 ,  
+								TO_CHAR(SUM(exp02),'999,999,999,999.99') exp02 ,  TO_CHAR(SUM(for02),'999,999,999,999.99') for02 ,  
+								TO_CHAR(SUM(exp03),'999,999,999,999.99') exp03 ,  TO_CHAR(SUM(for03),'999,999,999,999.99') for03 ,  
+								TO_CHAR(SUM(exp04),'999,999,999,999.99') exp04 ,  TO_CHAR(SUM(for04),'999,999,999,999.99') for04 ,  
+								TO_CHAR(SUM(exp05),'999,999,999,999.99') exp05 ,  TO_CHAR(SUM(for05),'999,999,999,999.99') for05 ,  
+								TO_CHAR(SUM(exp06),'999,999,999,999.99') exp06 ,  TO_CHAR(SUM(for06),'999,999,999,999.99') for06 ,  
+								TO_CHAR(SUM(exp07),'999,999,999,999.99') exp07 ,  TO_CHAR(SUM(for07),'999,999,999,999.99') for07 ,  
+								TO_CHAR(SUM(exp08),'999,999,999,999.99') exp08 ,  TO_CHAR(SUM(for08),'999,999,999,999.99') for08 ,  
+								TO_CHAR(SUM(exp09),'999,999,999,999.99') exp09 ,  TO_CHAR(SUM(for09),'999,999,999,999.99') for09 ,  
+								TO_CHAR(SUM(exp10),'999,999,999,999.99') exp10 ,  TO_CHAR(SUM(for10),'999,999,999,999.99') for10 ,  
+								TO_CHAR(SUM(exp11),'999,999,999,999.99') exp11 ,  TO_CHAR(SUM(for11),'999,999,999,999.99') for11 ,  
+								TO_CHAR(SUM(exp12),'999,999,999,999.99') exp12 ,  TO_CHAR(SUM(for12),'999,999,999,999.99') for12 ,   
+								TO_CHAR((SUM(exp01) + SUM(exp02) + SUM(exp03) + SUM(exp04) + SUM(exp05) + SUM(exp06) + SUM(exp07) + SUM(exp08) + SUM(exp09) + SUM(exp10) + SUM(exp11) + SUM(exp12)),'999,999,999,999.99') as expsum, 
+								TO_CHAR((SUM(for01) + SUM(for02) + SUM(for03) + SUM(for04) + SUM(for05) + SUM(for06) + SUM(for07) + SUM(for08) + SUM(for09) + SUM(for10) + SUM(for11) + SUM(for12)),'999,999,999,999.99') as forsum  
+					FROM  
+								(  
+									SELECT   
+											COUNT(*) OVER () CNT, 
+											exp4.CD_NM LAWSUIT_TRGT_NM,
+											exp2.EVENT_NM,
+											exp3.LAWFIRM_NM ,
+											exp1.CRRNCY_UNIT CRRNCY_UNIT ,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'01', TOT_REMIT_AMT,0),0) as exp01,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'01', TOTAMT,0),0) as for01,  		 
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'02', TOT_REMIT_AMT,0),0) as exp02,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'02', TOTAMT,0),0) as for02,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'03', TOT_REMIT_AMT,0),0) as exp03,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'03', TOTAMT,0),0) as for03,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'04', TOT_REMIT_AMT,0),0) as exp04,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'04', TOTAMT,0),0) as for04,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'05', TOT_REMIT_AMT,0),0) as exp05,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'05', TOTAMT,0),0) as for05,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'06', TOT_REMIT_AMT,0),0) as exp06,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'06', TOTAMT,0),0) as for06,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'07', TOT_REMIT_AMT,0),0) as exp07,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'07', TOTAMT,0),0) as for07,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'08', TOT_REMIT_AMT,0),0) as exp08,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'08', TOTAMT,0),0) as for08,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'09', TOT_REMIT_AMT,0),0) as exp09,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'09', TOTAMT,0),0) as for09,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'10', TOT_REMIT_AMT,0),0) as exp10,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'10', TOTAMT,0),0) as for10,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'11', TOT_REMIT_AMT,0),0) as exp11,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'11', TOTAMT,0),0) as for11,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'12', TOT_REMIT_AMT,0),0) as exp12,  	
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'12', TOTAMT,0),0) as for12  
+									FROM  
+											(	SELECT  
+															A.EVENT_NO, 
+															A.LAWFIRM_ID, 
+															
+															#if ($vo.srch_year_type.equals("SRCH_REMITDAY"))
+																 SUBSTRING(B.REMITDAY,1,6) AS ex_month ,
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_ACPTDAY"))
+ 																SUBSTRING(A.ACPTDAY,1,6) AS ex_month , 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_SRVCSTARTDAY"))
+															 	SUBSTRING(A.SRVCENDDAY,1,6) AS ex_month ,	 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_CLAIMDAY"))
+															 	SUBSTRING(A.CLAIMDAY,1,6) AS ex_month ,
+															#end 
+															
+															MAX(A.CRRNCY_UNIT) CRRNCY_UNIT, 
+															SUM(B.TOTAMT) TOTAMT, 
+															SUM(B.TOT_REMIT_AMT) TOT_REMIT_AMT  
+												FROM  
+															TN_LAS_EVENT_ACCEPT A, 
+															TN_LAS_EVENT_ACCEPT_SRVCCOST B, 
+															TN_LAS_EVENTMNG C  
+												WHERE  				
+															A.ACPT_NO = B.ACPT_NO   
+								  				AND 		A.EVENT_NO = c.EVENT_NO  
+                  											
+                  											#if ($vo.srch_year_type.equals("SRCH_REMITDAY"))
+																 AND B.REMITDAY LIKE :vo.srch_year  + '%'	 
+																 AND B.REMITDAY IS NOT NULL   
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_ACPTDAY"))
+															 	AND A.ACPTDAY LIKE :vo.srch_year + '%'	 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_SRVCSTARTDAY"))
+															 	AND A.SRVCENDDAY LIKE :vo.srch_year  + '%'	 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_CLAIMDAY"))
+															 	AND A.CLAIMDAY LIKE :vo.srch_year + '%'	 
+															#end 
+															
+															#if (!$vo.srch_group_cd.equals(""))
+																 --AND B.INTNL_DEPT_CD LIKE '%' + :vo.srch_group_cd  + '%'
+																 AND B.DEPT_NM LIKE '%' +  :vo.srch_group_cd  + '%'	
+															#end 	
+															
+															#if (!$vo.srch_event_no.equals(""))
+																 AND A.EVENT_NO = :vo.srch_event_no 	
+															#end 	
+															
+															#if (!$vo.srch_lawfirm_id.equals(""))
+															 	AND A.LAWFIRM_ID = :vo.srch_lawfirm_id	 
+															#end 	
+															
+															#if (!$vo.srch_kbn1.equals(""))
+															     AND C.EVENT_GBN1 = :vo.srch_kbn1 
+															         #if (!$vo.srch_kbn2.equals(""))
+															              AND C.EVENT_GBN2 = :vo.srch_kbn2                    
+															         #end
+															#end	
+															
+															#if (!$vo.srch_lawsuit_trgt_cd.equals(""))
+															 	AND C.LAWSUIT_TRGT = :vo.srch_lawsuit_trgt_cd	 
+															#end 		
+											
+												
+												GROUP BY 	A.EVENT_NO, LAWFIRM_ID,  
+												
+															#if ($vo.srch_year_type.equals("SRCH_REMITDAY"))
+																 SUBSTRING(B.REMITDAY,1,6) 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_ACPTDAY"))
+ 																SUBSTRING(A.ACPTDAY,1,6)
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_SRVCSTARTDAY"))
+															 	SUBSTRING(A.SRVCENDDAY,1,6) 	 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_CLAIMDAY"))
+															 	SUBSTRING(A.CLAIMDAY,1,6) 
+															#end 				
+						 					
+						 					) exp1,  
+						   					
+						   					TN_LAS_EVENTMNG exp2,  
+											( SELECT * from TN_LAS_LAWFIRMMNG ) exp3,      
+											( SELECT CD, CD_NM from TB_COM_CD where GRP_CD = '105' ) exp4      				
+					
+									WHERE	exp1.EVENT_NO  = exp2.EVENT_NO and  
+					       					exp1.LAWFIRM_ID  = exp3.LAWFIRM_ID and 
+				         					exp2.LAWSUIT_TRGT = exp4.CD(+)  
+                 							
+
+					
+								) ext1  
+				 
+					GROUP BY 	ext1.LAWFIRM_NM  , ext1.EVENT_NM 
+           
+		    ]]>
+		  </statement>
+		</query>
+		
+		<query id="las.lawservice.listStasticsSum" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+
+					SELECT 
+								CRRNCY_UNIT,
+								MAX(CNT) as cnt,
+								MAX(LAWSUIT_TRGT_NM) LAWSUIT_TRGT_CD,
+								
+								TO_CHAR(SUM(exp01)) exp01_no_comma ,  TO_CHAR(SUM(for01)) for01_no_comma ,  
+								TO_CHAR(SUM(exp02)) exp02_no_comma ,  TO_CHAR(SUM(for02)) for02_no_comma ,  
+								TO_CHAR(SUM(exp03)) exp03_no_comma ,  TO_CHAR(SUM(for03)) for03_no_comma ,  
+								TO_CHAR(SUM(exp04)) exp04_no_comma ,  TO_CHAR(SUM(for04)) for04_no_comma ,  
+								TO_CHAR(SUM(exp05)) exp05_no_comma ,  TO_CHAR(SUM(for05)) for05_no_comma ,  
+								TO_CHAR(SUM(exp06)) exp06_no_comma ,  TO_CHAR(SUM(for06)) for06_no_comma ,  
+								TO_CHAR(SUM(exp07)) exp07_no_comma ,  TO_CHAR(SUM(for07)) for07_no_comma ,  
+								TO_CHAR(SUM(exp08)) exp08_no_comma ,  TO_CHAR(SUM(for08)) for08_no_comma ,  
+								TO_CHAR(SUM(exp09)) exp09_no_comma ,  TO_CHAR(SUM(for09)) for09_no_comma ,  
+								TO_CHAR(SUM(exp10)) exp10_no_comma ,  TO_CHAR(SUM(for10)) for10_no_comma ,  
+								TO_CHAR(SUM(exp11)) exp11_no_comma ,  TO_CHAR(SUM(for11)) for11_no_comma ,  
+								TO_CHAR(SUM(exp12)) exp12_no_comma ,  TO_CHAR(SUM(for12)) for12_no_comma ,  
+								TO_CHAR(SUM(exp01) + SUM(exp02) + SUM(exp03) + SUM(exp04) + SUM(exp05) + SUM(exp06) + SUM(exp07) + SUM(exp08) + SUM(exp09) + SUM(exp10) + SUM(exp11) + SUM(exp12)) as expsum_no_comma, 
+								TO_CHAR(SUM(for01) + SUM(for02) + SUM(for03) + SUM(for04) + SUM(for05) + SUM(for06) + SUM(for07) + SUM(for08) + SUM(for09) + SUM(for10) + SUM(for11) + SUM(for12)) as forsum_no_comma,
+																  
+								TO_CHAR(SUM(exp01),'999,999,999,999.99') exp01 ,  TO_CHAR(SUM(for01),'999,999,999,999.99') for01 ,  
+								TO_CHAR(SUM(exp02),'999,999,999,999.99') exp02 ,  TO_CHAR(SUM(for02),'999,999,999,999.99') for02 ,  
+								TO_CHAR(SUM(exp03),'999,999,999,999.99') exp03 ,  TO_CHAR(SUM(for03),'999,999,999,999.99') for03 ,  
+								TO_CHAR(SUM(exp04),'999,999,999,999.99') exp04 ,  TO_CHAR(SUM(for04),'999,999,999,999.99') for04 ,  
+								TO_CHAR(SUM(exp05),'999,999,999,999.99') exp05 ,  TO_CHAR(SUM(for05),'999,999,999,999.99') for05 ,  
+								TO_CHAR(SUM(exp06),'999,999,999,999.99') exp06 ,  TO_CHAR(SUM(for06),'999,999,999,999.99') for06 ,  
+								TO_CHAR(SUM(exp07),'999,999,999,999.99') exp07 ,  TO_CHAR(SUM(for07),'999,999,999,999.99') for07 ,  
+								TO_CHAR(SUM(exp08),'999,999,999,999.99') exp08 ,  TO_CHAR(SUM(for08),'999,999,999,999.99') for08 ,  
+								TO_CHAR(SUM(exp09),'999,999,999,999.99') exp09 ,  TO_CHAR(SUM(for09),'999,999,999,999.99') for09 ,  
+								TO_CHAR(SUM(exp10),'999,999,999,999.99') exp10 ,  TO_CHAR(SUM(for10),'999,999,999,999.99') for10 ,  
+								TO_CHAR(SUM(exp11),'999,999,999,999.99') exp11 ,  TO_CHAR(SUM(for11),'999,999,999,999.99') for11 ,  
+								TO_CHAR(SUM(exp12),'999,999,999,999.99') exp12 ,  TO_CHAR(SUM(for12),'999,999,999,999.99') for12 ,  
+								TO_CHAR((SUM(exp01) + SUM(exp02) + SUM(exp03) + SUM(exp04) + SUM(exp05) + SUM(exp06) + SUM(exp07) + SUM(exp08) + SUM(exp09) + SUM(exp10) + SUM(exp11) + SUM(exp12)),'999,999,999,999.99') as expsum, 
+								TO_CHAR((SUM(for01) + SUM(for02) + SUM(for03) + SUM(for04) + SUM(for05) + SUM(for06) + SUM(for07) + SUM(for08) + SUM(for09) + SUM(for10) + SUM(for11) + SUM(for12)),'999,999,999,999.99') as forsum  
+					FROM  
+								(  
+									SELECT   
+											COUNT(*) OVER () CNT, 
+											exp4.CD_NM LAWSUIT_TRGT_NM,
+											exp2.EVENT_NM,
+											exp3.LAWFIRM_NM ,
+											exp1.CRRNCY_UNIT CRRNCY_UNIT ,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'01', TOT_REMIT_AMT,0),0) as exp01,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'01', TOTAMT,0),0) as for01,  		 
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'02', TOT_REMIT_AMT,0),0) as exp02,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'02', TOTAMT,0),0) as for02,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'03', TOT_REMIT_AMT,0),0) as exp03,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'03', TOTAMT,0),0) as for03,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'04', TOT_REMIT_AMT,0),0) as exp04,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'04', TOTAMT,0),0) as for04,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'05', TOT_REMIT_AMT,0),0) as exp05,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'05', TOTAMT,0),0) as for05,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'06', TOT_REMIT_AMT,0),0) as exp06,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'06', TOTAMT,0),0) as for06,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'07', TOT_REMIT_AMT,0),0) as exp07,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'07', TOTAMT,0),0) as for07,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'08', TOT_REMIT_AMT,0),0) as exp08,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'08', TOTAMT,0),0) as for08,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'09', TOT_REMIT_AMT,0),0) as exp09,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'09', TOTAMT,0),0) as for09,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'10', TOT_REMIT_AMT,0),0) as exp10,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'10', TOTAMT,0),0) as for10,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'11', TOT_REMIT_AMT,0),0) as exp11,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'11', TOTAMT,0),0) as for11,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'12', TOT_REMIT_AMT,0),0) as exp12,  	
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'12', TOTAMT,0),0) as for12  
+									FROM  
+											(	SELECT  
+															A.EVENT_NO, 
+															A.LAWFIRM_ID, 
+															
+															#if ($vo.srch_year_type.equals("SRCH_REMITDAY"))
+																 SUBSTRING(B.REMITDAY,1,6) AS ex_month ,
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_ACPTDAY"))
+ 																SUBSTRING(A.ACPTDAY,1,6) AS ex_month , 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_SRVCSTARTDAY"))
+															 	SUBSTRING(A.SRVCENDDAY,1,6) AS ex_month ,	 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_CLAIMDAY"))
+															 	SUBSTRING(A.CLAIMDAY,1,6) AS ex_month ,
+															#end 
+															
+															MAX(A.CRRNCY_UNIT) CRRNCY_UNIT, 
+															SUM(B.TOTAMT) TOTAMT, 
+															SUM(B.TOT_REMIT_AMT) TOT_REMIT_AMT  
+												FROM  
+															TN_LAS_EVENT_ACCEPT A, 
+															TN_LAS_EVENT_ACCEPT_SRVCCOST B, 
+															TN_LAS_EVENTMNG C  
+												WHERE  				
+															A.ACPT_NO = B.ACPT_NO   
+								  				AND 		A.EVENT_NO = c.EVENT_NO  
+                  											
+                  											#if ($vo.srch_year_type.equals("SRCH_REMITDAY"))
+																 AND B.REMITDAY LIKE :vo.srch_year  + '%'	 
+																 AND B.REMITDAY IS NOT NULL   
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_ACPTDAY"))
+															 	AND A.ACPTDAY LIKE :vo.srch_year + '%'	 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_SRVCSTARTDAY"))
+															 	AND A.SRVCENDDAY LIKE :vo.srch_year  + '%'	 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_CLAIMDAY"))
+															 	AND A.CLAIMDAY LIKE :vo.srch_year + '%'	 
+															#end 	
+															
+															#if (!$vo.srch_group_cd.equals(""))
+																 --AND B.INTNL_DEPT_CD LIKE '%' + :vo.srch_group_cd  + '%'
+																 AND B.DEPT_NM LIKE '%' +  :vo.srch_group_cd  + '%'	
+															#end 	
+															
+															#if (!$vo.srch_event_no.equals(""))
+																 AND A.EVENT_NO = :vo.srch_event_no 	
+															#end 	
+															
+															#if (!$vo.srch_lawfirm_id.equals(""))
+															 	AND A.LAWFIRM_ID = :vo.srch_lawfirm_id	 
+															#end 	
+															
+															#if (!$vo.srch_kbn1.equals(""))
+															     AND C.EVENT_GBN1 = :vo.srch_kbn1 
+															         #if (!$vo.srch_kbn2.equals(""))
+															              AND C.EVENT_GBN2 = :vo.srch_kbn2                    
+															         #end
+															#end	
+															
+															#if (!$vo.srch_lawsuit_trgt_cd.equals(""))
+															 	AND C.LAWSUIT_TRGT = :vo.srch_lawsuit_trgt_cd	 
+															#end 															
+											
+												
+												GROUP BY 	A.EVENT_NO, LAWFIRM_ID,  
+												
+															#if ($vo.srch_year_type.equals("SRCH_REMITDAY"))
+																 SUBSTRING(B.REMITDAY,1,6) 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_ACPTDAY"))
+ 																SUBSTRING(A.ACPTDAY,1,6)
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_SRVCSTARTDAY"))
+															 	SUBSTRING(A.SRVCENDDAY,1,6) 	 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_CLAIMDAY"))
+															 	SUBSTRING(A.CLAIMDAY,1,6) 
+															#end 				
+						 					
+						 					) exp1,  
+						   					
+						   					TN_LAS_EVENTMNG exp2,  
+											( SELECT * from TN_LAS_LAWFIRMMNG ) exp3,      
+											( SELECT CD, CD_NM from TB_COM_CD where GRP_CD = '105' ) exp4      				
+					
+									WHERE	exp1.EVENT_NO  = exp2.EVENT_NO and  
+					       					exp1.LAWFIRM_ID  = exp3.LAWFIRM_ID and 
+				         					exp2.LAWSUIT_TRGT = exp4.CD(+)  
+                 							
+	
+					
+								) ext1  
+				 
+					GROUP BY 	ext1.CRRNCY_UNIT				
+		           
+		    ]]>
+		  </statement>
+		</query>
+		
+		<query id="las.lawservice.listStasticsEventUsd" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		               
+					SELECT 
+						  		EVENT_NM, 
+						  		LAWFIRM_NM,
+								MAX(LAWSUIT_TRGT_NM) LAWSUIT_TRGT_CD , 
+								MAX(CRRNCY_UNIT) CRRNCY_UNIT, 
+								MAX(CNT) as cnt,   
+								TO_CHAR(SUM(exp01),'999,999,999,999.99') exp01 ,  TO_CHAR(SUM(for01),'999,999,999,999.99') for01 ,  
+								TO_CHAR(SUM(exp02),'999,999,999,999.99') exp02 ,  TO_CHAR(SUM(for02),'999,999,999,999.99') for02 ,  
+								TO_CHAR(SUM(exp03),'999,999,999,999.99') exp03 ,  TO_CHAR(SUM(for03),'999,999,999,999.99') for03 ,  
+								TO_CHAR(SUM(exp04),'999,999,999,999.99') exp04 ,  TO_CHAR(SUM(for04),'999,999,999,999.99') for04 ,  
+								TO_CHAR(SUM(exp05),'999,999,999,999.99') exp05 ,  TO_CHAR(SUM(for05),'999,999,999,999.99') for05 ,  
+								TO_CHAR(SUM(exp06),'999,999,999,999.99') exp06 ,  TO_CHAR(SUM(for06),'999,999,999,999.99') for06 ,  
+								TO_CHAR(SUM(exp07),'999,999,999,999.99') exp07 ,  TO_CHAR(SUM(for07),'999,999,999,999.99') for07 ,  
+								TO_CHAR(SUM(exp08),'999,999,999,999.99') exp08 ,  TO_CHAR(SUM(for08),'999,999,999,999.99') for08 ,  
+								TO_CHAR(SUM(exp09),'999,999,999,999.99') exp09 ,  TO_CHAR(SUM(for09),'999,999,999,999.99') for09 ,  
+								TO_CHAR(SUM(exp10),'999,999,999,999.99') exp10 ,  TO_CHAR(SUM(for10),'999,999,999,999.99') for10 ,  
+								TO_CHAR(SUM(exp11),'999,999,999,999.99') exp11 ,  TO_CHAR(SUM(for11),'999,999,999,999.99') for11 ,  
+								TO_CHAR(SUM(exp12),'999,999,999,999.99') exp12 ,  TO_CHAR(SUM(for12),'999,999,999,999.99') for12 ,  
+								TO_CHAR((SUM(exp01) + SUM(exp02) + SUM(exp03) + SUM(exp04) + SUM(exp05) + SUM(exp06) + SUM(exp07) + SUM(exp08) + SUM(exp09) + SUM(exp10) + SUM(exp11) + SUM(exp12)),'999,999,999,999.99') as expsum, 
+								TO_CHAR((SUM(for01) + SUM(for02) + SUM(for03) + SUM(for04) + SUM(for05) + SUM(for06) + SUM(for07) + SUM(for08) + SUM(for09) + SUM(for10) + SUM(for11) + SUM(for12)),'999,999,999,999.99') as forsum  
+					FROM  
+								(  
+									SELECT   
+											COUNT(*) OVER () CNT, 
+											exp2.EVENT_NM , 
+											exp3.LAWFIRM_NM , 
+											exp2.LAWSUIT_TRGT , 
+											exp1.CRRNCY_UNIT CRRNCY_UNIT ,  
+											exp4.CD_NM LAWSUIT_TRGT_NM,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'01', TOT_REMIT_AMT,0),0) as exp01,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'01', USD_AMT,0),0) as for01,  		 
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'02', TOT_REMIT_AMT,0),0) as exp02,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'02', USD_AMT,0),0) as for02,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'03', TOT_REMIT_AMT,0),0) as exp03,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'03', USD_AMT,0),0) as for03,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'04', TOT_REMIT_AMT,0),0) as exp04,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'04', USD_AMT,0),0) as for04,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'05', TOT_REMIT_AMT,0),0) as exp05,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'05', USD_AMT,0),0) as for05,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'06', TOT_REMIT_AMT,0),0) as exp06,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'06', USD_AMT,0),0) as for06,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'07', TOT_REMIT_AMT,0),0) as exp07,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'07', USD_AMT,0),0) as for07,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'08', TOT_REMIT_AMT,0),0) as exp08,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'08', USD_AMT,0),0) as for08,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'09', TOT_REMIT_AMT,0),0) as exp09,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'09', USD_AMT,0),0) as for09,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'10', TOT_REMIT_AMT,0),0) as exp10,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'10', USD_AMT,0),0) as for10,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'11', TOT_REMIT_AMT,0),0) as exp11,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'11', USD_AMT,0),0) as for11,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'12', TOT_REMIT_AMT,0),0) as exp12,  	
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'12', USD_AMT,0),0) as for12  
+									FROM  
+											(	SELECT  
+															A.EVENT_NO, 
+															A.LAWFIRM_ID, 
+															
+															#if ($vo.srch_year_type.equals("SRCH_REMITDAY"))
+																 SUBSTRING(B.REMITDAY,1,6) AS ex_month ,
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_ACPTDAY"))
+ 																SUBSTRING(A.ACPTDAY,1,6) AS ex_month , 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_SRVCSTARTDAY"))
+															 	SUBSTRING(A.SRVCENDDAY,1,6) AS ex_month ,	 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_CLAIMDAY"))
+															 	SUBSTRING(A.CLAIMDAY,1,6) AS ex_month ,
+															#end 
+															
+															MAX(A.CRRNCY_UNIT) CRRNCY_UNIT, 
+															SUM(B.USD_AMT) USD_AMT, 
+															SUM(B.TOT_REMIT_AMT) TOT_REMIT_AMT  
+												FROM  
+															TN_LAS_EVENT_ACCEPT A, 
+															TN_LAS_EVENT_ACCEPT_SRVCCOST B, 
+															TN_LAS_EVENTMNG C  
+												WHERE  				
+															A.ACPT_NO = B.ACPT_NO   
+								  				AND 		A.EVENT_NO = c.EVENT_NO  
+                  											
+                  											#if ($vo.srch_year_type.equals("SRCH_REMITDAY"))
+																 AND B.REMITDAY LIKE :vo.srch_year  + '%'	 
+																 AND B.REMITDAY IS NOT NULL   
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_ACPTDAY"))
+															 	AND A.ACPTDAY LIKE :vo.srch_year + '%'	 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_SRVCSTARTDAY"))
+															 	AND A.SRVCENDDAY LIKE :vo.srch_year  + '%'	 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_CLAIMDAY"))
+															 	AND A.CLAIMDAY LIKE :vo.srch_year + '%'	 
+															#end 	
+															
+															#if (!$vo.srch_group_cd.equals(""))
+																 --AND B.INTNL_DEPT_CD LIKE '%' + :vo.srch_group_cd  + '%'
+																 AND B.DEPT_NM LIKE '%' +  :vo.srch_group_cd  + '%'
+															#end 	
+															
+															#if (!$vo.srch_event_no.equals(""))
+																 AND A.EVENT_NO = :vo.srch_event_no 	
+															#end 	
+															
+															#if (!$vo.srch_lawfirm_id.equals(""))
+															 	AND A.LAWFIRM_ID = :vo.srch_lawfirm_id	 
+															#end 	
+															
+															#if (!$vo.srch_kbn1.equals(""))
+															     AND C.EVENT_GBN1 = :vo.srch_kbn1 
+															         #if (!$vo.srch_kbn2.equals(""))
+															              AND C.EVENT_GBN2 = :vo.srch_kbn2                    
+															         #end
+															#end	
+															
+															#if (!$vo.srch_lawsuit_trgt_cd.equals(""))
+															 	AND C.LAWSUIT_TRGT = :vo.srch_lawsuit_trgt_cd	 
+															#end 
+											
+												
+												GROUP BY 	A.EVENT_NO, LAWFIRM_ID,  
+												
+															#if ($vo.srch_year_type.equals("SRCH_REMITDAY"))
+																 SUBSTRING(B.REMITDAY,1,6) 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_ACPTDAY"))
+ 																SUBSTRING(A.ACPTDAY,1,6)
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_SRVCSTARTDAY"))
+															 	SUBSTRING(A.SRVCENDDAY,1,6) 	 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_CLAIMDAY"))
+															 	SUBSTRING(A.CLAIMDAY,1,6) 
+															#end 				
+						 					
+						 					) exp1,  
+						   					
+						   					TN_LAS_EVENTMNG exp2,  
+											( SELECT * from TN_LAS_LAWFIRMMNG ) exp3,      
+											( SELECT CD, CD_NM from TB_COM_CD where GRP_CD = '105' ) exp4      				
+					
+									WHERE	exp1.EVENT_NO  = exp2.EVENT_NO and  
+					       					exp1.LAWFIRM_ID  = exp3.LAWFIRM_ID and 
+				         					exp2.LAWSUIT_TRGT = exp4.CD(+)  
+                 							
+	
+					
+								) ext1  
+				 
+					GROUP BY 	ext1.EVENT_NM, ext1.LAWFIRM_NM  
+		           
+		    ]]>
+		  </statement>
+		</query>
+		
+		<query id="las.lawservice.listStasticsLawfirmUsd" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+
+
+					SELECT 
+								LAWFIRM_NM, 
+								EVENT_NM,
+								MAX(CRRNCY_UNIT) CRRNCY_UNIT,
+								MAX(CNT) as cnt,
+								MAX(LAWSUIT_TRGT_NM) LAWSUIT_TRGT_CD,								  
+								TO_CHAR(SUM(exp01),'999,999,999,999.99') exp01 ,  TO_CHAR(SUM(for01),'999,999,999,999.99') for01 ,  
+								TO_CHAR(SUM(exp02),'999,999,999,999.99') exp02 ,  TO_CHAR(SUM(for02),'999,999,999,999.99') for02 ,  
+								TO_CHAR(SUM(exp03),'999,999,999,999.99') exp03 ,  TO_CHAR(SUM(for03),'999,999,999,999.99') for03 ,  
+								TO_CHAR(SUM(exp04),'999,999,999,999.99') exp04 ,  TO_CHAR(SUM(for04),'999,999,999,999.99') for04 ,  
+								TO_CHAR(SUM(exp05),'999,999,999,999.99') exp05 ,  TO_CHAR(SUM(for05),'999,999,999,999.99') for05 ,  
+								TO_CHAR(SUM(exp06),'999,999,999,999.99') exp06 ,  TO_CHAR(SUM(for06),'999,999,999,999.99') for06 ,  
+								TO_CHAR(SUM(exp07),'999,999,999,999.99') exp07 ,  TO_CHAR(SUM(for07),'999,999,999,999.99') for07 ,  
+								TO_CHAR(SUM(exp08),'999,999,999,999.99') exp08 ,  TO_CHAR(SUM(for08),'999,999,999,999.99') for08 ,  
+								TO_CHAR(SUM(exp09),'999,999,999,999.99') exp09 ,  TO_CHAR(SUM(for09),'999,999,999,999.99') for09 ,  
+								TO_CHAR(SUM(exp10),'999,999,999,999.99') exp10 ,  TO_CHAR(SUM(for10),'999,999,999,999.99') for10 ,  
+								TO_CHAR(SUM(exp11),'999,999,999,999.99') exp11 ,  TO_CHAR(SUM(for11),'999,999,999,999.99') for11 ,  
+								TO_CHAR(SUM(exp12),'999,999,999,999.99') exp12 ,  TO_CHAR(SUM(for12),'999,999,999,999.99') for12 ,   
+								TO_CHAR((SUM(exp01) + SUM(exp02) + SUM(exp03) + SUM(exp04) + SUM(exp05) + SUM(exp06) + SUM(exp07) + SUM(exp08) + SUM(exp09) + SUM(exp10) + SUM(exp11) + SUM(exp12)),'999,999,999,999.99') as expsum, 
+								TO_CHAR((SUM(for01) + SUM(for02) + SUM(for03) + SUM(for04) + SUM(for05) + SUM(for06) + SUM(for07) + SUM(for08) + SUM(for09) + SUM(for10) + SUM(for11) + SUM(for12)),'999,999,999,999.99') as forsum  
+					FROM  
+								(  
+									SELECT   
+											COUNT(*) OVER () CNT, 
+											exp4.CD_NM LAWSUIT_TRGT_NM,
+											exp2.EVENT_NM,
+											exp3.LAWFIRM_NM ,
+											exp1.CRRNCY_UNIT CRRNCY_UNIT ,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'01', TOT_REMIT_AMT,0),0) as exp01,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'01', USD_AMT,0),0) as for01,  		 
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'02', TOT_REMIT_AMT,0),0) as exp02,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'02', USD_AMT,0),0) as for02,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'03', TOT_REMIT_AMT,0),0) as exp03,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'03', USD_AMT,0),0) as for03,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'04', TOT_REMIT_AMT,0),0) as exp04,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'04', USD_AMT,0),0) as for04,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'05', TOT_REMIT_AMT,0),0) as exp05,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'05', USD_AMT,0),0) as for05,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'06', TOT_REMIT_AMT,0),0) as exp06,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'06', USD_AMT,0),0) as for06,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'07', TOT_REMIT_AMT,0),0) as exp07,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'07', USD_AMT,0),0) as for07,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'08', TOT_REMIT_AMT,0),0) as exp08,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'08', USD_AMT,0),0) as for08,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'09', TOT_REMIT_AMT,0),0) as exp09,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'09', USD_AMT,0),0) as for09,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'10', TOT_REMIT_AMT,0),0) as exp10,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'10', USD_AMT,0),0) as for10,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'11', TOT_REMIT_AMT,0),0) as exp11,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'11', USD_AMT,0),0) as for11,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'12', TOT_REMIT_AMT,0),0) as exp12,  	
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'12', USD_AMT,0),0) as for12  
+									FROM  
+											(	SELECT  
+															A.EVENT_NO, 
+															A.LAWFIRM_ID, 
+															
+															#if ($vo.srch_year_type.equals("SRCH_REMITDAY"))
+																 SUBSTRING(B.REMITDAY,1,6) AS ex_month ,
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_ACPTDAY"))
+ 																SUBSTRING(A.ACPTDAY,1,6) AS ex_month , 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_SRVCSTARTDAY"))
+															 	SUBSTRING(A.SRVCENDDAY,1,6) AS ex_month ,	 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_CLAIMDAY"))
+															 	SUBSTRING(A.CLAIMDAY,1,6) AS ex_month ,
+															#end 
+															
+															MAX(A.CRRNCY_UNIT) CRRNCY_UNIT, 
+															SUM(B.USD_AMT) USD_AMT, 
+															SUM(B.TOT_REMIT_AMT) TOT_REMIT_AMT  
+												FROM  
+															TN_LAS_EVENT_ACCEPT A, 
+															TN_LAS_EVENT_ACCEPT_SRVCCOST B, 
+															TN_LAS_EVENTMNG C  
+												WHERE  				
+															A.ACPT_NO = B.ACPT_NO   
+								  				AND 		A.EVENT_NO = c.EVENT_NO  
+                  											
+                  											#if ($vo.srch_year_type.equals("SRCH_REMITDAY"))
+																 AND B.REMITDAY LIKE :vo.srch_year  + '%'	 
+																 AND B.REMITDAY IS NOT NULL   
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_ACPTDAY"))
+															 	AND A.ACPTDAY LIKE :vo.srch_year + '%'	 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_SRVCSTARTDAY"))
+															 	AND A.SRVCENDDAY LIKE :vo.srch_year  + '%'	 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_CLAIMDAY"))
+															 	AND A.CLAIMDAY LIKE :vo.srch_year + '%'	 
+															#end 
+															
+															#if (!$vo.srch_group_cd.equals(""))
+																 --AND B.INTNL_DEPT_CD LIKE '%' + :vo.srch_group_cd  + '%'
+																 AND B.DEPT_NM LIKE '%' +  :vo.srch_group_cd  + '%'	
+															#end 	
+															
+															#if (!$vo.srch_event_no.equals(""))
+																 AND A.EVENT_NO = :vo.srch_event_no 	
+															#end 	
+															
+															#if (!$vo.srch_lawfirm_id.equals(""))
+															 	AND A.LAWFIRM_ID = :vo.srch_lawfirm_id	 
+															#end 	
+															
+															#if (!$vo.srch_kbn1.equals(""))
+															     AND C.EVENT_GBN1 = :vo.srch_kbn1 
+															         #if (!$vo.srch_kbn2.equals(""))
+															              AND C.EVENT_GBN2 = :vo.srch_kbn2                    
+															         #end
+															#end	
+															
+															#if (!$vo.srch_lawsuit_trgt_cd.equals(""))
+															 	AND C.LAWSUIT_TRGT = :vo.srch_lawsuit_trgt_cd	 
+															#end 										
+												
+												GROUP BY 	A.EVENT_NO, LAWFIRM_ID,  
+												
+															#if ($vo.srch_year_type.equals("SRCH_REMITDAY"))
+																 SUBSTRING(B.REMITDAY,1,6) 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_ACPTDAY"))
+ 																SUBSTRING(A.ACPTDAY,1,6)
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_SRVCSTARTDAY"))
+															 	SUBSTRING(A.SRVCENDDAY,1,6) 	 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_CLAIMDAY"))
+															 	SUBSTRING(A.CLAIMDAY,1,6) 
+															#end 				
+						 					
+						 					) exp1,  
+						   					
+						   					TN_LAS_EVENTMNG exp2,  
+											( SELECT * from TN_LAS_LAWFIRMMNG ) exp3,      
+											( SELECT CD, CD_NM from TB_COM_CD where GRP_CD = '105' ) exp4      				
+					
+									WHERE	exp1.EVENT_NO  = exp2.EVENT_NO and  
+					       					exp1.LAWFIRM_ID  = exp3.LAWFIRM_ID and 
+				         					exp2.LAWSUIT_TRGT = exp4.CD(+)     							
+	
+					
+								) ext1  
+				 
+					GROUP BY 	ext1.LAWFIRM_NM  , ext1.EVENT_NM 				
+		           
+		    ]]>
+		  </statement>
+		</query>
+		
+		<query id="las.lawservice.listStasticsSumUsd" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+
+
+					SELECT 
+								'USD' CRRNCY_UNIT,
+								MAX(CNT) as cnt,
+								MAX(LAWSUIT_TRGT_NM) LAWSUIT_TRGT_CD,								  
+								
+								TO_CHAR(SUM(exp01)) exp01_no_comma ,  TO_CHAR(SUM(for01)) for01_no_comma ,  
+								TO_CHAR(SUM(exp02)) exp02_no_comma ,  TO_CHAR(SUM(for02)) for02_no_comma ,  
+								TO_CHAR(SUM(exp03)) exp03_no_comma ,  TO_CHAR(SUM(for03)) for03_no_comma ,  
+								TO_CHAR(SUM(exp04)) exp04_no_comma ,  TO_CHAR(SUM(for04)) for04_no_comma ,  
+								TO_CHAR(SUM(exp05)) exp05_no_comma ,  TO_CHAR(SUM(for05)) for05_no_comma ,  
+								TO_CHAR(SUM(exp06)) exp06_no_comma ,  TO_CHAR(SUM(for06)) for06_no_comma ,  
+								TO_CHAR(SUM(exp07)) exp07_no_comma ,  TO_CHAR(SUM(for07)) for07_no_comma ,  
+								TO_CHAR(SUM(exp08)) exp08_no_comma ,  TO_CHAR(SUM(for08)) for08_no_comma ,  
+								TO_CHAR(SUM(exp09)) exp09_no_comma ,  TO_CHAR(SUM(for09)) for09_no_comma ,  
+								TO_CHAR(SUM(exp10)) exp10_no_comma ,  TO_CHAR(SUM(for10)) for10_no_comma ,  
+								TO_CHAR(SUM(exp11)) exp11_no_comma ,  TO_CHAR(SUM(for11)) for11_no_comma ,  
+								TO_CHAR(SUM(exp12)) exp12_no_comma ,  TO_CHAR(SUM(for12)) for12_no_comma ,  
+								TO_CHAR(SUM(exp01) + SUM(exp02) + SUM(exp03) + SUM(exp04) + SUM(exp05) + SUM(exp06) + SUM(exp07) + SUM(exp08) + SUM(exp09) + SUM(exp10) + SUM(exp11) + SUM(exp12)) as expsum_no_comma, 
+								TO_CHAR(SUM(for01) + SUM(for02) + SUM(for03) + SUM(for04) + SUM(for05) + SUM(for06) + SUM(for07) + SUM(for08) + SUM(for09) + SUM(for10) + SUM(for11) + SUM(for12)) as forsum_no_comma,
+								
+								TO_CHAR(SUM(exp01),'999,999,999,999.99') exp01 ,  TO_CHAR(SUM(for01),'999,999,999,999.99') for01 ,  
+								TO_CHAR(SUM(exp02),'999,999,999,999.99') exp02 ,  TO_CHAR(SUM(for02),'999,999,999,999.99') for02 ,  
+								TO_CHAR(SUM(exp03),'999,999,999,999.99') exp03 ,  TO_CHAR(SUM(for03),'999,999,999,999.99') for03 ,  
+								TO_CHAR(SUM(exp04),'999,999,999,999.99') exp04 ,  TO_CHAR(SUM(for04),'999,999,999,999.99') for04 ,  
+								TO_CHAR(SUM(exp05),'999,999,999,999.99') exp05 ,  TO_CHAR(SUM(for05),'999,999,999,999.99') for05 ,  
+								TO_CHAR(SUM(exp06),'999,999,999,999.99') exp06 ,  TO_CHAR(SUM(for06),'999,999,999,999.99') for06 ,  
+								TO_CHAR(SUM(exp07),'999,999,999,999.99') exp07 ,  TO_CHAR(SUM(for07),'999,999,999,999.99') for07 ,  
+								TO_CHAR(SUM(exp08),'999,999,999,999.99') exp08 ,  TO_CHAR(SUM(for08),'999,999,999,999.99') for08 ,  
+								TO_CHAR(SUM(exp09),'999,999,999,999.99') exp09 ,  TO_CHAR(SUM(for09),'999,999,999,999.99') for09 ,  
+								TO_CHAR(SUM(exp10),'999,999,999,999.99') exp10 ,  TO_CHAR(SUM(for10),'999,999,999,999.99') for10 ,  
+								TO_CHAR(SUM(exp11),'999,999,999,999.99') exp11 ,  TO_CHAR(SUM(for11),'999,999,999,999.99') for11 ,  
+								TO_CHAR(SUM(exp12),'999,999,999,999.99') exp12 ,  TO_CHAR(SUM(for12),'999,999,999,999.99') for12 ,  
+								TO_CHAR((SUM(exp01) + SUM(exp02) + SUM(exp03) + SUM(exp04) + SUM(exp05) + SUM(exp06) + SUM(exp07) + SUM(exp08) + SUM(exp09) + SUM(exp10) + SUM(exp11) + SUM(exp12)),'999,999,999') as expsum, 
+								TO_CHAR((SUM(for01) + SUM(for02) + SUM(for03) + SUM(for04) + SUM(for05) + SUM(for06) + SUM(for07) + SUM(for08) + SUM(for09) + SUM(for10) + SUM(for11) + SUM(for12)),'999,999,999') as forsum  
+					
+								 
+					FROM  
+								(  
+									SELECT   
+											COUNT(*) OVER () CNT, 
+											exp4.CD_NM LAWSUIT_TRGT_NM,
+											exp2.EVENT_NM,
+											exp3.LAWFIRM_NM ,
+											exp1.CRRNCY_UNIT CRRNCY_UNIT ,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'01', TOT_REMIT_AMT,0),0) as exp01,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'01', USD_AMT,0),0) as for01,  		 
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'02', TOT_REMIT_AMT,0),0) as exp02,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'02', USD_AMT,0),0) as for02,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'03', TOT_REMIT_AMT,0),0) as exp03,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'03', USD_AMT,0),0) as for03,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'04', TOT_REMIT_AMT,0),0) as exp04,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'04', USD_AMT,0),0) as for04,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'05', TOT_REMIT_AMT,0),0) as exp05,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'05', USD_AMT,0),0) as for05,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'06', TOT_REMIT_AMT,0),0) as exp06,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'06', USD_AMT,0),0) as for06,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'07', TOT_REMIT_AMT,0),0) as exp07,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'07', USD_AMT,0),0) as for07,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'08', TOT_REMIT_AMT,0),0) as exp08,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'08', USD_AMT,0),0) as for08,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'09', TOT_REMIT_AMT,0),0) as exp09,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'09', USD_AMT,0),0) as for09,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'10', TOT_REMIT_AMT,0),0) as exp10,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'10', USD_AMT,0),0) as for10,  		   
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'11', TOT_REMIT_AMT,0),0) as exp11,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'11', USD_AMT,0),0) as for11,  
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'12', TOT_REMIT_AMT,0),0) as exp12,  	
+											ISNULL(decode(SUBSTRING(exp1.ex_month,5,6),'12', USD_AMT,0),0) as for12  
+									FROM  
+											(	SELECT  
+															A.EVENT_NO, 
+															A.LAWFIRM_ID, 
+															
+															#if ($vo.srch_year_type.equals("SRCH_REMITDAY"))
+																 SUBSTRING(B.REMITDAY,1,6) AS ex_month ,
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_ACPTDAY"))
+ 																SUBSTRING(A.ACPTDAY,1,6) AS ex_month , 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_SRVCSTARTDAY"))
+															 	SUBSTRING(A.SRVCENDDAY,1,6) AS ex_month ,	 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_CLAIMDAY"))
+															 	SUBSTRING(A.CLAIMDAY,1,6) AS ex_month ,
+															#end 
+															
+															MAX(A.CRRNCY_UNIT) CRRNCY_UNIT, 
+															SUM(B.USD_AMT) USD_AMT, 
+															SUM(B.TOT_REMIT_AMT) TOT_REMIT_AMT  
+												FROM  
+															TN_LAS_EVENT_ACCEPT A, 
+															TN_LAS_EVENT_ACCEPT_SRVCCOST B, 
+															TN_LAS_EVENTMNG C  
+												WHERE  				
+															A.ACPT_NO = B.ACPT_NO   
+								  				AND 		A.EVENT_NO = c.EVENT_NO  
+                  											
+                  											#if ($vo.srch_year_type.equals("SRCH_REMITDAY"))
+																 AND B.REMITDAY LIKE :vo.srch_year  + '%'	 
+																 AND B.REMITDAY IS NOT NULL   
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_ACPTDAY"))
+															 	AND A.ACPTDAY LIKE :vo.srch_year + '%'	 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_SRVCSTARTDAY"))
+															 	AND A.SRVCENDDAY LIKE :vo.srch_year  + '%'	 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_CLAIMDAY"))
+															 	AND A.CLAIMDAY LIKE :vo.srch_year + '%'	 
+															#end 	
+											                 							
+															#if (!$vo.srch_group_cd.equals(""))
+																 --AND B.INTNL_DEPT_CD LIKE '%' + :vo.srch_group_cd  + '%'
+																 AND B.DEPT_NM LIKE '%' +  :vo.srch_group_cd  + '%'	
+															#end 	
+															
+															#if (!$vo.srch_event_no.equals(""))
+																 AND A.EVENT_NO = = :vo.srch_event_no 	
+															#end 	
+															
+															#if (!$vo.srch_lawfirm_id.equals(""))
+															 	AND A.LAWFIRM_ID = :vo.srch_lawfirm_id	 
+															#end 	
+															
+															#if (!$vo.srch_kbn1.equals(""))
+															     AND C.EVENT_GBN1 = :vo.srch_kbn1 
+															         #if (!$vo.srch_kbn2.equals(""))
+															              AND C.EVENT_GBN2 = :vo.srch_kbn2                    
+															         #end
+															#end	
+															
+															#if (!$vo.srch_lawsuit_trgt_cd.equals(""))
+															 	AND C.LAWSUIT_TRGT = :vo.srch_lawsuit_trgt_cd	 
+															#end 
+																							
+												GROUP BY 	A.EVENT_NO, LAWFIRM_ID,  
+												
+															#if ($vo.srch_year_type.equals("SRCH_REMITDAY"))
+																 SUBSTRING(B.REMITDAY,1,6) 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_ACPTDAY"))
+ 																SUBSTRING(A.ACPTDAY,1,6)
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_SRVCSTARTDAY"))
+															 	SUBSTRING(A.SRVCENDDAY,1,6) 	 
+															#end 	
+															
+															#if ($vo.srch_year_type.equals("SRCH_CLAIMDAY"))
+															 	SUBSTRING(A.CLAIMDAY,1,6) 
+															#end 				
+						 					
+						 					) exp1,  
+						   					
+						   					TN_LAS_EVENTMNG exp2,  
+											( SELECT * from TN_LAS_LAWFIRMMNG ) exp3,      
+											( SELECT CD, CD_NM from TB_COM_CD where GRP_CD = '105' ) exp4      				
+					
+									WHERE	exp1.EVENT_NO  = exp2.EVENT_NO and  
+					       					exp1.LAWFIRM_ID  = exp3.LAWFIRM_ID and 
+				         					exp2.LAWSUIT_TRGT = exp4.CD(+)  
+					
+								) ext1  
+		           
+		    ]]>
+		  </statement>
+		</query>
+		
+		
+		
+		<query id="las.lawservice.listStasticsGroup" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+
+					SELECT EXP1.*, EXP2.DEPT_NM  
+						FROM (  
+	 							SELECT 
+							  			COUNT(*) OVER () CNT ,  
+					       				INTNL_DEPT_CD,  
+					        			B.CRRNCY_UNIT,  
+										TO_CHAR(SUM(A.TOTAMT),'999,999,999,999.99') TOTAMT, 
+										TO_CHAR(SUM(A.TOT_REMIT_AMT),'999,999,999,999.99') TOT_REMIT_AMT 
+								FROM  
+										TN_LAS_EVENT_ACCEPT_SRVCCOST A, 
+										TN_LAS_EVENT_ACCEPT B, 
+										TN_LAS_EVENTMNG C                   
+								WHERE 
+						                A.ACPT_NO = B.ACPT_NO 
+						                AND B.UNPAYDAY IS NOT NULL 
+						                AND INTNL_DEPT_CD NOT LIKE '12%' 
+						                AND B.EVENT_NO = C.EVENT_NO 
+						                										
+										#if (!$vo.srch_year.equals(""))	
+											#if ($vo.srch_year.equals("1111"))	
+												AND A.REMITDAY > :vo.srch_year
+											#end
+											#if (!$vo.srch_year.equals("1111"))	
+												AND A.REMITDAY LIKE '%' +  :vo.srch_year  + '%'	
+											#end
+											
+											#if (!$vo.srch_kbn1.equals(""))
+										    	AND C.EVENT_GBN1 = :vo.srch_kbn1 
+											    #if (!$vo.srch_kbn2.equals(""))
+											        AND C.EVENT_GBN2 = :vo.srch_kbn2                    
+											    #end
+											#end	
+										#end		
+						
+							GROUP BY 	INTNL_DEPT_CD, B.CRRNCY_UNIT   
+				       		
+				       		) EXP1, ( 
+                        				SELECT 
+                                				INTNL_DEPT_CD, 
+                                				DEPT_NM 
+                          				FROM  	TN_LAS_YEAR_DEPT 
+                          				
+                          				WHERE 	CRTRNDAY = ( SELECT MAX(CRTRNDAY) FROM TN_LAS_YEAR_DEPT ) 
+                          				
+                          				
+                          			) EXP2  
+				  		
+				  		WHERE EXP1.INTNL_DEPT_CD = EXP2.INTNL_DEPT_CD  
+				  
+				  		ORDER BY EXP1.INTNL_DEPT_CD 
+		
+		           
+		    ]]>
+		  </statement>
+		</query>
+		
+		<query id="las.lawservice.listStasticsDOJ" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+				
+				SELECT       
+							COUNT(*) OVER () CNT ,  
+							( SELECT EVENT_NM FROM TN_LAS_EVENTMNG WHERE EVENT_NO = B.EVENT_NO ) EVENT_NM,  
+							( SELECT LAWFIRM_NM FROM TN_LAS_LAWFIRMMNG WHERE LAWFIRM_ID = B.LAWFIRM_ID ) LAWFIRM_NM,  
+							( SELECT CD_NM FROM TB_COM_CD WHERE GRP_CD = '105' AND CD = C.LAWSUIT_TRGT ) LAWSUIT_TRGT_NM,  
+							C.LAWSUIT_TRGT,  
+							B.CRRNCY_UNIT, 
+							B.EVENT_NO, 
+							LAWFIRM_ID, 
+							B.ACPTDAY, 
+							TO_CHAR(DECODE(A.REMITDAY,NULL,A.TOTAMT,0),'999,999,999.99') PRE_FOR_AMOUNT ,
+							TO_CHAR(A.TOTAMT , '999,999,999.99') TOTAMT , 
+							TO_CHAR(A.SRVC_AMT,'999,999,999.99') SRVC_AMT  , 
+							TO_CHAR(A.ADDTNL_AMT,'999,999,999.99') ADDTNL_AMT, 
+							TO_CHAR(DECODE(A.REMITDAY,NULL,0,DECODE(B.CRRNCY_UNIT,'KRW',0,A.TOTAMT)),'999,999,999.99') EXP_AMOUNT_EXP,   
+							TO_CHAR(DECODE(A.TOT_REMIT_AMT,NULL,0,A.TOT_REMIT_AMT),'999,999,999.99') TOT_REMIT_AMT, 
+							A.REMITDAY 
+				FROM 
+							TN_LAS_EVENT_ACCEPT_SRVCCOST A, 
+							TN_LAS_EVENT_ACCEPT B, 
+							TN_LAS_EVENTMNG C  
+			
+				WHERE		A.ACPT_NO = B.ACPT_NO  
+            	AND 		B.EVENT_NO = C.EVENT_NO  
+              				
+			#if(!$vo.srch_event_no.equals(""))	
+				AND 		C.EVENT_NO = :vo.srch_event_no                   
+			#end
+
+			#if(!$vo.srch_lawfirm_id.equals(""))	
+				AND 		B.LAWFIRM_ID = :vo.srch_lawfirm_id                   
+			#end
+			
+			#if(!$vo.srch_lawsuit_trgt_cd.equals(""))	
+				AND 		C.LAWSUIT_TRGT = :vo.srch_lawsuit_trgt_cd                   
+			#end               				
+              				 
+				AND			B.EVENT_NO IN ( 'US123','US124','US92','EC01','CA01','CA02','E20060222144010','E2006031092950','E20060327133222','E2006041816054',
+																			'E20060425153945','E20060609165950', 'E200702221725','E2007022694451','E20070313143113')  
+				   
+			ORDER BY 		EVENT_NM, LAWFIRM_NM,  PRE_FOR_AMOUNT 
+		           
+		    ]]>
+		  </statement>
+		</query>
+		
+		<query id="las.lawservice.listStasticsDOJSum" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+				
+				SELECT 
+				        EXP1.CRRNCY_UNIT, 
+				        TO_CHAR(SUM(PRE_FOR_AMOUNT)) PRE_FOR_AMOUNT, 
+				        TO_CHAR(SUM(TOTAMT)) TOTAMT,             
+				        TO_CHAR(SUM(SRVC_AMT)) SRVC_AMT, 
+				        TO_CHAR(SUM(ADDTNL_AMT)) ADDTNL_AMT,   
+						TO_CHAR(SUM(EXP_AMOUNT_EXP)) EXP_AMOUNT_EXP, 
+				        TO_CHAR(SUM(EXP_AMOUNT)) EXP_AMOUNT              
+				FROM (  				                 
+						SELECT 
+								B.CRRNCY_UNIT, 
+								DECODE(A.REMITDAY,NULL,A.TOTAMT,0) PRE_FOR_AMOUNT , 
+								A.TOTAMT, 
+								A.SRVC_AMT, 
+								A.ADDTNL_AMT, 
+								DECODE(A.REMITDAY,NULL,0,DECODE(B.CRRNCY_UNIT,'KRW',0,A.TOTAMT)) EXP_AMOUNT_EXP,   
+								DECODE(A.TOT_REMIT_AMT,NULL,0,A.TOT_REMIT_AMT) EXP_AMOUNT 
+						FROM 
+								TN_LAS_EVENT_ACCEPT_SRVCCOST A, 
+								TN_LAS_EVENT_ACCEPT B, 
+								TN_LAS_EVENTMNG C  
+				
+        				WHERE  
+						  		A.ACPT_NO = B.ACPT_NO  
+        				AND   	B.EVENT_NO = C.EVENT_NO  
+              
+					#if(!$vo.srch_event_no.equals(""))	
+						AND 	C.EVENT_NO = :vo.srch_event_no                   
+					#end
+		
+					#if(!$vo.srch_lawfirm_id.equals(""))	
+						AND 	B.LAWFIRM_ID = :vo.srch_lawfirm_id                   
+					#end
+					
+					#if(!$vo.srch_lawsuit_trgt_cd.equals(""))	
+						AND 	C.LAWSUIT_TRGT = :vo.srch_lawsuit_trgt_cd                   
+					#end  				  
+              
+        				AND 	B.EVENT_NO IN ( 'US123','US124','US92','EC01','CA01','CA02','E20060222144010','E2006031092950','E20060327133222','E2006041816054','E20060425153945',
+                                      'E20060609165950', 'E200702221725','E2007022694451','E20070313143113') 
+				      ) EXP1    
+			
+			GROUP BY EXP1.CRRNCY_UNIT 
+		           
+		    ]]>
+		  </statement>
+		</query>
+		
+		<query id="las.lawservice.listStasticsEventAll" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+
+						SELECT 
+								EXT1.EVENT_NM, 
+								CRRNCY_UNIT, 
+								REMITDAY_YEAR, 
+								TO_CHAR(SUM(SRVC_AMT),'999,999,999.99') SRVC_AMT, 
+								TO_CHAR(SUM(ADDTNL_AMT),'999,999,999.99') ADDTNL_AMT, 
+								TO_CHAR(SUM(TOTAMT),'999,999,999.99') TOTAMT, 
+								TO_CHAR(SUM(TOT_REMIT_AMT),'999,999,999.99') TOT_REMIT_AMT   				
+				 		FROM  
+								(  
+									SELECT   
+				          					EXP2.EVENT_NM, 
+				          					EXP1.REMITDAY_YEAR , 
+				          					EXP1.CRRNCY_UNIT CRRNCY_UNIT ,  
+				          					SRVC_AMT, 
+				          					ADDTNL_AMT,  
+				          					TOTAMT, 
+				          					TOT_REMIT_AMT  				
+									FROM  
+											(
+												SELECT  
+															A.EVENT_NO, 
+															A.LAWFIRM_ID, 
+															SUBSTRING(B.REMITDAY,1,4) REMITDAY_YEAR, 
+															MAX(A.CRRNCY_UNIT) CRRNCY_UNIT, 
+															SUM(B.SRVC_AMT) SRVC_AMT, 
+															SUM(B.ADDTNL_AMT) ADDTNL_AMT , 
+															SUM(B.TOTAMT) TOTAMT, 
+															SUM(B.TOT_REMIT_AMT) TOT_REMIT_AMT  
+												FROM  
+															TN_LAS_EVENT_ACCEPT A, 
+															TN_LAS_EVENT_ACCEPT_SRVCCOST B  
+												WHERE  
+															B.REMITDAY IS NOT NULL AND  
+															A.ACPT_NO = B.ACPT_NO   
+                 								
+		                 					#if (!$vo.srch_event_no.equals(""))	
+		                 						AND 		A.EVENT_NO = :vo.srch_event_no                   
+											#end					
+									
+												GROUP BY	A.EVENT_NO, 
+															A.LAWFIRM_ID, 
+															SUBSTRING(B.REMITDAY,1,4) 				
+											) EXP1,  
+
+											TN_LAS_EVENTMNG EXP2,  
+											TN_LAS_LAWFIRMMNG EXP3,      
+											( SELECT CD, CD_NM FROM TB_COM_CD WHERE GRP_CD = '105' ) EXP4      				
+					
+					WHERE  		EXP1.EVENT_NO  = EXP2.EVENT_NO 
+					AND   		EXP1.LAWFIRM_ID  = EXP3.LAWFIRM_ID 
+					AND         EXP2.LAWSUIT_TRGT = EXP4.CD
+                  
+				#if(!$vo.srch_event_no.equals(""))	
+					AND 		EXP1.EVENT_NO = :vo.srch_event_no                   
+				#end
+					
+					) EXT1 
+          
+          			GROUP BY  	EVENT_NM,  
+          						CRRNCY_UNIT, 
+          						REMITDAY_YEAR				
+		           
+		    ]]>
+		  </statement>
+		</query>		
+
+    </queries>
+</queryservice>

@@ -1,0 +1,56 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="com.sds.secframework.common.util.StringUtil" %>
+
+<%--
+  /***************************************************************************************
+  * @CrossEditInclude.jspf
+  * @Creator     - 박 동 순
+  * @Create Date - 2013.07.25
+  * @Update      -
+  * @Update Date -
+  * @Note		 - CrossEditor
+ *****************************************************************************************/
+--%>
+
+<script type="text/javascript">
+	var contentValue = document.getElementById("namo_cntnt").value; // Hidden 값 참조
+	var CrossEditor = new NamoSE('namoeditor');	
+	
+	var CrossEditorHeight = ""; // Hidden 값 참조
+	var CrossEditorCss = ""; // Hidden 값 참조
+	
+	var NamoAttachSaveDir = "<spring:message code='secfw.namo.attach.dir'/>"; // 프로퍼티에서 저장 경로를 가져온다.
+	var NamoAttachUrl = "<spring:message code='secfw.namo.http.url'/>"; // 프로퍼티에서 저장 경로를 가져온다.
+	
+	if(document.getElementById("namo_height") != null)
+	{
+		CrossEditorHeight = document.getElementById("namo_height").value;
+		CrossEditor.params.Height = CrossEditorHeight;
+	}
+
+	if(document.getElementById("namo_css") != null)
+	{
+		CrossEditorCss = document.getElementById("namo_css").value;
+		CrossEditor.params.Css = CrossEditorCss;
+	}
+	
+	CrossEditor.params.ImageSavePath = NamoAttachUrl + "&imagePhysicalPath=" + NamoAttachSaveDir;
+	
+	CrossEditor.params.UploadFileExecutePath = "http://127.0.0.1/crosseditor/websource/jsp/ImageUpload.jsp";
+	
+	CrossEditor.EditorStart();
+	
+	var CrossEditorOrgHead = "";
+	
+	function OnInitCompleted(){
+		
+		CrossEditorOrgHead = CrossEditor.GetHeadValue();
+		
+		CrossEditor.params.UserLang = "enu";
+		
+		CrossEditor.ShowTab(false);
+		
+		CrossEditor.SetValue(contentValue); // 컨텐츠 내용 에디터 삽입
+		
+	}					
+</script>

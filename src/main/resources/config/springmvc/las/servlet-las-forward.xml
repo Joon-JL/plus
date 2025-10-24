@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<!-- 권한 에러 -->
+	<bean id="las.notice.err.noauth"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/las/error/ErrorBoardAuth.jsp" />
+	</bean>		
+
+	<!-- Intro 페이지로 이동 -->
+	<bean id="las.introForward"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/las/LasIntro.jsp" />
+	</bean>	
+	<!-- FERNANDO (MFA project) Jan/2024 - start -->
+	<bean id="las.introForward_OTP"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/las/LasIntro_OTP.jsp" />
+	</bean>	
+	<!-- FERNANDO (MFA project) Jan/2024 - end -->
+	
+	<!-- IntroNotice.jsp  페이지로 이동 -->
+	<bean id="las.introNoticeForward"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/las/IntroNotice.jsp" />
+	</bean>	
+	
+	<!-- IntroSubsidary.jsp 페이지로 이동 -->
+	<bean id="las.introSubsidiaryForward"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/las/IntroSubsidiary.jsp" />
+	</bean>
+	
+	<!-- OutlookSso.jsp  페이지로 이동
+	<bean id="las.outlookForward"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/las/OutlookLogin.jsp" />
+	</bean>	
+	 -->
+	<!-- LoginIntro 페이지로 이동 -->
+	<bean id="las.loginIntroForward"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/secfw/volatile/LoginPage.jsp" />
+	</bean>
+
+	<!-- 이미지 보기 팝업으로 Forwarding -->
+	<bean id="las.imageViewPopForward"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/las/common/popup/ImageViewPop.jsp" />
+	</bean>		
+	
+
+	<!-- Progress Forwarding -->
+	<bean id="las.progressForward"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/secfw/common/CommonProgress.jsp" />
+	</bean>
+	
+	<!-- Progress Forwarding -->
+	<bean id="las.blankPageForward"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/secfw/common/CommonBlank.jsp" />
+	</bean>		
+
+	<!-- 유효값 체크 -->
+	<bean id="las.testValidation"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/las/comm/test/testValidation.jsp" />
+	</bean>
+	
+	<!-- 법령판례검색 -->
+	<bean id="las.lawPrecedentForward"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/las/lawinformation/LawPrecedent.jsp" />
+	</bean>
+	
+	<!-- report -->
+	<bean id="las.reportForward"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/rd/setup.jsp" />
+	</bean>	
+	
+	<!-- open popup -->
+	<bean id="las.openPopVDForward"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/common/OpenPopVD.jsp" />
+	</bean>
+	<bean id="las.openPopMobileForward"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/common/OpenPopMobile.jsp" />
+	</bean>
+	<bean id="las.openPopMEForward"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/common/OpenPopME.jsp" />
+	</bean>	
+	<bean id="las.openPopMSCForward"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/common/OpenPopMSC.jsp" />
+	</bean>	
+	<bean id="las.openPopDSForward"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/common/OpenPopDS.jsp" />
+	</bean>			
+	
+	<!-- las.page reload -->
+	<bean id="las.pageReload"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/las/main/page_reload.jsp" />
+	</bean>
+	<!-- las.page reload -->
+	<bean id="las.cntrtAlert"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/common/AlertPopup.jsp" />
+	</bean>
+	<!-- 개발전 알림페이지 -->
+	<bean id="las.blankAlertForward"
+		class="anyframe.web.springmvc.controller.ForwardController">
+		<property name="viewName" value="/WEB-INF/jsp/secfw/common/CommonBlankAlert.jsp" />
+	</bean>	
+</beans>

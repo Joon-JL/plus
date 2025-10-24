@@ -1,0 +1,778 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+ 
+<queryservice>
+    <queries>
+        <!-- *************************************************************
+        *****                        역할 관리                       *****
+        *************************************************************  -->
+        <!-- 역할 목록 -->
+        <query id="secfw.auth.roleMng.listRole" isCamelCase="false">
+            <statement>
+            <![CDATA[
+            SELECT SYS_CD,
+                   ROLE_CD,
+                   ROLE_NM,
+                   ISNULL(COMMENTS,'') AS COMMENTS,
+                   USE_YN,
+                   REG_ID,
+                   CONVERT(CHAR(19), REG_DT, 20) AS REG_DT, /*YYYY-MM-DD HH24:MI:SS*/
+                   MOD_ID,
+                   CONVERT(CHAR(19), MOD_DT, 20) AS MOD_DT, /*YYYY-MM-DD HH24:MI:SS*/
+                   COUNT(1) over() TOTAL_CNT
+              FROM TB_COM_ROLE
+             WHERE SYS_CD  = :sys_cd
+           #if ($srch_cntnt && !$srch_cntnt.equals(""))
+               AND ROLE_NM LIKE '%' + :srch_cntnt + '%'
+           #end
+           #if ($role_cd && !$role_cd.equals(""))
+               AND ROLE_CD = :role_cd
+           #end
+           #if ($srch_use_yn && !$srch_use_yn.equals(""))
+               AND USE_YN  = :srch_use_yn
+           #end
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 역할 등록 -->
+        <query id="secfw.auth.roleMng.insertRole">
+            <statement>
+            <![CDATA[
+                INSERT INTO TB_COM_ROLE
+                      (
+                        SYS_CD
+                       ,ROLE_CD
+                       ,ROLE_NM
+                       ,COMMENTS
+                       ,USE_YN
+                       ,REG_ID
+                       ,REG_DT
+                      )
+                VALUES (
+                        :vo.sys_cd
+                       ,:vo.role_cd
+                       ,:vo.role_nm
+                       ,:vo.comments
+                       ,UPPER(:vo.use_yn)
+                       ,:vo.reg_id
+                       ,GETDATE()
+                )
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 역할 수정 -->
+        <query id="secfw.auth.roleMng.modifyRole">
+            <statement>
+            <![CDATA[
+                UPDATE TB_COM_ROLE
+                   SET ROLE_NM  = :vo.role_nm
+                      ,COMMENTS = :vo.comments
+                      ,USE_YN   = UPPER(:vo.use_yn)
+                      ,MOD_ID   = :vo.mod_id
+                      ,MOD_DT   = GETDATE()
+                 WHERE SYS_CD   = :vo.sys_cd
+                   AND ROLE_CD  = :vo.role_cd
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 역할 전체 삭제(입력시) -->
+        <query id="secfw.auth.roleMng.deleteRole4Insert">
+            <statement>
+            <![CDATA[
+                DELETE FROM TB_COM_ROLE
+                 WHERE SYS_CD  = :vo.sys_cd
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 역할 삭제 -->
+        <query id="secfw.auth.roleMng.deleteRole">
+            <statement>
+            <![CDATA[
+                DELETE FROM TB_COM_ROLE
+                 WHERE SYS_CD  = :vo.sys_cd
+                   AND ROLE_CD = :vo.role_cd
+            ]]>
+            </statement>
+        </query>
+
+        <!-- *************************************************************
+        *****                        권한 관리                       *****
+        *************************************************************  -->
+        <!-- 권한 목록 -->
+        <query id="secfw.auth.authMng.listAuth" isCamelCase="false">
+            <statement>
+            <![CDATA[
+            SELECT SYS_CD,
+                   AUTH_CD,
+                   AUTH_NM,
+                   ISNULL(COMMENTS,'') AS COMMENTS,
+                   USE_YN,
+                   REG_ID,
+                   CONVERT(CHAR(19), REG_DT, 20) AS REG_DT, /*YYYY-MM-DD HH24:MI:SS*/
+                   MOD_ID,
+                   CONVERT(CHAR(19), MOD_DT, 20) AS MOD_DT, /*YYYY-MM-DD HH24:MI:SS*/
+                   COUNT(1) over() TOTAL_CNT
+              FROM TB_COM_AUTH
+             WHERE SYS_CD  = :sys_cd
+           #if ($srch_cntnt && !$srch_cntnt.equals(""))
+               AND AUTH_NM LIKE N'%' + :srch_cntnt + '%'
+           #end
+           #if ($auth_cd && !$auth_cd.equals(""))
+               AND AUTH_CD = :auth_cd
+           #end
+           #if ($srch_use_yn && !$srch_use_yn.equals(""))
+               AND USE_YN  = :srch_use_yn
+           #end
+           #if ($menu_id && !$menu_id.equals(""))
+              #if ($menu_id.equals("20130321152608186_0000000434"))
+                #if ($srch_comp_cd && $srch_comp_cd.equals("C10"))
+                  AND (AUTH_CD = 'AB01' OR AUTH_CD = 'AB02' OR AUTH_CD = 'AZ00')
+		            #else
+		              AND (AUTH_CD <> 'AB01' AND AUTH_CD <> 'AB02' AND AUTH_CD <> 'AA00')
+		            #end
+              #end
+           #end
+           ORDER BY AUTH_CD
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 권한 등록 -->
+        <query id="secfw.auth.authMng.insertAuth">
+            <statement>
+            <![CDATA[
+                INSERT INTO TB_COM_AUTH
+                      (
+                        SYS_CD
+                       ,AUTH_CD
+                       ,AUTH_NM
+                       ,COMMENTS
+                       ,USE_YN
+                       ,REG_ID
+                       ,REG_DT
+                      )
+                VALUES (
+                        :vo.sys_cd
+                       ,:vo.auth_cd
+                       ,:vo.auth_nm
+                       ,:vo.comments
+                       ,UPPER(:vo.use_yn)
+                       ,:vo.reg_id
+                       ,GETDATE()
+                )
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 권한 수정 -->
+        <query id="secfw.auth.authMng.modifyAuth">
+            <statement>
+            <![CDATA[
+                UPDATE TB_COM_AUTH
+                   SET AUTH_NM          = :vo.auth_nm
+                      ,COMMENTS         = :vo.comments
+                      ,USE_YN           = UPPER(:vo.use_yn)
+                      ,MOD_ID           = :vo.mod_id
+                      ,MOD_DT           = GETDATE()
+                 WHERE SYS_CD           = :vo.sys_cd
+                   AND AUTH_CD          = :vo.auth_cd
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 권한 삭제 -->
+        <query id="secfw.auth.authMng.deleteAuth">
+            <statement>
+            <![CDATA[
+                DELETE FROM TB_COM_AUTH
+                 WHERE SYS_CD  = :vo.sys_cd
+                   AND AUTH_CD = :vo.auth_cd
+            ]]>
+            </statement>
+        </query>
+
+        <!-- *************************************************************
+        *****                        권한 Mapping                    *****
+        *************************************************************  -->
+        <!-- 역할-사용자 목록 -->
+        <query id="secfw.auth.authMapping.listRoleUser" isCamelCase="false">
+            <statement>
+            <![CDATA[
+                SELECT A.SYS_CD, A.ROLE_CD, A.USER_ID, A.REG_ID, 
+                	   CONVERT(CHAR(19), A.REG_DT, 20) AS REG_DT, /*YYYY-MM-DD HH24:MI:SS*/
+                       B.ROLE_NM,
+                       ISNULL(B.COMMENTS,'') AS COMMENTS,
+                       C.COMP_NM, C.DEPT_NM, C.JIKGUP_NM, C.USER_NM,
+                       COUNT(1) over() TOTAL_CNT
+                   FROM TB_COM_ROLE_USER A LEFT OUTER JOIN
+                       TB_COM_ROLE B ON A.SYS_CD  = B.SYS_CD AND A.ROLE_CD = B.ROLE_CD
+					   LEFT OUTER JOIN
+                       TB_COM_USER C ON A.USER_ID = C.USER_ID
+                 WHERE A.SYS_CD  = :vo.sys_cd
+                   AND A.ROLE_CD = :vo.role_cd
+                   
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 역할-사용자 등록 -->
+        <query id="secfw.auth.authMapping.insertRoleUser">
+            <statement>
+            <![CDATA[
+                INSERT INTO TB_COM_ROLE_USER (SYS_CD, ROLE_CD, USER_ID, REG_ID, REG_DT)
+                  VALUES (:vo.sys_cd, :vo.role_cd, :vo.user_id, :vo.reg_id, GETDATE())
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 역할-사용자 삭제 -->
+        <query id="secfw.auth.authMapping.deleteRoleUser">
+            <statement>
+            <![CDATA[
+                DELETE FROM TB_COM_ROLE_USER
+                WHERE SYS_CD  = :vo.sys_cd
+                  AND ROLE_CD = :vo.role_cd
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 역할-권한 목록 -->
+        <query id="secfw.auth.authMapping.listRoleAuth" isCamelCase="false">
+            <statement>
+            <![CDATA[
+                SELECT A.SYS_CD, A.ROLE_CD, A.AUTH_CD, A.REG_ID, 
+                	   CONVERT(CHAR(19), A.REG_DT, 20) AS REG_DT, /*YYYY-MM-DD HH24:MI:SS*/
+                       B.ROLE_NM,
+                       ISNULL(B.COMMENTS,'') AS ROLE_COMMENTS,
+                       C.AUTH_NM,
+                       ISNULL(B.COMMENTS,'') AS AUTH_COMMENTS,
+                       COUNT(1) over() TOTAL_CNT
+                 FROM TB_COM_ROLE_AUTH A LEFT OUTER JOIN
+                       TB_COM_ROLE B ON A.SYS_CD  = B.SYS_CD AND A.ROLE_CD = B.ROLE_CD
+					   LEFT OUTER JOIN
+                       TB_COM_AUTH C ON A.SYS_CD = C.SYS_CD AND A.AUTH_CD = C.AUTH_CD
+                 WHERE A.SYS_CD  = :vo.sys_cd
+                   AND A.ROLE_CD = :vo.role_cd
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 역할-권한 등록 -->
+        <query id="secfw.auth.authMapping.insertRoleAuth">
+            <statement>
+            <![CDATA[
+                INSERT INTO TB_COM_ROLE_AUTH (SYS_CD, ROLE_CD, AUTH_CD, REG_ID, REG_DT)
+                  VALUES (:vo.sys_cd, :vo.role_cd, :vo.auth_cd, :vo.reg_id, GETDATE())
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 역할-권한 삭제(역할코드) -->
+        <query id="secfw.auth.authMapping.deleteRoleAuthByRoleCd">
+            <statement>
+            <![CDATA[
+                DELETE FROM TB_COM_ROLE_AUTH
+                WHERE SYS_CD = :vo.sys_cd
+                  AND ROLE_CD = :vo.role_cd
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 역할-권한 삭제(권한코드)-->
+        <query id="secfw.auth.authMapping.deleteRoleAuthByAuthCd">
+            <statement>
+            <![CDATA[
+                DELETE FROM TB_COM_ROLE_AUTH
+                WHERE SYS_CD = :vo.sys_cd
+                  AND AUTH_CD = :vo.auth_cd
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 메뉴-권한 목록 -->
+        <query id="secfw.auth.authMapping.listMenuAuth" isCamelCase="false">
+            <statement>
+            <![CDATA[
+                SELECT LVL
+                     , SYS_CD
+                     , MENU_ID
+                     , MENU_NM
+                     , MENU_NM_ENG
+                     , UP_MENU_ID
+                     , MENU_LEVEL
+                     , MENU_ORDER
+                     , COMMENTS
+                     , USE_YN
+                     , MENU_URL
+                     , ISLEAF
+                     , AUTH_CHECK
+                     , ACCESS_CONTROL
+                     , MENU_ID         AS TREE_KEY
+                     , MENU_NM         AS TREE_TITLE
+                     , MENU_NM_ENG     AS TREE_TITLE_ENG
+                     , UP_MENU_ID      AS TREE_UP_KEY
+                     , MENU_LEVEL      AS TREE_LEVEL
+                     , AUTH_CHECK      AS TREE_SELECT
+                     , ISLEAF          AS TREE_ISLEAF
+                     , MAX(LVL) OVER() AS TREE_MAX_LEVEL
+                 FROM (
+                       SELECT * FROM 
+                       	DBO.[SECFW.AUTH.AUTHMAPPING.LISTMENUAUTH]( :sys_cd , :top_menu_id , :use_yn , :auth_cd , :comp_cd )
+                 ) TA ORDER BY SRT
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 메뉴-권한 등록 -->
+        <query id="secfw.auth.authMapping.insertMenuAuth">
+            <statement>
+            <![CDATA[
+                INSERT INTO TB_COM_MENU_AUTH (SYS_CD,
+                                              MENU_ID,
+                                              AUTH_CD,
+                                              COMP_CD, -- 2013.03.28 추가
+                                              ACCESS_CONTROL,
+                                              REG_ID,
+                                              REG_DT)
+                                      VALUES (:vo.sys_cd,
+                                              :vo.menu_id,
+                                              :vo.auth_cd,
+                                              :vo.comp_cd, -- 2013.03.28 추가
+                                              :vo.access_control,
+                                              :vo.reg_id, GETDATE())
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 메뉴-Access Control 조회 -->
+        <query id="secfw.auth.authMapping.getAccessControl" isCamelCase="false">
+            <statement>
+            <![CDATA[
+                SELECT SYS_CD, MENU_ID, AUTH_CD, ACCESS_CONTROL
+                  FROM TB_COM_MENU_AUTH
+                 WHERE SYS_CD  = :vo.sys_cd
+                   AND AUTH_CD = :vo.auth_cd
+                   AND MENU_ID = :vo.menu_id
+                   AND COMP_CD = :vo.comp_cd -- 2013.03.28 추가
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 메뉴-Access Control 변경 -->
+        <query id="secfw.auth.authMapping.modifyAccessControl">
+            <statement>
+            <![CDATA[
+                UPDATE TB_COM_MENU_AUTH
+                   SET ACCESS_CONTROL = :vo.access_control
+                     , REG_ID = :vo.reg_id
+                     , REG_DT = GETDATE()
+                 WHERE SYS_CD  = :vo.sys_cd
+                   AND MENU_ID = :vo.menu_id
+                   AND AUTH_CD = :vo.auth_cd
+                   AND COMP_CD = :vo.comp_cd -- 2013.03.28 추가
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 메뉴-권한 삭제 -->
+        <query id="secfw.auth.authMapping.deleteMenuAuth">
+            <statement>
+            <![CDATA[
+                DELETE FROM TB_COM_MENU_AUTH
+                 WHERE SYS_CD  = :vo.sys_cd
+                   AND AUTH_CD = :vo.auth_cd
+                   AND COMP_CD = :vo.comp_cd -- 2013.03.28 추가
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 메소드-권한 목록 -->
+        <query id="secfw.auth.authMapping.listMethodAuth" isCamelCase="false">
+            <statement>
+            <![CDATA[
+                SELECT LVL
+                      ,SYS_CD
+                      ,MENU_ID
+                      ,MENU_NM
+                      ,MENU_NM_ENG
+                      ,UP_MENU_ID
+                      ,MENU_LEVEL
+                      ,MENU_ORDER
+                      ,COMMENTS
+                      ,USE_YN
+                      ,MENU_URL
+                      ,ISLEAF
+                      ,AUTH_CHECK
+                      ,ACCESS_CONTROL
+                      ,MENU_ID         AS TREE_KEY
+                      ,MENU_NM         AS TREE_TITLE
+                      ,MENU_NM_ENG     AS TREE_TITLE_ENG
+                      ,UP_MENU_ID      AS TREE_UP_KEY
+                      ,MENU_LEVEL      AS TREE_LEVEL
+                      ,AUTH_CHECK      AS TREE_SELECT
+                      ,ISLEAF          AS TREE_ISLEAF
+                      ,MAX(LVL) OVER() AS TREE_MAX_LEVEL
+                 FROM (
+                    SELECT LEVEL LVL
+                          ,SYS_CD
+                          ,MENU_ID
+                          ,MENU_NM
+                          ,MENU_NM_ENG
+                          ,UP_MENU_ID
+                          ,MENU_LEVEL
+                          ,MENU_ORDER
+                          ,COMMENTS
+                          ,USE_YN
+                          ,MENU_URL
+                      #if ($dbType && $dbType.equals("DB2"))
+                          ,CASE WHEN LEAD(LEVEL) OVER(ORDER BY LEVEL, MENU_ORDER) < LEVEL THEN 'Y' ELSE 'N' END  AS ISLEAF
+                      #elseif ($dbType && $dbType.equals("ORA"))
+                          ,DECODE(CONNECT_BY_ISLEAF, '1', 'Y', 'N') AS ISLEAF
+                      #else
+                          ,DECODE(CONNECT_BY_ISLEAF, '1', 'Y', 'N') AS ISLEAF
+                      #end
+                          ,AUTH_CHECK
+                          ,ACCESS_CONTROL
+                      FROM (SELECT A.SYS_CD, A.MENU_ID, A.MENU_NM, A.MENU_NM_ENG, A.UP_MENU_ID,
+                                   A.MENU_LEVEL, A.MENU_ORDER, A.COMMENTS, A.USE_YN, A.MENU_URL,
+                                   DECODE(B.MENU_ID, NULL, 'N', 'Y') AS AUTH_CHECK,
+                                   B.ACCESS_CONTROL
+                              FROM (SELECT *
+                                      FROM TB_COM_MENU
+                                     WHERE SYS_CD = :sys_cd
+                                       AND USE_YN = :use_yn) A,
+                                   (SELECT *
+                                      FROM TB_COM_MENU_AUTH
+                                     WHERE SYS_CD = :sys_cd
+                                       AND AUTH_CD = :auth_cd) B
+                             WHERE A.SYS_CD = B.SYS_CD(+)
+                               AND A.MENU_ID = B.MENU_ID(+)
+                               AND A.SYS_CD =:sys_cd
+                           )
+                     START WITH UP_MENU_ID =:top_menu_id
+                   CONNECT BY PRIOR MENU_ID = UP_MENU_ID
+                     ORDER SIBLINGS BY TO_NUMBER(MENU_ORDER)
+                 )
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 메소드-권한 등록 -->
+        <query id="secfw.auth.authMapping.insertMethodAuth">
+            <statement>
+            <![CDATA[
+                INSERT INTO TB_COM_METHOD_AUTH (SYS_CD, PACKAGE_NM, CLASS_NM, METHOD_NM, AUTH_CD, REG_ID, REG_DT)
+                  VALUES (:vo.sys_cd, :vo.package_nm, :vo.class_nm, :vo.method_nm, :vo.auth_cd, :vo.reg_id, GETDATE())
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 메소드-권한 삭제 -->
+        <query id="secfw.auth.authMapping.deleteMethodAuth">
+            <statement>
+            <![CDATA[
+                DELETE FROM TB_COM_METHOD_AUTH
+                WHERE SYS_CD  = :vo.sys_cd
+                  AND AUTH_CD = :vo.auth_cd
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 페이지 목록  -->
+        <query id="secfw.auth.authMapping.listPage" isCamelCase="false">
+            <statement>
+            <![CDATA[
+                SELECT SYS_CD
+                    ,PAGE_ID
+                    ,PAGE_NM
+                    ,PAGE_URL
+                    ,USE_YN
+                    ,AUTHCHECK_YN
+                    ,DEVELOPER_NM
+                    ,COMMENTS
+                    ,REG_ID
+                    ,REG_DT
+                    ,MOD_ID
+                    ,MOD_DT
+                    ,COUNT(1) OVER() AS TOTAL_CNT
+                 FROM TB_COM_PAGE
+                WHERE SYS_CD  =:vo.sys_cd
+                 #if ($vo.srch_page_cntnt && !$vo.srch_page_cntnt.equals(""))
+                  AND PAGE_NM LIKE N'%' + :vo.srch_page_cntnt + '%'
+                 #end
+                 #if ($vo.srch_use_yn && !$vo.srch_use_yn.equals(""))
+                  AND USE_YN = :vo.srch_use_yn
+                 #end
+                ORDER BY PAGE_NM
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 페이지-권한 목록 -->
+        <query id="secfw.auth.authMapping.listPageAuth" isCamelCase="false">
+            <statement>
+            <![CDATA[
+            SELECT A.SYS_CD AS SYS_CD,
+                   A.PAGE_ID AS PAGE_ID,
+                   A.PAGE_NM AS PAGE_NM,
+                   A.PAGE_URL AS PAGE_URL,
+                   A.USE_YN AS USE_YN,
+                   A.AUTHCHECK_YN AS AUTHCHECK_YN,
+                   A.DEVELOPER_NM AS DEVELOPER_NM,
+                   A.COMMENTS AS COMMENTS,
+                   B.ACCESS_CONTROL AS ACCESS_CONTROL,
+                   COUNT(1) OVER() AS TOTAL_CNT
+              FROM TB_COM_PAGE A,
+                   TB_COM_PAGE_AUTH B
+             WHERE A.SYS_CD  = B.SYS_CD
+               AND A.PAGE_ID = B.PAGE_ID
+               AND B.SYS_CD  =:vo.sys_cd
+               AND B.AUTH_CD = :vo.auth_cd
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 페이지-권한 등록 -->
+        <query id="secfw.auth.authMapping.insertPageAuth">
+            <statement>
+            <![CDATA[
+                INSERT INTO TB_COM_PAGE_AUTH (SYS_CD, PAGE_ID, AUTH_CD, REG_ID, REG_DT)
+                  VALUES (:vo.sys_cd, :vo.page_id, :vo.auth_cd, :vo.reg_id, GETDATE())
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 페이지-권한 삭제 -->
+        <query id="secfw.auth.authMapping.deletePageAuth">
+            <statement>
+            <![CDATA[
+                DELETE FROM TB_COM_PAGE_AUTH
+                WHERE SYS_CD = :vo.sys_cd
+                  AND AUTH_CD = :vo.auth_cd
+            ]]>
+            </statement>
+        </query>
+
+        <!-- *************************************************************
+        *****                        권한 Check                      *****
+        *************************************************************  -->
+        <!-- 메뉴 사용유무 -->
+        <query id="secfw.auth.isAvailiableMenu" isCamelCase="false">
+            <statement>
+            <![CDATA[
+                SELECT USE_YN, AUTHCHECK_YN
+                  FROM TB_COM_MENU
+                WHERE SYS_CD   = :sys_cd
+                  AND MENU_URL = :menu_url
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 페이지별 사용유무(사용안함)
+        <query id="secfw.auth.isAvailiablePage" isCamelCase="false">
+            <statement>
+            <![CDATA[
+                SELECT USE_YN, AUTHCHECK_YN
+                  FROM TB_COM_PAGE
+                WHERE SYS_CD   = :vo.sys_cd
+                  AND PAGE_URL = :vo.page_url
+            ]]>
+            </statement>
+        </query>
+        -->
+
+        <!-- 사용자 권한 체크(메뉴호출시 Interceptor이용) -->
+        <query id="secfw.auth.isGrantPage" isCamelCase="false">
+            <statement>
+            <![CDATA[
+                SELECT ISNULL(MAX('Y'), 'N') AS MENU_AUTH_YN
+                 WHERE EXISTS (
+                               SELECT '1'
+                                 FROM
+                                     (
+                                       SELECT SYS_CD, AUTH_CD
+                                         FROM TB_COM_AUTH
+                                        WHERE USE_YN = 'Y'
+                                          AND (SYS_CD, AUTH_CD) IN (SELECT A.SYS_CD, A.AUTH_CD
+                                                                      FROM TB_COM_MENU_AUTH A,
+                                                                           TB_COM_MENU B
+                                                                     WHERE A.SYS_CD   = B.SYS_CD
+                                                                       AND A.MENU_ID  = B.MENU_ID
+                                                                       AND B.SYS_CD   = :sys_cd
+                                                                       AND B.MENU_URL = :menu_url
+                                                                    )
+                                      ) MENU_AUTH,
+                                      (
+                                       SELECT SYS_CD, AUTH_CD
+                                         FROM TB_COM_ROLE_AUTH
+                                        WHERE (SYS_CD, ROLE_CD) IN (SELECT SYS_CD, ROLE_CD
+                                                                      FROM TB_COM_ROLE
+                                                                     WHERE USE_YN = 'Y'
+                                                                       AND (SYS_CD, ROLE_CD) IN (
+                                                                                                SELECT SYS_CD, ROLE_CD
+                                                                                                  FROM TB_COM_ROLE_USER
+                                                                                                 WHERE SYS_CD  = :sys_cd
+                                                                                                   AND USER_ID = :user_id
+                                                                                                )
+                                                                    )
+                                      ) ROLE_AUTH
+                                WHERE MENU_AUTH.SYS_CD = ROLE_AUTH.SYS_CD
+                                  AND MENU_AUTH.AUTH_CD = ROLE_AUTH.AUTH_CD
+                              )
+            ]]>
+            </statement>
+        </query>
+
+        <!-- *************************************************************
+        *****           사별 권한 Mapping (2013.03.27 추가)          *****
+        *************************************************************  -->
+        <!-- 사별 메뉴-권한 목록 -->
+        <query id="secfw.auth.authMapping.listCompMenuAuth" isCamelCase="false">
+            <statement>
+            <![CDATA[
+                SELECT LVL
+                     , SYS_CD
+                     , MENU_ID
+                     , MENU_NM
+                     , MENU_NM_ENG
+                     , UP_MENU_ID
+                     , MENU_LEVEL
+                     , MENU_ORDER
+                     , COMMENTS
+                     , USE_YN
+                     , MENU_URL
+                     , ISLEAF
+                     , AUTH_CHECK
+                     , ACCESS_CONTROL
+                     , MENU_ID         AS TREE_KEY
+                     , MENU_NM         AS TREE_TITLE
+                     , MENU_NM_ENG     AS TREE_TITLE_ENG
+                     , UP_MENU_ID      AS TREE_UP_KEY
+                     , MENU_LEVEL      AS TREE_LEVEL
+                     , AUTH_CHECK      AS TREE_SELECT
+                     , ISLEAF          AS TREE_ISLEAF
+                     , MAX(LVL) OVER() AS TREE_MAX_LEVEL
+                 FROM (
+                       	SELECT * FROM 
+                       	DBO.[SECFW.AUTH.AUTHMAPPING.LISTCOMPMENUAUTH]( :sys_cd , :top_menu_id , :use_yn , :auth_cd , :comp_cd )
+                 ) TA ORDER BY SRT
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 사별 메뉴-권한 등록 -->
+        <query id="secfw.auth.authMapping.insertCompMenuAuth">
+            <statement>
+            <![CDATA[
+                INSERT INTO TB_COM_MENU_AUTH (SYS_CD,
+                                              MENU_ID,
+                                              AUTH_CD,
+                                              COMP_CD,
+                                              ACCESS_CONTROL,
+                                              REG_ID,
+                                              REG_DT)
+                                      VALUES (:vo.sys_cd,
+                                              :vo.menu_id,
+                                              :vo.auth_cd,
+                                              :vo.comp_cd,
+                                              :vo.access_control,
+                                              :vo.reg_id, GETDATE())
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 사별 메뉴-Access Control 조회 -->
+        <query id="secfw.auth.authMapping.getAccessControl2" isCamelCase="false">
+            <statement>
+            <![CDATA[
+                SELECT SYS_CD
+                     , MENU_ID
+                     , AUTH_CD
+                     , ACCESS_CONTROL
+                  FROM TB_COM_MENU_AUTH
+                 WHERE SYS_CD  = :vo.sys_cd
+                   AND AUTH_CD = :vo.auth_cd
+                   AND MENU_ID = :vo.menu_id
+                   AND COMP_CD = :vo.comp_cd
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 사별 메뉴-Access Control 변경 -->
+        <query id="secfw.auth.authMapping.modifyAccessControl2">
+            <statement>
+            <![CDATA[
+                UPDATE TB_COM_MENU_AUTH
+                   SET ACCESS_CONTROL = :vo.access_control
+                     , REG_ID = :vo.reg_id
+                     , REG_DT = GETDATE()
+                 WHERE SYS_CD  = :vo.sys_cd
+                   AND MENU_ID = :vo.menu_id
+                   AND AUTH_CD = :vo.auth_cd
+                   AND COMP_CD = :vo.comp_cd
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 사별 메뉴-권한 삭제 -->
+        <query id="secfw.auth.authMapping.deleteCompMenuAuth">
+            <statement>
+            <![CDATA[
+                DELETE FROM TB_COM_MENU_AUTH
+                 WHERE SYS_CD  = :vo.sys_cd
+                   AND AUTH_CD = :vo.auth_cd
+                   AND COMP_CD = :vo.comp_cd
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 전자검토자 등록 -->
+        <query id="secfw.auth.authMapping.insertMngComp">
+            <statement>
+            <![CDATA[
+                INSERT INTO TN_COM_SEC_MNG_COMP (USER_ID, MNG_COMP_CD, USER_NM, COMP_CD, REG_ID, REG_DT)
+                  VALUES (:vo.mng_user_id, :vo.mng_comp_cd, (SELECT USER_NM FROM TB_COM_USER WHERE USER_ID=:vo.mng_user_id), (SELECT COMP_CD FROM TB_COM_USER WHERE USER_ID=:vo.mng_user_id), :vo.reg_id, GETDATE())
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 전자검토자 삭제 -->
+        <query id="secfw.auth.authMapping.deleteMngComp">
+            <statement>
+            <![CDATA[
+                DELETE FROM TN_COM_SEC_MNG_COMP
+                  WHERE USER_ID = :vo.mng_user_id
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 전자검토자 조회 -->
+        <query id="secfw.auth.authMapping.listMngComp" isCamelCase="false">
+            <statement>
+            <![CDATA[
+                SELECT  A.CD,
+                        A.CD_NM,
+                        A.CD_NM_ENG,
+                        CASE WHEN B.MNG_COMP_CD IS NULL THEN '' ELSE 'checked' END AS CHECKED
+                FROM    TB_COM_CD A LEFT OUTER JOIN
+                        (SELECT *
+                         FROM   TN_COM_SEC_MNG_COMP
+                         WHERE  USER_ID = :vo.mng_user_id) B 
+                        ON A.CD  = B.MNG_COMP_CD
+  
+                        LEFT OUTER JOIN
+                        TB_COM_USER C
+                        ON B.USER_ID = C.USER_ID 
+                WHERE   A.GRP_CD = 'COMP2'
+                        AND A.CD_NM LIKE '%' + :vo.mng_comp_cd + '%'
+            ]]>
+            </statement>
+        </query>
+
+    </queries>
+</queryservice>

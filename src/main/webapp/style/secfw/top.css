@@ -1,0 +1,460 @@
+@charset "utf-8";
+@import url(common.css);
+/** common **/
+body {
+	background:url(../../images/secfw/common/top_bg.jpg) repeat-x;
+}
+.header {
+	position:relative;
+	width:980px;
+	margin:0 22px;
+}
+ul li,ul li a {
+	font-family:"나눔고딕", "NanumGothicOTF", "?나눔고딕", "Malgun Gothic", "Trebuchet MS", "Lucida Grande", "Tahoma","Helvetica","Arial",sans-serif !important;
+}
+/** Logo **/
+h1 {
+	height:60px;
+	padding:15px 0 0 10px
+}
+/** Search **/
+.search {
+	position:absolute;
+	right:-5px;
+	top:25px;
+}
+.search_text {
+	border:none;
+	background:url(../../images/secfw/common/search_bg.gif) no-repeat;
+	width:156px;
+	height:22px;
+	font:bold 11px;
+	padding:4px 0 0 15px;
+	color:#9AA9B7;
+	font-family:"Tahoma"!important;
+}
+.search_bt {
+	width:34px;
+	height:22px
+}
+/** Gnb Menu **/
+.gnb {
+	background:url(../../images/secfw/common/top_menu_bg.gif) no-repeat;
+	height:38px;
+	width:100%;
+}
+.gnb ul {
+	float:left;
+	margin-left:20px;
+}
+.gnb li {
+	float:left;
+	background:url(../../images/secfw/common/top_menu_line.gif) no-repeat right center;
+}
+.gnb li.non {
+	background:none;
+}
+.gnb a {
+	float:left;
+	display:block;
+	padding:0 30px;
+	color:#fff;
+	font:bold 14px;
+	line-height:36px;
+}
+/* u-Learning */
+.gnb a.ule:hover {
+	background:url(../../images/secfw/common/top_menu_up_ule.gif) repeat-x;
+	border-top:1px solid #285C83;
+	color:#fff;
+	font:bold 14px;
+	line-height:35px;
+	height:37px;
+}
+.gnb .selected_ule {
+	background:url(../../images/secfw/common/top_menu_up_ule.gif) repeat-x;
+	border-top:1px solid #285C83;
+	color:#fff;
+	font:bold 14px;
+	line-height:35px;
+	height:37px;
+	padding:0 30px;
+	display:inline;
+}
+.gnb .selected_ule a {
+	background:none;	
+	color:#fff;
+	font:bold 14px;
+	line-height:35px;
+	height:37px;
+	padding:0;
+	display:inline;
+}
+.gnb .selected_ule a:hover {
+	background:none;	
+	border:none;
+}
+/* Education */
+.gnb a.edu:hover {
+	background:url(../../images/secfw/common/top_menu_up_edu.gif) repeat-x;
+	border-top:1px solid #285C83;
+	color:#fff;
+	font:bold 14px;
+	line-height:35px;
+	height:37px;
+}
+.gnb .selected_edu {
+	background:url(../../images/secfw/common/top_menu_up_edu.gif) repeat-x;
+	border-top:1px solid #285C83;
+	color:#fff;
+	font:bold 14px;
+	line-height:35px;
+	height:37px;
+	padding:0 30px;
+	display:inline;
+}
+.gnb .selected_edu a {
+	background:none;	
+	color:#fff;
+	font:bold 14px;
+	line-height:35px;
+	height:37px;
+	padding:0;
+	display:inline;
+}
+.gnb .selected_edu a:hover {
+	background:none;	
+	border:none;
+}
+/* Intern */
+.gnb a.int:hover {
+	background:url(../../images/secfw/common/top_menu_up_int.gif) repeat-x;
+	border-top:1px solid #285C83;
+	color:#fff;
+	font:bold 14px;
+	line-height:35px;
+	height:37px;
+}
+.gnb .selected_int {
+	background:url(../../images/secfw/common/top_menu_up_int.gif) repeat-x;
+	border-top:1px solid #285C83;
+	color:#fff;
+	font:bold 14px;
+	line-height:35px;
+	height:37px;
+	padding:0 30px;
+	display:inline;
+}
+.gnb .selected_int a {
+	background:none;	
+	color:#fff;
+	font:bold 14px;
+	line-height:35px;
+	height:37px;
+	padding:0;
+	display:inline;
+}
+.gnb .selected_int a:hover {
+	background:none;	
+	border:none;
+}
+/* Freshmen */
+.gnb a.fre:hover {
+	background:url(../../images/secfw/common/top_menu_up_fre.gif) repeat-x;
+	border-top:1px solid #285C83;
+	color:#fff;
+	font:bold 14px;
+	line-height:35px;
+	height:37px;
+}
+.gnb .selected_fre {
+	background:url(../../images/secfw/common/top_menu_up_fre.gif) repeat-x;
+	border-top:1px solid #285C83;
+	color:#fff;
+	font:bold 14px;
+	line-height:35px;
+	height:37px;
+	padding:0 30px;
+	display:inline;
+}
+.gnb .selected_fre a {
+	background:none;	
+	color:#fff;
+	font:bold 14px;
+	line-height:35px;
+	height:37px;
+	padding:0;
+	display:inline;
+}
+.gnb .selected_fre a:hover {
+	background:none;	
+	border:none;
+}
+
+/* Competency */
+.gnb a.com:hover {
+	background:url(../../images/secfw/common/top_menu_up_com.gif) repeat-x!important;
+	border-top:1px solid #285C83;
+	color:#fff;
+	font:bold 14px;
+	line-height:35px;
+	height:37px;
+}
+.gnb .selected_com {
+	background:url(../../images/secfw/common/top_menu_up_com.gif) repeat-x;
+	border-top:1px solid #285C83;
+	color:#fff;
+	font:bold 14px;
+	line-height:35px;
+	height:37px;
+	padding:0 30px;
+	display:inline;
+}
+.gnb .selected_com a {
+	background:none;	
+	color:#fff;
+	font:bold 14px;
+	line-height:35px;
+	height:37px;
+	padding:0;
+	display:inline;
+}
+.gnb .selected_com a:hover {
+	background:none;	
+	border:none;
+}
+/* T-Hub */
+.gnb a.thub:hover {
+	background:url(../../images/secfw/common/top_menu_up_thub.gif) repeat-x;
+	border-top:1px solid #285C83;
+	color:#fff;
+	font:bold 14px;
+	line-height:35px;
+	height:37px;
+}
+.gnb .selected_thub {
+	background:url(../../images/secfw/common/top_menu_up_thub.gif) repeat-x;
+	border-top:1px solid #285C83;
+	color:#fff;
+	font:bold 14px;
+	line-height:35px;
+	height:37px;
+	padding:0 30px;
+	display:inline;
+}
+.gnb .selected_thub a {
+	background:none;	
+	color:#fff;
+	font:bold 14px;
+	line-height:35px;
+	height:37px;
+	padding:0;
+	display:inline;
+}
+.gnb .selected_thub a:hover {
+	background:none;	
+	border:none;
+}
+/* HR-Q */
+.gnb a.hrq:hover {
+	background:url(../../images/secfw/common/top_menu_up_hrq.gif) repeat-x;
+	border-top:1px solid #285C83;
+	color:#fff;
+	font:bold 14px;
+	line-height:35px;
+	height:37px;
+}
+.gnb .selected_hrq {
+	background:url(../../images/secfw/common/top_menu_up_hrq.gif) repeat-x;
+	border-top:1px solid #285C83;
+	color:#fff;
+	font:bold 14px;
+	line-height:35px;
+	height:37px;
+	padding:0 30px;
+	display:inline;
+}
+.gnb .selected_hrq a {
+	background:none;	
+	color:#fff;
+	font:bold 14px;
+	line-height:35px;
+	height:37px;
+	padding:0;
+	display:inline;
+}
+.gnb .selected_hrq a:hover {
+	background:none;	
+	border:none;
+}
+/* GPLE */
+.gnb a.gple:hover {
+	background:url(../../images/secfw/common/top_menu_up_gple.gif) repeat-x;
+	border-top:1px solid #285C83;
+	color:#fff;
+	font:bold 14px;
+	line-height:35px;
+	height:37px;
+}
+.gnb .selected_gple {
+	background:url(../../images/secfw/common/top_menu_up_gple.gif) repeat-x;
+	border-top:1px solid #285C83;
+	color:#fff;
+	font:bold 14px;
+	line-height:35px;
+	height:37px;
+	padding:0 30px;
+	display:inline;
+}
+.gnb .selected_gple a {
+	background:none;	
+	color:#fff;
+	font:bold 14px;
+	line-height:35px;
+	height:37px;
+	padding:0;
+	display:inline;
+}
+.gnb .selected_gple a:hover {
+	background:none;	
+	border:none;
+}
+/** //Gnb Menu **/
+
+/** Layer Box**/
+/* common */
+.m_layer {
+	float:left;
+	margin:0 5px;
+	height:22px;
+	line-height:22px;
+}
+.m_layer li {
+	float:left;
+	background: url(../../images/secfw/common/layer_menu_line.gif) no-repeat right top;
+	line-height:20px;
+}
+.m_layer li.non {
+	background: none;
+}
+.m_layer li a {
+	color:#96C3F0;
+	font:bold 11px;
+	margin:0 12px;
+}
+.m_layer li a:hover {
+	color:#fff;
+}
+.m_layer li.selected {
+	color:#fff;
+	font:bold 11px;
+	line-height:22px;
+	padding:0 12px;
+}
+/* u-Learning */
+.m_layer_ule {
+	background: url(../../images/secfw/common/layer_menu_bg_ule.gif) repeat-x;
+	border:1px solid #fcc289;	
+	border-top:1px solid #ef9129;
+}
+.m_layer_ule li a {
+	color:#ffe4a2;
+}
+.ule_line li {
+	background: url(../../images/secfw/common/layer_menu_ule_line.gif) no-repeat right 6px;
+}
+.ule_line li.selected {
+	color:#fff
+}
+/* Education */
+.m_layer_edu {
+	background: url(../../images/secfw/common/layer_menu_bg_edu.gif) repeat-x;
+	border:1px solid #5693c4;
+	border-top:1px solid #2179c1;
+}
+.m_layer_edu li a {
+	color:#99c4e6;
+}
+.edu_line li {
+	background: url(../../images/secfw/common/layer_menu_edu_line.gif) no-repeat right 6px;
+}
+/* Intern */
+.m_layer_int {
+	background: url(../../images/secfw/common/layer_menu_bg_int.gif) repeat-x;
+	border:1px solid #71bf55;
+	border-top:1px solid #2e910b;	
+}
+.m_layer_int li a {
+	color:#c1f4a1;
+}
+.int_line li {
+	background: url(../../images/secfw/common/layer_menu_int_line.gif) no-repeat right 6px;
+}
+/* Freshmen */
+.m_layer_fre {
+	background: url(../../images/secfw/common/layer_menu_bg_fre.gif) repeat-x;
+	border:1px solid #49cdc2;
+	border-top:1px solid #068c98;
+}
+.m_layer_fre li a {
+	color:#baf8ea;
+}
+.fre_line li {
+	background: url(../../images/secfw/common/layer_menu_fre_line.gif) no-repeat right 6px;
+}
+
+/* Competency */
+.m_layer_com {
+	background: url(../../images/secfw/common/layer_menu_bg_com.gif) repeat-x;
+	border:1px solid #F8D184;	
+	border-top:1px solid #FFAD25;
+}
+.m_layer_com li a {
+	color:#FDF7C3;
+}
+.m_layer_com li a:hover {
+	color:#fff;
+}
+.com_line li {
+	background: url(../../images/secfw/common/layer_menu_com_line.gif) no-repeat right 6px;
+}
+
+/* T-Hub */
+.m_layer_thub {
+	background: url(../../images/secfw/common/layer_menu_bg_thub.gif) repeat-x;
+	border:1px solid #82D9F4;
+	border-top:1px solid #31AFEA;
+}
+.m_layer_thub li a {
+	color:#C2ECFA;
+}
+.thub_line li {
+	background: url(../../images/secfw/common/layer_menu_thub_line.gif) no-repeat right 6px;
+}
+
+/* HR-Q */
+.m_layer_hrq {
+	background: url(../../images/secfw/common/layer_menu_bg_hrq.gif) repeat-x;
+	border:1px solid #D2D471;
+	border-top:1px solid #ACB818;
+}
+.m_layer_hrq li a {
+	color:#F5F4B1;
+}
+.hrq_line li {
+	background: url(../../images/secfw/common/layer_menu_hrq_line.gif) no-repeat right 6px;
+}
+
+/* GPLE */
+.m_layer_gple {
+	background: url(../../images/secfw/common/layer_menu_bg_gple.gif) repeat-x;
+	border:1px solid #8E88E0;
+	border-top:1px solid #8060CB;
+}
+.m_layer_gple li a {
+	color:#C5B1F8;
+}
+.gple_line li {
+	background: url(../../images/secfw/common/layer_menu_gple_line.gif) no-repeat right 6px;
+}
+/** //Layer Box**/

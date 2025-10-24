@@ -1,0 +1,191 @@
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app>
+
+	<!-- Spring 환경 설정 파일 정보의 위치를 지정 -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+			<!-- 공통 설정 파일 -->
+			<!-- /WEB-INF/config/spring/common 디렉토리 밑에 다음 두개의 설정 파일이 있어야 한다.
+				context-secframework.xml ( sub framework 설정 파일 ),
+				context-spring_security-2.0.4-securityext-core.xml ( spring security 설정 파일 )
+			-->
+			/WEB-INF/classes/config/spring/**/context-*.xml
+			
+			<!-- 테스트용 프로그램 설정 파일( 이부분에 어플리케이션 설정 파일이 위치 한다. ) -->
+		</param-value>
+	</context-param>
+	
+	<!-- Encoding Filter 지정 : utf-8을 기본값으로 사용 -->
+	<filter>
+		<filter-name>encodingFilter</filter-name>
+		<filter-class>
+			org.springframework.web.filter.CharacterEncodingFilter
+		</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>utf-8</param-value>
+		</init-param>
+	</filter>
+	
+	<!-- XSS 체크 2012.09.21-->
+	<filter>
+		<filter-name>xssFilter</filter-name>
+		<filter-class>
+			com.sds.secframework.common.filter.CrossScriptingFilter
+		</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>utf-8</param-value>
+		</init-param>
+	</filter>
+		
+	<!-- Encoding filter를 적용할 url pattern 정의 : 모든 요청에 대해서 처리함 -->
+	<filter-mapping>
+		<filter-name>encodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	
+	<!-- Xss를 적용할 url pattern 정의 : 모든 요청에 대해서 처리함 2012.09.21-->
+	<filter-mapping>
+		<filter-name>xssFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>		
+	
+	<!-- Spring FilterChain을 적용할 url pattern 정의 : forward와 request에 대한 모든 요청에 대해서 처리함 -->
+	<!-- filter-mapping>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<url-pattern>/*</url-pattern>
+		<dispatcher>FORWARD</dispatcher>
+        <dispatcher>REQUEST</dispatcher>
+	</filter-mapping -->
+		
+	<listener>
+		<listener-class>
+			org.springframework.web.context.ContextLoaderListener
+		</listener-class>
+	</listener>
+	
+	<servlet>
+		<servlet-name>action</servlet-name>
+		<servlet-class>
+			org.springframework.web.servlet.DispatcherServlet
+		</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>
+				<!-- SpringMVC File Setting -->
+				/WEB-INF/classes/config/springmvc/secframework/servlet-secframework-control.xml
+				,/WEB-INF/classes/config/springmvc/secframework/servlet-secframework-forward.xml
+				,/WEB-INF/classes/config/springmvc/secframework/servlet-secframework-handler.xml
+				,/WEB-INF/classes/config/springmvc/secframework/servlet-secframework-interceptor.xml
+				,/WEB-INF/classes/config/springmvc/secframework/servlet-secframework-resolver.xml
+		        ,/WEB-INF/classes/config/springmvc/clm/servlet-clm-control.xml
+		        ,/WEB-INF/classes/config/springmvc/clm/servlet-clm-forward.xml
+		        ,/WEB-INF/classes/config/springmvc/clm/servlet-clm-handler.xml
+		        ,/WEB-INF/classes/config/springmvc/las/servlet-las-control.xml
+		        ,/WEB-INF/classes/config/springmvc/las/servlet-las-forward.xml
+		        ,/WEB-INF/classes/config/springmvc/las/servlet-las-handler.xml
+		        ,/WEB-INF/classes/config/springmvc/common/servlet-common-control.xml
+		        ,/WEB-INF/classes/config/springmvc/common/servlet-common-forward.xml
+		        ,/WEB-INF/classes/config/springmvc/common/servlet-common-handler.xml
+			</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	
+	<!-- freeMarker servlet -->
+	<servlet>
+		<servlet-name>freeMarkerAction</servlet-name>
+		<servlet-class>
+			org.springframework.web.servlet.DispatcherServlet
+		</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>
+				<!-- SpringMVC File Setting -->
+				/WEB-INF/classes/config/springmvc/secframework/freeMarker/servlet-secframework-freeMarker-control.xml
+			   ,/WEB-INF/classes/config/springmvc/secframework/freeMarker/servlet-secframework-freeMarker-handler.xml
+			   ,/WEB-INF/classes/config/springmvc/secframework/servlet-secframework-interceptor.xml
+			   ,/WEB-INF/classes/config/springmvc/secframework/freeMarker/servlet-secframework-freeMarker-resolver.xml
+			</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>	
+	
+	<!-- dextupload servlet -->
+  <servlet>
+    <servlet-name>dextUploadAction</servlet-name>
+    <servlet-class>
+      org.springframework.web.servlet.DispatcherServlet
+    </servlet-class>
+    <init-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>
+        <!-- SpringMVC File Setting -->
+        /WEB-INF/classes/config/springmvc/secframework/servlet-secframework-control.xml
+        ,/WEB-INF/classes/config/springmvc/secframework/servlet-secframework-forward.xml
+        ,/WEB-INF/classes/config/springmvc/secframework/servlet-secframework-handler.xml
+        ,/WEB-INF/classes/config/springmvc/secframework/servlet-secframework-interceptor.xml
+        ,/WEB-INF/classes/config/springmvc/secframework/dextupload/servlet-secframework-dextupload-resolver.xml
+      </param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+	<servlet-mapping>
+		<servlet-name>action</servlet-name>
+		<url-pattern>*.do</url-pattern>
+	</servlet-mapping>
+	
+	<!-- freeMarker servlet-mapping -->
+	<servlet-mapping>
+		<servlet-name>freeMarkerAction</servlet-name>
+		<url-pattern>*.ftl</url-pattern>
+	</servlet-mapping>
+	
+	<!-- dextupload servlet-mapping 
+  <servlet-mapping>
+    <servlet-name>dextUploadAction</servlet-name>
+    <url-pattern>*.du</url-pattern>
+  </servlet-mapping>
+  -->
+  	<session-config>
+  		<session-timeout>180</session-timeout>
+  	</session-config>
+
+	<welcome-file-list>
+		<welcome-file>login.do</welcome-file>
+		<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
+	
+	<login-config>
+		<auth-method>BASIC</auth-method>
+	</login-config>
+	
+  <error-page>
+  	<exception-type>java.lang.Throwable</exception-type>
+  	<location>/WEB-INF/jsp/secfw/error/ErrorPage.jsp</location>
+  </error-page>
+
+  <error-page>
+  	<error-code>500</error-code>
+  	<location>/WEB-INF/jsp/secfw/error/ErrorPage.jsp</location>
+  </error-page>
+
+  <error-page>
+  	<error-code>404</error-code>
+  	<location>/WEB-INF/jsp/secfw/error/PageNotFound.jsp</location>
+  </error-page>
+  
+   <error-page>
+  	<error-code>403</error-code>
+  	<location>/WEB-INF/jsp/secfw/error/ErrorPage.jsp</location>
+  </error-page>
+
+  <error-page>
+  	<exception-type>java.lang.Exception</exception-type>
+  	<location>/WEB-INF/jsp/secfw/error/ErrorPage.jsp</location>
+  </error-page>
+	
+</web-app>

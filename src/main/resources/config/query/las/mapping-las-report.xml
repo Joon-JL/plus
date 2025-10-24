@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+    <queries>
+    	<!-- 조직별 계약 체결현황 -->
+		<query id="las.report.listStaContractByDept" isCamelCase="false" isDynamic="true">
+		  <statement>
+		    <![CDATA[
+            	SELECT *                                           
+                  FROM(                                            
+                    SELECT ROWNUM RM                               
+                          ,COUNT(1) OVER() TOTAL_CNT               
+                          ,A.*                                     
+                      FROM ( 		    
+							SELECT  ISNULL(A.DEPT, 'DEPT') DEPT,
+							        A.CON SUMTOTERM,
+							        CASE WHEN B.CON>0 THEN TO_CHAR(A.CON/B.CON*100) ELSE TO_CHAR(0) END RATIO
+							FROM
+							        (
+							        SELECT  CNTRT_RESP_DEPT DEPT, 
+							                COUNT(1) CON
+							        FROM    TN_CLM_CONTRACT_MASTER
+							        WHERE   CNTRT_CNCLSNDAY IS NOT NULL
+							        AND     CNTRT_CNCLSNDAY > 0
+							        GROUP BY  CNTRT_RESP_DEPT
+							        ) A,
+							        (
+							        SELECT  COUNT(1) CON
+							        FROM    TN_CLM_CONTRACT_MASTER
+							        WHERE   CNTRT_CNCLSNDAY IS NOT NULL
+							        AND     CNTRT_CNCLSNDAY > 0
+							        ) B	
+                            ) A           
+				    ) B                
+		    ]]>
+		  </statement>
+		</query>
+				       		
+    </queries>
+</queryservice>

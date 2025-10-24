@@ -1,0 +1,19 @@
+<configuration>
+
+        <!-- 테스토피아 연동 관련 정보 -->
+        <testJobId>10308</testJobId><!-- Testopia Webportal에서 생성한 Test Job ID 입력 -->
+
+        <!-- UNIT 결과 업로드를 위한 파라미터 -->
+        <resultType>JUnit</resultType>
+        <resultFileOrDirectory>./target/surefire-reports</resultFileOrDirectory>
+        <resultPrefix>TEST</resultPrefix>
+        <resultPostfix>xml</resultPostfix>
+
+        <!-- Coverage 정보 업로드를 위한 파라미터 -->
+        <coverageType>Jacoco</coverageType>
+        <coverageFileOrDirectory>./target/site/jacoco/jacoco.xml</coverageFileOrDirectory>
+
+        <!-- Coverage 정보 업로드시 신규/변경 파일을 필터링하기 위한 파라미터 -->
+        <srcBasePath>src</srcBasePath>
+	<baseDate>1970-01-01</baseDate>
+</configuration>

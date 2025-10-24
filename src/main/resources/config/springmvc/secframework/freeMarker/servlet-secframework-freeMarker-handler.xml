@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean id="freeMarkerHandlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="order" value="1" />
+		<property name="interceptors">
+			<list>
+				<!-- <ref bean="secfw.menuInterceptor" /> -->
+			</list>
+		</property>
+		<property name="alwaysUseFullPath" value="true" />
+		<property name="mappings">
+			<props>
+				<!-- Main controller -->
+				<prop key="/secfw/main.ftl">secfw.mainControl</prop>
+			</props>
+		</property>
+	</bean>
+</beans>

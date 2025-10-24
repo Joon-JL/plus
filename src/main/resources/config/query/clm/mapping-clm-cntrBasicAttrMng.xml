@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+    <queries>
+    	<!-- 목록 -->
+        <query id="clm.admin.listCntrBasicAttrMng" isCamelCase="false">
+            <statement>
+            <![CDATA[
+            SELECT * FROM 
+            ( 
+            	SELECT rownum RN, t.*, COUNT(1) over() TOTAL_CNT FROM 
+            	(
+					SELECT
+						A.ATTR_SEQNO
+						,A.ATTR_CLMNNM
+						,A.INFO_ITM
+						,A.CRTN_DEPTH
+						,CASE 
+							WHEN :vo.session_user_locale = 'ko' THEN A1.CD_NM
+							WHEN :vo.session_user_locale = 'fr' THEN A1.CD_NM_FRA
+							WHEN :vo.session_user_locale = 'de' THEN A1.CD_NM_DEU
+							ELSE A1.CD_NM_ENG
+						END AS CRTN_DEPTH_NM 
+					FROM 
+						TN_CLM_BASIC_ATTR A
+						LEFT OUTER JOIN TB_COM_CD A1 ON (A1.SYS_CD='CLM' AND A1.GRP_CD='C040' AND A1.CD=A.CRTN_DEPTH)
+					WHERE 1=1
+						#if(!$vo.srch_info_itm.equals(""))
+						AND UPPER(A.INFO_ITM) LIKE '%' + UPPER(:vo.srch_info_itm) + '%'
+						#end
+						AND A.USE_YN='Y'
+					ORDER BY A.PRNT_SRT	                     
+				) t
+            	ORDER BY RN 
+            )
+            WHERE RN between :vo.start_index and :vo.end_index
+            ]]>
+            </statement>
+        </query>  
+        
+        <!-- 상세 -->
+        <query id="clm.admin.detailCntrBasicAttrMng" isCamelCase="false">
+            <statement>
+            <![CDATA[
+			SELECT
+				A.ATTR_SEQNO
+				,A.ATTR_CLMNNM
+				,A.INFO_ITM
+				,A.CRTN_DEPTH
+				,CASE 
+					WHEN :vo.session_user_locale = 'ko' THEN A1.CD_NM
+					WHEN :vo.session_user_locale = 'fr' THEN A1.CD_NM_FRA
+					WHEN :vo.session_user_locale = 'de' THEN A1.CD_NM_DEU
+					ELSE A1.CD_NM_ENG
+				END AS CRTN_DEPTH_NM 
+				,A.ATTR_DEFN
+				,A.CRTN_MTHD
+				,A.ATTR_VAL
+				,A.VAL_EXMPL1
+				,A.VAL_EXMPL2
+				,A.CRTN_MNAGT
+				,A.INFO_TYPE
+				,A.CRTN_SYS
+				,A.PRNT_SRT
+				,A.USE_YN
+				,TO_CHAR(A.REG_DT, 'yyyy-MM-dd') REG_DT
+				,A.REG_ID
+				,A.REG_NM
+				,A.REG_DEPT_NM
+			FROM 
+				TN_CLM_BASIC_ATTR A
+				LEFT OUTER JOIN TB_COM_CD A1 ON (A1.SYS_CD='CLM' AND A1.GRP_CD='C040' AND A1.CD=A.CRTN_DEPTH)
+			WHERE 1=1
+				AND A.ATTR_SEQNO = :vo.attr_seqno
+				AND A.USE_YN='Y'
+            ]]>
+            </statement>
+        </query>
+  
+    </queries>
+</queryservice>

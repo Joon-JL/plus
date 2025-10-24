@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+	<queries>
+		<!-- list 출력 쿼리 -->
+		<query id="las.speakcontract.list" isCamelCase="false">
+			<statement>
+    		<![CDATA[
+    		SELECT  *
+                  FROM  (
+                        SELECT  ROWNUM RM
+                               ,COUNT(1) over() TOTAL_CNT
+                               ,A.*
+                          FROM  (
+                                SELECT  SEQNO
+								       ,TITLE
+								       ,DMSTFRGN_GBN
+								       ,REQMAN_ID
+								       ,REQMAN_NM
+								       ,REG_DT
+								       ,RESPMAN_ID
+								       ,RESPMAN_NM
+								       ,TO_CHAR(REG_DT, 'yyyy-MM-dd hh24:mi') REG_DT
+                                       ,TO_CHAR(REG_DT, 'yyyy-MM-dd') 		  REG_DT_DATE                                       
+                                  FROM  TN_LAS_SPEAKCONTRACT
+                                 WHERE  DEL_YN = 'N' 
+                                   
+                                   #if ($vo.isForeign.equals("false"))
+                                   AND RTRIM(DMSTFRGN_GBN) = 'H'
+                                   #else
+                                   AND RTRIM(DMSTFRGN_GBN) = 'F'
+                                   #end
+                                   
+                                   #if ($vo.top_role.equals("etc"))
+                                   AND REQMAN_ID = :vo.session_user_id
+                                   #end
+                                   
+                                   #if ($vo.srch_title && !$vo.srch_title.equals("")) 
+                                   AND  UPPER(TITLE) LIKE '%' + UPPER(:vo.srch_title) +  '%'
+                                   #end
+                                   #if ($vo.srch_respman_nm && !$vo.srch_respman_nm.equals("")) 
+                                   AND  UPPER(RESPMAN_NM) LIKE '%' + UPPER(:vo.srch_respman_nm) +  '%'
+                                   #end
+                                   #if ($vo.srch_respman_id && !$vo.srch_respman_id.equals("")) 
+                                   AND  RESPMAN_ID LIKE '%' + :vo.srch_respman_id +  '%'
+                                   #end
+                                   #if ($vo.srch_start_ymd && !$vo.srch_start_ymd.equals(""))
+                                   AND    REG_DT >= DATE(:vo.srch_start_ymd)
+                                   #end
+                                   #if ($vo.srch_end_ymd && !$vo.srch_end_ymd.equals(""))
+                                   AND    REG_DT <= DATE(:vo.srch_end_ymd) + 1
+                                   #end
+                                 ORDER  BY SEQNO DESC) A ) B
+                 WHERE  B.RM BETWEEN :vo.start_index AND :vo.end_index
+             ]]> 
+			</statement>
+		</query>
+
+
+		<!-- insert 쿼리. WEEKDUTYYN, MONTHDUTYYN, CONF_WEEKDUTYYN, CONF_MONTHDUTYYN 임시적으로 Y값 세팅 -->
+		<query id="las.speakcontract.insert" isCamelCase="false">
+			<statement>
+    		<![CDATA[
+    		INSERT INTO TN_LAS_SPEAKCONTRACT (
+           		SEQNO
+               , TITLE
+               , RE_CONT
+               , DMSTFRGN_GBN
+               , RE_CONT_REF
+               , REQMAN_ID
+               , REQMAN_NM
+               , REQMAN_DEPT
+               , REQMAN_DEPT_NM
+               , REG_DT
+               , RESPMAN_ID
+               , RESPMAN_NM
+               , RESPMAN_DEPT
+               , RESPMAN_DEPT_NM
+               , WEEKDUTYYN
+               , MONTHDUTYYN
+               , CONF_WEEKDUTYYN
+               , CONF_MONTHDUTYYN
+               , GRPMGR_REDEPT
+               , MOD_DT
+               , MOD_ID
+               , MOD_NM
+               , DEL_YN
+       		 ) VALUES (
+        	   :vo.seqno
+       		   ,:vo.title
+      	       ,:vo.re_cont
+	           #if ($vo.isForeign.equals("false"))
+               ,'H'
+               #else
+               ,'F'
+               #end 
+	           ,:vo.re_cont_ref
+	           ,:vo.reqman_id
+	           ,:vo.reqman_nm
+	           ,:vo.reqman_dept
+	           ,:vo.reqman_dept_nm
+	           ,SYSDATE
+	           ,:vo.respman_id
+	           ,:vo.respman_nm
+	           ,:vo.respman_dept
+	           ,:vo.respman_dept_nm
+	           ,'Y'
+	           ,'Y'
+	           ,'Y'
+	           , 'Y'
+	           ,:vo.grpmgr_redept
+	           ,SYSDATE
+	           ,:vo.mod_id
+	           ,:vo.mod_nm
+	           ,:vo.del_yn
+	        )
+   			 ]]>
+			</statement>
+		</query>
+		
+		<!-- 상세조회 쿼리 -->
+		<query id="las.speakcontract.detail" isCamelCase="false">
+			<statement>
+    		<![CDATA[
+    		SELECT SEQNO
+    			  ,TITLE
+    			  ,RE_CONT
+    			  ,DMSTFRGN_GBN
+    			  ,RE_CONT_REF
+    			  ,REQMAN_ID
+    			  ,REQMAN_NM
+    			  ,REQMAN_DEPT
+    			  ,REQMAN_DEPT_NM
+    			  ,REG_DT
+    			  ,RESPMAN_ID
+    			  ,RESPMAN_NM
+    			  ,RESPMAN_DEPT
+    			  ,RESPMAN_DEPT_NM
+    			  ,EMAIL AS REQMAN_MAIL
+    		 FROM TN_LAS_SPEAKCONSULT A, (SELECT USER_ID, EMAIL 
+                                            FROM TB_COM_USER) B
+    		WHERE SEQNO = :vo.seqno
+    		  AND A.REQMAN_ID = B.USER_ID(+)
+    		
+    		  ]]>
+			</statement>
+		</query>
+
+		<!-- 수정 -->
+		<query id="las.speakcontract.modify" isCamelCase="false">
+			<statement>
+    		<![CDATA[
+        	 UPDATE TN_LAS_SPEAKCONTRACT
+        	    SET SEQNO = :vo.seqno
+         	      , TITLE = :vo.title
+                  , RE_CONT = :vo.re_cont
+                  , REQMAN_ID = :vo.reqman_id
+                  , REQMAN_NM = :vo.reqman_nm
+                  , REQMAN_DEPT = :vo.reqman_dept
+                  , REQMAN_DEPT_NM = :vo.reqman_dept_nm
+                  , MOD_DT = SYSDATE
+                  , MOD_ID = :vo.mod_id
+                  , MOD_NM = :vo.mod_nm
+              WHERE SEQNO = :vo.seqno
+		    ]]>
+			</statement>
+		</query>
+
+		<!--  삭제. DEL_YN을 Y로 세팅 -->
+		<query id="las.speakcontract.delete" isCamelCase="false">
+			<statement>
+    		<![CDATA[
+         		UPDATE TN_LAS_SPEAKCONTRACT
+            	   SET DEL_YN = 'Y'
+            	      ,DEL_DT = SYSDATE
+            	      ,DEL_ID = :vo.del_id
+            	      ,DEL_NM = :vo.del_nm
+          	     WHERE SEQNO = :vo.seqno
+    		]]>
+			</statement>
+		</query>
+		
+		<!--  max seq 구함 -->
+		<query id="las.speakcontract.maxseq" isCamelCase="false">
+			<statement>
+    		<![CDATA[
+         		SELECT MAX(SEQNO) MAXSEQ
+         		  FROM TN_LAS_SPEAKCONTRACT  
+    		]]>
+			</statement>
+		</query>
+	</queries>
+</queryservice>
