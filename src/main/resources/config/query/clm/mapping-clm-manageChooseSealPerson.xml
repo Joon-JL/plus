@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+    <queries>
+    	<!-- 2011.09.30 심주완추가(날인담당자선택팝업) -->
+		<query id="clm.manage.listChooseSealPerson" isCamelCase="false">
+            <statement>
+            <![CDATA[
+			
+			SELECT 
+                             A.USER_ID 
+                            ,A.SINGLE_ID         
+                            ,A.USER_NM 
+                            ,A.DEPT_NM 
+                            ,A.DEPT_CD  
+                            ,A.JIKGUP_NM  
+                            ,A.JIKGUP_CD 
+                            ,A.EMAIL
+                            ,A.COMP_CD
+                           , A.USER_NM+'('+A.JIKGUP_NM+')'+'/'+A.DEPT_NM+'/'+A.COMP_NM AS USER_INFO
+                           , CASE ISNULL(B.USER_ID, '')
+                               WHEN '' THEN 'N'
+                             ELSE
+                               'Y'
+                             END AS AUTH_APNT_YN
+                           , CASE ISNULL(C.ARA_NM, '')
+                               WHEN '' THEN ''
+                             ELSE
+                               C.ARA_NM
+                             END AS ARA_NM
+                           , CASE ISNULL(C.COMMENTS, '')
+                               WHEN '' THEN ''
+                             ELSE
+                               C.COMMENTS
+                             END AS COMMENTS
+                FROM 
+                            TB_COM_USER A
+                            LEFT OUTER JOIN
+                            (SELECT USER_ID 
+                               FROM TB_COM_ROLE_USER 
+                              WHERE ROLE_CD = 'RE01') B ON A.USER_ID = B.USER_ID
+                              LEFT OUTER JOIN
+                              (SELECT SEAL_FFMTMAN_ID 
+                                     ,ARA_NM,COMMENTS 
+                                 FROM TN_CLM_PRTB_CSTB_INSA 
+                                WHERE DEL_YN = 'N' 
+                                  AND GUBN_CD= 'SC0101') C ON A.USER_ID = C.SEAL_FFMTMAN_ID 
+				WHERE A.COMP_CD = :vo.session_comp_cd
+				  AND B.USER_ID IS NOT NULL
+				      
+				 #if ($vo.srch_cntnt_type.equals("user_nm") && !$vo.srch_cntnt.equals(""))
+				  	 AND A.USER_NM LIKE '%' +:vo.srch_cntnt +'%'
+				 #end			
+				 
+	 			 #if ($vo.srch_cntnt_type.equals("dept_nm"))
+				  	 AND A.DEPT_NM LIKE '%' +:vo.srch_cntnt +'%'
+				 #end
+				 ORDER BY A.USER_NM
+			
+            ]]>
+            </statement>
+        </query>
+        
+        <query id=" clm.manage.listChooseCertificatIssue" isCamelCase="false">
+            <statement>
+            <![CDATA[
+						
+			SELECT 
+                             A.USER_ID 
+                            ,A.SINGLE_ID         
+                            ,A.USER_NM  
+                            ,A.DEPT_NM  
+                            ,A.DEPT_CD 
+                            ,A.JIKGUP_NM 
+                            ,A.JIKGUP_CD
+                            ,A.EMAIL
+                            ,A.COMP_CD
+                           , A.USER_NM+'('+A.JIKGUP_NM+')'+'/'+A.DEPT_NM+'/'+A.COMP_NM AS USER_INFO
+                           , DECODE(ISNULL(B.USER_ID, ''),'','N','Y') AS AUTH_APNT_YN 
+                           , DECODE(ISNULL(C.ARA_NM, ''),'','',C.ARA_NM) AS ARA_NM 
+                           , DECODE(ISNULL(C.COMMENTS, ''),'','',C.COMMENTS) AS COMMENTS 
+                FROM 
+                            TB_COM_USER A,
+                            (SELECT USER_ID from TB_COM_ROLE_USER WHERE ROLE_CD = 'RE02') B  ,
+                              (SELECT SEAL_FFMTMAN_ID ,ARA_NM,COMMENTS from TN_CLM_PRTB_CSTB_INSA WHERE DEL_YN = 'N' AND GUBN_CD= 'SC0102') C 
+				WHERE 
+							A.COMP_CD = :vo.session_comp_cd
+				
+				AND		A.USER_ID = B.USER_ID(+)  		
+				AND 		A.USER_ID = C.SEAL_FFMTMAN_ID(+) 	
+				AND 		DECODE (ISNULL (B.USER_ID, ''), '', 'N', 'Y')  = 'Y'
+				
+				 #if ($vo.srch_cntnt_type.equals("user_nm") && !$vo.srch_cntnt.equals(""))
+				  	 AND A.USER_NM LIKE '%' +:vo.srch_cntnt +'%'
+				 #end			
+				 
+	 			 #if ($vo.srch_cntnt_type.equals("dept_nm"))
+				  	 AND A.DEPT_NM LIKE '%' +:vo.srch_cntnt +'%'
+				 #end
+				 ORDER BY A.USER_NM	
+			
+            ]]>
+            </statement>
+        </query>       
+       
+        
+        <query id="clm.manage.listChooseSealDept" isCamelCase="false">
+            <statement>
+            <![CDATA[
+           	SELECT INDPT_CD AS SEAL_FFMT_SEARCH_DEPT_CD
+     			 , DPT_NM   AS SEAL_FFMT_SEARCH_DEPT_NM
+  			  FROM GAIS.PRTB_DEPT
+ 			 WHERE USE_YN = 'Y' AND SAUPBU_USE = 'Y'
+          ORDER BY INDPT_CD ASC
+            ]]>
+            </statement>
+        </query>
+        
+        
+    </queries>
+</queryservice>

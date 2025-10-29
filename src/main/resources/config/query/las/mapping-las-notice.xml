@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+    <queries>
+        <!-- 페이징 리스트 조회 -->
+        <query id="las.board.listNotice" isCamelCase="false" isDynamic="true">
+            <statement>
+            <![CDATA[
+                SELECT  *
+                  FROM  (
+                        SELECT  ROW_NUMBER() OVER(ORDER BY A.SEQNO DESC) AS RN
+                               ,COUNT(1) over() TOTAL_CNT
+                               ,A.*
+                          FROM  (
+                                SELECT 	A.SEQNO,
+                                		A.COMP_CD,
+                                        CASE WHEN A.REG_DT > GETDATE() - 14 THEN 'Y' ELSE '' END NEW_YN,
+                                        A.TITLE,
+										A.TITLE_EN,
+										A.CONT,
+										A.RDCNT,
+										A.ANNCE_KND,
+										CASE WHEN ANNCE_ST_YMD = '00000000' THEN ''
+					    	      			ELSE 
+					    	      				SUBSTRING(ANNCE_ST_YMD,1,4)+'-'+SUBSTRING(ANNCE_ST_YMD,5,2)+'-'+SUBSTRING(ANNCE_ST_YMD,7,2) 
+					    	 			END ANNCE_ST_YMD,
+				    	   				CASE WHEN ANNCE_ED_YMD = '99999999' THEN ''
+				    	          			ELSE 
+				    	          				SUBSTRING(ANNCE_ED_YMD,1,4)+'-'+SUBSTRING(ANNCE_ED_YMD,5,2)+'-'+SUBSTRING(ANNCE_ED_YMD,7,2)
+				    	     			END ANNCE_ED_YMD,
+				    	     			IMP_FLG,
+				    	     			POPUP_YN,
+										CONVERT(CHAR(10), A.REG_DT, 23) AS REG_DT, /*YYYY-MM-DD*/
+										A.REG_ID,
+										A.REG_NM,
+										A.REG_DEPT,
+										A.REG_DEPT_NM,
+										CONVERT(CHAR(10), A.MOD_DT, 23) AS MOD_DT, /*YYYY-MM-DD*/
+										A.MOD_ID,
+										A.MOD_NM,
+										A.DEL_YN,
+										A.DEL_DT,
+										A.DEL_ID,
+										A.DEL_NM
+								  FROM  TN_LAS_ANNOUNCE A, TB_COM_CD B
+								 WHERE  B.SYS_CD   = 'LAS'
+								   AND  B.GRP_CD = 'C001'
+								   AND  A.ANNCE_KND = B.CD
+				                   AND  A.ANNCE_KND = :vo.annce_knd
+				                   AND	A.DEL_YN   = 'N'
+				                #if(!$vo.session_auth_comp_cd.equals(""))
+						           	#if($vo.annce_knd.equals("MEMO"))
+										AND (A.COMP_CD IN ($vo.session_auth_comp_cd) OR A.COMP_CD = 'SYS') 
+						           	#else
+						           		AND A.COMP_CD IN ($vo.session_auth_comp_cd)
+						           	#end
+						        #end
+							#if (!$vo.srch_word.equals(""))
+							    #if ($vo.srch_combo.equals("title"))
+							       AND A.TITLE LIKE '%' + :vo.srch_word + '%'
+							    #elseif ($vo.srch_combo.equals("reg_nm"))
+							       AND A.REG_NM LIKE '%' + :vo.srch_word + '%'
+							    #else
+							    	#if($vo.session_user_locale == 'ko')
+							       		AND A.CONT LIKE '%' + :vo.srch_word + '%'
+							       	#else
+							       		AND A.CONT_EN LIKE '%' + :vo.srch_word + '%'
+							       	#end
+							    #end
+							#end
+                                #if ($vo.srch_start_dt && !$vo.srch_start_dt.equals(""))
+                                   AND    A.REG_DT >= CONVERT(DATETIME, REPLACE( :vo.srch_start_dt ,'-',''), 112) /*YYYY-MM-DD*/
+                                #end
+                                #if ($vo.srch_end_dt && !$vo.srch_end_dt.equals(""))
+                                   AND    A.REG_DT <= CONVERT(DATETIME, REPLACE( :vo.srch_end_dt ,'-',''), 112) + 1 /*YYYY-MM-DD*/
+                                #end
+                                 ) A ) B
+                 WHERE  B.RN BETWEEN :vo.start_index AND :vo.end_index
+                 ORDER  BY B.SEQNO DESC
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 상세 조회 -->
+        <query id="las.board.detailNotice" isCamelCase="false">
+            <statement>
+            <![CDATA[
+                SELECT  A.SEQNO,
+                		A.COMP_CD,
+						A.TITLE,
+						A.TITLE_EN,
+						A.CONT,
+						A.CONT_EN,
+						A.RDCNT,
+						A.ANNCE_KND,
+						CASE WHEN ANNCE_ST_YMD = '00000000' THEN ''
+	    	      			ELSE 
+	    	      				SUBSTRING(ANNCE_ST_YMD,1,4)+'-'+SUBSTRING(ANNCE_ST_YMD,5,2)+'-'+SUBSTRING(ANNCE_ST_YMD,7,2) 
+	    	 			END ANNCE_ST_YMD,
+    	   				CASE WHEN ANNCE_ED_YMD = '99999999' THEN ''
+    	          			ELSE 
+    	          				SUBSTRING(ANNCE_ED_YMD,1,4)+'-'+SUBSTRING(ANNCE_ED_YMD,5,2)+'-'+SUBSTRING(ANNCE_ED_YMD,7,2)
+    	     			END ANNCE_ED_YMD,
+    	     			IMP_FLG,
+    	     			POPUP_YN,
+						CONVERT(CHAR(10), A.REG_DT, 23) AS REG_DT, /*YYYY-MM-DD*/
+						A.REG_ID,
+						A.REG_NM,
+				  		JIKGUP_NM,
+				  		DEPT_NM,
+						A.REG_DEPT,
+						A.REG_DEPT_NM,
+						CONVERT(CHAR(10), A.MOD_DT, 23) AS MOD_DT, /*YYYY-MM-DD*/
+						A.MOD_ID,
+						A.MOD_NM,
+						A.DEL_YN,
+						A.DEL_DT,
+						A.DEL_ID,
+						A.DEL_NM
+                  FROM  TN_LAS_ANNOUNCE A INNER JOIN TB_COM_CD B
+                  			ON A.ANNCE_KND = B.CD
+                  		LEFT OUTER JOIN  
+						TB_COM_USER C
+							ON A.REG_ID = C.USER_ID
+                 WHERE  B.SYS_CD   = 'LAS'
+                   AND  B.GRP_CD = 'C001'
+                   AND  A.ANNCE_KND = :vo.annce_knd
+                   AND  A.SEQNO = :vo.seqno
+                   AND	A.DEL_YN   = 'N'
+                   #if(!$vo.session_auth_comp_cd.equals(""))
+			      		#if($vo.annce_knd.equals("MEMO"))
+							AND (A.COMP_CD IN ($vo.session_auth_comp_cd) OR A.COMP_CD = 'SYS') 
+		           		#else
+		           			AND A.COMP_CD IN ($vo.session_auth_comp_cd)
+		           		#end
+			       #end
+            ]]>
+            </statement>
+        </query>
+        
+        <!-- 등록 -->
+        <query id="las.board.insertNotice" isCamelCase="false">
+            <statement>
+            <![CDATA[
+                INSERT  INTO  TN_LAS_ANNOUNCE (
+                        SEQNO,
+                        COMP_CD,
+                        TITLE,						
+						TITLE_EN,
+						CONT_EN,
+						RDCNT,
+						ANNCE_KND,
+						ANNCE_ST_YMD,
+						ANNCE_ED_YMD,
+						IMP_FLG,
+						POPUP_YN,
+						REG_DT,
+						REG_ID,
+						REG_NM,
+						REG_DEPT,
+						REG_DEPT_NM
+						)
+                VALUES (
+                        :vo.seqno,
+                        #if(!$vo.session_auth_comp_cd.equals(""))
+				   			#if($vo.system_notice_yn.equals('Y') && $vo.annce_knd.equals('MEMO')) 
+				   				'SYS',
+				   			#else
+				   				($vo.session_auth_comp_cd),
+				   			#end
+				   		#else
+				   			'',
+				   		#end
+				   		:vo.title,
+                        :vo.title_en,
+                        CAST( :vo.cont_en AS ntext),
+                        :vo.rdcnt,
+                        :vo.annce_knd,
+                        :vo.annce_st_ymd,
+                        :vo.annce_ed_ymd,
+                        :vo.imp_flg,
+                        :vo.popup_yn,
+                        GETDATE(),
+                        :vo.reg_id,
+                        :vo.reg_nm,
+                        :vo.reg_dept,
+                        :vo.reg_dept_nm
+                       )
+            ]]>
+            </statement>
+        </query>
+        
+        <!-- 글수정 -->
+        <query id="las.board.modifyNotice" isCamelCase="false">
+            <statement>
+            <![CDATA[
+                UPDATE   TN_LAS_ANNOUNCE
+                   SET   TITLE			= :vo.title_en
+                   		,TITLE_EN		= :vo.title_en
+                       	,CONT_EN		= :vo.cont_en
+                       	,ANNCE_ST_YMD   = :vo.annce_st_ymd
+						,ANNCE_ED_YMD   = :vo.annce_ed_ymd
+						,IMP_FLG		= :vo.imp_flg
+						,POPUP_YN		= :vo.popup_yn
+                       	,MOD_DT        	= GETDATE()
+                       	,MOD_ID        	= :vo.mod_id
+                       	,MOD_NM        	= :vo.mod_nm
+                 WHERE  ANNCE_KND 		= :vo.annce_knd
+                   AND  SEQNO = :vo.seqno
+                   AND	DEL_YN = 'N'
+            ]]>
+            </statement>
+        </query>
+                
+        <!-- 조회수 증가 -->
+        <query id="las.board.increaseRdCnt" isCamelCase="false">
+            <statement>
+            <![CDATA[
+                UPDATE  TN_LAS_ANNOUNCE
+                   SET  RDCNT = RDCNT + 1
+                 WHERE  ANNCE_KND = :vo.annce_knd
+                   AND  SEQNO = :vo.seqno
+                   AND	DEL_YN   = 'N'
+            ]]>
+            </statement>
+        </query>
+        
+        <!-- DEL_YN을 업데이트 -->
+        <query id="las.board.deleteNotice" isCamelCase="false">
+            <statement>
+            <![CDATA[
+                UPDATE  TN_LAS_ANNOUNCE
+                   SET  DEL_YN = 'Y'
+                       ,DEL_DT = GETDATE()
+                       ,DEL_ID = :vo.del_id
+                       ,DEL_NM = :vo.del_nm
+                 WHERE  ANNCE_KND = :vo.annce_knd
+                   AND  SEQNO = :vo.seqno
+                   AND	DEL_YN   = 'N'
+            ]]>
+            </statement>
+        </query>
+        
+        <!-- 법무 메인 공지사항 조회 : 2011.09.21 : 김형준 -->
+        <query id="las.board.listNoticeByMain" isCamelCase="false" isDynamic="true">
+            <statement>
+            	<![CDATA[
+					SELECT  * FROM  
+					(
+						SELECT  ROW_NUMBER() OVER (ORDER BY SEQNO DESC) RN, COUNT(1) over() TOTAL_CNT, A.* FROM  
+						(
+							SELECT  
+								A.SEQNO,
+					            A.TITLE,
+					            A.TITLE_EN,
+								A.CONT,
+								A.CONT_EN,
+								A.RDCNT,
+								A.ANNCE_KND,
+								A.OPEN_YN,
+								A.POPUP_YN,
+								A.IMP_FLG,
+								CONVERT(CHAR(10),A.REG_DT,23) REG_DT,/*YYYY-MM-DD*/ 
+								A.REG_ID,
+								A.REG_NM,
+								A.REG_DEPT,
+								A.REG_DEPT_NM,
+								CONVERT(CHAR(10),A.MOD_DT,23) MOD_DT,/*YYYY-MM-DD*/ 
+								A.MOD_ID,
+								A.MOD_NM,
+								A.DEL_YN,
+								A.DEL_DT,
+								A.DEL_ID,
+								A.DEL_NM,
+								CASE WHEN A.REG_DT > GETDATE()-14 THEN 'NEW' ELSE '' END NEW_YN
+							FROM  TN_LAS_ANNOUNCE A, TB_COM_CD B
+							WHERE  
+								B.SYS_CD   = 'LAS'
+								AND  B.GRP_CD = 'C001'
+								AND  A.ANNCE_KND = B.CD
+								AND  A.ANNCE_KND = :vo.annce_knd
+								AND	 A.DEL_YN   = 'N'
+								#if(!$vo.session_auth_comp_cd.equals(""))
+						           	#if($vo.annce_knd.equals("MEMO"))
+										AND (A.COMP_CD IN ($vo.session_auth_comp_cd) OR A.COMP_CD = 'SYS') 
+						           	#else
+						           		AND A.COMP_CD IN ($vo.session_auth_comp_cd)
+						           	#end
+						        #end
+							-- ORDER  BY A.SEQNO DESC
+						) A 
+					) T
+					WHERE  RN BETWEEN :vo.start_index AND :vo.end_index            	
+            	]]>
+            </statement>
+        </query>
+
+		<!-- 표준 조항 권한 체크 정보  -->
+		<query id="las.board.authNotice" isCamelCase="false">
+		  	<statement>
+			    <![CDATA[
+					SELECT	SEQNO, COMP_CD, TITLE, CONT, RDCNT, ANNCE_KND
+						  , REPLACE(CONVERT(CHAR(10), REG_DT, 23),'-','') AS REG_DT, /*YYYYMMDD*/
+						  REG_ID, REG_NM
+					FROM 	TN_LAS_ANNOUNCE
+					WHERE	ANNCE_KND = :vo.annce_knd
+					  AND   SEQNO = :vo.seqno
+					  AND 	DEL_YN = 'N'
+			    ]]>
+		  	</statement>
+		</query>
+		
+		<!-- MAX SEQNO를 조회 -->
+		<query id="las.board.getMaxSeqNoByCompCd" isCamelcase="false">
+			<statement>
+				<![CDATA[
+					SELECT 	ISNULL(MAX(SEQNO),0) AS MAX_SEQNO
+					FROM 	TN_LAS_ANNOUNCE
+					WHERE	ANNCE_KND 	= :vo.annce_knd
+						AND DEL_YN 		= 'N'
+					#if(!$vo.session_auth_comp_cd.equals(""))
+					   	AND COMP_CD IN ($vo.session_auth_comp_cd)
+					#end
+				]]>
+			</statement>
+		</query>
+		
+		<!-- 팝업공지 대상 리스트 조회 -->
+		<query id="las.board.listNoticeLatestSeqno" isCamelcase="false">
+			<statement>
+				<![CDATA[
+					SELECT SEQNO
+						FROM
+					    (SELECT TOP 1 SEQNO 
+					    	FROM TN_LAS_ANNOUNCE
+					        WHERE
+					        		ANNCE_KND = :vo.annce_knd
+							    AND POPUP_YN    = 'Y'
+							    AND DEL_YN 		= 'N'
+						    #if(!$vo.session_auth_comp_cd.equals(""))
+							   	AND COMP_CD IN ($vo.session_auth_comp_cd)
+							#end
+							    AND ANNCE_ST_YMD < CONVERT(CHAR(10),GETDATE()+1,112)	/*YYYYMMDD*/
+							    AND ANNCE_ED_YMD > CONVERT(CHAR(10),GETDATE()-1,112)	/*YYYYMMDD*/
+							    ORDER BY REG_DT DESC) TA
+					UNION
+					SELECT SEQNO
+						FROM
+					    (SELECT TOP 1 SEQNO 
+					    	FROM TN_LAS_ANNOUNCE
+					        WHERE
+					        		ANNCE_KND = :vo.annce_knd
+							    AND POPUP_YN    = 'Y'
+							    AND DEL_YN 		= 'N'
+						    #if(!$vo.session_auth_comp_cd.equals(""))
+							   	AND COMP_CD 	= 'SYS'
+							#end
+							    AND ANNCE_ST_YMD < CONVERT(CHAR(10),GETDATE()+1,112)	/*YYYYMMDD*/
+							    AND ANNCE_ED_YMD > CONVERT(CHAR(10),GETDATE()-1,112)	/*YYYYMMDD*/
+							    ORDER BY REG_DT DESC) TB
+				]]>
+			</statement>
+		</query>
+		
+		
+		<!-- POPUP_YN 값을 ''으로 업데이트(해제) -->
+		<query id="las.board.updateNoticePopupValueOff" isCamelcase="false">
+			<statement>
+				<![CDATA[
+					UPDATE TN_LAS_ANNOUNCE
+					SET 
+						POPUP_YN = ''
+					WHERE
+							POPUP_YN = 'Y'
+					#if($vo.system_notice_yn.equals("Y"))
+						AND COMP_CD = 'SYS'
+					#elseif(!$vo.session_auth_comp_cd.equals(""))
+					   	AND COMP_CD IN ($vo.session_auth_comp_cd)
+					#end
+				]]>
+			</statement>
+		</query>
+		
+    </queries>
+</queryservice>

@@ -1,0 +1,30 @@
+<%@ taglib prefix="c"      uri="http://java.sun.com/jstl/core"%>
+
+<%@ page import="com.sds.secframework.common.util.StringUtil" %>
+
+<%--
+  /***************************************************************************************
+  * @NamoWecInclude.jspf
+  * @Creator     - KUN HYUN SEO
+  * @Create Date - 2010.01.01
+  * @Update      -wwwwww
+  * @Update Date -
+  * @Note		 - Â
+ *****************************************************************************************/
+--%>
+<object id="wec" classid="CLSID:690EF16C-B92A-4964-98BC-E0A686D7149A" codebase="<c:url value='/util/namoWeb/NamoWec.cab' />#Version=7,0,3,10" class="text all" style="width:100%; height:300px;">
+	<param name="UserLang"    value="kor">
+	<param name="InitFileURL" value="<c:url value='/util/namoWeb/kor/AdminInit.xml' />">
+    <PARAM NAME='InitFileVer' VALUE='-9999'>
+</object>
+<!-- 
+<script language="JScript" for="wec" event="OnInitCompleted()">    
+	var wecObj = document.wec;
+	var textObj = document.getElementById("contents");
+	wecObj.SetDefaultFont('<spring:message code="secfw.page.namo.default.font" />');
+	wecObj.SetDefaultFontSize("9");
+	wecObj.EditMode = 1;
+	document.wec.HeadValue = "<style type=text/css> p, td, li {font-family:굴림 arial; font-size:9pt; margin-top:5px;margin-bottom:5px;border-color:#000;} body{margin:10px 10px 10px 10px; line-height:1.5; font-family:굴림 arial; font-size:9pt;}</style>";
+	
+</script>
+ -->

@@ -1,0 +1,223 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<properties>
+	<comment>한국어</comment>
+
+	<!-- 업로드 매니저 -->
+	<entry key="IDS_UPLOAD_MANAGER_BUTTON_ADDFILE">추가</entry>
+	<entry key="IDS_UPLOAD_MANAGER_BUTTON_DELETEFILE">삭제</entry>
+	<entry key="IDS_UPLOAD_MANAGER_BUTTON_TRANSFER">전송</entry>
+	<entry key="IDS_UPLOAD_MANAGER_BUTTON_STOP">중지</entry>
+	<entry key="IDS_UPLOAD_MANAGER_LABEL_STATUSBAR">전체 %s (%s)</entry>
+	<entry key="IDS_UPLOAD_MANAGER_FILE_SELECT">%s개 파일을 선택하셨습니다.</entry>	
+	<entry key="IDS_UPLOAD_MANAGER_FILE_CANCEL">파일 선택을 취소하셨습니다.</entry>
+	<entry key="IDS_UPLOAD_MANAGER_HEADER_FILENAME">파일명</entry>
+	<entry key="IDS_UPLOAD_MANAGER_HEADER_FILESIZE">크기</entry>
+	<entry key="IDS_UPLOAD_MANAGER_BUTTON_CANCEL">취소</entry>
+
+	<!-- 업로드 매니저 컨텍스트 메뉴 -->
+	<entry key="IDS_UPLOAD_MANAGER_CONTEXTMENU_ADDFILE">추가하기</entry>
+	<entry key="IDS_UPLOAD_MANAGER_CONTEXTMENU_DELETEFILE">삭제하기</entry>
+	<entry key="IDS_UPLOAD_MANAGER_CONTEXTMENU_UPLOAD">업로드</entry>
+	<entry key="IDS_UPLOAD_MANAGER_CONTEXTMENU_DOWNLOAD">다운로드</entry>
+	<entry key="IDS_UPLOAD_MANAGER_CONTEXTMENU_EXECUTE">파일 열기</entry>
+	<entry key="IDS_UPLOAD_MANAGER_CONTEXTMENU_TOGGLEALL">전체 선택/해지</entry>
+	<entry key="IDS_UPLOAD_MANAGER_CONTEXTMENU_EDIT">수정하기</entry>
+	<entry key="IDS_UPLOAD_MANAGER_CONTEXTMENU_TRANSFORM">회전/뒤집기</entry>
+	<entry key="IDS_UPLOAD_MANAGER_CONTEXTMENU_CROP">오려내기</entry>
+	<entry key="IDS_UPLOAD_MANAGER_CONTEXTMENU_THUMBNAIL">섬네일</entry>
+	<entry key="IDS_UPLOAD_MANAGER_CONTEXTMENU_FULLSCREEN">전체화면</entry>
+	
+	<!--  ALERT 타이틀 -->
+	<entry key="IDS_ALERT_TITLE_INFO">알림</entry>
+	<entry key="IDS_ALERT_TITLE_ERROR">오류</entry>
+	
+	<!-- 툴 메뉴   -->
+	<entry key="IDS_TOOL_MESSAGE_NO_SCHEMA">수정할 메타 정보 항목이 없습니다.</entry>
+	<entry key="IDS_TOOL_BUTTON_APPLY_ALL">전체적용</entry>
+	<entry key="IDS_TOOL_BUTTON_APPLY">적용</entry>
+	<entry key="IDS_TOOL_BUTTON_CLOSE">닫기</entry>
+	<entry key="IDS_TOOL_MESSAGE_SEL_SOME_FILES">복수의 파일이 선택되었습니다.</entry>
+	<entry key="IDS_TOOL_MESSAGE_NOT_SUPPORTED_MENU">지원하지 않습니다.</entry>
+	<entry key="IDS_TOOL_MESSAGE_NOT_AVAILABLE_IMG_PROCESS_NFILES">복수의 파일은 일괄 처리를 할 수 없습니다.</entry>
+	<entry key="IDS_TOOL_MESSAGE_NOT_AVAILABLE_IMG_PROCESS_TARGET">이 파일은 이미지 작업을 수행할 수 없습니다. [%s]</entry>
+	<entry key="IDS_TOOL_LABEL_FILE_NUMBER_ALL">%s / %s</entry>
+	<entry key="IDS_TOOL_LABEL_FILE_NUMBER_SELECTED">%s / %s (선택)</entry>
+	<entry key="IDS_TOOL_MESSAGE_NOT_AVAILABLE_IMG_CROP_SIZE">사진 크기는 최소 25x25 이상이어야 합니다.[%s]</entry>
+	<entry key="IDS_TOOL_CROP_LBL_WIDTH">가로크기 :</entry>
+	<entry key="IDS_TOOL_CROP_LBL_HEIGHT">세로크기 :</entry>
+	<entry key="IDS_TOOL_THUMB_LBL_WIDTH">가로크기</entry>
+	<entry key="IDS_TOOL_THUMB_LBL_HEIGHT">세로크기</entry>
+	<entry key="IDS_TOOL_THUMB_LBL_HALIGN">가로정렬</entry>
+	<entry key="IDS_TOOL_THUMB_LBL_VALIGN">세로정렬</entry>
+	<entry key="IDS_TOOL_THUMB_LBL_TYPE">유형</entry>
+	<entry key="IDS_TOOL_THUMB_LBL_RATIO">비율유지</entry>
+	<entry key="IDS_TOOL_THUMB_LBL_RATIO_FIXED">비율유지</entry>
+	<entry key="IDS_TOOL_THUMB_LBL_RATIO_FREE">고정안함</entry>
+	<entry key="IDS_TOOL_THUMB_CBO_HALIGN_VALUE_01">왼쪽</entry>
+	<entry key="IDS_TOOL_THUMB_CBO_HALIGN_VALUE_02">가운데</entry>
+	<entry key="IDS_TOOL_THUMB_CBO_HALIGN_VALUE_03">오른쪽</entry>
+	<entry key="IDS_TOOL_THUMB_CBO_VALIGN_VALUE_01">상단</entry>
+	<entry key="IDS_TOOL_THUMB_CBO_VALIGN_VALUE_02">중간</entry>
+	<entry key="IDS_TOOL_THUMB_CBO_VALIGN_VALUE_03">하단</entry>
+	<entry key="IDS_TOOL_THUMB_CBO_TYPE_VALUE_01">맞춤</entry>
+	<entry key="IDS_TOOL_THUMB_CBO_TYPE_VALUE_02">늘이기</entry>
+	<entry key="IDS_TOOL_THUMB_CBO_TYPE_VALUE_03">채우기</entry>
+	<entry key="IDS_TOOL_THUMB_CBO_TYPE_VALUE_04">맞춤2</entry>
+	<entry key="IDS_TOOL_THUMB_CBO_TYPE_VALUE_05">채우기2</entry>
+	<entry key="IDS_TOOL_TOOLTIP_EDIT">메타정보 수정하기</entry>
+	<entry key="IDS_TOOL_TOOLTIP_TRANSFORM">회전/뒤집기</entry>
+	<entry key="IDS_TOOL_TOOLTIP_CROP">오려내기</entry>
+	<entry key="IDS_TOOL_TOOLTIP_THUMBNAIL">섬네일</entry>
+	<entry key="IDS_TOOL_TOOLTIP_DELETEFILE">삭제하기</entry>
+	<entry key="IDS_TOOL_TOOLTIP_DOWNLOAD">다운로드</entry>
+	<entry key="IDS_TOOL_TOOLTIP_OPEN">파일 열기</entry>
+
+	<!-- 업로드 모니터 -->
+	<entry key="IDS_UPLOAD_MONITOR_LABEL_CURRENT_FILENAME">전송파일</entry>
+	<entry key="IDS_UPLOAD_MONITOR_LABEL_CURRENT_TRANSFERSPEED">전송속도</entry>
+	<entry key="IDS_UPLOAD_MONITOR_LABEL_CURRENT_TRANSFERED_FILESIZE">전송용량</entry>
+	<entry key="IDS_UPLOAD_MONITOR_LABEL_CURRENT_REMAININGTIME">남은시간</entry>
+	<entry key="IDS_UPLOAD_MONITOR_LABEL_TOTAL_FILECOUNT">전체파일</entry>
+	<entry key="IDS_UPLOAD_MONITOR_LABEL_TOTAL_TRANSFERED_FILESIZE">전송용량</entry>
+	<entry key="IDS_UPLOAD_MONITOR_LABEL_TOTAL_REMAININGTIME">남은시간</entry>
+	<entry key="IDS_UPLOAD_MONITOR_LABEL_TOTAL_PROGRESS_TEXT">전체전송</entry>
+	<entry key="IDS_UPLOAD_MONITOR_CHECKBOX_CLOSEWINDOW">전송 완료 후 창 닫기</entry>
+	<entry key="IDS_UPLOAD_MONITOR_BUTTON_TRANSFER">전송</entry>
+	<entry key="IDS_UPLOAD_MONITOR_BUTTON_CLOSE">닫기</entry>
+	<entry key="IDS_UPLOAD_MONITOR_BUTTON_CANCEL">중지</entry>
+
+	<!-- 업로드 데이터그리드 컨트롤의 컬럼 -->
+	<entry key="IDS_UPLOAD_GRIDCOLUMN_FILENAME">파일이름</entry>
+	<entry key="IDS_UPLOAD_GRIDCOLUMN_FILESIZE">파일 크기</entry>
+	<entry key="IDS_UPLOAD_GRIDCOLUMN_TRANSFERSTATUS">상태</entry>
+
+	<!-- 업로드 데이터그리드 컨트롤의 상태 컬럼에 해당하는 아이템 -->
+	<entry key="IDS_UPLOAD_TRANSFER_STATUS_WAIT">대기</entry>
+	<entry key="IDS_UPLOAD_TRANSFER_STATUS_TRANSFERRING">전송중</entry>
+	<entry key="IDS_UPLOAD_TRANSFER_STATUS_COMPLETE">완료</entry>
+	<entry key="IDS_UPLOAD_TRANSFER_STATUS_CANCEL">취소</entry>
+
+	<!-- 다운로드 매니저 -->
+	<entry key="IDS_DOWNLOAD_MANAGER_TRANSFER">다운로드</entry>
+	<entry key="IDS_DOWNLOAD_MANAGER_LABEL_STATUSBAR">전체 %s개 (%s)</entry>
+	<entry key="IDS_MULTI_DOWNLOAD_MANAGER_LABEL_STATUSBAR">선택 %s개 (%s), 전체 %s개 (%s)</entry>
+	<entry key="IDS_DOWNLOAD_MANAGER_CANCEL">취소</entry>
+	<entry key="IDS_DOWNLOAD_MANAGER_FILE_SELECT">%s 파일을 선택하셨습니다.</entry>
+
+	<!-- 다운로드 매니저 컨텍스트 메뉴 -->
+	<entry key="IDS_DOWNLOAD_MANAGER_CONTEXTMENU_TOGGLEALL">전체 선택/해지</entry>
+	<entry key="IDS_DOWNLOAD_MANAGER_CONTEXTMENU_TRANSFER">다운로드</entry>
+	<entry key="IDS_DOWNLOAD_MANAGER_CONTEXTMENU_EXECUTE">파일 열기</entry>
+
+	<!-- 다운로드 모니터 -->
+	<entry key="IDS_DOWNLOAD_MONITOR_LABEL_CURRENT_FILENAME">현재파일</entry>
+	<entry key="IDS_DOWNLOAD_MONITOR_LABEL_CURRENT_TRANSFERSPEED">전송속도</entry>
+	<entry key="IDS_DOWNLOAD_MONITOR_LABEL_CURRENT_TRANSFERED_FILESIZE">전송용량</entry>
+	<entry key="IDS_DOWNLOAD_MONITOR_LABEL_CURRENT_REMAININGTIME">남은시간</entry>
+	<entry key="IDS_DOWNLOAD_MONITOR_LABEL_TOTAL_FILECOUNT">전체파일</entry>
+	<entry key="IDS_DOWNLOAD_MONITOR_LABEL_TOTAL_TRANSFERED_FILESIZE">전송용량</entry>
+	<entry key="IDS_DOWNLOAD_MONITOR_LABEL_TOTAL_REMAININGTIME">남은시간</entry>
+	<entry key="IDS_DOWNLOAD_MONITOR_CHECKBOX_CLOSEWINDOW">전송 완료 후 창 닫기</entry>
+	<entry key="IDS_DOWNLOAD_MONITOR_BUTTON_TRANSFER">전송</entry>
+	<entry key="IDS_DOWNLOAD_MONITOR_BUTTON_CLOSE">닫기</entry>
+	<entry key="IDS_DOWNLOAD_MONITOR_BUTTON_CANCEL">취소</entry>
+
+	<!-- 다운로드 데이터그리드 컨트롤의 컬럼 -->
+	<entry key="IDS_DOWNLOAD_GRIDCOLUMN_FILENAME">파일 이름</entry>
+	<entry key="IDS_DOWNLOAD_GRIDCOLUMN_FILESIZE">파일 크기</entry>
+	<entry key="IDS_DOWNLOAD_GRIDCOLUMN_TRANSFERSTATUS">상태</entry>
+
+	<!-- 다운로드 데이터그리드 컨트롤의 상태 컬럼에 해당하는 아이템 -->
+	<entry key="IDS_DOWNLOAD_TRANSFER_STATUS_WAIT">대기</entry>
+	<entry key="IDS_DOWNLOAD_TRANSFER_STATUS_TRANSFERRING">전송중</entry>
+	<entry key="IDS_DOWNLOAD_TRANSFER_STATUS_COMPLETE">완료</entry>
+	<entry key="IDS_DOWNLOAD_TRANSFER_STATUS_CANCEL">취소</entry>
+
+	<!-- 일반적인 예외 메시지 -->
+	<entry key="E20000100">전송 할 수 있는 파일의 개수는 %s개 입니다.</entry>
+	<entry key="E20000101">%s 보다 큰 파일("%s")은 전송할 수 없습니다.</entry>
+	<entry key="E20000102">전송 할 수 있는 최대 크기는 %s 입니다.</entry>
+	<entry key="E20000103">전송 할 파일이 없습니다.</entry>
+	<entry key="E20000104">확장자가 필터링된 파일은 선택할 수 없습니다.</entry>
+	<entry key="E20000105">업로드가 완료된 파일은 삭제할 수 없습니다.</entry>
+	<entry key="E20000106">파일이 없습니다.</entry>
+	<entry key="E20000107">메타 정보 요소[%s]와 수정을 위한 화면 구성 요소가 일치하지 않습니다.</entry>
+	<entry key="E20000108">이미지가 너무 큽니다. 가로/세로 8,191 픽셀 혹은 전체 픽셀 수가 16,777,215 개를 넘을 수 없습니다.</entry>
+	<entry key="E20000109">이미지 형식은 JPG, PNG 형식만 지원합니다.</entry>
+	<entry key="E20000110">멀티다운로드모니터 Air 응용프로그램 경로가 존재하지 않거나 올바르지 않습니다.</entry>
+	<entry key="E20000111">AIR.swf 파일을 다운로드할 수 없습니다. AIR 응용프로그램을 할 수 없습니다.</entry>
+	<entry key="E20000112">index 값이 범위를 벗어났습니다. index 값은 0 이상 %s 이하입니다.</entry>
+	<entry key="E20000113">파일 ID는 null 또는 빈 문자열 값을 허락하지 않습니다.</entry>
+	<entry key="E20000114">빈 파일명(fileName)은 사용할 수 없습니다.</entry>
+	<entry key="E20000115">다운로드할 파일 경로(filIDS_DOWNLOAD_AIR_INSTALL_MESSAGE_UNVAILABLEePath)가 존재하지 않습니다.</entry>
+	<entry key="E20000116">등록할 파일 정보가 존재하지 않습니다.</entry>
+	<entry key="E20000117">다운로드할 파일을 선택하십시오.</entry>
+	<entry key="E20000118">덮어쓰기 모드는 [rename|overwrite|skip] 중 하나를 선택하십시오.</entry>
+	<entry key="E20000119">주어진 아이디 값[%s]에 해당하는 파일 정보가 존재하지 않습니다.</entry>
+	<entry key="E20000120">사용자 프로필 파일을 읽지 못했습니다.</entry>
+	<entry key="E20000121">파일을 삭제할 수 없습니다.</entry>
+	<entry key="E20000122">실행할 파일 경로(filePath)가 존재하지 않습니다.</entry>
+	<entry key="E20000123">실행할 파일을 선택하십시오.</entry>
+	<entry key="E20000124">이미지 크기는 가로, 세로 모두 1pixel보다 커야 합니다.</entry>
+	<entry key="E20000125">올바르지 않은 시스템 경로입니다.</entry>
+	<entry key="E20000126">파일 업로드 경로가 존재하지 않습니다.</entry>
+	<entry key="E20000127">수정할 메타 정보 항목이 없습니다.</entry>
+	<entry key="E20000128">사용할 수 있는 도구가 없습니다.</entry>
+	<entry key="E20000129">UI 스타일은 한번만 설정이 가능합니다.</entry>
+	<entry key="E20000130">File Executor AIR 응용프로그램 경로가 존재하지 않거나 올바르지 않습니다.</entry>
+
+	<!-- 시스템 예외 메시지 -->
+	<entry key="E30000000">알 수 없는 오류가 발생하였습니다. 관리자에게 문의해 주십시오.</entry>
+	<entry key="E30000100">IO 에러가 발생했습니다. 관리자에게 문의해 주십시오.</entry>
+	<entry key="E30000101">Security 에러가 발생했습니다. 관리자에게 문의해 주십시오.</entry>
+	<entry key="E30000102">관리자, 모니터 통신 에러가 발생했습니다. 관리자에게 문의해 주십시오.</entry>
+
+	<!-- AIR 설치 -->
+	<entry key="IDS_DOWNLOAD_AIR_INSTALL_MESSAGE_TITLE">Multi-Downloader Installation</entry>
+	<entry key="IDS_DOWNLOAD_AIR_INSTALL_MESSAGE_CONTENT">다중 파일을 한번에 전송 받기 위해서는 Multi-Downloader 프로그램을 설치해야 합니다. 프로그램을 설치하시겠습니까?</entry>
+	<entry key="IDS_DOWNLOAD_AIR_INSTALL_MESSAGE_UNVAILABLE">Adobe AIR 런타임을 설치할 수 없는 환경입니다.</entry>
+	<entry key="IDS_DOWNLOAD_AIR_INSTALL_MESSAGE_FE_TITLE">File Executor Installation</entry>
+	<entry key="IDS_DOWNLOAD_AIR_INSTALL_MESSAGE_FE_CONTENT">파일을 열기 위해서는 File Executor 프로그램을 설치해야 합니다. 프로그램을 설치하시겠습니까?</entry>
+
+	<!-- AIR 전용 메시지 -->
+	<entry key="AIR_IDS_DOWNLOAD_MONITOR_LABEL_CURRENT_FILENAME">현재파일</entry>
+	<entry key="AIR_IDS_DOWNLOAD_MONITOR_LABEL_CURRENT_TRANSFERSPEED">전송속도</entry>
+	<entry key="AIR_IDS_DOWNLOAD_MONITOR_LABEL_CURRENT_TRANSFERED_FILESIZE">전송용량</entry>
+	<entry key="AIR_IDS_DOWNLOAD_MONITOR_LABEL_CURRENT_REMAININGTIME">남은시간</entry>
+	<entry key="AIR_IDS_DOWNLOAD_MONITOR_LABEL_TOTAL_FILECOUNT">전체파일</entry>
+	<entry key="AIR_IDS_DOWNLOAD_MONITOR_LABEL_TOTAL_TRANSFERED_FILESIZE">전송용량</entry>
+	<entry key="AIR_IDS_DOWNLOAD_MONITOR_LABEL_TOTAL_REMAININGTIME">남은시간</entry>
+	<entry key="AIR_IDS_DOWNLOAD_MONITOR_LABEL_BROWSE">경로찾기</entry>
+	<entry key="AIR_IDS_UPLOAD_MONITOR_LABEL_TOTAL_PROGRESS_TEXT">전체전송</entry>
+	<entry key="AIR_IDS_DOWNLOAD_MONITOR_CHECKBOX_CLOSEWINDOW">전송 완료 후 창 닫기</entry>
+	<entry key="AIR_IDS_DOWNLOAD_MONITOR_BUTTON_TRANSFER">다운로드</entry>
+	<entry key="AIR_IDS_DOWNLOAD_MONITOR_BUTTON_CLOSE">닫기</entry>
+	<entry key="AIR_IDS_DOWNLOAD_MONITOR_BUTTON_CANCEL">취소</entry>
+	<entry key="AIR_IDS_DOWNLOAD_MONITOR_RADIO_RENAME">다른 이름</entry>
+	<entry key="AIR_IDS_DOWNLOAD_MONITOR_RADIO_OVERWRITE">덮어쓰기</entry>
+	<entry key="AIR_IDS_DOWNLOAD_MONITOR_RADIO_SKIP">건너뛰기</entry>
+	<entry key="AIR_IDS_DOWNLOAD_OVERWRITE_DLG_TITLE">중복 파일 처리</entry>
+	<entry key="AIR_IDS_DOWNLOAD_OVERWRITE_DLG_OVERWRITEMESSAGE">다운로드 하려는 폴더에 "%s"와 동일한 파일이 존재합니다. 덮어쓰기 모드를 선택해 주십시오.</entry>
+	<entry key="AIR_IDS_DOWNLOAD_MONITOR_CHECKBOX_RESUME_DOWNLOAD">이어받기</entry>
+	<entry key="AIR_IDS_DOWNLOAD_GRIDCOLUMN_FILENAME">파일 이름</entry>
+	<entry key="AIR_IDS_DOWNLOAD_GRIDCOLUMN_FILESIZE">파일 크기</entry>
+	<entry key="AIR_IDS_DOWNLOAD_GRIDCOLUMN_TRANSFERSTATUS">상태</entry>
+	<entry key="AIR_IDS_DOWNLOAD_TRANSFER_STATUS_WAIT">대기</entry>
+	<entry key="AIR_IDS_DOWNLOAD_TRANSFER_STATUS_TRANSFERRING">전송중</entry>
+	<entry key="AIR_IDS_DOWNLOAD_TRANSFER_STATUS_COMPLETE">완료</entry>
+	<entry key="AIR_IDS_DOWNLOAD_TRANSFER_STATUS_CANCEL">취소</entry>
+	<entry key="AIR_IDS_DOWNLOAD_MONITOR_SELECT_DOWNLOAD_PATH">다운로드 폴더를 선택해 주세요.</entry>
+	<entry key="AIR_IDS_DOWNLOAD_MONITOR_ERROR_NOITEMTOTRANSFER">전송할 파일이 없습니다.</entry>
+	<entry key="AIR_IDS_DOWNLOAD_MONITOR_ERROR_NOTBEABLETODOWNLOAD">파일을 다운로드 할 수 없습니다.</entry>
+	<entry key="AIR_IDS_DOWNLOAD_MONITOR_ERROR_DONOTSAVE">파일 저장을 정상적으로 완료하지 못했습니다.</entry>
+	<entry key="AIR_IDS_IO_ERROR_MESSAGE">IO 에러가 발생했습니다. 관리자에게 문의해 주십시오.</entry>
+	<entry key="AIR_IDS_SECURITY_ERROR_MESSAGE">Security 에러가 발생했습니다. 관리자에게 문의해 주십시오.</entry>
+	<entry key="AIR_IDS_HTTP_ERROR_STATUS">HTTP 에러가 발생했습니다. 관리자에게 문의해 주십시오.</entry>
+	<entry key="AIR_IDS_EXECUTOR_LABEL_PROCESS_READY">준비 중...</entry>
+	<entry key="AIR_IDS_EXECUTOR_LABEL_PROCESS_DOWNLOADING">파일을 다운로드하고 있습니다.</entry>
+	<entry key="AIR_IDS_EXECUTOR_LABEL_PROCESS_OPENING">파일 열기를 수행합니다.</entry>
+	<entry key="AIR_IDS_EXECUTOR_LABEL_BUTTON_CANCEL">취소</entry>
+	<entry key="AIR_IDS_EXECUTOR_LABEL_BUTTON_CLOSE">닫기</entry>
+	<entry key="AIR_IDS_EXECUTOR_LABEL_BUTTON_CLOSING">(%s 초) 닫기</entry>
+
+</properties>

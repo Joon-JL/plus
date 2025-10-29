@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN" "http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+    <queries>    							
+		<query id="common.legacyintf.listTempECMSContractBatch" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+				SELECT * FROM TN_INF_CONT_CNSDREQ WHERE ECMS_RESULT_FLAG = 'N'
+		    ]]>
+		  </statement>
+		</query>
+		
+		<query id="common.legacyintf.insertToECMSContractBatch" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+				INSERT INTO TN_INF_FILE_ATTACH (
+					TCOMP_CD,
+					TCOMP_NM,
+					KEY_ID,
+					KEY_NM,
+					FILE_ID,
+					FILE_SRT,
+					FILE_SZ,
+					SYS_CD,
+					FILE_BIGCLSFCN,
+					FILE_MIDCLSFCN,
+					FILE_SMLCLSFCN,
+					ORG_FILE_NM,
+					FILE_PATH,					
+					FILE_INFO,
+					DEL_YN,
+					REG_DT,
+					REG_ID,
+					SYS_NM,
+					IF_DT					
+				) VALUES (
+					:vo.tcomp_cd,
+					:vo.tcomp_nm,
+					:vo.key_id,
+					:vo.key_nm,
+					:vo.file_id,
+					:vo.file_srt,
+					:vo.file_sz,
+					:vo.sys_cd,
+					:vo.file_bigclsfcn,
+					:vo.file_midclsfcn,
+					:vo.file_smlclsfcn,
+					:vo.org_file_nm,
+					:vo.file_path,					
+					:vo.file_info,
+					:vo.del_yn,
+					:vo.reg_dt,
+					:vo.reg_id,
+					:vo.sys_nm,
+					:vo.if_dt
+		    	)
+		    ]]>
+		  </statement>
+		</query>
+		
+		
+		<query id="common.legacyintf.getCntrtNm" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT A.CD_NM + '_' + B.CD_NM + '_' + C.CD_NM + '_' + D.CD_NM AS CNTRT_NM
+					FROM 
+					(SELECT CD_NM FROM TN_COM_CONTRACTTYPE_CD WHERE TYPE_CD= :vo.biz_clsfcn) A,
+					(SELECT CD_NM FROM TN_COM_CONTRACTTYPE_CD WHERE TYPE_CD= :vo.depth_clsfcn) B,
+					(SELECT CD_NM FROM TN_COM_CONTRACTTYPE_CD WHERE TYPE_CD= :vo.cnclsnpurps_bigclsfcn) C,
+					(SELECT CD_NM FROM TN_COM_CONTRACTTYPE_CD WHERE TYPE_CD= :vo.cnclsnpurps_midclsfcn) D
+			]]>			
+			</statement>
+		</query>
+		
+		<query id="common.legacyintf.updateECMSContractBatch" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				UPDATE TN_INF_CONT_CNSDREQ 
+					SET ECMS_DT = GETDATE(), ECMS_RESULT_FLAG =:vo.ecms_result_flag , ECMS_RESULT =:vo.ecms_result
+				WHERE TCOMP_CD = :vo.tcomp_cd
+				AND KEY_ID = :vo.key_id
+			]]>
+			</statement>
+		</query>
+		
+		<query id="common.legacyintf.getCompInformation" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT COMP_CD, COMP_NM FROM TN_INF_COMP_MATCH WHERE TCOMP_CD = :vo.tcomp_cd
+			]]>			
+			</statement>
+		</query>
+		
+		<query id="common.legacyintf.getUserComp" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT COMP_CD, COMP_NM FROM TB_COM_USER WHERE USER_ID = :vo.reqman_id
+			]]>			
+			</statement>
+		</query>
+		
+		<query id="common.legacyintf.insertTnInfContCnsdReq" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				INSERT INTO TN_INF_CONTTNC_MATCH (
+					COMP_CD,
+					COMP_NM,
+					CNTRT_ID,
+					TCOMP_CD,
+					TCOMP_NM,
+					KEY_ID,
+					KEY_NM,
+					REG_ID,
+					REG_DT,
+					MOD_ID,
+					MOD_DT
+				) VALUES (
+					:vo.comp_cd,
+					:vo.comp_nm,
+					:vo.cntrt_id,
+					:vo.tcomp_cd,
+					:vo.tcomp_nm,
+					:vo.key_id,
+					:vo.key_nm,
+					:vo.reqman_id,
+					GETDATE(),
+					:vo.reqman_id,
+					GETDATE()
+				)
+			]]>
+			</statement>
+		</query>
+		
+		<query id="common.legacyintf.checkCustomerYN" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT * FROM TN_CLM_CUSTOMER 
+				WHERE COMP_CD =  :vo.comp_cd 
+				AND GERP_CD = :vo.cntrt_oppnt_cd
+			]]>			
+			</statement>
+		</query>
+		
+		
+		<query id="common.legacyintf.insertNewTNCCustomer" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT * FROM TN_CLM_CUSTOMER 
+				WHERE COMP_CD =  :vo.comp_cd 
+				AND GERP_CD = :vo.cntrt_oppnt_cd
+			]]>			
+			</statement>
+		</query>
+							
+		<query id="common.legacyintf.getECMSFileInfo" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT * FROM TN_INF_FILE_ATTACH
+				WHERE KEY_ID = :vo.key_id
+				ORDER BY FILE_SRT
+			]]>			
+			</statement>
+		</query>					
+		
+		<query id="common.legacyintf.getAllContractsForGMATE" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT EC.CNTRT_ID AS ID, 
+			    	DBO.DECODE3(EP.CUSTOMER_CD, null, '0', EP.CUSTOMER_CD) AS COUNTER_PARTY_ID, 
+					ER.REQ_TITLE AS NAME, 
+					EP.GERP_CD AS COUNTER_PARTY_CODE, 
+					(SELECT TCOMP_CD FROM TN_INF_COMP_MATCH A WHERE A.COMP_CD=EC.COMP_CD) AS COMPANY_CODE, 
+					'' AS PARENT_CONTRACT_CODE, 
+					'' AS DEPT_CODE, 
+					CAST(EC.CNTRT_AMT AS NVARCHAR) AS AMOUNT, 
+					CASE ISNULL( EC.CNTRTPERIOD_STARTDAY, ' ' ) 
+					WHEN  ' ' 
+					THEN ''
+                    ELSE CONVERT(VARCHAR(10),EC.CNTRTPERIOD_STARTDAY ,112) +  '000000'
+					END AS AGREEMENT_DATE, -- yyyyMMddHHmmss
+					CASE ISNULL( EC.CNTRTPERIOD_ENDDAY, ' ' ) 
+					WHEN  ' ' 
+					THEN ''
+                    ELSE CONVERT(VARCHAR(10),EC.CNTRTPERIOD_ENDDAY ,112) +  '000000'
+					END AS EXPIRY_DATE, -- yyyyMMddHHmmss						
+					'' AS PRE_ALERT_IN_DAYS, 
+					'' AS PAYMENT_CNT,  
+					'' AS PAY_TO, 
+					'' AS PAY_TO_NM, 
+					EC.DEPTH_STATUS AS STATUS, 
+					(SELECT CD_NM_ENG FROM TB_COM_CD WHERE CD=EC.DEPTH_STATUS) AS STATUS_NM, 
+					(SELECT TOP(1) STATUS FROM TB_COM_START_PROCESS_WSVO WHERE REF_KEY=ER.CNSDREQ_ID ORDER BY MIS_ID) AS APPROVAL_STATUS,
+						CASE (SELECT TOP(1) STATUS FROM TB_COM_START_PROCESS_WSVO WHERE REF_KEY=ER.CNSDREQ_ID ORDER BY MIS_ID)
+			               WHEN '1' THEN 'Approval in Process'
+				           WHEN '2' THEN 'Completed'
+				           WHEN '3' THEN 'Reject'
+				           WHEN '4' THEN 'Cancel'
+				           WHEN '5' THEN 'Decide Arbitrarily'
+				           WHEN '6' THEN 'Approved after Completion'
+			             ELSE ' '				             
+			          END AS APPROVAL_STATUS_NM,  
+					EC.PSHDBKGRND_PURPS AS DESCRIPTION, 
+					(SELECT U.SINGLE_ID FROM TB_COM_USER U WHERE U.USER_ID = EC.REG_ID) AS CRT_USER, 
+					CONVERT(VARCHAR(10), EC.REG_DT ,112) +  REPLACE(CONVERT(VARCHAR(8),EC.REG_DT ,108),':','') AS CRT_DATE, -- yyyyMMddHHmmss
+					CONVERT(VARCHAR(10), EC.MOD_DT ,112) +  REPLACE(CONVERT(VARCHAR(8),EC.MOD_DT ,108),':','') AS UPT_DATE, -- yyyyMMddHHmmss
+					(SELECT U.SINGLE_ID FROM TB_COM_USER U WHERE U.USER_ID = EC.MOD_ID) AS UPT_USER, 
+					EC.CRRNCY_UNIT AS CURRECY, 
+					EP.VENDOR_TYPE AS COUNTER_PARTY_TYPE, 
+					CASE 
+					WHEN VENDOR_TYPE ='V' THEN 'VENDOR'
+					WHEN VENDOR_TYPE ='C' THEN 'CUSTOMER'
+					ELSE 'MANUAL INPUT'
+					END AS COUNTER_PARTY_TYPE_NM, 
+					EP.CUSTOMER_NM1 AS COUNTER_PARTY_NAME, 
+					EC.CNTRT_NO AS CONTRACT_CODE 												
+					FROM TN_CLM_CONTRACT_MASTER EC, TN_CLM_CUSTOMER EP, TN_CLM_CONTRACT_CNSD ED, TN_CLM_CONT_CNSDREQ ER				        
+					WHERE 1=1
+					AND (CONVERT(NVARCHAR, EC.MOD_DT, 112) = CONVERT(NVARCHAR, GETDATE()-1, 112) OR CONVERT(NVARCHAR, EC.REG_DT, 112) = CONVERT(NVARCHAR, GETDATE()-1, 112)) 
+					AND EC.CNTRT_OPPNT_CD = EP.CUSTOMER_CD						
+					AND EC.CNTRT_ID=ED.CNTRT_ID
+					AND ED.CNSDREQ_ID=ER.CNSDREQ_ID
+					AND ER.CNSDREQ_ID IN (SELECT MAX(CNSDREQ_ID) FROM TN_CLM_CONTRACT_CNSD GROUP BY CNTRT_ID)
+					AND EC.PRCS_DEPTH !='C02509' -- ECMS 1.0 데이터 제외
+					ORDER BY EC.CNTRT_ID DESC
+			]]>			
+			</statement>
+		</query>		
+		
+		
+		<query id="common.legacyintf.getAllContractsForTCMS" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				
+				
+				SELECT 
+						(SELECT TCOMP_CD FROM TN_INF_COMP_MATCH A WHERE A.COMP_CD=EC.COMP_CD) AS COMP_CD, 
+						TM.KEY_ID,
+						EC.CNTRT_ID, 
+						EC.CNTRT_NO,
+						ER.REQ_TITLE, 			    	
+						CASE 
+							WHEN EC.PRCS_DEPTH = 'C02502' AND EC.DEPTH_STATUS = 'C02635' THEN 'C025RJ'
+							ELSE EC.PRCS_DEPTH
+						END AS PRCS_DEPTH,	
+						(SELECT CD_NM FROM TB_COM_CD WHERE CD=EC.PRCS_DEPTH) AS PRCS_DEPTH_NM,
+						EC.DEPTH_STATUS, 
+						(SELECT CD_NM FROM TB_COM_CD WHERE CD=DEPTH_STATUS) AS DEPTH_STATUS_NM
+																		
+				FROM TN_CLM_CONTRACT_MASTER EC, TN_CLM_CUSTOMER EP, TN_CLM_CONTRACT_CNSD ED, TN_CLM_CONT_CNSDREQ ER, TN_INF_CONTTNC_MATCH TM				        
+				WHERE 1=1
+				AND EC.SYS_NM ='TNC'
+				AND (DATEDIFF(second, CONVERT(NVARCHAR, EC.MOD_DT, 20) , CONVERT(NVARCHAR, GETDATE(), 20)) < 3601 OR DATEDIFF(second, CONVERT(NVARCHAR, EC.REG_DT, 20) , CONVERT(NVARCHAR, GETDATE(), 20)) < 3601) 
+				AND EC.CNTRT_OPPNT_CD = EP.CUSTOMER_CD						
+				AND EC.CNTRT_ID=ED.CNTRT_ID
+				AND ED.CNSDREQ_ID=ER.CNSDREQ_ID
+				AND ER.CNSDREQ_ID IN (SELECT MAX(CNSDREQ_ID) FROM TN_CLM_CONTRACT_CNSD GROUP BY CNTRT_ID)
+				AND EC.CNTRT_ID=TM.CNTRT_ID	
+						
+				UNION ALL
+					
+				SELECT 	
+						(SELECT TCOMP_CD FROM TN_INF_COMP_MATCH A WHERE A.COMP_CD=EC.COMP_CD) AS COMP_CD, 
+						TM.KEY_ID,
+						EC.CNTRT_ID, 
+						EC.CNTRT_NO,
+						ER.REQ_TITLE, 			    	
+						CASE 
+							WHEN EC.PRCS_DEPTH = 'C02502' AND EC.DEPTH_STATUS = 'C02635' THEN 'C025RJ'
+							ELSE EC.PRCS_DEPTH
+						END AS PRCS_DEPTH,	
+						(SELECT CD_NM FROM TB_COM_CD WHERE CD=EC.PRCS_DEPTH) AS PRCS_DEPTH_NM,
+						EC.DEPTH_STATUS, 
+						(SELECT CD_NM FROM TB_COM_CD WHERE CD=DEPTH_STATUS) AS DEPTH_STATUS_NM
+										
+				FROM
+				(
+				SELECT  REF_KEY
+				FROM TB_COM_START_PROCESS_WSVO AP
+				WHERE 1=1
+				AND STATUS = '3'
+				AND CREATE_DATE LIKE 
+					CONVERT(NVARCHAR,(CONVERT(CHAR(8), dateadd(hour, 9, GETDATE()), 112)), 8) + 
+					CONVERT(NVARCHAR, DATEPART(HOUR, dateadd(hour, 9, GETDATE())), 2) + 							
+					'%'
+				) A 
+				INNER JOIN TN_CLM_CONTRACT_CNSD REV ON A.REF_KEY = REV.CNSDREQ_ID
+				INNER JOIN TN_CLM_CONT_CNSDREQ ER ON A.REF_KEY = ER.CNSDREQ_ID 
+				INNER JOIN TN_CLM_CONTRACT_MASTER EC ON REV.CNTRT_ID = EC.CNTRT_ID
+				INNER JOIN TN_INF_CONTTNC_MATCH TM ON EC.CNTRT_ID=TM.CNTRT_ID
+				WHERE 1=1
+				AND EC.CNTRT_INFO_GBN = 'C05401' AND EC.SYS_NM = 'TNC'
+				
+				ORDER BY EC.CNTRT_ID DESC;
+			]]>			
+			</statement>
+		</query>							
+		
+		
+		<query id="common.legacyintf.listMissFileListBatch" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT *
+				FROM contract1
+			]]>			
+			</statement>
+		</query>
+		
+		<query id="common.legacyintf.updateAfterBatch" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				UPDATE TN_CLM_CONTRACT_MASTER
+				SET
+				SYS_NM = 'CLOSE'
+				WHERE CNTRT_ID = :vo.cntrt_id
+				
+				UPDATE TN_INF_CONTTNC_MATCH
+				SET KEY_ID = :vo.key_id +'CL'
+				WHERE CNTRT_ID = :vo.cntrt_id
+				
+				DELETE TN_INF_CONT_CNSDREQ
+				WHERE KEY_ID = :vo.key_id
+				
+				DELETE TN_INF_FILE_ATTACH
+				WHERE KEY_ID = :vo.key_id
+			]]>			
+			</statement>
+		</query>
+		
+		<query id="common.legacyintf.insertAfterBatch" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				
+				INSERT INTO TN_INF_SENT_CONTRACT
+				SELECT 
+						(SELECT TCOMP_CD FROM TN_INF_COMP_MATCH A WHERE A.COMP_CD=EC.COMP_CD) AS COMP_CD, 
+						TM.KEY_ID,
+						EC.CNTRT_ID, 
+						EC.CNTRT_NO,
+						ER.REQ_TITLE, 			    	
+						CASE 
+							WHEN EC.PRCS_DEPTH = 'C02502' AND EC.DEPTH_STATUS = 'C02635' THEN 'C025RJ'
+							ELSE EC.PRCS_DEPTH
+						END AS PRCS_DEPTH,	
+						(SELECT CD_NM FROM TB_COM_CD WHERE CD=EC.PRCS_DEPTH) AS PRCS_DEPTH_NM,
+						EC.DEPTH_STATUS, 
+						(SELECT CD_NM FROM TB_COM_CD WHERE CD=DEPTH_STATUS) AS DEPTH_STATUS_NM
+					    ,EC.CLOSE_YN, 'N', GETDATE()								
+				FROM TN_CLM_CONTRACT_MASTER EC, TN_CLM_CUSTOMER EP, TN_CLM_CONTRACT_CNSD ED, TN_CLM_CONT_CNSDREQ ER, TN_INF_CONTTNC_MATCH TM				        
+				WHERE 1=1
+				AND EC.SYS_NM ='TNC'
+				AND (DATEDIFF(second, CONVERT(NVARCHAR, EC.MOD_DT, 20) , CONVERT(NVARCHAR, GETDATE(), 20)) < 3601 OR DATEDIFF(second, CONVERT(NVARCHAR, EC.REG_DT, 20) , CONVERT(NVARCHAR, GETDATE(), 20)) < 3601) 
+				AND EC.CNTRT_OPPNT_CD = EP.CUSTOMER_CD						
+				AND EC.CNTRT_ID=ED.CNTRT_ID
+				AND ED.CNSDREQ_ID=ER.CNSDREQ_ID
+				AND ER.CNSDREQ_ID IN (SELECT MAX(CNSDREQ_ID) FROM TN_CLM_CONTRACT_CNSD GROUP BY CNTRT_ID)
+				AND EC.CNTRT_ID=TM.CNTRT_ID	
+						
+				UNION ALL
+					
+				SELECT 	
+						(SELECT TCOMP_CD FROM TN_INF_COMP_MATCH A WHERE A.COMP_CD=EC.COMP_CD) AS COMP_CD, 
+						TM.KEY_ID,
+						EC.CNTRT_ID, 
+						EC.CNTRT_NO,
+						ER.REQ_TITLE, 			    	
+						CASE 
+							WHEN EC.PRCS_DEPTH = 'C02502' AND EC.DEPTH_STATUS = 'C02635' THEN 'C025RJ'
+							ELSE EC.PRCS_DEPTH
+						END AS PRCS_DEPTH,	
+						(SELECT CD_NM FROM TB_COM_CD WHERE CD=EC.PRCS_DEPTH) AS PRCS_DEPTH_NM,
+						EC.DEPTH_STATUS, 
+						(SELECT CD_NM FROM TB_COM_CD WHERE CD=DEPTH_STATUS) AS DEPTH_STATUS_NM
+						,EC.CLOSE_YN, 'N', GETDATE()				
+				FROM
+				(
+				SELECT  REF_KEY
+				FROM TB_COM_START_PROCESS_WSVO AP
+				WHERE 1=1
+				AND STATUS = '3'
+				AND CREATE_DATE LIKE 
+					CONVERT(NVARCHAR,(CONVERT(CHAR(8), dateadd(hour, 9, GETDATE()), 112)), 8) + 
+					CONVERT(NVARCHAR, DATEPART(HOUR, dateadd(hour, 9, GETDATE())), 2) + 							
+					'%'
+				) A 
+				INNER JOIN TN_CLM_CONTRACT_CNSD REV ON A.REF_KEY = REV.CNSDREQ_ID
+				INNER JOIN TN_CLM_CONT_CNSDREQ ER ON A.REF_KEY = ER.CNSDREQ_ID 
+				INNER JOIN TN_CLM_CONTRACT_MASTER EC ON REV.CNTRT_ID = EC.CNTRT_ID
+				INNER JOIN TN_INF_CONTTNC_MATCH TM ON EC.CNTRT_ID=TM.CNTRT_ID
+				WHERE 1=1
+				AND EC.CNTRT_INFO_GBN = 'C05401' AND EC.SYS_NM = 'TNC';
+
+			]]>			
+			</statement>
+		</query>
+		
+		
+																																		      
+    </queries>
+</queryservice>

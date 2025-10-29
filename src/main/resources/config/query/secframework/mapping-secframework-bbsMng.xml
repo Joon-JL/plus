@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+	<queries>
+	
+		<!-- 게시판  목록조회 -->
+		<query id="secfw.bbs.listBBSMasterPage" isCamelCase="false">
+			<statement>
+			<![CDATA[
+                SELECT *
+                  FROM ( SELECT rownum RN, t.*, COUNT(1) over() TOTAL_CNT
+                           FROM (
+                                -- Business Logic 
+			                SELECT  SYS_CD
+							       ,BBS_ID
+								   ,BBS_NM
+								   ,BBS_NM_ENG
+								   ,COMMENTS
+								   ,NEW_HOLD_TERM
+								   ,HOLD_TERM_YN
+								   ,REPLY_YN
+								   ,APPEND_YN
+								   ,FILE_YN
+								   ,URGENCY_YN
+								   ,RECOMMEND_YN
+								   ,USE_YN
+								   ,REG_ID
+								   ,REG_DT
+								   ,MOD_ID
+								   ,MOD_DT
+							  FROM TB_COM_BBS_MASTER						 
+							 WHERE 1=1
+							   AND SYS_CD = :sys_cd
+							   #if ($srch_bbs_nm && !$srch_bbs_nm.equals(""))
+							   AND BBS_NM LIKE '%' || :srch_bbs_nm || '%'
+							   #end
+							   #if ($srch_use_yn && !$srch_use_yn.equals(""))
+							   AND USE_YN = :srch_use_yn
+							   #end
+			  	   		  	 ORDER BY REG_DT DESC
+                                -- Business Logic
+                                ) t
+                          ORDER BY RN )
+                     WHERE rn between :start_index and :end_index
+			]]>
+			</statement>
+		</query>
+		
+		<query id="secfw.bbs.detailBBSMaster" isCamelCase="false">
+			<statement>
+			<![CDATA[
+                SELECT  SYS_CD
+				       ,BBS_ID
+					   ,BBS_NM
+					   ,BBS_NM_ENG
+					   ,COMMENTS
+					   ,NEW_HOLD_TERM
+					   ,HOLD_TERM_YN
+					   ,REPLY_YN
+					   ,APPEND_YN
+					   ,FILE_YN
+					   ,URGENCY_YN
+					   ,RECOMMEND_YN
+					   ,USE_YN
+					   ,REG_ID
+					   ,TO_CHAR(REG_DT,'YYYY-MM-DD') AS REG_DT
+					   ,MOD_ID
+					   ,TO_CHAR(MOD_DT,'YYYY-MM-DD') AS MOD_DT
+				  FROM TB_COM_BBS_MASTER
+				 WHERE SYS_CD = :sys_cd
+				   AND BBS_ID = :bbs_id
+			]]>
+			</statement>
+		</query>
+
+		<query id="secfw.bbs.insertBBSMaster">
+			<statement>
+			<![CDATA[
+				INSERT INTO TB_COM_BBS_MASTER
+				      (
+				        SYS_CD
+				       ,BBS_ID
+					   ,BBS_NM
+					   ,BBS_NM_ENG
+					   ,COMMENTS
+					   ,NEW_HOLD_TERM
+					   ,HOLD_TERM_YN
+					   ,REPLY_YN
+					   ,APPEND_YN
+					   ,FILE_YN
+					   ,URGENCY_YN
+					   ,RECOMMEND_YN
+					   ,USE_YN
+					   ,REG_ID
+					   ,REG_DT
+					  )
+				VALUES (
+				        :vo.sys_cd
+				       ,:vo.bbs_id
+					   ,:vo.bbs_nm
+					   ,:vo.bbs_nm_eng
+					   ,:vo.comments
+					   ,:vo.new_hold_term
+					   ,:vo.hold_term_yn
+					   ,:vo.reply_yn
+					   ,:vo.append_yn
+					   ,:vo.file_yn
+					   ,:vo.urgency_yn
+					   ,:vo.recommend_yn
+					   ,:vo.use_yn
+					   ,:vo.reg_id
+					   ,SYSDATE
+				)
+			]]>
+			</statement>
+		</query>
+
+		<query id="secfw.bbs.modifyBBSMaster">
+			<statement>
+			<![CDATA[
+			UPDATE TB_COM_BBS_MASTER
+			   SET BBS_NM            = :vo.bbs_nm
+			      ,BBS_NM_ENG        = :vo.bbs_nm_eng
+			      ,COMMENTS          = :vo.comments
+			      ,NEW_HOLD_TERM     = :vo.new_hold_term
+			      ,HOLD_TERM_YN      = :vo.hold_term_yn
+			      ,REPLY_YN          = :vo.reply_yn
+			      ,APPEND_YN         = :vo.append_yn
+			      ,FILE_YN           = :vo.file_yn
+			      ,URGENCY_YN        = :vo.urgency_yn
+			      ,RECOMMEND_YN      = :vo.recommend_yn
+			      ,USE_YN            = :vo.use_yn
+			      ,MOD_ID            = :vo.reg_id
+			      ,MOD_DT            = SYSDATE
+			WHERE SYS_CD = :vo.sys_cd
+			  AND BBS_ID = :vo.bbs_id
+			]]>
+			</statement>
+		</query>
+
+		<query id="secfw.bbs.deleteBBSMaster">
+			<statement>
+			<![CDATA[
+			DELETE TB_COM_BBS_MASTER
+			 WHERE SYS_CD = :sys_cd
+			   AND BBS_ID = :bbs_id
+			]]>
+			</statement>
+		</query>
+					
+	</queries>
+</queryservice>

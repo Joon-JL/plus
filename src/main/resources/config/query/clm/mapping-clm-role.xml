@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+    <queries>
+    	<!-- 목록 -->
+        <query id="clm.admin.listRole" isCamelCase="false">
+            <statement>
+            <![CDATA[
+				SELECT *
+				FROM (
+						SELECT ROW_NUMBER() OVER (
+							ORDER BY ROLE_CD ASC
+							) RN,
+							COMP_CD
+							,ROLE_CD
+							,ROLE_NM AS ROLE_NAME
+							,COMMENTS AS description
+							,USE_YN
+							,(
+								SELECT ISNULL(a.user_nm_eng, '') + '/' + ISNULL(a.JIKGUN_NM, '') + '/' + ISNULL(a.dept_nm, '') AS REG_ID
+								FROM tb_com_user a
+								WHERE a.USER_ID = REG_ID
+								) AS REG_ID
+							,(CONVERT(VARCHAR, REG_DT, 23)) AS REG_DT
+							,MOD_ID
+							,MOD_DT
+						,CAST(COUNT(1) OVER () AS NUMERIC) TOTAL_CNT
+						FROM TN_CLM_ROLE_HEAD
+						WHERE DEL_YN <> 'Y'
+						#if(!$VO.srch_role_name.equals(""))
+							AND ROLE_NM LIKE '%' + :vo.srch_role_name + '%'
+						#end 
+						#if (!$vo.srch_loc_gbn.equals(""))
+							AND	comp_cd like  '%' + :vo.srch_loc_gbn + '%'
+					    #end
+						#if(!$vo.srch_use_yn.equals("") && !$vo.srch_use_yn.equals("all"))
+							AND use_yn = :vo.srch_use_yn 
+						#end
+						) t
+				WHERE RN BETWEEN :vo.start_index
+						AND :vo.end_index 
+				ORDER BY RN DESC
+            ]]>
+            </statement>
+        </query>
+
+	<!-- 목록 -->
+        <query id="clm.admin.codeKey" isCamelCase="false">
+            <statement>
+            <![CDATA[
+            select next value for Seqrolecd as role_cd
+            ]]>
+            </statement>
+        </query>
+       
+
+
+	<!-- Role 정보 등록 -->
+	<query id="clm.admin.insertRole" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    
+				    INSERT INTO TN_CLM_ROLE_HEAD (
+				    		 COMP_CD
+						    ,ROLE_CD
+						    ,ROLE_NM
+						    ,COMMENTS
+						    ,USE_YN
+						    ,REG_ID
+						    ,REG_DT
+						    ,MOD_ID
+						    ,MOD_DT
+						    ,DEL_ID
+						    ,DEL_DT
+						    ,DEL_YN
+						     ) VALUES (
+				           :vo.comp_cd
+				          ,:vo.role_cd
+				          ,:vo.role_name
+				          ,:vo.description
+				          ,:vo.use_yn
+				          ,:vo.reg_id
+				          ,GETDATE()
+				          ,''
+				          ,null
+				          ,''
+				          ,null
+				          ,'N'
+				        )
+		        
+		    ]]>
+		  </statement>
+		</query>
+
+
+<!-- Role 대상자 등록 -->
+	<query id="clm.admin.insertRolePath" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    
+				    INSERT INTO TN_CLM_ROLE_PATH (
+				    		 COMP_CD
+						    ,ROLE_CD
+						    ,USER_ID
+						    ,REG_ID
+						    ,REG_DT
+						    ,REVIEW_YN
+						     ) VALUES (
+				           :vo.comp_cd
+				          ,:vo.role_cd
+				          ,:vo.user_id_tmp
+				          ,:vo.reg_id
+				          ,GETDATE()
+				          ,:vo.rev_id_tmp
+				        )
+		        
+		    ]]>
+		  </statement>
+		</query>
+
+	<!-- Role Information 상세 -->
+        <query id="clm.admin.detailRole" isCamelCase="false">
+            <statement>
+            <![CDATA[
+				SELECT H.COMP_CD
+					,H.ROLE_CD
+					,H.ROLE_NM AS ROLE_NAME
+					,H.COMMENTS AS description
+					,H.USE_YN
+					,ISNULL(U.user_nm_eng, '') + '/' + ISNULL(U.JIKGUP_NM_ENG, '') + '/' + ISNULL(U.dept_nm_eng, '') AS REG_ID
+					,(CONVERT(VARCHAR, H.REG_DT, 23)) AS REG_DT
+					,MOD_ID
+					,MOD_DT
+				FROM TN_CLM_ROLE_HEAD H
+					INNER JOIN tb_com_user U
+					ON H.REG_ID = U.USER_ID
+				WHERE H.ROLE_CD =  :vo.role_cd 
+					and H.COMP_CD =  :vo.comp_cd 
+            ]]>
+            </statement>
+        </query>
+        
+      <!-- Assigned Users 상세 -->
+        <query id="clm.admin.detailAssignedUsers" isCamelCase="false">
+            <statement>
+            <![CDATA[
+				SELECT b.USER_ID
+					,ISNULL(a.user_nm_eng, '') + '/' + ISNULL(a.JIKGUP_NM_ENG, '') + '/' + ISNULL(a.dept_nm_eng, '') AS user_nm
+					,b.review_yn
+				FROM TN_CLM_ROLE_PATH b
+				INNER JOIN tb_com_user A ON a.USER_ID = b.USER_ID
+				WHERE b.COMP_CD = :vo.comp_cd
+					AND b.ROLE_CD = :vo.role_cd
+				ORDER BY A.USER_LEVEL
+            ]]>
+            </statement>
+        </query>
+        
+        <!-- 삭제 -->
+		<query id="clm.admin.deleteRole" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				UPDATE	TN_CLM_ROLE_HEAD
+				   SET   DEL_YN = 'Y'
+				        ,DEL_DT  = GETDATE()
+						,DEL_ID = :vo.del_id
+				WHERE role_cd = :vo.role_cd
+				   AND comp_cd = :vo.comp_cd 
+			]]>
+			</statement>
+		</query>
+
+		<!-- 수정 -->
+		<query id="clm.admin.modifyRole" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				UPDATE	TN_CLM_ROLE_HEAD
+				   SET	 ROLE_NM = :vo.role_name
+						,COMMENTS = :vo.description
+						,USE_YN =:vo.use_yn
+						,MOD_DT = GETDATE()
+						,MOD_ID = :vo.mod_id
+				WHERE role_cd = :vo.role_cd
+				   AND comp_cd = :vo.comp_cd 
+			]]>
+			</statement>
+		</query>  
+		
+		<!-- Assigned Users 삭제 -->
+		<query id="clm.admin.deleteRolePath" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				DELETE FROM TN_CLM_ROLE_PATH
+				WHERE role_cd = :vo.role_cd
+				   AND comp_cd = :vo.comp_cd 
+			]]>
+			</statement>
+		</query>  
+		
+		<!-- UserInfo 검색 -->
+		<query id="clm.admin.RoleUsersInfo" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				 SELECT CASE WHEN COUNT(*) > 0 THEN 'U'
+				 	 ELSE 'I' END AS VAL 
+				  FROM TB_COM_USER WHERE USER_ID = :vo.user_id_tmp
+			]]>
+			</statement>
+		</query>  
+
+		<!-- reviewer Users 조회 -->
+        <query id="clm.admin.reviewAutolist" isCamelCase="false">
+            <statement>
+            <![CDATA[
+				SELECT A.USER_ID,A.JIKGUP_NM_ENG,A.DEPT_NM,A.JIKGUP_NM_ENG
+				FROM TB_COM_USER A, TB_COM_ROLE_USER B 
+				WHERE B.ROLE_CD ='RA02' AND A.USER_ID = B.USER_ID AND A.COMP_CD =:vo.comp_cd and A.STATUS = 'B'
+            ]]>
+            </statement>
+        </query>
+        
+        <!-- 사용중인 Role 조회 -->
+        <query id="clm.admin.checkApprovalYn" isCamelCase="false">
+            <statement>
+            <![CDATA[
+				SELECT * FROM TN_CLM_APPROVAL_PATH
+				WHERE ROLE_USER_ID =:vo.role_cd
+				AND comp_cd=:vo.comp_cd
+				AND DEL_YN = 'N'
+            ]]>
+            </statement>
+        </query>
+        
+        
+    </queries>
+</queryservice>

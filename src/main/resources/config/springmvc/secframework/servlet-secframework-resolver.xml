@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<!--  view resolver -->  
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass"
+			value="org.springframework.web.servlet.view.JstlView" />
+	</bean>
+	<!-- 
+	<bean id="viewResolver"
+		class="com.sds.secframework.viewResolver.CustomUrlBasedViewResolver">
+		<property name="viewClass"
+			value="org.springframework.web.servlet.view.JstlView" />
+		<property name="order" value="1" />			
+	</bean> -->
+	
+ 	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize">
+			<value>52428800</value>
+		</property>
+	</bean>
+  
+	<!-- locale resolver -->
+	<bean id="localeResolver"
+		class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
+		<property name="defaultLocale" value="${secfw.defaultLocale}" />
+	</bean>
+
+	<!-- exception resolver -->
+	<bean id="exceptionResolver"
+		class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+				<prop key="org.springframework.dao.DataAccessException">
+					/WEB-INF/jsp/secfw/error/ErrorPage.jsp
+				</prop>
+			</props>
+		</property>
+		<property name="defaultErrorView" value="/WEB-INF/jsp/secfw/error/ErrorPage.jsp" />						
+	</bean>
+	
+	<bean id="paramResolver"
+		class="org.springframework.web.servlet.mvc.multiaction.ParameterMethodNameResolver">
+		<property name="paramName">
+			<value>method</value>
+		</property>
+	</bean>
+	
+	<bean id="mainController.paramResolver"
+		class="org.springframework.web.servlet.mvc.multiaction.ParameterMethodNameResolver">
+		<property name="paramName" value="method"/>
+		<property name="defaultMethodName" value="forwardMainPage"/>
+	</bean>
+			
+</beans>

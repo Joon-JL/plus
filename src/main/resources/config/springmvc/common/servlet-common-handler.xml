@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	
+	<!-- 권한체크를 하는 Handler -->
+	<bean id="common.authHandlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="order" value="1" />
+		<property name="interceptors">
+			<list>
+				<ref bean="secfw.AuthInterceptor"/>
+				<ref bean="secfw.menuInterceptor" />
+			</list>
+		</property>
+		<property name="alwaysUseFullPath" value="true" />
+	</bean>
+	
+	<!-- 권한체크를 하지 않는 Handler -->
+	<bean id="common.noAuthHandlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="order" value="1"/>
+		<property name="alwaysUseFullPath" value="true"/>
+		<property name="mappings">
+			<props>
+				<prop key="/common/clmsCom.do">common.clmsComControl</prop><!-- 공통코드 조회 -->
+				<!--  파일 첨부  : 신남원 -->
+				<prop key="/clms/common/clmsfile.do">common.clmsFileControl</prop>
+				<!-- mySingle Approval 조회 Test -->
+				<prop key="/clms/common/mySingleApprovalTest.do">common.mySingleApprovalTestControl</prop>
+			</props>
+		</property>
+	</bean>	
+
+	
+		
+</beans>

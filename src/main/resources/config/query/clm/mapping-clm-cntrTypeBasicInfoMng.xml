@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+    <queries>
+    	<!-- 목록 -->
+        <query id="clm.admin.listCntrTypeBasicInfoMng_temp" isCamelCase="false">
+            <statement>
+            <![CDATA[
+				SELECT 
+					v.BIZ_CLSFCN,
+					CASE 
+						WHEN :vo.session_user_locale = 'ko' THEN A1.CD_NM
+						WHEN :vo.session_user_locale = 'fr' THEN A1.CD_NM_FRA
+						WHEN :vo.session_user_locale = 'de' THEN A1.CD_NM_DEU
+						ELSE A1.CD_NM_ENG
+					END AS BIZ_CLSFCN_NM,
+					v.DEPTH_CLSFCN,
+					CASE 
+						WHEN :vo.session_user_locale = 'ko' THEN A2.CD_NM
+						WHEN :vo.session_user_locale = 'fr' THEN A2.CD_NM_FRA
+						WHEN :vo.session_user_locale = 'de' THEN A2.CD_NM_DEU
+						ELSE A2.CD_NM_ENG
+					END AS DEPTH_CLSFCN_NM,
+					v.CNCLSNPURPS_BIGCLSFCN,
+					CASE 
+						WHEN :vo.session_user_locale = 'ko' THEN A3.CD_NM
+						WHEN :vo.session_user_locale = 'fr' THEN A3.CD_NM_FRA
+						WHEN :vo.session_user_locale = 'de' THEN A3.CD_NM_DEU
+						ELSE A3.CD_NM_ENG
+					END AS CNCLSNPURPS_BIGCLSFCN_NM,
+					v.CNCLSNPURPS_MIDCLSFCN,
+					CASE 
+						WHEN :vo.session_user_locale = 'ko' THEN A4.CD_NM
+						WHEN :vo.session_user_locale = 'fr' THEN A4.CD_NM_FRA
+						WHEN :vo.session_user_locale = 'de' THEN A4.CD_NM_DEU
+						ELSE A4.CD_NM_ENG
+					END AS CNCLSNPURPS_MIDCLSFCN_NM,
+					v.ATTR_SEQNO,
+					v.MNDTRY_YN,
+					v.USE_YN
+				FROM 
+					TN_CLM_CONT_TYPE_BASICINFO v
+					LEFT OUTER JOIN TN_COM_CONTRACTTYPE_CD A1 ON (A1.TYPE_CD=v.BIZ_CLSFCN)
+					LEFT OUTER JOIN TN_COM_CONTRACTTYPE_CD A2 ON (A2.TYPE_CD=v.DEPTH_CLSFCN)
+					LEFT OUTER JOIN TN_COM_CONTRACTTYPE_CD A3 ON (A3.TYPE_CD=v.CNCLSNPURPS_BIGCLSFCN)
+					LEFT OUTER JOIN TN_COM_CONTRACTTYPE_CD A4 ON (A4.TYPE_CD=v.CNCLSNPURPS_MIDCLSFCN)
+				WHERE 
+					(BIZ_CLSFCN, DEPTH_CLSFCN, CNCLSNPURPS_BIGCLSFCN, CNCLSNPURPS_MIDCLSFCN) IN (
+				
+						SELECT 
+							u.BIZ_CLSFCN, u.DEPTH_CLSFCN, u.CNCLSNPURPS_BIGCLSFCN, u.CNCLSNPURPS_MIDCLSFCN
+						FROM 
+						( 
+							SELECT 
+								rownum RN, t.*, COUNT(1) over() TOTAL_CNT 
+							FROM 
+							(
+								SELECT
+									BIZ_CLSFCN, 
+									DEPTH_CLSFCN, 
+									CNCLSNPURPS_BIGCLSFCN,
+									CNCLSNPURPS_MIDCLSFCN
+								FROM 
+									TN_CLM_CONT_TYPE_BASICINFO
+								WHERE 
+									USE_YN='Y'
+									#if(!$vo.srch_biz_clsfcn.equals(""))
+									AND BIZ_CLSFCN = :vo.srch_biz_clsfcn
+									#end
+									#if(!$vo.srch_depth_clsfcn.equals(""))
+									AND DEPTH_CLSFCN = :vo.srch_depth_clsfcn
+									#end
+									#if(!$vo.srch_cnclsnpurps_bigclsfcn.equals(""))
+									AND CNCLSNPURPS_BIGCLSFCN = :vo.srch_cnclsnpurps_bigclsfcn
+									#end
+									#if(!$vo.srch_cnclsnpurps_midclsfcn.equals(""))
+									AND CNCLSNPURPS_MIDCLSFCN = :vo.srch_cnclsnpurps_midclsfcn
+									#end
+								GROUP BY 
+									BIZ_CLSFCN, 
+									DEPTH_CLSFCN, 
+									CNCLSNPURPS_BIGCLSFCN, 
+									CNCLSNPURPS_MIDCLSFCN
+								ORDER BY 
+									BIZ_CLSFCN, 
+									DEPTH_CLSFCN, 
+									CNCLSNPURPS_BIGCLSFCN, 
+									CNCLSNPURPS_MIDCLSFCN ASC
+							) t
+							ORDER BY RN 
+						) u
+						WHERE RN between :vo.start_index and :vo.end_index
+					)
+				ORDER BY 
+					v.BIZ_CLSFCN, 
+					v.DEPTH_CLSFCN, 
+					v.CNCLSNPURPS_BIGCLSFCN, 
+					v.CNCLSNPURPS_MIDCLSFCN, 
+					v.ATTR_SEQNO ASC
+            ]]>
+            </statement>
+        </query>
+        
+        <!-- 목록 조회 -->
+        <query id="clm.admin.listCntrTypeBasicInfoMng" isCamelCase="false">
+            <statement>
+            <![CDATA[
+            	SELECT 
+					x.BIZ_CLSFCN, 
+					x.DEPTH_CLSFCN, 
+					x.CNCLSNPURPS_BIGCLSFCN,
+					x.CNCLSNPURPS_MIDCLSFCN,
+					x.TOTAL_CNT,
+					x.RN,
+					CASE 
+						WHEN :vo.session_user_locale = 'ko' THEN A1.CD_NM
+						WHEN :vo.session_user_locale = 'fr' THEN A1.CD_NM_FRA
+						WHEN :vo.session_user_locale = 'de' THEN A1.CD_NM_DEU
+						ELSE A1.CD_NM_ENG
+					END AS BIZ_CLSFCN_NM,
+					CASE 
+						WHEN :vo.session_user_locale = 'ko' THEN A2.CD_NM
+						WHEN :vo.session_user_locale = 'fr' THEN A2.CD_NM_FRA
+						WHEN :vo.session_user_locale = 'de' THEN A2.CD_NM_DEU
+						ELSE A2.CD_NM_ENG
+					END AS DEPTH_CLSFCN_NM,
+					CASE 
+						WHEN :vo.session_user_locale = 'ko' THEN A3.CD_NM
+						WHEN :vo.session_user_locale = 'fr' THEN A3.CD_NM_FRA
+						WHEN :vo.session_user_locale = 'de' THEN A3.CD_NM_DEU
+						ELSE A3.CD_NM_ENG
+					END AS CNCLSNPURPS_BIGCLSFCN_NM,
+					CASE 
+						WHEN :vo.session_user_locale = 'ko' THEN A4.CD_NM
+						WHEN :vo.session_user_locale = 'fr' THEN A4.CD_NM_FRA
+						WHEN :vo.session_user_locale = 'de' THEN A4.CD_NM_DEU
+						ELSE A4.CD_NM_ENG
+					END AS CNCLSNPURPS_MIDCLSFCN_NM
+				FROM 
+				( 
+					SELECT rownum RN, t.*, COUNT(1) over() TOTAL_CNT FROM 
+				        (		
+						SELECT
+							a.BIZ_CLSFCN, 
+							a.DEPTH_CLSFCN, 
+							a.CNCLSNPURPS_BIGCLSFCN,
+							a.CNCLSNPURPS_MIDCLSFCN
+						FROM 
+							TN_CLM_CONT_TYPE_BASICINFO a
+						WHERE 
+							a.USE_YN='Y'
+							#if(!$vo.srch_biz_clsfcn.equals(""))
+							AND a.BIZ_CLSFCN = :vo.srch_biz_clsfcn
+							#end
+							#if(!$vo.srch_depth_clsfcn.equals(""))
+							AND a.DEPTH_CLSFCN = :vo.srch_depth_clsfcn
+							#end
+							#if(!$vo.srch_cnclsnpurps_bigclsfcn.equals(""))
+							AND a.CNCLSNPURPS_BIGCLSFCN = :vo.srch_cnclsnpurps_bigclsfcn
+							#end
+							#if(!$vo.srch_cnclsnpurps_midclsfcn.equals(""))
+							AND a.CNCLSNPURPS_MIDCLSFCN = :vo.srch_cnclsnpurps_midclsfcn
+							#end
+						GROUP BY 
+							a.BIZ_CLSFCN, 
+							a.DEPTH_CLSFCN, 
+							a.CNCLSNPURPS_BIGCLSFCN, 
+							a.CNCLSNPURPS_MIDCLSFCN
+						ORDER BY 
+							a.BIZ_CLSFCN, 
+							a.DEPTH_CLSFCN, 
+							a.CNCLSNPURPS_BIGCLSFCN, 
+							a.CNCLSNPURPS_MIDCLSFCN ASC
+					) t
+					ORDER BY RN 
+				) x 
+				LEFT OUTER JOIN TN_COM_CONTRACTTYPE_CD A1 ON (A1.TYPE_CD=x.BIZ_CLSFCN)
+				LEFT OUTER JOIN TN_COM_CONTRACTTYPE_CD A2 ON (A2.TYPE_CD=x.DEPTH_CLSFCN)
+				LEFT OUTER JOIN TN_COM_CONTRACTTYPE_CD A3 ON (A3.TYPE_CD=x.CNCLSNPURPS_BIGCLSFCN)
+				LEFT OUTER JOIN TN_COM_CONTRACTTYPE_CD A4 ON (A4.TYPE_CD=x.CNCLSNPURPS_MIDCLSFCN)
+				WHERE RN between :vo.start_index and :vo.end_index            
+            ]]>
+            </statement>
+        </query>
+        
+        <!-- 목록 조회(iframe) -->
+        <query id="clm.admin.listCntrTypeBasicInfoMngIF" isCamelCase="false">
+            <statement>
+            <![CDATA[
+				SELECT 
+					ATTR_SEQNO, MNDTRY_YN
+				FROM TN_CLM_CONT_TYPE_BASICINFO
+				WHERE 1=1
+					AND BIZ_CLSFCN = :vo.biz_clsfcn
+					AND DEPTH_CLSFCN = :vo.depth_clsfcn
+					AND CNCLSNPURPS_BIGCLSFCN = :vo.cnclsnpurps_bigclsfcn
+					AND CNCLSNPURPS_MIDCLSFCN = :vo.cnclsnpurps_midclsfcn
+				ORDER BY ATTR_SEQNO ASC
+          	]]>
+            </statement>
+        </query>
+        
+        <!-- 상세 -->
+        <query id="clm.admin.detailCntrTypeBasicInfoMng" isCamelCase="false">
+            <statement>
+            <![CDATA[
+				SELECT
+					A.BIZ_CLSFCN, 
+					CASE 
+						WHEN :vo.session_user_locale = 'ko' THEN A1.CD_NM
+						WHEN :vo.session_user_locale = 'fr' THEN A1.CD_NM_FRA
+						WHEN :vo.session_user_locale = 'de' THEN A1.CD_NM_DEU
+						ELSE A1.CD_NM_ENG
+					END AS BIZ_CLSFCN_NM,
+					A.DEPTH_CLSFCN, 
+					CASE 
+						WHEN :vo.session_user_locale = 'ko' THEN A2.CD_NM
+						WHEN :vo.session_user_locale = 'fr' THEN A2.CD_NM_FRA
+						WHEN :vo.session_user_locale = 'de' THEN A2.CD_NM_DEU
+						ELSE A2.CD_NM_ENG
+					END AS DEPTH_CLSFCN_NM,
+					A.CNCLSNPURPS_BIGCLSFCN,
+					CASE 
+						WHEN :vo.session_user_locale = 'ko' THEN A3.CD_NM
+						WHEN :vo.session_user_locale = 'fr' THEN A3.CD_NM_FRA
+						WHEN :vo.session_user_locale = 'de' THEN A3.CD_NM_DEU
+						ELSE A3.CD_NM_ENG
+					END AS CNCLSNPURPS_BIGCLSFCN_NM,
+					A.CNCLSNPURPS_MIDCLSFCN,
+					CASE 
+						WHEN :vo.session_user_locale = 'ko' THEN A4.CD_NM
+						WHEN :vo.session_user_locale = 'fr' THEN A4.CD_NM_FRA
+						WHEN :vo.session_user_locale = 'de' THEN A4.CD_NM_DEU
+						ELSE A4.CD_NM_ENG
+					END AS CNCLSNPURPS_MIDCLSFCN_NM,
+					A.ATTR_SEQNO,
+					A.MNDTRY_YN
+				FROM 
+					TN_CLM_CONT_TYPE_BASICINFO A
+					LEFT OUTER JOIN TN_COM_CONTRACTTYPE_CD A1 ON (A1.TYPE_CD=A.BIZ_CLSFCN)
+					LEFT OUTER JOIN TN_COM_CONTRACTTYPE_CD A2 ON (A2.TYPE_CD=A.DEPTH_CLSFCN)
+					LEFT OUTER JOIN TN_COM_CONTRACTTYPE_CD A3 ON (A3.TYPE_CD=A.CNCLSNPURPS_BIGCLSFCN)
+					LEFT OUTER JOIN TN_COM_CONTRACTTYPE_CD A4 ON (A4.TYPE_CD=A.CNCLSNPURPS_MIDCLSFCN)
+				WHERE 1=1
+					AND A.USE_YN='Y'
+					AND A.BIZ_CLSFCN = :vo.biz_clsfcn
+					AND A.DEPTH_CLSFCN = :vo.depth_clsfcn
+					AND A.CNCLSNPURPS_BIGCLSFCN = :vo.cnclsnpurps_bigclsfcn
+					AND A.CNCLSNPURPS_MIDCLSFCN = :vo.cnclsnpurps_midclsfcn
+				ORDER BY A.ATTR_SEQNO ASC            
+          ]]>
+            </statement>
+        </query>
+        
+		<!-- 수정 -->
+        <query id="clm.admin.modifyCntrTypeBasicInfoMng" isCamelCase="false">
+            <statement>
+            <![CDATA[
+            	UPDATE TN_CLM_CONT_TYPE_BASICINFO SET
+            		MNDTRY_YN=:vo.mndtry_yn,
+            		MOD_DT=SYSDATE,
+            		MOD_ID=:vo.session_user_id,
+            		MOD_NM=:vo.session_user_nm
+            	WHERE 1=1
+            		AND BIZ_CLSFCN = :vo.biz_clsfcn
+					AND DEPTH_CLSFCN = :vo.depth_clsfcn
+					AND CNCLSNPURPS_BIGCLSFCN = :vo.cnclsnpurps_bigclsfcn
+					AND CNCLSNPURPS_MIDCLSFCN = :vo.cnclsnpurps_midclsfcn
+					AND ATTR_SEQNO = :vo.attr_seqno
+          	]]>
+            </statement>
+        </query>
+
+        <!-- 정보항목 조회 -->
+        <query id="clm.admin.listInfoItm" isCamelCase="false">
+        	<statement>
+        	<![CDATA[
+				SELECT 
+					ATTR_SEQNO,
+					ATTR_CLMNNM,
+					INFO_ITM
+				FROM 
+					TN_CLM_BASIC_ATTR 
+				ORDER BY PRNT_SRT ASC        	
+        	]]>
+        	</statement>
+        </query>
+
+    </queries>
+</queryservice>

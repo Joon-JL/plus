@@ -1,0 +1,681 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+	<queries>
+	
+		<!-- 법무 캘린더 (초기 MONTH) -->
+		<query id="las.calendar.init" isCamelCase="false">
+			<statement>
+            <![CDATA[
+							SELECT 
+								START_DT
+								,SUM(PLN) AS PLN_SUM 
+								,SUM(EXE) AS EXE_SUM 
+								,SUM(CONC) AS CONC_SUM  
+								
+							FROM (
+							
+									SELECT 
+											A.ADATE AS START_DT , 
+											1 PLN , 
+											0 EXE  ,
+											0 CONC
+									FROM ( 
+											SELECT * 
+											FROM 
+												( 
+														SELECT CONVERT(CHAR(8),DATEADD(D,NUMBER, CONVERT(CHAR(10),DATEADD(D,DATEPART(DW,  :vo.srch_yyyymmdd  ) * -1 + 1,  :vo.srch_yyyymmdd  ),112)) ,112) AS ADATE 
+														FROM MASTER..SPT_VALUES WHERE TYPE = 'P' 
+												) AA 
+											WHERE AA.ADATE >=  :vo.srch_yyyymmdd  
+											AND AA.ADATE < ( SELECT CONVERT(CHAR(10),DATEADD(M, + 1,  :vo.srch_yyyymmdd  ),112)) 
+										) A, 
+										( 
+										SELECT 
+												SEQNO 
+												,TITLE 
+												,CONT 
+												,REPLACE(CONVERT(VARCHAR, CONVERT(DATETIME, START_DT, 23),23),'-','') AS START_DT 
+												,REPLACE(CONVERT(VARCHAR, CONVERT(DATETIME, END_DT, 23),23),'-','') AS END_DT 
+												,TYPE1 
+												,TYPE2 
+										FROM 
+											TN_LAS_CAL 
+										WHERE DEL_YN = 'N' 
+										AND REG_ID = :vo.session_user_id 
+										) B 
+										WHERE A.ADATE >= B.START_DT 
+										AND A.ADATE <= B.END_DT 
+								
+								UNION ALL 
+								
+								SELECT 
+									EXE.EXEDAY AS START_DT , 
+									0 PLN , 
+									1 EXE ,
+									0 CONC
+							
+									FROM ( 
+											SELECT 
+											* FROM (
+													SELECT A.CNTRT_ID
+														  ,A.COMP_CD
+													   ,A.CNTRT_NM
+													   ,C.REQ_TITLE 
+													   ,REPLACE(CONVERT(VARCHAR, CONVERT(DATE, D.EXEC_PLNDDAY),23),'-','') AS EXEDAY
+													   ,A.CNTRT_RESPMAN_ID
+													   /* SUNGWOO REPLACED 2014-09-22 */
+													   ,CASE WHEN ISDATE(D.EXEC_PLNDDAY) =1 THEN CONVERT(INT, REPLACE(CONVERT(VARCHAR, CONVERT(DATE, D.EXEC_PLNDDAY), 23), '-', '')) ELSE '0' END AS EXEDAY_NUM
+													  FROM TN_CLM_CONTRACT_MASTER A
+													  JOIN TN_CLM_CONTRACT_CNSD B ON A.CNTRT_ID = B.CNTRT_ID
+													  JOIN TN_CLM_CONT_CNSDREQ C ON B.CNSDREQ_ID = C.CNSDREQ_ID
+													  JOIN TN_CLM_CONT_EXECINFO D ON A.CNTRT_ID = D.CNTRT_ID
+													 WHERE C.REQMAN_ID = :vo.session_user_id 
+													  AND A.COMP_CD = :vo.session_comp_cd
+													   AND A.CNTRT_STATUS = 'C02402'
+													   AND A.PRCS_DEPTH = 'C02504'
+													   AND A.DEPTH_STATUS = 'C02662'
+											   ) Z
+							
+											   WHERE  CONVERT(INT,Z.EXEDAY_NUM) >= CONVERT(INT,CONVERT(VARCHAR,DATEADD(DAY,-(DAY( :vo.srch_yyyymmdd )-1), :vo.srch_yyyymmdd ),112) )
+											   AND  CONVERT(INT,Z.EXEDAY_NUM) <= CONVERT(INT,CONVERT(VARCHAR,DATEADD(MONTH,1, :vo.srch_yyyymmdd )-(DAY( :vo.srch_yyyymmdd )),112) )	
+							
+										) EXE
+							
+								UNION ALL 								
+							
+									SELECT 
+											CONC.CONCDAY AS START_DT , 
+											0 PLN , 
+											0 EXE ,
+											1 CONC
+							
+									FROM ( 
+											SELECT 
+											* FROM (
+							
+														SELECT A.CNTRT_ID
+																,A.COMP_CD
+																,A.CNTRT_NM 
+																,C.REQ_TITLE
+																/* SUNGWOO REPLACED 2014-09-22 */ 
+																,CASE WHEN ISDATE(A.CNTRTPERIOD_ENDDAY) = 1 THEN REPLACE(CONVERT(VARCHAR, CONVERT(DATE, A.CNTRTPERIOD_ENDDAY), 23), '-', '') ELSE '0' END AS CONCDAY 
+																,CASE WHEN ISDATE(A.CNTRTPERIOD_ENDDAY) =1 then  CONVERT(INT, REPLACE(CONVERT(VARCHAR, CONVERT(DATE, A.CNTRTPERIOD_ENDDAY), 23), '-', '')) ELSE '0' END AS CONCDAY_NUM
+																,A.CNTRT_RESPMAN_ID
+														FROM TN_CLM_CONTRACT_MASTER A
+														JOIN TN_CLM_CONTRACT_CNSD B ON A.CNTRT_ID = B.CNTRT_ID
+														JOIN TN_CLM_CONT_CNSDREQ C ON B.CNSDREQ_ID = C.CNSDREQ_ID
+														WHERE  C.REQMAN_ID = :vo.session_user_id 
+															AND A.COMP_CD = :vo.session_comp_cd 
+															AND A.CNTRT_STATUS = 'C02402'
+															AND A.PRCS_DEPTH IN ( 'C02503', 'C02504', 'C02505')
+							
+											   ) ZZ
+							
+											   WHERE  CONVERT(INT,ZZ.CONCDAY_NUM) >= CONVERT(INT,CONVERT(VARCHAR,DATEADD(DAY,-(DAY( :vo.srch_yyyymmdd )-1), :vo.srch_yyyymmdd ),112) )
+											   AND  CONVERT(INT,ZZ.CONCDAY_NUM) <= CONVERT(INT,CONVERT(VARCHAR,DATEADD(MONTH,1, :vo.srch_yyyymmdd )-(DAY( :vo.srch_yyyymmdd )),112) )	
+							
+										) CONC
+							
+							
+								) SKDL							
+
+								GROUP BY START_DT
+								
+								ORDER BY START_DT 
+
+ 
+  			 ]]>
+			</statement>
+		</query>
+		
+		<!-- 법무 캘린더 (DAY) -->
+		<query id="las.calendar.day" isCamelCase="false">
+			<statement>
+            <![CDATA[           
+            
+            		   	SELECT 
+   									
+   									EXE.EXEDAY AS ADATE
+							        ,EXE.CNTRT_ID  AS SEQNO
+							        ,EXE.CNTRT_NM AS TITLE
+							        ,'' AS CONT
+									,'EXE' AS TYPE1
+									,'EXE' AS  TYPE1_NM
+									,'EXE' AS TYPE2
+									,'-' AS START_D
+									,'-' AS END_D
+									,'-' AS LOCA
+									,'E' AS S_TYPE
+							
+									FROM ( 
+											SELECT 
+											* FROM (
+													SELECT A.CNTRT_ID
+														  ,A.COMP_CD
+													   ,A.CNTRT_NM
+													   ,C.REQ_TITLE 
+													   ,REPLACE(CONVERT(VARCHAR, CONVERT(DATE, D.EXEC_PLNDDAY),23),'-','') AS EXEDAY
+													   ,A.CNTRT_RESPMAN_ID
+													   , CONVERT(INT,REPLACE(CONVERT(VARCHAR, CONVERT(DATE, D.EXEC_PLNDDAY),23),'-','') ) AS EXEDAY_NUM
+													  FROM TN_CLM_CONTRACT_MASTER A
+													  JOIN TN_CLM_CONTRACT_CNSD B ON A.CNTRT_ID = B.CNTRT_ID
+													  JOIN TN_CLM_CONT_CNSDREQ C ON B.CNSDREQ_ID = C.CNSDREQ_ID
+													  JOIN TN_CLM_CONT_EXECINFO D ON A.CNTRT_ID = D.CNTRT_ID
+													 WHERE C.REQMAN_ID = :vo.session_user_id 
+													  AND A.COMP_CD = :vo.session_comp_cd
+													   AND A.CNTRT_STATUS = 'C02402'
+													   AND A.PRCS_DEPTH = 'C02504'
+													   AND A.DEPTH_STATUS = 'C02662'
+											   ) Z
+							
+											 
+											/*   WHERE  CONVERT(INT,Z.EXEDAY_NUM) =  (	SELECT REPLACE(CONVERT(VARCHAR, CONVERT(datetime, :vo.srch_yyyymmdd2 , 23),23),'-','') ) */
+											 WHERE  EXEDAY = :vo.srch_yyyymmdd2  
+							
+										) EXE	
+						
+            			UNION ALL 
+            		
+            		SELECT 
+   									
+   									CONC.CONCDAY AS ADATE
+							        ,CONC.CNTRT_ID AS SEQNO
+							        ,CONC.CNTRT_NM AS TITLE
+							        ,'' AS CONT
+									,'CONC' AS TYPE1
+									,'CONC' AS  TYPE1_NM
+									,'CONC' AS TYPE2
+									,'-' AS START_D
+									,'-' AS END_D
+									,'-' AS LOCA
+									,'T' AS S_TYPE
+							
+									FROM ( 
+											SELECT 
+											* FROM (
+							
+														SELECT A.CNTRT_ID
+																,A.COMP_CD
+																,A.CNTRT_NM 
+																,C.REQ_TITLE 
+																,CASE WHEN ISDATE(A.CNTRTPERIOD_ENDDAY) = 1 THEN REPLACE(CONVERT(VARCHAR, CONVERT(DATE, A.CNTRTPERIOD_ENDDAY), 23), '-', '') ELSE '0' END AS CONCDAY 
+																,CASE WHEN ISDATE(A.CNTRTPERIOD_ENDDAY) = 1	THEN CONVERT(INT, REPLACE(CONVERT(VARCHAR, CONVERT(DATE, A.CNTRTPERIOD_ENDDAY), 23), '-', '')) ELSE '0'	END AS CONCDAY_NUM
+																,A.CNTRT_RESPMAN_ID
+														FROM TN_CLM_CONTRACT_MASTER A
+														JOIN TN_CLM_CONTRACT_CNSD B ON A.CNTRT_ID = B.CNTRT_ID
+														JOIN TN_CLM_CONT_CNSDREQ C ON B.CNSDREQ_ID = C.CNSDREQ_ID
+														WHERE  C.REQMAN_ID = :vo.session_user_id 
+															AND A.COMP_CD = :vo.session_comp_cd 
+															AND A.CNTRT_STATUS = 'C02402'
+															AND A.PRCS_DEPTH IN ( 'C02503', 'C02504', 'C02505')
+							
+											   ) ZZ
+							
+											  /* WHERE  CONVERT(INT,ZZ.CONCDAY_NUM) =  (	SELECT REPLACE(CONVERT(VARCHAR, CONVERT(datetime, :vo.srch_yyyymmdd2 , 23),23),'-','') ) */
+											  WHERE  CONCDAY = :vo.srch_yyyymmdd2  
+							
+										) CONC	
+						
+            			UNION ALL 		
+            		
+							SELECT 
+							        A.ADATE AS ADATE
+							        ,B.SEQNO
+							        ,B.TITLE
+							        ,B.CONT
+									,B.TYPE1
+									, CASE WHEN :vo.session_user_locale = 'ko' THEN TCC.CD_NM
+                                     	   WHEN :vo.session_user_locale = 'fr' THEN TCC.CD_NM_FRA
+                                     	   WHEN :vo.session_user_locale = 'de' THEN TCC.CD_NM_DEU
+                                      	   ELSE TCC.CD_NM_ENG 
+                                     END  AS TYPE1_NM
+									,B.TYPE2
+									,B.START_D
+									,B.END_D
+									,B.LOCA
+									,'P' AS S_TYPE
+
+						FROM 
+									(									
+											SELECT * 
+											FROM 
+												( 
+														SELECT CONVERT(CHAR(8),DATEADD(D,NUMBER, CONVERT(CHAR(10),DATEADD(D,DATEPART(DW,  :vo.srch_yyyymmdd2  ) * -1 + 1,  :vo.srch_yyyymmdd2  ),112)) ,112) AS ADATE 
+														FROM MASTER..SPT_VALUES WHERE TYPE = 'P' 
+												) AA 
+											WHERE AA.ADATE >=  :vo.srch_yyyymmdd2  
+											AND AA.ADATE < ( SELECT CONVERT(CHAR(10),DATEADD(M, + 1,   CONVERT(datetime, :vo.srch_yyyymmdd2 )    ),112)) 					
+									) A,
+									(
+									SELECT 
+													SEQNO ,TITLE ,CONT 
+													,REPLACE(CONVERT(VARCHAR, CONVERT(datetime, START_DT, 23),23),'-','') AS START_DT 
+													,REPLACE(CONVERT(VARCHAR, CONVERT(datetime, END_DT, 23),23),'-','') AS END_DT 
+													,CONVERT(VARCHAR, CONVERT(datetime, START_DT, 20),20) AS START_D
+													,CONVERT(VARCHAR, CONVERT(datetime, END_DT, 20),20) AS END_D
+													,TYPE1 
+													,TYPE2	
+													,LOCA												
+										FROM 
+													TN_LAS_CAL 
+										WHERE 
+													DEL_YN = 'N' 
+										AND 		REG_ID = :vo.session_user_id
+									) B,
+									
+									TB_COM_CD TCC                  
+						
+						WHERE 	A.ADATE >= B.START_DT
+						AND 		A.ADATE <= B.END_DT
+
+						AND		A.ADATE = :vo.srch_yyyymmdd2
+						AND 		TCC.GRP_CD   = 'C071'
+						AND 		TCC.CD = B.TYPE1 			
+						
+ 
+  			 ]]>
+			</statement>
+		</query>
+		
+		<!-- 법무 캘린더 (WEEK) -->
+		<query id="las.calendar.week" isCamelCase="false">
+			<statement>
+            <![CDATA[
+            
+            			SELECT 
+							        A.ADATE
+									,CONVERT(varchar(9),B.SEQNO) AS SEQNO
+									,B.TITLE
+									,B.TYPE1
+									,B.LOCA
+									,B.START_DT
+									,B.END_DT
+									,B.S_TYPE
+
+					FROM 
+
+							(
+									SELECT * 
+									
+									FROM
+												 (
+							  					SELECT 
+							  								CONVERT(CHAR(8),DATEADD(D,NUMBER, CONVERT(CHAR(10),DATEADD(D,DATEPART(DW,  :vo.srch_yyyymmdd  ) * -1 + 1,  :vo.srch_yyyymmdd  ),112)) ,112) AS  ADATE 
+												FROM 
+														MASTER..SPT_VALUES WHERE TYPE = 'P'
+												)  AA 
+									WHERE  
+												AA.ADATE >= ( SELECT CONVERT(CHAR(10),DATEADD(D,DATEPART(DW,  :vo.srch_yyyymmdd  ) * -1 + 1,  :vo.srch_yyyymmdd  ),112))
+									AND 		AA.ADATE <= ( SELECT CONVERT(CHAR(10),DATEADD(D,DATEPART(DW,  :vo.srch_yyyymmdd  ) * -1 + 7,  :vo.srch_yyyymmdd  ),112))
+
+							) A
+							LEFT OUTER JOIN 
+							(
+										SELECT							
+									
+										EXE.CNTRT_ID AS SEQNO
+										,EXE.CNTRT_NM AS TITLE									
+								        ,'' AS CONT
+								       ,EXE.EXEDAY AS START_DT
+								   		,EXE.EXEDAY AS END_DT
+										,'EXE' AS TYPE1
+										,'EXE' AS  TYPE1_NM
+										,'-' AS LOCA
+										,'E' AS S_TYPE
+							
+										FROM ( 						
+											SELECT 
+											* FROM (
+													SELECT A.CNTRT_ID
+														  ,A.COMP_CD
+													   ,A.CNTRT_NM
+													   ,C.REQ_TITLE 
+													   ,REPLACE(CONVERT(VARCHAR, CONVERT(DATE, D.EXEC_PLNDDAY),23),'-','') AS EXEDAY
+													   ,A.CNTRT_RESPMAN_ID
+													   , CONVERT(INT,REPLACE(CONVERT(VARCHAR, CONVERT(DATE, D.EXEC_PLNDDAY),23),'-','') ) AS EXEDAY_NUM
+													  FROM TN_CLM_CONTRACT_MASTER A
+													  JOIN TN_CLM_CONTRACT_CNSD B ON A.CNTRT_ID = B.CNTRT_ID
+													  JOIN TN_CLM_CONT_CNSDREQ C ON B.CNSDREQ_ID = C.CNSDREQ_ID
+													  JOIN TN_CLM_CONT_EXECINFO D ON A.CNTRT_ID = D.CNTRT_ID
+													 WHERE C.REQMAN_ID = :vo.session_user_id 
+													  AND A.COMP_CD = :vo.session_comp_cd
+													   AND A.CNTRT_STATUS = 'C02402'
+													   AND A.PRCS_DEPTH = 'C02504'
+													   AND A.DEPTH_STATUS = 'C02662'
+							
+											   	) Z	
+							
+											WHERE  CONVERT(INT,Z.EXEDAY_NUM) >= ( SELECT CONVERT(CHAR(10),DATEADD(D,DATEPART(DW,  :vo.srch_yyyymmdd  ) * -1 + 1,  :vo.srch_yyyymmdd  ),112))
+											   AND  CONVERT(INT,Z.EXEDAY_NUM) <=  ( SELECT CONVERT(CHAR(10),DATEADD(D,DATEPART(DW,  :vo.srch_yyyymmdd  ) * -1 + 7,  :vo.srch_yyyymmdd  ),112))
+											
+							
+										) EXE	
+							
+									
+									UNION ALL 	
+									
+									
+									
+									SELECT							
+									
+										CONC.CNTRT_ID AS SEQNO
+										,CONC.CNTRT_NM AS TITLE									
+								        ,'' AS CONT
+								       ,CONC.CONCDAY AS START_DT
+								   		,CONC.CONCDAY AS END_DT
+										,'CONC' AS TYPE1
+										,'CONC' AS  TYPE1_NM
+										,'-' AS LOCA
+										,'T' AS S_TYPE
+							
+										FROM ( 
+											SELECT 
+											* FROM (
+							
+														SELECT A.CNTRT_ID
+																,A.COMP_CD
+																,A.CNTRT_NM 
+																,C.REQ_TITLE 
+																,CASE WHEN ISDATE(A.CNTRTPERIOD_ENDDAY) = 1 THEN REPLACE(CONVERT(VARCHAR, CONVERT(DATE, A.CNTRTPERIOD_ENDDAY), 23), '-', '') ELSE '0' END AS CONCDAY  
+																,CASE WHEN ISDATE(A.CNTRTPERIOD_ENDDAY) = 1	THEN CONVERT(INT, REPLACE(CONVERT(VARCHAR, CONVERT(DATE, A.CNTRTPERIOD_ENDDAY), 23), '-', '')) ELSE '0'	END AS CONCDAY_NUM
+																,A.CNTRT_RESPMAN_ID
+														FROM TN_CLM_CONTRACT_MASTER A
+														JOIN TN_CLM_CONTRACT_CNSD B ON A.CNTRT_ID = B.CNTRT_ID
+														JOIN TN_CLM_CONT_CNSDREQ C ON B.CNSDREQ_ID = C.CNSDREQ_ID
+														WHERE  C.REQMAN_ID = :vo.session_user_id 
+															AND A.COMP_CD = :vo.session_comp_cd 
+															AND A.CNTRT_STATUS = 'C02402'
+															AND A.PRCS_DEPTH IN ( 'C02503', 'C02504', 'C02505')
+							
+											   ) ZZ	
+							
+											WHERE  CONVERT(INT,ZZ.CONCDAY_NUM) >= ( SELECT CONVERT(CHAR(10),DATEADD(D,DATEPART(DW,  :vo.srch_yyyymmdd  ) * -1 + 1,  :vo.srch_yyyymmdd  ),112))
+											   AND  CONVERT(INT,ZZ.CONCDAY_NUM) <=  ( SELECT CONVERT(CHAR(10),DATEADD(D,DATEPART(DW,  :vo.srch_yyyymmdd  ) * -1 + 7,  :vo.srch_yyyymmdd  ),112))
+											
+							
+										) CONC	
+							
+									
+									UNION ALL 		
+							
+							
+										SELECT 
+														CONVERT(VARCHAR, C.SEQNO ) AS SEQNO
+														,C.TITLE
+														,C.CONT 
+														,REPLACE(CONVERT(VARCHAR, CONVERT(DATETIME, C.START_DT, 23),23),'-','') AS START_DT 
+														,REPLACE(CONVERT(VARCHAR, CONVERT(DATETIME, C.END_DT, 23),23),'-','') AS END_DT 
+														,C.TYPE1 
+														, CASE WHEN :vo.session_user_locale = 'ko' THEN TCC.CD_NM
+					                                     	   WHEN :vo.session_user_locale = 'fr' THEN TCC.CD_NM_FRA
+					                                     	   WHEN :vo.session_user_locale = 'de' THEN TCC.CD_NM_DEU
+					                                      	   ELSE TCC.CD_NM_ENG 
+					                                     END  AS TYPE1_NM
+														,C.LOCA			
+														,'P' AS S_TYPE 
+										FROM 
+														TN_LAS_CAL C,
+														TB_COM_CD TCC           
+										WHERE 
+														C.DEL_YN = 'N' 
+										AND 			C.REG_ID = :vo.session_user_id
+										AND 			TCC.GRP_CD   = 'C071'
+										AND 			TCC.CD = C.TYPE1 		
+						
+								) B ON A.ADATE >= B.START_DT AND A.ADATE <= B.END_DT
+ 
+  			 ]]>
+			</statement>
+		</query>
+		
+		<!-- 법무 캘린더 (해당 주의 WEEKDAYS 구하기) -->
+		<query id="las.calendar.getweekdays" isCamelCase="false">
+			<statement>
+            <![CDATA[            
+            		
+						SELECT 
+									*
+						FROM
+									 (
+				  					SELECT 
+				  								CONVERT(CHAR(8),DATEADD(D,NUMBER, CONVERT(CHAR(10),DATEADD(D,DATEPART(DW,  :vo.srch_yyyymmdd  ) * -1 + 1,  :vo.srch_yyyymmdd  ),112)) ,112) AS  ADATE 
+									FROM 
+											MASTER..SPT_VALUES WHERE TYPE = 'P'
+									)  A 
+						WHERE  
+									A.ADATE >= ( SELECT CONVERT(CHAR(10),DATEADD(D,DATEPART(DW,  :vo.srch_yyyymmdd  ) * -1 + 1,  :vo.srch_yyyymmdd  ),112))
+						AND 		A.ADATE <= ( SELECT CONVERT(CHAR(10),DATEADD(D,DATEPART(DW,  :vo.srch_yyyymmdd  ) * -1 + 7,  :vo.srch_yyyymmdd  ),112))
+ 
+  			 ]]>
+			</statement>
+		</query>
+				
+		<!-- 법무 캘린더 (백업) -->
+		<query id="las.calendar.init_bak" isCamelCase="false">
+			<statement>
+            <![CDATA[
+            
+            			SELECT
+							    REPLACE(CONVERT(VARCHAR, CONVERT(datetime, START_DT, 23),23),'-','')  AS START_DT
+							    , count(A.title) PLN
+							  	, 0 ARSL 	
+							    
+						FROM 
+						 (
+							    SELECT 
+								    		  SEQNO
+										      ,TITLE
+										      ,CONT
+										      ,START_DT
+										      ,END_DT
+										      ,TYPE1
+										      ,TYPE2
+								FROM 
+											TN_LAS_CAL
+								WHERE
+								        	DEL_YN = 'N'
+								AND 		REG_ID = :vo.session_user_id
+								        	
+					        	#if($vo.srch_yyyymm && !$vo.srch_yyyymm.equals(""))
+                              		AND SUBSTRING(REPLACE(CONVERT(VARCHAR, CONVERT(datetime, START_DT, 23),23),'-',''), 0, 7) = :vo.srch_yyyymm
+                           		#else
+                           			AND SUBSTRING(REPLACE(CONVERT(VARCHAR, CONVERT(datetime, START_DT, 23),23),'-',''), 0, 7) = SUBSTRING(REPLACE(CONVERT(VARCHAR, CONVERT(datetime, GETDATE(), 23),23),'-',''),0, 7)                         				 
+                          		#end
+						
+						)    A       							    
+						
+						GROUP BY
+							    START_DT							
+						ORDER BY
+							    START_DT
+							    
+					
+ 
+  			 ]]>
+			</statement>
+		</query>
+		
+		<!-- 일정관리 등록 -->
+		<query id="las.calendar.insert" isCamelCase="false">
+			<statement>
+            <![CDATA[
+            
+            INSERT INTO TN_LAS_CAL (
+							            SEQNO
+							           ,TITLE
+							           ,CONT
+							           ,START_DT
+							           ,END_DT
+							           ,TYPE1
+							           ,TYPE2
+							           ,REG_DT
+							           ,REG_ID
+							           ,STATUS
+							           ,DEL_YN
+							           ,MOD_DT
+							           ,MOD_ID
+							           ,LOCA
+							           ,START_HH
+							           ,START_MM
+							           ,END_HH
+							           ,END_MM
+							           )
+     		VALUES
+				           (
+				           (SELECT ISNULL(MAX(SEQNO),'0') + 1 AS SEQNO FROM TN_LAS_CAL )
+				           ,:vo.title
+				           ,:vo.cont
+				           , (SELECT CONVERT(DATETIME, REPLACE( :vo.start_dt ,'-','') + ' ' + :vo.start_hh + ':' + :vo.start_mm  , 23) ) 
+				           , (SELECT CONVERT(DATETIME, REPLACE( :vo.end_dt ,'-','')  + ' ' + :vo.end_hh + ':' + :vo.end_mm , 23) ) 
+				           ,:vo.type1
+				           ,:vo.type2
+				           ,GETDATE()
+				           ,:vo.session_user_id
+				           ,:vo.status
+				           ,'N'
+				           ,GETDATE()
+				           ,:vo.session_user_id
+				           ,:vo.loca
+				           ,:vo.start_hh
+				           ,:vo.start_mm
+				           ,:vo.end_hh
+				           ,:vo.end_mm
+				           )
+            
+             ]]>
+            </statement>
+		</query>
+		
+		<!-- 일정관리 상세 -->
+		<query id="las.calendar.detail" isCamelCase="false">
+			<statement>
+            <![CDATA[
+            
+						SELECT 
+										SEQNO
+							           ,TITLE
+							           ,CONT
+							           ,CONVERT(VARCHAR, CONVERT(datetime, START_DT, 23),23) AS START_DT
+							           ,CONVERT(VARCHAR, CONVERT(datetime, END_DT, 23),23)  AS END_DT
+							           ,TYPE1
+							           ,TYPE2
+							           ,REG_DT
+							           ,REG_ID
+							           ,STATUS
+							           ,DEL_YN
+							           ,MOD_DT
+							           ,MOD_ID
+							           ,LOCA
+							           ,START_HH
+							           ,START_MM
+							           ,END_HH
+							           ,END_MM					
+						FROM  
+										TN_LAS_CAL 				          
+						 WHERE  DEL_YN = 'N'
+						 AND		SEQNO = :vo.seqno
+						 AND 		REG_ID = :vo.session_user_id 
+            
+             ]]>
+            </statement>
+		</query>
+		
+		<!-- 일정관리 수정 -->
+		<query id="las.calendar.modify" isCamelCase="false">
+			<statement>
+            <![CDATA[
+            
+						UPDATE TN_LAS_CAL
+						
+						   SET 
+						   	   TITLE = :vo.title
+						      ,CONT = :vo.cont
+						      ,START_DT = (SELECT CONVERT(DATETIME, REPLACE( :vo.start_dt ,'-','') + ' ' + :vo.start_hh + ':' + :vo.start_mm  , 23) ) 
+						      ,END_DT = (SELECT CONVERT(DATETIME, REPLACE( :vo.end_dt ,'-','')  + ' ' + :vo.end_hh + ':' + :vo.end_mm , 23) ) 
+						      ,TYPE1 = :vo.type1
+						      ,TYPE2 = :vo.type2
+						      ,MOD_DT = GETDATE()
+						      ,MOD_ID = :vo.session_user_id
+						      ,LOCA = :vo.loca
+						      ,START_HH = :vo.start_hh
+					          ,START_MM = :vo.start_mm
+					          ,END_HH = :vo.end_hh
+					          ,END_MM = :vo.end_mm
+					          
+						 WHERE SEQNO = :vo.seqno
+            
+             ]]>
+            </statement>
+		</query>
+		
+		<!-- 일정관리 삭제 -->
+		<query id="las.calendar.delete" isCamelCase="false">
+			<statement>
+            <![CDATA[
+            
+						UPDATE TN_LAS_CAL
+						
+						   SET 
+							  DEL_YN = 'Y'
+						      ,MOD_DT = GETDATE()
+						      ,MOD_ID = :vo.session_user_id
+					          
+						 WHERE SEQNO = :vo.seqno
+            
+             ]]>
+            </statement>
+		</query>
+
+		
+		<!-- 	SELECT
+							    VOL_STRT_DD
+							    , SUM(PLN) PLN
+							    , SUM(ARSL) ARSL
+							FROM
+							(
+							    SELECT 
+							        PLN
+							        , ARSL
+							        , VOL_STRT_DD
+							    FROM
+							    (
+							        SELECT							
+							            CASE
+							                WHEN (VOL_PGS_STEP = 'NVOL02010' AND PLN_RDCS_PGS_STEP = 'NVOL03030') OR (VOL_PGS_STEP = 'NVOL02020' AND ARSL_RDCS_PGS_STEP IN ('NVOL03010','NVOL03020','NVOL03040')) THEN 1
+							                ELSE 0
+							              END PLN
+							            , CASE
+							                WHEN VOL_PGS_STEP = 'NVOL02020' AND ARSL_RDCS_PGS_STEP = 'NVOL03030' THEN 1
+							                ELSE 0
+							              END ARSL     
+							            , AVT.*
+							        FROM
+							            TN_NVOL_ACVT AVT
+							        WHERE
+							        	1=1
+							        	
+							        	#if($vo.srch_yyyymm && !$vo.srch_yyyymm.equals(""))
+                                 			AND SUBSTR(VOL_STRT_DD, 0, 6) = :vo.srch_yyyymm
+                                 		#else
+                                 			AND SUBSTR(VOL_STRT_DD, 0, 6) =	TO_CHAR(sysdate,'yyyymm')                                 				 
+                                		#end
+                                		
+							        	#if($vo.srch_vol_ctr_cd && !$vo.srch_vol_ctr_cd.equals(""))
+                                 			AND VOL_CTR_CD = :vo.srch_vol_ctr_cd                                 				 
+                                		#end
+							    )            
+							)          
+						GROUP BY
+							    VOL_STRT_DD
+							
+							ORDER BY
+							    VOL_STRT_DD  -->		
+            
+		
+	
+		
+	</queries>
+</queryservice>

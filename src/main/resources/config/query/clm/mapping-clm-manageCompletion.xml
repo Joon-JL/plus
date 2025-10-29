@@ -1,0 +1,1006 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+    <queries>
+    <!-- 이행및종료이력 -->
+		<query id="clm.manage.listExecutionHis" isCamelCase="false">
+  			<statement>
+		    <![CDATA[
+				SELECT *
+		          FROM ( 
+		          		 SELECT	rownum RN, t.*, COUNT(1) over() TOTAL_CNT, ROW_NUMBER() OVER (PARTITION BY t.EXEC_GBN ORDER BY  t.EXEC_SEQNO ASC) RNO
+						   FROM	(
+									SELECT	X.CNTRT_ID
+											,X.EXEC_SEQNO
+											,X.EXEC_ITM
+											/* ,TO_CHAR(TO_DATE(X.EXEC_PLNDDAY, 'YYYYMMDD'),'YYYY-MM-DD') EXEC_PLNDDAY */
+											,CONVERT(VARCHAR, CONVERT(DATE, X.EXEC_PLNDDAY), 23) AS EXEC_PLNDDAY 
+											,TRIM(TO_CHAR(X.EXEC_AMT, '999,999,999,999,999')) EXEC_AMT
+											,TRIM(TO_CHAR(X.EXEC_AMT, '999999999999999')) EXEC_AMT2
+											,X.EXEC_CONT
+											/* ,TO_CHAR(TO_DATE(X.EXEC_CMPLTDAY, 'YYYYMMDD'),'YYYY-MM-DD') EXEC_CMPLTDAY */
+											,CONVERT(VARCHAR, CONVERT(DATE, X.EXEC_CMPLTDAY), 23) AS EXEC_CMPLTDAY
+											,X.NOTE
+											,X.EXEC_GBN
+											,(SELECT CASE WHEN :vo.session_user_locale = 'ko' THEN CD_NM
+			              								WHEN :vo.session_user_locale = 'fr' THEN CD_NM_FRA
+			              								WHEN :vo.session_user_locale = 'de' THEN CD_NM_DEU
+			              							ELSE CD_NM_ENG
+			              							END CD_NM 
+											    FROM TB_COM_CD 
+											   WHERE SYS_CD = :vo.sys_cd 
+											     AND GRP_CD = 'C055' 
+											     AND CD = X.EXEC_GBN) AS EXEC_GBN_NM
+											,X.EXEC_STATUS
+											,(SELECT CASE WHEN :vo.session_user_locale = 'ko' THEN A.CD_NM
+									              			WHEN :vo.session_user_locale = 'fr' THEN A.CD_NM_FRA
+									              			WHEN :vo.session_user_locale = 'de' THEN A.CD_NM_DEU
+									              			ELSE A.CD_NM_ENG
+									              		END CD_NM
+					                            FROM TB_COM_CD A 
+					                           WHERE A.SYS_CD = :vo.sys_cd 
+					                             AND A.GRP_CD = 'C031' 
+					                             AND A.CD = X.EXEC_STATUS) AS EXEC_STATUSNM
+											/* ,TO_CHAR(X.REG_DT, 'YYYY-MM-DD') AS REG_DT */
+											,CONVERT(VARCHAR, CONVERT(DATE, X.REG_DT), 23) AS REG_DT
+											,X.REG_ID
+											,X.REG_NM
+											/* ,TO_CHAR(X.MOD_DT, 'YYYY-MM-DD') AS MOD_DT */
+											,CONVERT(VARCHAR, CONVERT(DATE, X.MOD_DT), 23) AS MOD_DT
+											,X.MOD_ID
+											,X.MOD_NM
+											,X.DEL_YN
+											,X.DEL_DT
+											,X.DEL_ID
+											,X.DEL_NM
+											,X.EXEC_UP_NO
+											,X.EXEC_SRT
+											,A.PAYMENT_GBN
+									  FROM	TN_CLM_CONTRACT_MASTER A, TN_CLM_CONT_EXECINFO X
+									 WHERE	A.CNTRT_ID = X.CNTRT_ID
+									   AND	A.CNTRT_ID = :vo.cntrt_id 
+									   AND  A.DEL_YN = 'N' 
+									   AND	X.DEL_YN = 'N'									   
+								  ORDER BY	X.EXEC_PLNDDAY
+								) t
+					   ORDER BY RN
+						)
+		    ]]>
+			</statement>
+		</query>
+		
+		<!-- 이행및종료이력 -->
+		<query id="clm.manage.detailCompletion" isCamelCase="false">
+  			<statement>
+		    <![CDATA[
+    			SELECT	A.CNTRT_ID
+						, A.CNTRT_RESPMAN_ID
+						, A.CNTRT_RESPMAN_NM
+						, A.CNTRT_RESP_DEPT
+						, A.CNTRT_RESP_DEPT_NM
+						, A.CNTRT_RESP_UP_DEPT
+						, A.CNTRT_RESPMAN_JIKGUP_NM
+						, A.CNTRT_STATUS
+						, (SELECT CASE WHEN :vo.session_user_locale = 'ko' THEN CD_NM
+			              			WHEN :vo.session_user_locale = 'fr' THEN CD_NM_FRA
+			              			WHEN :vo.session_user_locale = 'de' THEN CD_NM_DEU
+			              			ELSE CD_NM_ENG
+			              		END CD_NM 
+						     FROM TB_COM_CD 
+						    WHERE SYS_CD = :vo.sys_cd 
+						      AND GRP_CD = 'C024' 
+						      AND CD = A.CNTRT_STATUS 
+						      AND USE_YN = 'Y') AS CNTRT_STATUS_NM 
+						, CASE ISNULL(A.CNTRT_CHGE_DEMNDDAY,'NULL') 
+						    WHEN 'NULL' THEN /* TO_CHAR(SYSDATE, 'YYYY-MM-DD') */ CONVERT(VARCHAR, CONVERT(DATE, GETDATE()), 23)
+			              ELSE 
+			                /* TO_CHAR(TO_DATE(A.CNTRT_CHGE_DEMNDDAY, 'YYYY-MM-DD'), 'YYYY-MM-DD') */
+			                CONVERT(VARCHAR, CONVERT(DATE, A.CNTRT_CHGE_DEMNDDAY), 23)
+			              END AS CNTRT_CHGE_DEMNDDAY
+			            , CASE ISNULL(A.CNTRT_CHGE_DEMNDDAY,'NULL') 
+			                WHEN 'NULL' THEN 'N'
+			              ELSE 'Y'
+			              END AS CNTRT_CHGE_DEMNDDAY_EXIST
+						, A.CNTRT_CHGE_DEMNDMAN_ID
+						, A.CNTRT_CHGE_DEMNDMAN_NM
+						, A.CNTRT_CHGE_DEMND_DEPT_NM
+						, A.CNTRT_CHGE_DEMNDMAN_JIKGUP_NM
+						, A.CNTRT_CHGE_DEMND_CAUSE
+						/* , TO_CHAR(TO_DATE(A.CNTRT_CHGE_PLNDDAY, 'YYYY-MM-DD'), 'YYYY-MM-DD') AS CNTRT_CHGE_PLNDDAY */
+						, CONVERT(VARCHAR, CONVERT(DATE, A.CNTRT_CHGE_PLNDDAY), 23) AS CNTRT_CHGE_PLNDDAY
+						/* , TO_CHAR(SYSDATE, 'YYYY-MM-DD') AS NOWDATE */
+						, CONVERT(VARCHAR, CONVERT(DATE, GETDATE()), 23) AS NOWDATE
+						, A.CNTRT_CHGE_CONF_YN
+						, A.CNTRT_CHGE_CONFDAY
+						, A.CNTRT_CHGE_CONFMAN_ID
+						, A.CNTRT_CHGE_CONFMAN_NM
+						, A.CNTRT_CHGE_CONF_DEPT_NM
+						, A.CNTRT_CHGE_CONFMAN_JIKGUP_NM
+						, A.CNTRT_CHGE_CONF_CONT
+						, A.PRCS_DEPTH
+						, A.DEPTH_STATUS
+						, (SELECT CD_NM 
+						     FROM [dbo].[CLM.MANAGE.DETAILCOMPLETION]('C025' ) SA 
+						    WHERE SA.CD = A.DEPTH_STATUS 
+						    /* START WITH GRP_CD = 'C025' 
+						  CONNECT BY PRIOR CD = GRP_CD */) AS DEPTH_STATUSNM
+						, A.REG_DT
+						, A.REG_ID
+						, A.REG_NM
+						, A.MOD_DT
+						, A.MOD_ID
+						, A.MOD_NM
+						, A.DEL_YN
+						, A.DEL_DT
+						, A.DEL_ID
+						, A.DEL_NM
+						, C.PRGRS_STATUS
+			            , C.REQMAN_ID
+			            , C.REQMAN_NM
+			            , A.AUTO_RNEW_YN
+			            /* , TO_CHAR(TO_DATE(A.CNTRTPERIOD_ENDDAY, 'YYYY-MM-DD'), 'YYYY-MM-DD') AS CNTRTPERIOD_ENDDAY */
+			            , CONVERT(VARCHAR, CONVERT(DATE, A.CNTRTPERIOD_ENDDAY), 23) AS CNTRTPERIOD_ENDDAY
+					FROM  TN_CLM_CONTRACT_MASTER A, TN_CLM_CONTRACT_CNSD B, TN_CLM_CONT_CNSDREQ C
+				   WHERE  A.CNTRT_ID = B.CNTRT_ID
+			         AND  B.CNSDREQ_ID = C.CNSDREQ_ID
+			         AND  A.DEL_YN = 'N'
+			         AND  C.DEL_YN = 'N'
+			   		 AND  B.CNTRT_ID = :vo.cntrt_id
+			   		 AND  B.CNSDREQ_ID = :vo.cnsdreq_id
+		    ]]>
+			</statement>
+		</query>
+		
+		<!-- 이행및종료이력 -->
+		<query id="clm.manage.detailCompletion2" isCamelCase="false">
+  			<statement>
+		    <![CDATA[
+    			SELECT	A.CNTRT_ID
+						, A.CNTRT_RESPMAN_ID
+						, A.CNTRT_RESPMAN_NM
+						, A.CNTRT_RESP_DEPT
+						, A.CNTRT_RESP_DEPT_NM
+						, A.CNTRT_RESP_UP_DEPT
+						, A.CNTRT_RESPMAN_JIKGUP_NM
+						, A.CNTRT_STATUS
+						, (SELECT CASE WHEN :vo.session_user_locale = 'ko' THEN CD_NM
+			              			WHEN :vo.session_user_locale = 'fr' THEN CD_NM_FRA
+			              			WHEN :vo.session_user_locale = 'de' THEN CD_NM_DEU
+			              			ELSE CD_NM_ENG
+			              		END CD_NM FROM TB_COM_CD WHERE SYS_CD = 'CLM' AND GRP_CD = 'C024' AND CD = A.CNTRT_STATUS AND USE_YN = 'Y') CNTRT_STATUS_NM 
+						, CASE ISNULL(A.CNTRT_CHGE_DEMNDDAY,'NULL') WHEN 'NULL' THEN /* TO_CHAR(SYSDATE, 'YYYY-MM-DD') */
+						                                                             CONVERT(VARCHAR, CONVERT(DATE, GETDATE()), 23)
+			                   ELSE 
+			                     /* TO_CHAR(TO_DATE(A.CNTRT_CHGE_DEMNDDAY, 'YYYY-MM-DD'), 'YYYY-MM-DD') */
+			                     CONVERT(VARCHAR, CONVERT(DATE, A.CNTRT_CHGE_DEMNDDAY), 23)
+			                   END CNTRT_CHGE_DEMNDDAY
+			            , CASE ISNULL(A.CNTRT_CHGE_DEMNDDAY,'NULL') WHEN 'NULL' THEN 'N'
+			                   ELSE 'Y'
+			                   END CNTRT_CHGE_DEMNDDAY_EXIST
+						, A.CNTRT_CHGE_DEMNDMAN_ID
+						, A.CNTRT_CHGE_DEMNDMAN_NM
+						, A.CNTRT_CHGE_DEMND_DEPT_NM
+						, A.CNTRT_CHGE_DEMNDMAN_JIKGUP_NM
+						, A.CNTRT_CHGE_DEMND_CAUSE
+						, TO_CHAR(TO_DATE(A.CNTRT_CHGE_PLNDDAY, 'YYYY-MM-DD'), 'YYYY-MM-DD') AS CNTRT_CHGE_PLNDDAY
+						/* , TO_CHAR(SYSDATE, 'YYYY-MM-DD') AS NOWDATE */
+						, CONVERT(VARCHAR, CONVERT(DATE, GETDATE()), 23) AS NOWDATE
+						, A.CNTRT_CHGE_CONF_YN
+						, A.CNTRT_CHGE_CONFDAY
+						, A.CNTRT_CHGE_CONFMAN_ID
+						, A.CNTRT_CHGE_CONFMAN_NM
+						, A.CNTRT_CHGE_CONF_DEPT_NM
+						, A.CNTRT_CHGE_CONFMAN_JIKGUP_NM
+						, A.CNTRT_CHGE_CONF_CONT
+						, A.PRCS_DEPTH
+						, A.DEPTH_STATUS
+						, (SELECT CD_NM FROM TB_COM_CD WHERE SYS_CD = 'CLM' AND CD = A.DEPTH_STATUS START WITH GRP_CD = 'C025' CONNECT BY PRIOR CD = GRP_CD)DEPTH_STATUSNM
+						, A.REG_DT
+						, A.REG_ID
+						, A.REG_NM
+						, A.MOD_DT
+						, A.MOD_ID
+						, A.MOD_NM
+						, A.DEL_YN
+						, A.DEL_DT
+						, A.DEL_ID
+						, A.DEL_NM
+						, C.PRGRS_STATUS
+			            , C.REQMAN_ID
+			            , C.REQMAN_NM
+					FROM  TN_CLM_CONTRACT_MASTER A, TN_CLM_CONTRACT_CNSD B, TN_CLM_CONT_CNSDREQ C
+				   WHERE  A.CNTRT_ID = B.CNTRT_ID
+			         AND  B.CNSDREQ_ID = C.CNSDREQ_ID
+			         AND  A.DEL_YN = 'N'
+			         AND  C.DEL_YN = 'N'
+			   		 AND  B.CNTRT_ID = :vo.cntrt_id
+			   		 AND  B.CNSDREQ_ID = (SELECT MAX(CNSDREQ_ID) 
+			   		                        FROM TN_CLM_CONTRACT_CNSD 
+			   		                       WHERE CNTRT_ID = :vo.cntrt_id)
+		    ]]>
+			</statement>
+		</query>
+
+		<!-- 계약상태 -->
+		<query id="clm.manage.listCntrtStatus" isCamelCase="false">
+  			<statement>
+		    <![CDATA[
+				SELECT	SYS_CD, GRP_CD, CD, CD_NM, CD_ABBR_NM, CD_NM_ENG
+				  FROM	TB_COM_CD
+				 WHERE	SYS_CD = :vo.sys_cd
+				   AND	GRP_CD = 'C024'
+				   AND	USE_YN = 'Y'
+		    ]]>
+			</statement>
+		</query>
+		
+		<!-- 계약마스터 종료관리임시저장 -->
+		<query id="clm.manage.modifyTempCompletion" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				UPDATE	TN_CLM_CONTRACT_MASTER
+					   SET	CNTRT_STATUS					 = :vo.cntrt_status
+							,CNTRT_CHGE_DEMNDDAY             = REPLACE(CONVERT(VARCHAR, CONVERT(DATE, GETDATE()), 23), '-', '')
+							,CNTRT_CHGE_DEMNDMAN_ID          = :vo.cntrt_chge_demndman_id
+							,CNTRT_CHGE_DEMNDMAN_NM          = :vo.cntrt_chge_demndman_nm
+							,CNTRT_CHGE_DEMND_DEPT_NM        = :vo.cntrt_chge_demnd_dept_nm
+							,CNTRT_CHGE_DEMNDMAN_JIKGUP_NM   = :vo.cntrt_chge_demndman_jikgup_nm
+							,CNTRT_CHGE_DEMND_CAUSE          = :vo.cntrt_chge_demnd_cause
+							,CNTRT_CHGE_PLNDDAY              = :vo.cntrt_chge_plndday
+							,CNTRT_CHGE_CONF_YN              = 'N'
+							,PRCS_DEPTH						 = :vo.prcs_depth
+							,MOD_DT 						 = GETDATE()
+							,MOD_ID 						 = :vo.session_user_id
+							,MOD_NM 						 = :vo.session_user_nm
+							,DEPTH_STATUS					 = 'C02681'
+					WHERE	CNTRT_ID	= :vo.cntrt_id
+					  AND	DEL_YN		= 'N'
+			]]>
+			</statement>
+		</query>		
+		
+		<!-- 계약마스터 종료관리정보등록 -->
+		<query id="clm.manage.modifyCompletion" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				UPDATE	TN_CLM_CONTRACT_MASTER
+					   SET	CNTRT_STATUS					 = :vo.cntrt_status
+							,CNTRT_CHGE_DEMNDDAY             = REPLACE(CONVERT(VARCHAR, CONVERT(DATE, GETDATE()), 23), '-', '')
+							,CNTRT_CHGE_DEMNDMAN_ID          = :vo.cntrt_chge_demndman_id
+							,CNTRT_CHGE_DEMNDMAN_NM          = :vo.cntrt_chge_demndman_nm
+							,CNTRT_CHGE_DEMND_DEPT_NM        = :vo.cntrt_chge_demnd_dept_nm
+							,CNTRT_CHGE_DEMNDMAN_JIKGUP_NM   = :vo.cntrt_chge_demndman_jikgup_nm
+							,CNTRT_CHGE_DEMND_CAUSE          = :vo.cntrt_chge_demnd_cause
+							,CNTRT_CHGE_PLNDDAY              = :vo.cntrt_chge_plndday
+							,CNTRT_CHGE_CONF_YN              = 'N'
+							,PRCS_DEPTH						 = :vo.prcs_depth
+							,DEPTH_STATUS					 = :vo.depth_status
+							,MOD_DT 						 = GETDATE()
+							,MOD_ID 						 = :vo.session_user_id
+							,MOD_NM 						 = :vo.session_user_nm
+					WHERE	CNTRT_ID	= :vo.cntrt_id
+					  AND	DEL_YN		= 'N'
+			]]>
+			</statement>
+		</query>
+		
+		<!-- 계약마스터 종료관리종료확인등록 -->
+		<query id="clm.manage.modifyCfrmCompletion" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				UPDATE	TN_CLM_CONTRACT_MASTER
+					   SET	CNTRT_CHGE_CONF_YN               = :vo.cntrt_chge_conf_yn
+							,CNTRT_CHGE_CONFDAY              = /* TO_CHAR(SYSDATE, 'YYYYMMDD') */
+							                                   REPLACE(CONVERT(VARCHAR, CONVERT(DATE, GETDATE()), 23), '-', '')
+							,CNTRT_CHGE_CONFMAN_ID           = :vo.cntrt_chge_confman_id
+							,CNTRT_CHGE_CONFMAN_NM           = :vo.cntrt_chge_confman_nm
+							,CNTRT_CHGE_CONF_DEPT_NM         = :vo.cntrt_chge_conf_dept_nm
+							,CNTRT_CHGE_CONFMAN_JIKGUP_NM    = :vo.cntrt_chge_confman_jikgup_nm
+							,CNTRT_CHGE_CONF_CONT			 = :vo.cntrt_chge_conf_cont
+							,CNTRT_STATUS					 = :vo.cntrt_status
+							,PRCS_DEPTH						 = :vo.prcs_depth
+							,DEPTH_STATUS					 = :vo.depth_status
+							,MOD_DT 						 = GETDATE()
+							,MOD_ID 						 = :vo.session_user_id
+							,MOD_NM 						 = :vo.session_user_nm
+					WHERE	CNTRT_ID	= :vo.cntrt_id
+					  AND	DEL_YN		= 'N'
+			]]>
+			</statement>
+		</query>		
+		
+		<!-- 이행정보 저장 시 상태코드 변경  -->
+		<query id="clm.manage.modifyCnsdreqStatus" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				UPDATE	TN_CLM_CONT_CNSDREQ
+					   SET	PRGRS_STATUS   = :vo.prgrs_status
+							, MOD_DT  = GETDATE()
+							, MOD_ID  = :vo.session_user_id
+							, MOD_NM  = :vo.session_user_nm
+					WHERE	CNSDREQ_ID	= :vo.cnsdreq_id
+					  AND	DEL_YN		= 'N'
+			]]>
+			</statement>
+		</query>
+		<!-- 계약 종료관리 상신가능 여부  -->
+		<query id="clm.manage.contractExecCmpltStatus" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT  1
+				 WHERE  EXISTS (
+				                  SELECT  1
+				                    FROM  TN_CLM_CONT_EXECINFO
+				                   WHERE  CNTRT_ID = :vo.cntrt_id
+				                     AND  DEL_YN = 'N'
+				                     AND  EXEC_STATUS != 'C03104'
+				                     AND  EXEC_STATUS != 'C03101'
+				               )
+			]]>
+			</statement>
+		</query>
+		
+		<!-- 계약 사업부관리자 권한 조회  -->
+		<query id="clm.manage.listContractRole" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT  A.ROLE_CD
+						, B.USER_ID
+				        , B.USER_NM
+				        , B.JIKGUP_NM
+				        , B.DEPT_NM
+				        , B.BLNGT_ORGNZ
+				        , (SELECT REQMAN_ID 
+				             FROM TN_CLM_CONT_CNSDREQ 
+				            WHERE CNSDREQ_ID = :vo.cnsdreq_id) AS REQMAN_ID
+				  FROM  TB_COM_ROLE_USER A, TB_COM_USER B
+				 WHERE  A.USER_ID = B.USER_ID
+				   AND  A.ROLE_CD = 'RD01'
+				   AND  A.SYS_CD = 'CLM'
+				   AND  B.USER_ID = :vo.session_user_id
+				   AND  B.BLNGT_ORGNZ = :vo.session_blngt_orgnz
+				   AND A.USER_ID <> 'test_musun_002'
+			]]>
+			</statement>
+		</query>
+		
+		<!-- 계약 의뢰 현재 상태 조회  -->
+		<query id="clm.manage.listContractStatusAll" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT	B.CNTRT_STATUS, B.PRCS_DEPTH, B.DEPTH_STATUS, X.PRGRS_STATUS
+				  FROM	TN_CLM_CONT_CNSDREQ X, TN_CLM_CONTRACT_CNSD A, TN_CLM_CONTRACT_MASTER B
+				 WHERE	X.CNSDREQ_ID = A.CNSDREQ_ID
+				 AND	A.CNTRT_ID = B.CNTRT_ID
+				 AND	A.CNSDREQ_ID = :vo.cnsdreq_id
+				 AND	A.CNTRT_ID = :vo.cntrt_id
+				 AND	B.DEL_YN = 'N'
+				 AND  X.DEL_YN = 'N' 
+			]]>
+			</statement>
+		</query>
+		
+		<!-- Sungwoo replaced stored procedure 2014-09-16  -->
+		<query id="clm.manage.listCompletionAttachInfo" isCamelCase="false" comment="결재용첨부파일리스트">
+			<statement>
+				<![CDATA[
+					EXEC dbo.SP_LIST_COMPLETION_ATTACH_INFO :vo.cntrt_id , :vo.cnsdreq_id
+				]]>
+		  	</statement>
+		</query>
+		
+		<!-- 종료품의시 품의 제목 조회  -->
+		<query id="clm.manage.detailCntrtTitle" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT	
+					 CASE WHEN :vo.session_user_locale = 'ko' THEN '[' + B.CD_NM + '] ' + CNTRT_NM 
+			              	  WHEN :vo.session_user_locale = 'fr' THEN '[' + B.CD_NM_FRA + '] ' + CNTRT_NM
+			              	  WHEN :vo.session_user_locale = 'de' THEN '[' + B.CD_NM_DEU + '] ' + CNTRT_NM
+			              	  ELSE '[' + B.CD_NM_ENG + '] ' + CNTRT_NM
+			             END AS CNTRT_NM
+				  FROM	TN_CLM_CONTRACT_MASTER A, TB_COM_CD B
+				 WHERE	A.CNTRT_ID = :vo.cntrt_id AND
+				 B.GRP_CD = 'C024' AND
+				 A.CNTRT_STATUS = B.CD
+			]]>
+			</statement>
+		</query>
+		
+		<!-- 종료품 결재 내용 조회  -->
+		<query id="clm.manage.listCompletionApprovalHis" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT B.USER_NAME + B.DUTY AS USER_NM ,
+				       SEQUENCE ,
+				       SUBSTRING(APPROVED, 1, 4) + '-' + SUBSTRING(APPROVED, 5, 2) + '-' + SUBSTRING(APPROVED, 7, 2) AS APPROVED ,
+				       DEPT_NAME ,
+				       BODY ,
+				       TITLE ,
+				       DEPT_NAME ,
+				       TIME_ZONE ,
+				       B.USER_NAME + '/' + B.DUTY + '/' + DEPT_NAME + '/' + COMP_NAME AS G_USER ,
+				       CASE 
+					       WHEN :vo.session_user_locale = 'fr' THEN
+					       		/* DECODE (ACTIVITY, 0, 'Projet', 1, 'Approuver', 2, 'Accord', 3, 'Approbation différée', 9, 'Notifier') */
+					       		CASE ACTIVITY
+					      		  WHEN 0 THEN  'Projet'
+					      		  WHEN 1 THEN  'Approuver'
+					      		  WHEN 2 THEN 'Accord'
+					      		  WHEN 3 THEN 'Approbation différée'
+					      		  WHEN 9 THEN 'Notifier'				      		  
+					      		ELSE
+					      		  ''
+					       END
+					       WHEN :vo.session_user_locale = 'de' THEN
+					       		/* DECODE (ACTIVITY, 0, 'Entwurf', 1, 'Genehmigen', 2, 'Vereinbarung', 3, 'Zurückgestellte Genehmigung', 9, 'Benachrichtigen') */
+					       		CASE ACTIVITY
+					      		  WHEN 0 THEN  'Entwurf'
+					      		  WHEN 1 THEN  'Genehmigen'
+					      		  WHEN 2 THEN 'Vereinbarung'
+					      		  WHEN 3 THEN 'Zurückgestellte Genehmigung'
+					      		  WHEN 9 THEN 'Benachrichtigen'				      		  
+					      		ELSE
+					      		  ''
+					       END
+					       WHEN :vo.session_user_locale = 'it' THEN
+					       		/* DECODE (ACTIVITY, 0, 'IT_기안', 1, 'IT_결재', 2, 'IT_합의', 3, 'IT_후결', 9, 'IT_통보') */
+					       		CASE ACTIVITY
+					      		  WHEN 0 THEN  'IT_기안'
+					      		  WHEN 1 THEN  'IT_결재'
+					      		  WHEN 2 THEN 'IT_합의'
+					      		  WHEN 3 THEN 'IT_후결'
+					      		  WHEN 9 THEN 'IT_통보'				      		  
+					      		ELSE
+					      		  ''
+					       END
+					       WHEN :vo.session_user_locale = 'es' THEN
+					       		/* DECODE (ACTIVITY, 0, 'ES_기안', 1, 'ES_결재', 2, 'ES_합의', 3, 'ES_후결', 9, 'ES_통보') */
+					       		CASE ACTIVITY
+					      		  WHEN 0 THEN  'ES_기안'
+					      		  WHEN 1 THEN  'ES_결재'
+					      		  WHEN 2 THEN 'ES_합의'
+					      		  WHEN 3 THEN 'ES_후결'
+					      		  WHEN 9 THEN 'ES_통보'				      		  
+					      		ELSE
+					      		  ''
+					       END	      	 
+					       ELSE
+					      		/* DECODE (ACTIVITY, 0, 'Draft', 1, 'Approve', 2, 'Agreement', 3, 'Deferred Approval', 9, 'Notify') */ 
+					       		CASE ACTIVITY
+					      		  WHEN 0 THEN  'Draft'
+					      		  WHEN 1 THEN  'Approve'
+					      		  WHEN 2 THEN 'Agreement'
+					      		  WHEN 3 THEN 'Deferred Approval'
+					      		  WHEN 9 THEN 'Notify'				      		  
+					      		ELSE
+					      		  ''
+				      		END
+				       END AS ACTIVITY ,
+				       OPINION
+				  FROM TB_COM_START_PROCESS_WSVO A JOIN TB_COM_ROUTE_WSVO B ON A.MIS_ID = B.MIS_ID
+				   AND A.MODULE_ID = B.MODULE_ID
+				 WHERE A.MODULE_ID = 'LAS' /* 'CLM' */
+				 #if ($vo.mis_id && !$vo.mis_id.equals(""))
+				   AND A.MIS_ID = :vo.mis_id
+				 #end
+				   AND A.MIS_ID IN (SELECT X.MIS_ID
+				          FROM TB_COM_ROUTE_WSVO X
+				         WHERE 1=1 -- APPRVL_CLSFCN = '입력받은 결재 종류2'
+				           AND X.MIS_ID IN (SELECT Y.MIS_ID
+				                  FROM TB_COM_START_PROCESS_WSVO Y
+				                 WHERE Y.REF_KEY = :vo.cntrt_id
+				                    OR Y.REF_KEY IN (SELECT CNSDREQ_ID
+				                          FROM TN_CLM_CONTRACT_CNSD
+				                         WHERE CNTRT_ID = :vo.cntrt_id ) ) )
+				 ORDER BY B.SEQUENCE			
+			]]>
+			</statement>
+		</query>	
+		
+		<!-- 검토의뢰내역 조회  -->
+		<query id="clm.manage.listConsiderationInCompletion" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT 
+				  REQ_TITLE, 
+				  REQMAN_ID, 
+				  REQMAN_NM, 
+				  REQMAN_JIKGUP_NM, 
+				  REQ_DEPT_NM, 
+				  (SELECT OFFICE_TEL_NO FROM TB_COM_USER WHERE USER_ID = REQMAN_ID) AS REQMAN_TEL,
+/* TO_CHAR(REQ_DT,'YYYY-MM-DD') AS REQ_DT */
+CONVERT(VARCHAR, CONVERT(datetime, REQ_DT, 23), 23) AS REQ_DT,  
+
+/* TO_CHAR(TO_DATE(RE_DEMNDDAY,'YYYYMMDD'),'YYYY-MM-DD') AS RE_DEMNDDAY */
+CONVERT(VARCHAR, CONVERT(datetime, RE_DEMNDDAY, 23), 23) AS RE_DEMNDDAY,  
+				  CNSD_DEMND_CONT, 
+				  PLNDBN_REQ_YN, 
+/* DECODE(LASTBN_CHGE_YN,'Y','YES','N','NO') AS LASTBN_CHGE_YN_NM, */
+CASE WHEN LASTBN_CHGE_YN ='Y' THEN 'YES' 
+      WHEN LASTBN_CHGE_YN ='N' THEN 'NO'  
+END AS LASTBN_CHGE_YN_NM, 
+				  PLNDBN_CHGE_CONT
+				FROM 
+				  TN_CLM_CONT_CNSDREQ 
+				WHERE 
+				  CNSDREQ_ID=:vo.cnsdreq_id			
+			]]>
+			</statement>
+		</query>		
+		<!-- 검토계약id별 계약id 조회 -->
+		<query id="clm.manage.listCntrtId" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT CNTRT_ID FROM TN_CLM_CONTRACT_CNSD WHERE CNSDREQ_ID=:vo.cnsdreq_id			
+			]]>
+			</statement>
+		</query>
+		<!-- 계약권한 대상자 조회 -->
+		<query id="clm.manage.listRelationman" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    SELECT DISTINCT TRGTMAN_NM  + ' / ' + TRGTMAN_JIKGUP_NM + ' / ' + TRGTMAN_DEPT_NM AS RELATION_MAN  
+		      FROM TN_CLM_CONTRACT_AUTHREQ
+		     WHERE DEL_YN = 'N'
+		       AND DEMND_GBN = 'C04601'
+		       AND DEMND_STATUS = 'C03702'
+		       AND CNTRT_ID IN (													
+					#foreach ($master_cntrt_id in $vo.note_arr) 
+						#if ($velocityCount	== 1 ) 
+							'$master_cntrt_id'
+						#else 
+							, '$master_cntrt_id'
+						#end 
+					#end
+					)
+		    ]]>
+		  </statement>
+		</query>
+		<!-- 계약마스터 기간연장 히스토리 max(seqno)조회 -->
+		<query id="clm.manage.orgMngSeqno" isCamelCase="false">
+		  <statement>
+		    <![CDATA[
+		    SELECT  ISNULL(MAX(SEQNO),0) AS SEQNO
+			FROM    TH_CLM_ORG_MNG
+			WHERE   CNTRT_ID = :vo.cntrt_id
+		    ]]>
+		  </statement>
+		</query>	
+    	<!-- 계약마스터 기간연장 승인등록 -->
+    	<query id="clm.manage.insertCompletionOrgMng" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				INSERT
+				  INTO TH_CLM_ORG_MNG ( CNTRT_ID,COMP_CD,SEQNO,GUBUN,CNTRTPERIOD_STARTDAY,CNTRTPERIOD_ENDDAY
+										,AUTO_RNEW_YN,CNTRT_AMT,CRRNCY_UNIT,SEAL_MTHD,EXPRT_NOTIDAY
+										,SIGN_PLNDMAN_ID,SIGN_PLNDMAN_NM,SIGN_PLND_DEPT_NM,SIGN_PLNDMAN_JIKGUP_NM,SEAL_FFMTMAN_ID
+										,SEAL_FFMTMAN_NM,SEAL_FFMT_DEPT_NM,SEAL_FFMTMAN_JIKGUP_NM,ORG_ACPT_DLAY_CAUSE,ORG_ACPTDAY
+										,ORG_HDOVMAN_ID,ORG_HDOVMAN_NM,ORG_HDOV_DEPT_NM,ORG_HDOVMAN_JIKGUP_NM,ORG_STRG_POS
+										,MOD_DT,MOD_ID,MOD_NM,MOD_DEPT_NM,MOD_JIKGUP_NM
+										,MOD_CAUSE,ORG_MNG_DT,ORG_MNG_TYPE,ORG_MNG_REQMAN_ID,ORG_MNG_REQMAN_NM
+										,ORG_MNG_REQ_DEPT_NM,ORG_MNG_REQ_JIKGUP_NM,CNTRT_RESPMAN_ID,CNTRT_RESPMAN_NM,CNTRT_RESPMAN_DEPT_NM
+										,CNTRT_RESPMAN_JIKGUP_NM )
+				  		SELECT 
+				  			   			CNTRT_ID,COMP_CD,1,'',CNTRTPERIOD_STARTDAY,CNTRTPERIOD_ENDDAY
+										,AUTO_RNEW_YN,CNTRT_AMT,CRRNCY_UNIT,SEAL_MTHD,EXPRT_NOTIDAY
+										,SIGN_PLNDMAN_ID,SIGN_PLNDMAN_NM,SIGN_PLND_DEPT_NM,SIGN_PLNDMAN_JIKGUP_NM,SEAL_FFMTMAN_ID
+										,SEAL_FFMTMAN_NM,SEAL_FFMT_DEPT_NM,SEAL_FFMTMAN_JIKGUP_NM,ORG_ACPT_DLAY_CAUSE,ORG_ACPTDAY
+										,ORG_HDOVMAN_ID,ORG_HDOVMAN_NM,ORG_HDOV_DEPT_NM,ORG_HDOVMAN_JIKGUP_NM,ORG_STRG_POS
+										,GETDATE(),:vo.session_user_id,:vo.session_user_nm,:vo.session_dept_nm,:vo.session_jikgup_nm
+										,:vo.cntrt_chge_demnd_cause,'','','',''
+										,'','',CNTRT_RESPMAN_ID,CNTRT_RESPMAN_NM,CNTRT_RESP_DEPT_NM
+										,CNTRT_RESPMAN_JIKGUP_NM
+						FROM			TN_CLM_CONTRACT_MASTER
+						WHERE 			CNTRT_ID 	= :vo.cntrt_id
+						AND				DEL_YN 		= 'N' 	
+			]]>
+			</statement>
+		</query>
+		<!-- 계약마스터 기간연장 히스토리 등록 -->
+		<query id="clm.manage.insertCompletionHistory" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				INSERT INTO TH_CLM_ORG_MNG  
+							(
+					         CNTRT_ID
+					        ,SEQNO
+					        ,GUBUN
+					        ,CNTRTPERIOD_STARTDAY
+					        ,CNTRTPERIOD_ENDDAY
+					        ,AUTO_RNEW_YN
+					        ,CNTRT_AMT
+					        ,CRRNCY_UNIT
+					        ,SEAL_MTHD
+					        ,EXPRT_NOTIDAY
+					        
+					        ,SIGN_PLNDMAN_ID
+					        ,SIGN_PLNDMAN_NM
+					        ,SIGN_PLND_DEPT_NM
+					        ,SIGN_PLNDMAN_JIKGUP_NM
+					        ,SEAL_FFMTMAN_ID
+					        ,SEAL_FFMTMAN_NM
+					        ,SEAL_FFMT_DEPT_NM
+					        ,SEAL_FFMTMAN_JIKGUP_NM
+					        ,ORG_ACPT_DLAY_CAUSE
+					        ,ORG_ACPTDAY
+					        ,ORG_HDOVMAN_ID
+					        ,ORG_HDOVMAN_NM
+					        ,ORG_HDOV_DEPT_NM
+					        ,ORG_HDOVMAN_JIKGUP_NM
+					        ,ORG_STRG_POS
+					        ,MOD_DT
+					        ,MOD_ID
+					        ,MOD_NM
+					        ,MOD_DEPT_NM
+					        ,MOD_JIKGUP_NM
+					        ,MOD_CAUSE
+					        ,ORG_MNG_DT
+					        ,ORG_MNG_TYPE
+					        ,ORG_MNG_REQMAN_ID
+					        ,ORG_MNG_REQMAN_NM
+					        ,ORG_MNG_REQ_DEPT_NM
+					        ,ORG_MNG_REQ_JIKGUP_NM
+					        ,CNTRT_RESPMAN_ID
+					        ,CNTRT_RESPMAN_NM
+					        ,CNTRT_RESPMAN_DEPT_NM
+					        ,CNTRT_RESPMAN_JIKGUP_NM
+					        ,COMP_CD
+					        ) VALUES (
+					        :vo.cntrt_id
+					        ,CONVERT(BIGINT, (SELECT ISNULL(MAX(SEQNO),0)+1 FROM TH_CLM_ORG_MNG WHERE CNTRT_ID = :vo.cntrt_id))
+					        ,CONVERT(VARCHAR, :vo.gubun)
+							/* ,DECODE(:vo.gubun,'R',TO_CHAR(SYSDATE,'YYYYMMDD'),REPLACE(:vo.cntrtperiod_startday,'-','')) */
+							#if($vo.gubun.equals("R"))
+							   ,REPLACE(CONVERT(CHAR(10), GETDATE(), 23),'-','')
+							#else
+							   ,CONVERT(NVARCHAR, REPLACE(ISNULL(:vo.cntrtperiod_startday,''),'-',''))
+							#end
+					        ,CONVERT(VARCHAR, REPLACE(:vo.cntrtperiod_endday,'-',''))	
+					        #if(!$vo.auto_rnew_yn.equals("") && $vo.auto_rnew_yn)
+					            ,:vo.auto_rnew_yn
+					        #else
+					            ,''
+					        #end
+					        #if(!$vo.cntrt_amt.equals("") && $vo.cntrt_amt)
+					            ,:vo.cntrt_amt
+					        #else
+					            ,0
+					        #end			        
+					        #if(!$vo.crrncy_unit.equals("") && $vo.crrncy_unit)
+					            ,:vo.crrncy_unit
+					        #else
+					            ,''
+					        #end
+					        #if(!$vo.seal_mthd.equals("") && $vo.seal_mthd)
+					            ,:vo.seal_mthd
+					        #else
+					            ,''
+					        #end
+					        
+					        ,CONVERT(VARCHAR, REPLACE(:vo.exprt_notiday,'-',''))
+					        #if(!$vo.sign_plndman_id.equals("") && $vo.sign_plndman_id)
+					            ,:vo.sign_plndman_id
+					        #else
+					            ,''
+					        #end
+					        #if(!$vo.sign_plndman_nm.equals("") && $vo.sign_plndman_nm)
+					            ,:vo.sign_plndman_nm
+					        #else
+					            ,''
+					        #end
+					        #if(!$vo.sign_plnd_dept_nm.equals("") && $vo.sign_plnd_dept_nm)
+					            ,:vo.sign_plnd_dept_nm
+					        #else
+					            ,''
+					        #end
+					        #if(!$vo.sign_plndman_jikgup_nm.equals("") && $vo.sign_plndman_jikgup_nm)
+					            ,:vo.sign_plndman_jikgup_nm
+					        #else
+					            ,''
+					        #end
+					        #if(!$vo.seal_ffmtman_id.equals("") && $vo.seal_ffmtman_id)
+					            ,:vo.seal_ffmtman_id
+					        #else
+					            ,''
+					        #end
+					        #if(!$vo.seal_ffmtman_nm.equals("") && $vo.seal_ffmtman_nm)
+					            ,:vo.seal_ffmtman_nm
+					        #else
+					            ,''
+					        #end
+					        #if(!$vo.seal_ffmt_dept_nm.equals("") && $vo.seal_ffmt_dept_nm)
+					            ,:vo.seal_ffmt_dept_nm
+					        #else
+					            ,''
+					        #end
+					        #if(!$vo.seal_ffmtman_jikgup_nm.equals("") && $vo.seal_ffmtman_jikgup_nm)
+					            ,:vo.seal_ffmtman_jikgup_nm
+					        #else
+					            ,''
+					        #end
+					        #if(!$vo.org_acpt_dlay_cause.equals("") && $vo.org_acpt_dlay_cause)
+					            ,:vo.org_acpt_dlay_cause
+					        #else
+					            ,''
+					        #end
+					        #if(!$vo.org_acptday.equals("") && $vo.org_acptday)
+					            ,:vo.org_acptday
+					        #else
+					            ,''
+					        #end
+					        #if(!$vo.org_hdovman_id.equals("") && $vo.org_hdovman_id)
+					            ,:vo.org_hdovman_id
+					        #else
+					            ,''
+					        #end
+					        #if(!$vo.org_hdovman_nm.equals("") && $vo.org_hdovman_nm)
+					            ,:vo.org_hdovman_nm
+					        #else
+					            ,''
+					        #end
+					        #if(!$vo.org_hdov_dept_nm.equals("") && $vo.org_hdov_dept_nm)
+					            ,:vo.org_hdov_dept_nm
+					        #else
+					            ,''
+					        #end
+					        #if(!$vo.org_hdovman_jikgup_nm.equals("") && $vo.org_hdovman_jikgup_nm)
+					            ,:vo.org_hdovman_jikgup_nm
+					        #else
+					            ,''
+					        #end
+					        #if(!$vo.org_strg_pos.equals("") && $vo.org_strg_pos)
+					            ,:vo.org_strg_pos
+					        #else
+					            ,''
+					        #end
+					        ,GETDATE()
+					        ,ISNULL(:vo.session_user_id,'')
+					        ,ISNULL(:vo.session_user_nm,'')
+					        ,ISNULL(:vo.session_dept_nm,'')
+					        ,ISNULL(:vo.session_jikgup_nm,'')
+					        ,:vo.cntrt_chge_demnd_cause
+					        #if(!$vo.org_mng_dt.equals("") && $vo.org_mng_dt)
+					            ,:vo.org_mng_dt
+					        #else
+					            ,''
+					        #end
+					        #if(!$vo.org_mng_type.equals("") && $vo.org_mng_type)
+					            ,:vo.org_mng_type
+					        #else
+					            ,''
+					        #end
+					        #if(!$vo.org_mng_reqman_id.equals("") && $vo.org_mng_reqman_id)
+					            ,:vo.org_mng_reqman_id
+					        #else
+					            ,''
+					        #end
+					        #if(!$vo.org_mng_reqman_nm.equals("") && $vo.org_mng_reqman_nm)
+					            ,:vo.org_mng_reqman_nm
+					        #else
+					            ,''
+					        #end
+					        #if(!$vo.org_mng_req_dept_nm.equals("") && $vo.org_mng_req_dept_nm)
+					            ,:vo.org_mng_req_dept_nm
+					        #else
+					            ,''
+					        #end
+					        #if(!$vo.org_mng_req_jikgup_nm.equals("") && $vo.org_mng_req_jikgup_nm)
+					            ,:vo.org_mng_req_jikgup_nm
+					        #else
+					            ,''
+					        #end
+					        ,ISNULL(:vo.cntrt_respman_id,'')
+					        ,ISNULL(:vo.cntrt_respman_nm,'')
+					        ,ISNULL(:vo.cntrt_resp_dept_nm,'')
+					        ,ISNULL(:vo.cntrt_respman_jikgup_nm,'')
+					        ,ISNULL(:vo.session_comp_cd,'')
+					        )
+			]]>
+			</statement>
+		</query>	
+		<!-- 계약마스터 기간연장 히스토리 리스트 조회 -->
+		<query id="clm.manage.listOrgMngHistory" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT	ROW_NUMBER() OVER(ORDER BY CNTRT_ID) RN
+						,CNTRT_ID
+				        ,SEQNO
+				        ,GUBUN
+				        , CASE WHEN CNTRTPERIOD_STARTDAY = '' 
+			 					THEN '' 
+			 					ELSE CONVERT(VARCHAR, CONVERT(DATE, CNTRTPERIOD_STARTDAY, 23))
+					   		END AS CNTRTPERIOD_STARTDAY 
+				 		, CASE WHEN CNTRTPERIOD_ENDDAY = '' 
+			 					THEN '' 
+			 					ELSE CONVERT(VARCHAR, CONVERT(DATE, CNTRTPERIOD_ENDDAY, 23))
+					   		END AS CNTRTPERIOD_ENDDAY 
+				        ,AUTO_RNEW_YN
+				        ,CNTRT_AMT
+				        ,CRRNCY_UNIT
+				        ,SEAL_MTHD
+				        ,EXPRT_NOTIDAY
+				        ,SIGN_PLNDMAN_ID
+				        ,SIGN_PLNDMAN_NM
+				        ,SIGN_PLND_DEPT_NM
+				        ,SIGN_PLNDMAN_JIKGUP_NM
+				        ,SEAL_FFMTMAN_ID
+				        ,SEAL_FFMTMAN_NM
+				        ,SEAL_FFMT_DEPT_NM
+				        ,SEAL_FFMTMAN_JIKGUP_NM
+				        ,ORG_ACPT_DLAY_CAUSE
+				        ,ORG_ACPTDAY
+				        ,ORG_HDOVMAN_ID
+				        ,ORG_HDOVMAN_NM
+				        ,ORG_HDOV_DEPT_NM
+				        ,ORG_HDOVMAN_JIKGUP_NM
+				        ,ORG_STRG_POS
+				        ,MOD_DT
+				        ,MOD_ID
+				        ,MOD_NM
+				        ,MOD_DEPT_NM
+				        ,MOD_JIKGUP_NM
+				        ,
+				        CASE WHEN :vo.session_user_locale = 'ko' THEN
+				        	/* DECODE(GUBUN,'R','[요청中]'+MOD_CAUSE,'J','[반려]'+MOD_CAUSE,MOD_CAUSE) */
+				        	CASE GUBUN
+				              WHEN 'R' THEN '[요청中]'+MOD_CAUSE
+				              WHEN 'J' THEN '[반려]'+MOD_CAUSE
+				            ELSE
+				              MOD_CAUSE
+				            END
+				        WHEN :vo.session_user_locale = 'fr' THEN
+				        	/* DECODE(GUBUN,'R','[Demande en cours de traitement]'+MOD_CAUSE,'J','[Refuser]'+MOD_CAUSE,MOD_CAUSE) */
+				        	CASE GUBUN
+				              WHEN 'R' THEN '[Demande en cours de traitement]'+MOD_CAUSE
+				              WHEN 'J' THEN '[Refuser]'+MOD_CAUSE
+				            ELSE
+				              MOD_CAUSE
+				            END
+				        WHEN :vo.session_user_locale = 'de' THEN
+				        	/* DECODE(GUBUN,'R','[Anfrage in Bearbeitung]'+MOD_CAUSE,'J','[Ablehnen]'+MOD_CAUSE,MOD_CAUSE) */
+				        	CASE GUBUN
+				              WHEN 'R' THEN '[Anfrage in Bearbeitung]'+MOD_CAUSE
+				              WHEN 'J' THEN '[Ablehnen]'+MOD_CAUSE
+				            ELSE
+				              MOD_CAUSE
+				            END
+				        ELSE
+				        	/* DECODE(GUBUN,'R','[Request in Progress]'+MOD_CAUSE,'J','[Reject]'+MOD_CAUSE,MOD_CAUSE) */
+				            CASE GUBUN
+				              WHEN 'R' THEN '[Request in Progress]'+MOD_CAUSE
+				              WHEN 'J' THEN '[Reject]'+MOD_CAUSE
+				            ELSE
+				              MOD_CAUSE
+				            END
+				        END AS MOD_CAUSE
+				        ,MOD_CAUSE AS ORG_MOD_CAUSE
+				        ,ORG_MNG_DT
+				        ,ORG_MNG_TYPE
+				        ,ORG_MNG_REQMAN_ID
+				        ,ORG_MNG_REQMAN_NM
+				        ,ORG_MNG_REQ_DEPT_NM
+				        ,ORG_MNG_REQ_JIKGUP_NM
+				        ,CNTRT_RESPMAN_ID
+				        ,CNTRT_RESPMAN_NM
+				        ,CNTRT_RESPMAN_DEPT_NM
+				        ,CNTRT_RESPMAN_JIKGUP_NM
+				FROM    TH_CLM_ORG_MNG
+				WHERE   CNTRT_ID 	= :vo.cntrt_id
+				#if (!$vo.gubun.equals(""))
+				AND     GUBUN 	IN ($vo.gubun)
+				#end
+				ORDER BY SEQNO 				
+			]]>
+			</statement>
+		</query>	
+		<!-- 계약마스터 기간연장 승인등록 -->
+		<query id="clm.manage.modifyCfrmRenewCompletion" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				UPDATE	TN_CLM_CONTRACT_MASTER
+					   SET	CNTRT_CHGE_CONF_YN               = :vo.cntrt_chge_conf_yn
+							,CNTRT_CHGE_CONFDAY              = /* TO_CHAR(SYSDATE, 'YYYYMMDD') */
+							                                   REPLACE(CONVERT(VARCHAR, CONVERT(DATE, GETDATE()), 23), '-', '')
+							,CNTRT_CHGE_CONFMAN_ID           = :vo.session_user_id
+							,CNTRT_CHGE_CONFMAN_NM           = :vo.session_user_nm
+							,CNTRT_CHGE_CONF_DEPT_NM         = :vo.session_dept_nm
+							,CNTRT_CHGE_CONFMAN_JIKGUP_NM    = :vo.session_jikgup_nm
+							,CNTRT_CHGE_CONF_CONT			 = :vo.cntrt_chge_conf_cont
+							,CNTRT_CHGE_DEMND_CAUSE          = :vo.cntrt_chge_demnd_cause
+							,PRCS_DEPTH						 = :vo.prcs_depth
+							,DEPTH_STATUS					 = :vo.depth_status
+							,CNTRTPERIOD_ENDDAY				 = /* DECODE(:vo.cntrt_chge_conf_yn,'Y',replace(:vo.cntrtperiod_endday,'-',''),CNTRTPERIOD_ENDDAY) */
+							                                   CASE :vo.cntrt_chge_conf_yn
+							                                     WHEN 'Y' THEN REPLACE(:vo.cntrtperiod_endday,'-','')
+							                                   ELSE
+							                                     CNTRTPERIOD_ENDDAY
+							                                   END
+							,EXPRT_NOTIDAY					 = /* DECODE(:vo.cntrt_chge_conf_yn,'Y',replace(:vo.exprt_notiday,'-',''),EXPRT_NOTIDAY) */
+							                                   CASE :vo.cntrt_chge_conf_yn
+							                                     WHEN 'Y' THEN REPLACE(:vo.exprt_notiday,'-','')
+							                                   ELSE
+							                                     EXPRT_NOTIDAY
+							                                   END
+							,MOD_DT 						 = GETDATE()
+							,MOD_ID 						 = :vo.session_user_id
+							,MOD_NM 						 = :vo.session_user_nm
+					WHERE	CNTRT_ID						 = :vo.cntrt_id
+					  AND	DEL_YN							 = 'N'
+			]]>
+			</statement>
+		</query>	
+		<!-- 기간연장 히스토리 승인등록 -->
+		<query id="clm.manage.modifyCfrmRenewHistory" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				UPDATE	TH_CLM_ORG_MNG
+					   SET	GUBUN				= :vo.gubun
+					   		,MOD_DT				= GETDATE()
+				        	,MOD_ID				= :vo.session_user_id
+				        	,MOD_NM				= :vo.session_user_nm
+				        	,MOD_DEPT_NM		= :vo.session_dept_nm
+				        	,MOD_JIKGUP_NM		= :vo.session_jikgup_nm
+				        	,MOD_CAUSE			= :vo.cntrt_chge_conf_cont
+					WHERE	CNTRT_ID			= :vo.cntrt_id
+					  AND	SEQNO				= :vo.seqno
+			]]>
+			</statement>
+		</query>	
+		<!-- 계약마스터 단계변경 -->
+		<query id="clm.manage.modifyCompletionStatus" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				UPDATE	TN_CLM_CONTRACT_MASTER
+					   SET	CNTRT_STATUS			= :vo.cntrt_status					   		
+					   		,PRCS_DEPTH				= :vo.prcs_depth
+							,DEPTH_STATUS			= :vo.depth_status
+							,MOD_DT 				= GETDATE()
+							,MOD_ID 				= :vo.session_user_id
+							,MOD_NM 				= :vo.session_user_nm
+					WHERE	CNTRT_ID				= :vo.cntrt_id
+					  AND	DEL_YN					= 'N'
+			]]>
+			</statement>
+		</query>	
+				
+		<!-- 계약마스터 별 검토자 조회 TO EMAIL (AND CNSDREQ_ID =:vo.cnsdreq_id) -->
+		<query id="clm.manage.selectReviewers" isCamelCase="false">
+			<statement>
+			<![CDATA[
+			SELECT B.EMAIL  
+			FROM TN_CLM_CONTRACT_CNSD A INNER JOIN TB_COM_USER AS B ON A.CNSDMAN_ID = B.USER_ID 
+			WHERE CNTRT_ID = :vo.cntrt_id			
+			AND B.EMAIL IS NOT NULL
+			]]>
+			</statement>
+		</query>	
+		
+		<!-- Tnc Link 리스트  -->
+		<query id="clm.manage.getTnclist" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT 
+				SYS_NM, TNC_APP_LINK, CTC_LINK, OTC_LINK, TNC_SUMMARY_LINK 
+				FROM TN_CLM_CONTRACT_MASTER 
+				WHERE CNTRT_ID=:vo.cntrt_id
+			]]>
+			</statement>
+		</query>
+		
+		<!-- Tnc 목록 조회  -->
+		<query id="clm.manage.tnclistContract" isCamelCase="false">
+			<statement>
+			<![CDATA[
+				SELECT CNTRT_ID 
+				     , DEPTH_STATUS
+				  FROM TN_CLM_CONTRACT_MASTER 
+				 WHERE CNTRT_NO=:vo.cntrt_no
+			]]>
+			</statement>
+		</query>
+		
+	</queries>	
+</queryservice>

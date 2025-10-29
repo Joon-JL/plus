@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+	<queries>
+	
+		<!-- 공통 그룹코드조회 -->
+		<query id="secfw.code.listGrpCode" isCamelCase="false">
+			<statement>
+			<![CDATA[
+			  SELECT SYS_CD
+					,GRP_CD
+					,GRP_CD_NM
+					,GRP_CD_ABBR_NM
+					,GRP_CD_NM_ENG
+					,GRP_CD_ABBR_NM_ENG
+					,USE_YN
+					,COMMENTS
+					,REG_ID
+					,CONVERT(CHAR(19), REG_DT, 20) AS REG_DT /*YYYY-MM-DD HH24:MI:SS*/
+					,MOD_ID
+					,CONVERT(CHAR(19), MOD_DT, 20) AS MOD_DT /*YYYY-MM-DD HH24:MI:SS*/
+					,COUNT(1) OVER() AS TOTAL_CNT
+			   FROM TB_COM_GRP_CD
+			  WHERE SYS_CD = :vo.sys_cd
+			  ORDER BY SYS_CD, GRP_CD
+			]]>
+			</statement>
+		</query>
+		
+		<!-- 공통코드조회 -->
+		<query id="secfw.code.listCode" isCamelCase="false">
+			<statement>
+			<![CDATA[
+			  SELECT SYS_CD
+			       ,GRP_CD
+			       ,(SELECT B.GRP_CD_NM 
+			           FROM TB_COM_GRP_CD B
+			          WHERE B.SYS_CD = :vo.sys_cd 
+			            AND B.GRP_CD = A.GRP_CD) AS GRP_CD_NM
+			       ,CD
+			       ,CD_NM
+			       ,CD_ABBR_NM
+			       ,CD_NM_ENG
+			       ,CD_ABBR_NM_ENG
+			       ,CD_ORDER
+			       ,USE_YN
+			       ,ISNULL(COMMENTS,'') AS COMMENTS
+			       ,ISNULL(USEMAN_MNG_ITM1,'') AS USEMAN_MNG_ITM1
+			       ,ISNULL(USEMAN_MNG_ITM2,'') AS USEMAN_MNG_ITM2
+			       ,ISNULL(USEMAN_MNG_ITM3,'') AS USEMAN_MNG_ITM3
+			       ,ISNULL(USEMAN_MNG_ITM4,'') AS USEMAN_MNG_ITM4
+			       ,ISNULL(USEMAN_MNG_ITM5,'') AS USEMAN_MNG_ITM5
+			       ,REG_ID
+				   ,CONVERT(CHAR(19), REG_DT, 20) AS REG_DT /*YYYY-MM-DD HH24:MI:SS*/
+				   ,MOD_ID
+				   ,CONVERT(CHAR(19), MOD_DT, 20) AS MOD_DT /*YYYY-MM-DD HH24:MI:SS*/
+				   ,COUNT(1) OVER() AS TOTAL_CNT
+			  FROM TB_COM_CD A
+			 WHERE SYS_CD = :vo.sys_cd
+		 	#if($vo.select_grp_cd && !$vo.select_grp_cd.equals(""))
+			 	AND GRP_CD = :vo.select_grp_cd
+		 	#end			   
+			   ORDER BY SYS_CD, GRP_CD, CD_ORDER
+			]]>
+			</statement>
+		</query>
+
+		<!-- 공통코드조회 -->
+		<query id="secfw.code.listCodeCombo" isCamelCase="false">
+			<statement>
+			<![CDATA[
+			  SELECT SYS_CD
+			       ,GRP_CD
+			       ,(SELECT B.GRP_CD_NM 
+			           FROM TB_COM_GRP_CD B
+			          WHERE B.SYS_CD = :vo.sys_cd 
+			            AND B.GRP_CD = A.GRP_CD) AS GRP_CD_NM
+			       ,CD
+			       ,CD_NM
+			       ,CD_ABBR_NM
+			       ,CD_NM_ENG
+			       ,CD_ABBR_NM_ENG
+			       ,CD_ORDER
+			       ,USE_YN
+			       ,COMMENTS
+			       ,USEMAN_MNG_ITM1
+			       ,USEMAN_MNG_ITM2
+			       ,USEMAN_MNG_ITM3
+			       ,USEMAN_MNG_ITM4
+			       ,USEMAN_MNG_ITM5
+  			 	   ,REG_ID
+				   ,CONVERT(CHAR(19), REG_DT, 20) AS REG_DT /*YYYY-MM-DD HH24:MI:SS*/
+				   ,MOD_ID
+				   ,CONVERT(CHAR(19), MOD_DT, 20) AS MOD_DT /*YYYY-MM-DD HH24:MI:SS*/
+				   ,COUNT(1) OVER() AS TOTAL_CNT
+			  FROM TB_COM_CD A
+			 WHERE SYS_CD = :vo.sys_cd
+		 	#if($vo.grp_cd && !$vo.grp_cd.equals(""))
+			 	AND GRP_CD = :vo.grp_cd
+			 	#end
+		 	#if($vo.use_yn && !$vo.use_yn.equals(""))
+			 	AND USE_YN = UPPER(:vo.use_yn)
+		 	#end			   
+			   ORDER BY CD_ORDER
+			]]>
+			</statement>
+		</query>
+				
+		<!-- 그룹코드 등록 -->
+		<query id="secfw.code.insertGrpCode">
+			<statement>
+			<![CDATA[			
+				INSERT INTO TB_COM_GRP_CD
+					   (
+						SYS_CD
+						,GRP_CD
+						,GRP_CD_NM
+						,GRP_CD_ABBR_NM
+						,GRP_CD_NM_ENG
+						,GRP_CD_ABBR_NM_ENG
+						,USE_YN
+						,COMMENTS
+						,REG_ID
+						,REG_DT
+						)
+				VALUES (
+					   :vo.sys_cd
+					   ,UPPER(:vo.grp_cd)
+					   ,:vo.grp_cd_nm
+					   ,:vo.grp_cd_abbr_nm
+					   ,:vo.grp_cd_nm_eng
+					   ,:vo.grp_cd_abbr_nm_eng
+					   ,UPPER(:vo.use_yn)
+					   ,:vo.comments
+					   ,:vo.reg_id
+					   ,GETDATE()
+					)
+			]]>
+			</statement>
+		</query>
+
+		<!-- 공통코드 등록 -->
+		<query id="secfw.code.insertCode">
+			<statement>
+			<![CDATA[			
+				INSERT INTO TB_COM_CD
+					   (
+						SYS_CD
+					   	,GRP_CD
+						,CD
+						,CD_NM
+						,CD_ABBR_NM
+						,CD_NM_ENG
+						,CD_ABBR_NM_ENG
+						,CD_ORDER
+						,USE_YN
+						,COMMENTS
+						,USEMAN_MNG_ITM1
+						,USEMAN_MNG_ITM2
+						,USEMAN_MNG_ITM3
+						,USEMAN_MNG_ITM4
+						,USEMAN_MNG_ITM5
+						,REG_ID
+						,REG_DT
+						)
+				VALUES (
+					   :vo.sys_cd
+					   ,UPPER(:vo.grp_cd)
+					   ,UPPER(:vo.cd)
+					   ,:vo.cd_nm
+					   ,:vo.cd_abbr_nm
+					   ,:vo.cd_nm_eng
+					   ,:vo.cd_abbr_nm_eng
+					   ,:vo.cd_order
+					   ,UPPER(:vo.use_yn)
+					   ,:vo.comments
+					   ,:vo.useman_mng_itm1
+					   ,:vo.useman_mng_itm2
+					   ,:vo.useman_mng_itm3
+					   ,:vo.useman_mng_itm4
+					   ,:vo.useman_mng_itm5
+					   ,:vo.reg_id
+					   ,GETDATE()
+					)
+			]]>
+			</statement>
+		</query>	
+			
+		<!-- 그룹코드 수정 -->	
+		<query id="secfw.code.modifyGrpCode">
+			<statement>
+			<![CDATA[			
+			UPDATE TB_COM_GRP_CD
+			   SET GRP_CD_NM       	 	 = :vo.grp_cd_nm
+			      ,GRP_CD_ABBR_NM 		 = :vo.grp_cd_abbr_nm
+			      ,GRP_CD_NM_ENG 		 = :vo.grp_cd_nm_eng
+			      ,GRP_CD_ABBR_NM_ENG 	 = :vo.grp_cd_abbr_nm_eng
+			      ,USE_YN           	 = UPPER(:vo.use_yn)
+			      ,COMMENTS         	 = :vo.comments
+			      ,MOD_ID           	 = :vo.mod_id
+			      ,MOD_DT           	 = GETDATE()
+			WHERE SYS_CD = :vo.sys_cd
+			  AND GRP_CD = :vo.grp_cd
+			]]>
+			</statement>
+		</query>
+			
+		<!-- 공통코드 수정 -->	
+		<query id="secfw.code.modifyCode">
+			<statement>
+			<![CDATA[			
+			UPDATE TB_COM_CD
+			   SET CD_NM          	 = :vo.cd_nm
+			      ,CD_ABBR_NM 		 = :vo.cd_abbr_nm
+			      ,CD_NM_ENG 		 = :vo.cd_nm_eng
+			      ,CD_ABBR_NM_ENG 	 = :vo.cd_abbr_nm_eng
+			      ,CD_ORDER          = :vo.cd_order
+			      ,USE_YN            = UPPER(:vo.use_yn)
+			      ,COMMENTS          = :vo.comments
+			      ,USEMAN_MNG_ITM1   = :vo.useman_mng_itm1
+			      ,USEMAN_MNG_ITM2   = :vo.useman_mng_itm2
+			      ,USEMAN_MNG_ITM3   = :vo.useman_mng_itm3
+			      ,USEMAN_MNG_ITM4   = :vo.useman_mng_itm4
+			      ,USEMAN_MNG_ITM5   = :vo.useman_mng_itm5
+			      ,MOD_ID            = :vo.mod_id
+			      ,MOD_DT            = GETDATE()
+			WHERE SYS_CD = :vo.sys_cd
+			  AND GRP_CD = :vo.grp_cd
+			  AND CD     = :vo.cd
+			]]>
+			</statement>
+		</query>
+		
+		<!-- 그룹코드 사용여부 'N'일 경우 공통코드 사용불가 -->	
+		<query id="secfw.code.modifyChildCodeUse">
+			<statement>
+			<![CDATA[			
+			UPDATE TB_COM_CD
+			   SET USE_YN = UPPER(:vo.use_yn)
+			      ,MOD_ID = :vo.mod_id
+			      ,MOD_DT = GETDATE()
+			WHERE SYS_CD  = :vo.sys_cd
+			  AND GRP_CD  = :vo.grp_cd
+			]]>
+			</statement>
+		</query>
+			
+		<!-- 그룹코드 삭제 -->	
+		<query id="secfw.code.deleteGrpCode">
+			<statement>
+			<![CDATA[			
+			DELETE TB_COM_GRP_CD
+			WHERE SYS_CD = :vo.sys_cd
+			  AND GRP_CD = :vo.grp_cd
+			]]>
+			</statement>
+		</query>
+		
+		<!-- 그룹코드 삭제시 코드 삭제 -->	
+		<query id="secfw.code.deleteCodeByDeleteGrpCode">
+			<statement>
+			<![CDATA[			
+			DELETE TB_COM_CD
+			WHERE SYS_CD = :vo.sys_cd
+			  AND GRP_CD = :vo.grp_cd
+			]]>
+			</statement>
+		</query>
+
+		<!-- 그룹코드 삭제(입력시 사용) -->	
+		<query id="secfw.code.deleteGrpCode4Insert">
+			<statement>
+			<![CDATA[			
+			DELETE TB_COM_GRP_CD
+			WHERE SYS_CD = :vo.sys_cd
+			]]>
+			</statement>
+		</query>
+		
+		<!-- 코드 삭제 -->	
+		<query id="secfw.code.deleteCode">
+			<statement>
+			<![CDATA[			
+			DELETE TB_COM_CD
+			WHERE SYS_CD = :vo.sys_cd
+			  AND CD     = :vo.cd
+			]]>
+			</statement>
+		</query>
+
+		<!-- 그룹코드존재여부 -->	
+		<query id="secfw.code.existsGrpCode" isCamelCase="false">
+			<statement>
+			<![CDATA[			
+			SELECT ISNULL(MAX('Y'), 'N') AS EXISTS_YN
+			  FROM TB_COM_GRP_CD
+			WHERE SYS_CD = :sys_cd
+			  AND GRP_CD = UPPER(:grp_cd)
+			]]>
+			</statement>
+		</query>
+
+		<!-- 코드존재여부 -->	
+		<query id="secfw.code.existsCode" isCamelCase="false">
+			<statement>
+			<![CDATA[			
+			SELECT ISNULL(MAX('Y'), 'N') AS EXISTS_YN
+			  FROM TB_COM_CD
+			WHERE SYS_CD = :sys_cd
+			  AND CD = UPPER(:cd)
+			]]>
+			</statement>
+		</query>
+
+		<query id="secfw.code.getCdComboByGrpCd" isCamelCase="false">                                                                                 
+			<statement>                                                                                                   
+				<![CDATA[
+					SELECT	SYS_CD
+						,	GRP_CD
+						,	CD
+						,	CD_NM
+						,	CD_ABBR_NM
+						,	CD_NM_ENG
+						,	CD_ABBR_NM_ENG
+						,	CD_NM_FRA
+						,	CD_ABBR_NM_FRA
+						,	CD_NM_DEU
+						,	CD_ABBR_NM_DEU
+						,	CD_NM_CHN
+						,	CD_ABBR_NM_CHN
+					FROM	TB_COM_CD
+					WHERE	SYS_CD = :sys_cd
+					AND		GRP_CD = :grp_cd
+				#if ($del_yn.equals("N"))
+				    AND     USE_YN <> 'N'
+				#end
+				]]>
+			</statement>				                                         	
+		</query>
+		
+		
+		
+		<!-- 공통코드 리스트 조회 -->
+		<query id="acts.cmm.actscode.listCode" isCamelCase="false">
+  			<statement>
+  				<![CDATA[
+SELECT A.CD
+      ,A.CD_NM
+      ,A.GRP_CD
+      ,A.CD_ORDER
+      ,A.SYS_CD
+      ,A.CD_NM_ENG
+      ,COUNT(B.GRP_CD) AS SUB_CNT
+  FROM (
+         SELECT CD
+               ,CD_NM
+               ,GRP_CD
+               ,CD_ORDER
+               ,SYS_CD
+               ,CD_NM_ENG
+           FROM TB_COM_CD
+          WHERE USE_YN = 'Y'
+            AND GRP_CD = :vo.grp_cd
+#if ($vo.sys_cd && !$vo.sys_cd.equals(""))
+            AND SYS_CD = :vo.sys_cd
+#end
+       ) A
+      ,(
+         SELECT GRP_CD
+           FROM TB_COM_CD
+          WHERE USE_YN = 'Y'
+#if ($vo.sys_cd && !$vo.sys_cd.equals(""))
+            AND SYS_CD = :vo.sys_cd
+#end
+       ) B
+ WHERE A.CD = B.GRP_CD(+)
+ GROUP BY A.CD
+         ,A.CD_NM
+         ,A.GRP_CD
+         ,A.CD_ORDER
+         ,A.SYS_CD
+         ,A.CD_NM_ENG
+ ORDER BY A.CD_ORDER ASC
+  				]]>
+  			</statement>
+		</query>
+
+        <!-- 공통코드 삭제 (선택된 코드의 하위코드 삭제) -->
+        <query id="acts.cmm.actscode.deleteSubCode">
+            <statement>
+            <![CDATA[
+UPDATE TB_COM_CD
+   SET USE_YN = 'N'
+      ,MOD_ID = :vo.session_user_id
+      ,MOD_DT = GETDATE()
+ WHERE SYS_CD = :vo.sys_cd
+   AND GRP_CD = :vo.grp_cd
+            ]]>
+            </statement>
+        </query>
+
+		<!-- 코드 자동 채번 -->
+		<query id="acts.cmm.actscode.genCode" isCamelCase="false">
+  			<statement>
+  				<![CDATA[
+SELECT TO_CHAR(MAX(TO_NUMBER(CD)) + 1) AS GEN_CD
+  FROM TB_COM_CD
+ WHERE SYS_CD = :vo.sys_cd
+   AND CD < 'A'
+  				]]>
+  			</statement>
+		</query>
+
+        <!-- 공통코드 등록 -->
+        <query id="acts.cmm.actscode.insertCode">
+            <statement>
+            <![CDATA[
+INSERT INTO TB_COM_CD (
+	 SYS_CD
+	,GRP_CD
+	,CD
+	,CD_NM
+	,CD_ABBR_NM
+	,CD_NM_ENG
+	,CD_ABBR_NM_ENG
+	,CD_ORDER
+	,USE_YN
+	,REG_ID
+	,REG_DT
+) VALUES (
+	 :vo.sys_cd
+	,:vo.grp_cd
+	,:vo.cd
+	,:vo.cd_nm
+	,:vo.cd_nm
+	,:vo.cd_nm_eng
+	,:vo.cd_nm_eng
+	,:vo.cd_order
+	,'Y'
+	,:vo.session_user_id
+	,GETDATE()
+)
+            ]]>
+            </statement>
+        </query>
+
+        <!-- 공통코드 수정 -->
+        <query id="acts.cmm.actscode.modifyCode">
+            <statement>
+            <![CDATA[
+UPDATE TB_COM_CD
+   SET USE_YN = 'Y'
+      ,CD_NM = :vo.cd_nm
+      ,CD_ABBR_NM = :vo.cd_nm
+      ,CD_NM_ENG = :vo.cd_nm_eng
+      ,CD_ABBR_NM_ENG = :vo.cd_nm_eng
+      ,CD_ORDER = :vo.cd_order
+      ,MOD_ID = :vo.session_user_id
+      ,MOD_DT = GETDATE()
+ WHERE SYS_CD = :vo.sys_cd
+   AND GRP_CD = :vo.grp_cd
+   AND CD = :vo.cd
+            ]]>
+            </statement>
+        </query>		
+		
+		
+									
+	</queries>
+</queryservice>

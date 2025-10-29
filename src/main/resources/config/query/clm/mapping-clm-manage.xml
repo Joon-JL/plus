@@ -1,0 +1,3312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+    <queries>
+    
+    <!-- 계약공통 리스트 (MyContract, 계약검토~종료 => 의뢰별 : 2011.09.29 : 신남원 -->
+    <!-- 2014-06-03 Kevin. Query tuned. -->
+    <!-- 2014-07-08 Kevin. Replaced adhoc query to SP and query tuning as well. -->
+    <query id="clm.manage.listManage1" isCamelCase="false">
+		<statement>
+    		<![CDATA[
+    		
+    		EXEC	dbo.SP_MYCONTRACT_LIST	:vo.isExcelFlag
+    														,:vo.sElComp
+															,:vo.session_auth_comp_cd
+															,:vo.session_blngt_orgnz
+															,:vo.session_dept_cd
+															,:vo.top_role
+															,:vo.session_manager_yn
+															,:vo.session_support_yn
+															,:vo.elUserlYn
+															,:vo.session_auth_apnt_yn
+															,:vo.session_user_id
+															,:vo.session_auth_apnt_dept
+															,:vo.srch_review_title
+															,:vo.srch_reqman_nm
+															,:vo.srch_start_reqday
+															,:vo.srch_end_reqday
+															,:vo.srch_cnsdman_nm
+															,:vo.status_mode
+															,:vo.srch_cntrt_no
+															,:vo.srch_cntrt_nm
+															,:vo.srch_respman_nm
+															,:vo.srch_resp_dept_nm
+															,:vo.srch_step
+															,:vo.srch_start_cnlsnday
+															,:vo.srch_end_cnlsnday
+															,:vo.srch_str_org_acptday
+															,:vo.srch_end_org_acptday
+															,:vo.srch_state
+															,:vo.closed_yn
+															,:vo.srch_oppnt_nm
+															,:vo.srch_division
+															,:vo.srch_vendor_type
+															,:vo.srch_vendor_type_detail
+															,:vo.start_index
+															,:vo.end_index
+															,:vo.srch_tnc_no
+    		]]>
+  		</statement>	
+	</query>            
+
+    <!-- 계약 공통 리스트 (MyContract, 계약검토~종료 => 계약별: 2011.09.29 : 신남원 -->
+    <!-- 2014-10-28 Sungwoo. Replaced adhoc query to SP and query tuning as well. -->
+    <query id="clm.manage.listManage2" isCamelCase="false">
+		<statement>
+    		<![CDATA[
+    		EXEC	dbo.SP_RELATED_LIST						:vo.isExcelFlag
+    														,:vo.sElComp
+															,:vo.session_auth_comp_cd
+															,:vo.session_blngt_orgnz
+															,:vo.session_dept_cd
+															,:vo.top_role
+															,:vo.session_manager_yn
+															,:vo.session_support_yn
+															,:vo.elUserlYn
+															,:vo.session_auth_apnt_yn
+															,:vo.session_user_id
+															,:vo.session_auth_apnt_dept
+															,:vo.srch_review_title
+															,:vo.srch_reqman_nm
+															,:vo.srch_start_reqday
+															,:vo.srch_end_reqday
+															,:vo.srch_cnsdman_nm
+															,:vo.status_mode
+															,:vo.srch_cntrt_no
+															,:vo.srch_cntrt_nm
+															,:vo.srch_respman_nm
+															,:vo.srch_resp_dept_nm
+															,:vo.srch_step
+															,:vo.srch_start_cnlsnday
+															,:vo.srch_end_cnlsnday
+															,:vo.srch_str_org_acptday
+															,:vo.srch_end_org_acptday
+															,:vo.srch_state
+															,:vo.closed_yn
+															,:vo.srch_oppnt_nm
+															,:vo.srch_division
+															,:vo.srch_vendor_type
+															,:vo.srch_vendor_type_detail
+															,:vo.start_index
+															,:vo.end_index
+															,:vo.session_user_locale
+															,:vo.except_cntrt_id
+		]]>
+		</statement>	
+	</query>
+	
+	<!-- 계약 공통 리스트 (MyContract, 계약검토~종료 => 계약별: 2012.01.13 : 김재원 외부 연계 시-->
+    <query id="clm.manage.listManage3" isCamelCase="false">
+		<statement>
+    		<![CDATA[
+			SELECT 	TM.*, TD.CNSDMAN
+			FROM	(
+					SELECT RN
+					     , TOTAL_CNT
+					     , MN_CNSD_DEPT
+					     , REQ_DT
+					     , CNSDREQ_ID
+					     , CNTRT_ID
+					     , CNTRT_NM
+					     , CNTRT_OPPNT_NM
+					     , CNTRT_RESPMAN_NM
+					     , CNTRT_RESP_DEPT_NM
+					     , PRCS_DEPTH
+					     , DEPTH_STATUS
+					     , PRCS_DEPTH_NM
+					     , DEPTH_STATUS_NM
+					     , CNTRT_CNCLSNDAY
+					     , (select dbo.LAS_CONT_CNSDREQ_RESPMAN_M(CNSDREQ_ID,', ','xx')) AS CNSDMANS /*xx : TB_COM_USER의 USER_NM 값으로 가져오기 위해*/
+					     , REQ_TITLE
+					     , REQMAN_NM
+					     , DEPTH_CLSFCN
+                         , CNCLSNPURPS_BIGCLSFCN
+                         , CNCLSNPURPS_MIDCLSFCN
+                         , CNTRT_TRGT
+                         , BIZ_CLSFCN
+                         , T1_NM
+                         , T2_NM
+                         , T3_NM
+                         , T4_NM
+                         , AUTO_RNEW_YN
+					FROM	(
+							SELECT L.*, LD.RESP_DEPT, LD.RESPMAN_NM, LD.RESPMAN_ID,
+										row_number() OVER(PARTITION BY L.CNTRT_ID, L.CNSDREQ_ID, LD.RESP_DEPT ORDER BY LD.RESPMAN_NM) AS RD
+							FROM	(
+									SELECT 	M.*,
+											CASE WHEN :vo.session_user_locale= 'ko' THEN D1.CD_NM
+											 	 WHEN :vo.session_user_locale= 'fr' THEN D1.CD_NM_FRA
+											 	 WHEN :vo.session_user_locale= 'de' THEN D1.CD_NM_DEU
+														ELSE D1.CD_NM_ENG
+											END PRCS_DEPTH_NM,
+											CASE WHEN :vo.session_user_locale= 'ko' THEN D2.CD_NM 
+												 WHEN :vo.session_user_locale= 'fr' THEN D2.CD_NM_FRA
+											 	 WHEN :vo.session_user_locale= 'de' THEN D2.CD_NM_DEU
+														ELSE D2.CD_NM_ENG
+											END 
+											+
+											CASE WHEN M.DEPTH_STATUS IN ('C02606', 'C02608')
+														THEN 
+															CASE WHEN :vo.session_user_locale = 'ko' THEN
+																	CASE WHEN M.PLNDBN_REQ_YN = 'Y'
+																		THEN '(최종)'
+																		ELSE '(' + CAST(M.LVL AS NVARCHAR) + '차)'
+																 	END
+																 ELSE
+																 	CASE WHEN M.PLNDBN_REQ_YN = 'Y'
+																		THEN '(Final)'
+																		ELSE 
+																			CASE WHEN M.LVL = '1' THEN '(' + CAST(M.LVL AS NVARCHAR) + 'st)'
+																				 WHEN M.LVL = '2' THEN '(' + CAST(M.LVL AS NVARCHAR) + 'nd)'
+																				 WHEN M.LVL = '3' THEN '(' + CAST(M.LVL AS NVARCHAR) + 'rd)'
+																				 ELSE '(' + CAST(M.LVL AS NVARCHAR) + 'th)'
+																			END
+																 	END
+																 END
+															ELSE ''
+											END
+											AS DEPTH_STATUS_NM,
+											CASE WHEN :vo.session_user_locale = 'ko' THEN T1.CD_NM
+			              						 WHEN :vo.session_user_locale = 'fr' THEN T1.CD_NM_FRA
+			              						 WHEN :vo.session_user_locale = 'de' THEN T1.CD_NM_DEU
+			              						 ELSE T1.CD_NM_ENG
+			              					END AS T1_NM,
+                                            CASE WHEN :vo.session_user_locale = 'ko' THEN T2.CD_NM
+			              						 WHEN :vo.session_user_locale = 'fr' THEN T2.CD_NM_FRA
+			              						 WHEN :vo.session_user_locale = 'de' THEN T2.CD_NM_DEU
+			              						 ELSE T2.CD_NM_ENG
+			              					END AS T2_NM,
+                                            CASE WHEN :vo.session_user_locale = 'ko' THEN T3.CD_NM
+			              						 WHEN :vo.session_user_locale = 'fr' THEN T3.CD_NM_FRA
+			              						 WHEN :vo.session_user_locale = 'de' THEN T3.CD_NM_DEU
+			              						 ELSE T3.CD_NM_ENG
+			              					END AS T3_NM,
+                                            CASE WHEN :vo.session_user_locale = 'ko' THEN T4.CD_NM
+			              						 WHEN :vo.session_user_locale = 'fr' THEN T4.CD_NM_FRA
+			              						 WHEN :vo.session_user_locale = 'de' THEN T4.CD_NM_DEU
+			              						 ELSE T4.CD_NM_ENG
+			              					END AS T4_NM
+									FROM	(				
+												SELECT T.*
+												FROM	(
+															SELECT ROWNUM RN
+															            , COUNT(1) OVER()  TOTAL_CNT
+															            , X.MN_CNSD_DEPT
+															            , X.REQ_DT
+															            , X.PLNDBN_REQ_YN
+															            , X.LVL
+															            , X.REQ_TITLE
+															            , X.REQMAN_NM
+															            , Y.*
+															FROM	(
+																		SELECT REQ.CNSDREQ_ID
+																		      , REQ.REQ_TITLE
+																		      , REQ.MN_CNSD_DEPT
+																		      , TO_CHAR(REQ_MAX.REQ_DT, 'YYYYMMDD') AS REQ_DT
+																		      , REQ_MAX.REQ_DT AS REQDT
+																		      , REQ.PLNDBN_REQ_YN
+																		      , REQ_MAX.LVL
+																		      , REQ.REQMAN_NM
+																		  FROM TN_CLM_CONT_CNSDREQ REQ,
+																		      (SELECT FST_CNSDREQ_ID, MAX(CNSD_LEVEL) AS LVL, MIN(ISNULL(REQ_DT, REG_DT)) AS REQ_DT
+																		         FROM TN_CLM_CONT_CNSDREQ
+																		        WHERE DEL_YN = 'N'
+																		       GROUP BY FST_CNSDREQ_ID) REQ_MAX
+																		 WHERE REQ.FST_CNSDREQ_ID = REQ_MAX.FST_CNSDREQ_ID
+																		   AND REQ.CNSD_LEVEL = REQ_MAX.LVL
+																		   AND REQ.DEL_YN = 'N'
+																		   AND REQ.PLNDBN_REQ_YN ='Y'
+																	/** 의뢰명 **/
+																	#if(!$vo.srch_review_title.equals(""))
+																		AND		UPPER(REQ.REQ_TITLE)  LIKE '%' + :vo.srch_review_title + '%'
+																	#end
+																	
+																	/** 의뢰자 **/
+																	#if(!$vo.srch_reqman_nm.equals(""))
+																		AND 'Y' = CASE WHEN UPPER(REQ.REQMAN_NM)  LIKE '%' + UPPER( :vo.srch_reqman_nm ) + '%' THEN 'Y'
+																		          		WHEN
+																			           		ISNULL((SELECT CASE WHEN UPPER(USER_NM) LIKE '%' + UPPER( :vo.srch_reqman_nm ) + '%' THEN 'Y'
+																								  WHEN UPPER(USER_NM_ENG) LIKE '%' + UPPER( :vo.srch_reqman_nm ) + '%' THEN 'Y'
+																								  ELSE 'N' END
+																							    FROM TB_COM_USER WHERE USER_ID = REQ.REQMAN_ID),'N') = 'Y' THEN 'Y'
+																						ELSE 'N' END				
+																	#end
+																		
+																	/** 의뢰일자 **/
+																	#if(!$vo.srch_start_reqday.equals(""))
+																		AND		TO_CHAR(REQ.REQ_DT, 'YYYYMMDD') >= :vo.srch_start_reqday
+																	#end
+																	#if(!$vo.srch_end_reqday.equals(""))
+																		AND		TO_CHAR(REQ.REQ_DT, 'YYYYMMDD') <= :vo.srch_end_reqday
+																	#end																		
+																		/** 검토자 **/
+																	#if (!$vo.srch_cnsdman_nm.equals(""))
+																	 	AND		REQ.CNSDREQ_ID IN ( SELECT SA.CNSDREQ_ID 
+																									FROM TN_CLM_CONT_CNSDREQ_RESPMAN SA, TB_COM_USER SB
+																									WHERE SA.RESPMAN_ID = SB.USER_ID	
+																									AND ( UPPER(SB.USER_NM) LIKE '%' + UPPER( :vo.srch_cnsdman_nm ) + '%'
+																											OR UPPER(SB.USER_NM_ENG) LIKE '%' + UPPER( :vo.srch_cnsdman_nm ) + '%' )
+																									UNION ALL
+																									SELECT CNSDREQ_ID
+																									FROM TN_CLM_CONT_CNSDREQ_RESPMAN SA 
+																									WHERE 	
+																									NOT EXISTS ( SELECT 'NO' FROM TB_COM_USER WHERE USER_ID = SA.RESPMAN_ID) 
+																									AND UPPER(RESPMAN_NM) LIKE '%' + :vo.srch_cnsdman_nm + '%'
+																									)																									
+																	#end
+																	/** 계약 Owner_ship 정 검토 부서 **/
+																	#if (!$vo.srch_lMn_cnsd_dept.equals("") && $vo.srch_lMn_cnsd_dept != "null")
+																		 AND 	REQ.MN_CNSD_DEPT IN (
+																			#foreach($Mn_cnsd_dept in $vo.srch_lMn_cnsd_dept)
+																			    #if($velocityCount	== 1)
+																			        '$Mn_cnsd_dept'
+																			    #else
+																			        ,'$Mn_cnsd_dept'
+																			    #end  
+																			#end
+																		    )
+																		#end																		
+																		) X, (
+																				SELECT 	CNSD.CNSDREQ_ID
+																				      , MASTER.CNTRT_ID
+																				      , MASTER.CNTRT_NM
+																				      , MASTER.CNTRT_OPPNT_NM
+																				      , MASTER.CNTRT_CNCLSNDAY
+																				      , MASTER.CNTRT_RESPMAN_NM
+																				      , MASTER.CNTRT_RESP_DEPT_NM
+																				      , MASTER.PRCS_DEPTH
+																				      , MASTER.DEPTH_STATUS
+																				      , MASTER.DEPTH_CLSFCN
+																					  , MASTER.CNCLSNPURPS_BIGCLSFCN
+																					  , MASTER.CNCLSNPURPS_MIDCLSFCN
+																					  , MASTER.CNTRT_TRGT
+																					  , MASTER.AUTO_RNEW_YN
+                                                                                      , MASTER.BIZ_CLSFCN
+																				FROM	TN_CLM_CONTRACT_CNSD CNSD
+																				      , TN_CLM_CONTRACT_MASTER MASTER
+																				WHERE 	CNSD.CNTRT_ID = MASTER.CNTRT_ID
+																				AND		MASTER.DEL_YN = 'N'
+																				AND 	MASTER.DEPTH_STATUS >= 'C02608'
+																			#if($vo.status_mode.equals("myContract"))
+																				AND 	(MASTER.CNTRT_INFO_GBN IN ('C05401', 'C05402', 'C05403')
+																				         OR (MASTER.CNTRT_INFO_GBN IN ('C05404')
+																				             AND MASTER.PRCS_DEPTH IN ('C02504', 'C02505')))
+																			#else
+																				AND 	(MASTER.CNTRT_INFO_GBN IN ('C05401')
+																				         OR (MASTER.CNTRT_INFO_GBN IN ('C05404')
+																				             AND MASTER.PRCS_DEPTH IN ('C02504', 'C02505')))
+																			#end
+																			#if($vo.status_mode.equals("registration"))
+																				AND 	MASTER.CNTRT_INFO_GBN IN ('C05404')
+																			#end																			
+																			
+																				AND 	MASTER.CNTRT_STATUS < 'C02406'
+																#if (!$vo.top_role.equals("A"))
+																	#if ($vo.top_role.equals("B"))
+																      	#if ($vo.session_blngt_orgnz.equals("A00000003"))
+					                 						                   	AND 	MASTER.CNTRT_ID IN (
+															                                       			SELECT 	B.CNTRT_ID
+															                                         		FROM 	TN_CLM_CONT_CNSDREQ A
+															                                             			,TN_CLM_CONTRACT_CNSD B
+															                                        		WHERE 	A.DEL_YN = 'N'
+															                                          		AND 	(A.MN_CNSD_DEPT = :vo.session_blngt_orgnz OR A.VC_CNSD_DEPT = :vo.session_blngt_orgnz)
+															                                          		AND 	A.CNSDREQ_ID = B.CNSDREQ_ID
+															                                        		GROUP BY B.CNTRT_ID
+															                                     			)
+																		#end	      								
+																	#else
+																		#if (!$vo.top_role.equals("C") && (!$vo.session_manager_yn.equals("Y") + !$vo.session_support_yn.equals("Y")))
+																				AND 	(
+																                         MASTER.CNTRT_ID IN (
+																                                         	SELECT 	CNTRT_ID
+																                                           	FROM 	TN_CLM_CONTRACT_AUTHREQ
+																                                          	WHERE 	DEL_YN = 'N'
+																                                            AND 	DEMND_GBN = 'C04601'
+																                                            AND 	DEMND_STATUS = 'C03702'
+																                                            AND 	TRGTMAN_ID = :vo.session_user_id
+																                                       		)
+																                         OR MASTER.CNTRT_RESPMAN_ID = :vo.session_user_id
+																			#if ($vo.session_manager_yn.equals("Y"))
+																                         OR MASTER.CNTRT_RESP_UP_DEPT LIKE '%' + :vo.session_dept_cd + '^%'
+																			#end
+																			#if ($vo.session_auth_apnt_yn.equals("Y"))
+																                         OR MASTER.COMP_CD = :vo.session_comp_cd
+																			#end
+																				        )
+																		#else
+																			#if ($vo.top_role.equals("C") + ($vo.session_support_yn.equals("Y") && $vo.session_manager_yn.equals("Y"))) 
+																				AND     (
+																                         MASTER.CNTRT_ID IN (
+																                                         	SELECT 	CNTRT_ID
+																                                           	FROM 	TN_CLM_CONTRACT_AUTHREQ
+																                                          	WHERE 	DEL_YN = 'N'
+																                                            AND 	DEMND_GBN = 'C04601'
+																                                            AND 	DEMND_STATUS = 'C03702'
+																                                            AND 	TRGTMAN_ID = :vo.session_user_id
+																                                       		)
+																				         OR MASTER.REG_OPERDIV = :vo.session_blngt_orgnz
+																				#if ($vo.session_auth_apnt_yn.equals("Y"))
+																				         OR MASTER.COMP_CD = :vo.session_comp_cd
+																				#end
+																				        )
+																			#end
+																		#end
+																	#end
+																#end														
+																				
+																		    /** 담당자 **/
+																			#if(!$vo.srch_respman_nm.equals(""))
+																				AND 'Y' = CASE WHEN UPPER(MASTER.CNTRT_RESPMAN_NM)  LIKE '%' + UPPER( :vo.srch_respman_nm ) + '%' THEN 'Y'
+																													WHEN 
+																													ISNULL((SELECT CASE WHEN UPPER(USER_NM) LIKE '%' + UPPER( :vo.srch_respman_nm ) + '%' THEN 'Y'
+																												  		WHEN UPPER(USER_NM_ENG) LIKE '%' + UPPER( :vo.srch_respman_nm ) + '%' THEN 'Y'
+																												  		ELSE 'N' END
+																														FROM TB_COM_USER WHERE USER_ID = MASTER.CNTRT_RESPMAN_ID),'N') = 'Y' THEN 'Y'
+																													ELSE 'N' END
+																			#end
+																			/** 담당부서 **/
+																			#if (!$vo.srch_resp_dept.equals(""))
+																				AND		MASTER.CNTRT_RESP_UP_DEPT LIKE '%' + :vo.srch_resp_dept + '^%'
+																			#end																	
+																			
+																			/** 계약상대방**/
+																			#if (!$vo.srch_oppnt_cd.equals(""))
+																				AND 	MASTER.CNTRT_OPPNT_CD = :vo.srch_oppnt_cd
+																			#end	
+																			
+																				) Y
+															WHERE X.CNSDREQ_ID = Y.CNSDREQ_ID
+															ORDER BY X.REQDT DESC, X.CNSDREQ_ID DESC
+															) T
+												WHERE T.RN BETWEEN :vo.start_index AND :vo.end_index
+												) M , 
+												TB_COM_CD D1
+											  , TB_COM_CD D2
+											  , TN_COM_CONTRACTTYPE_CD T1
+                                              , TN_COM_CONTRACTTYPE_CD T2
+                                              , TN_COM_CONTRACTTYPE_CD T3
+                                              , TN_COM_CONTRACTTYPE_CD T4
+									WHERE D1.SYS_CD = 'LAS'
+									AND		D1.CD = M.PRCS_DEPTH
+									AND		D2.SYS_CD = 'LAS'
+									AND		D2.CD = M.DEPTH_STATUS
+									AND     T1.TYPE_CD = M.BIZ_CLSFCN
+                                    AND     T2.TYPE_CD = M.DEPTH_CLSFCN
+                                    AND     T3.TYPE_CD = M.CNCLSNPURPS_MIDCLSFCN
+                                    AND     T4.TYPE_CD = M.CNTRT_TRGT
+									) L, TN_CLM_CONT_CNSDREQ_RESPMAN LD
+							WHERE L.CNSDREQ_ID = LD.CNSDREQ_ID(+)
+							AND	L.MN_CNSD_DEPT = LD.RESP_DEPT(+)
+							) 
+					START WITH RD=1
+					CONNECT BY PRIOR RD = RD - 1 AND PRIOR RN = RN
+					GROUP BY RN
+					       , TOTAL_CNT
+					       , MN_CNSD_DEPT
+					       , REQ_DT
+					       , CNSDREQ_ID
+					       , CNTRT_ID
+					       , CNTRT_NM
+					       , CNTRT_OPPNT_NM
+					       , CNTRT_RESPMAN_NM
+					       , CNTRT_RESP_DEPT_NM
+					       , PRCS_DEPTH
+					       , DEPTH_STATUS
+					       , PRCS_DEPTH_NM
+					       , DEPTH_STATUS_NM
+					       , CNTRT_CNCLSNDAY
+					       , REQ_TITLE
+					       , REQMAN_NM
+					       , DEPTH_CLSFCN
+                           , CNCLSNPURPS_BIGCLSFCN
+                           , CNCLSNPURPS_MIDCLSFCN
+                           , CNTRT_TRGT
+                           , BIZ_CLSFCN
+                           , T1_NM
+                           , T2_NM
+                           , T3_NM
+                           , T4_NM
+                           , AUTO_RNEW_YN
+					) TM, (
+								SELECT S.CNSDREQ_ID, S.RESP_DEPT, 
+											CASE WHEN MAX(S.RESPMAN_CNT) > 1 THEN 
+												CASE WHEN :vo.session_user_locale = 'ko' THEN
+													MIN(S.RESPMAN_NM) + ' 외 ' + TO_CHAR(MAX(S.RESPMAN_CNT) - 1) + ' 명'
+												WHEN :vo.session_user_locale = 'fr' THEN
+													MIN(S.RESPMAN_NM) + '<br/>et ' + TO_CHAR(MAX(S.RESPMAN_CNT) - 1) + ' Personne(s)'
+												WHEN :vo.session_user_locale = 'de' THEN
+													MIN(S.RESPMAN_NM) + '<br/>und ' + TO_CHAR(MAX(S.RESPMAN_CNT) - 1) + ' Person(en)'
+												ELSE
+													MIN(S.RESPMAN_NM) + ' and ' + TO_CHAR(MAX(S.RESPMAN_CNT) - 1) + ' others'
+												END
+													ELSE ISNULL(MIN(S.RESPMAN_NM), '')
+											END AS CNSDMAN
+								FROM	(
+											SELECT RES.CNSDREQ_ID, RES.RESP_DEPT, RES.RESPMAN_NM, ISNULL(USR.USER_SRT, 999) AS USER_SRT, 
+														MIN(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS MIN_USER_SRT, 
+														COUNT(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS RESPMAN_CNT 
+											FROM TN_CLM_CONT_CNSDREQ_RESPMAN RES, TB_COM_USER USR
+											WHERE RES.RESPMAN_ID = USR.USER_ID(+)
+											)	S	
+								WHERE S.USER_SRT = S.MIN_USER_SRT					
+								GROUP BY S.CNSDREQ_ID, S.RESP_DEPT
+								) TD
+			WHERE TM.CNSDREQ_ID = TD.CNSDREQ_ID(+)
+			AND	TM.MN_CNSD_DEPT = TD.RESP_DEPT(+)			
+			ORDER BY TM.REQ_DT DESC
+    		]]>
+  		</statement>	
+	</query> 
+	
+	<!-- 계약 공통 리스트 (체결 후 등록, 체결 후 등록 : 2012.01.27 : 김재원 -->
+    <query id="clm.manage.listManage4" isCamelCase="false">
+		<statement>
+    		<![CDATA[
+			SELECT 	TM.*, TD.CNSDMAN
+			FROM	(
+						SELECT * FROM DBO.[CLM.MANAGE.LISTMANAGE4](
+											:vo.session_user_locale
+											, :vo.srch_review_title
+											, :vo.session_user_id
+											, :vo.srch_reqman_nm
+											, :vo.srch_start_reqday
+											, :vo.srch_end_reqday
+											, :vo.srch_cnsdman_nm
+											, :vo.srch_cntrt_no
+											, :vo.srch_cntrt_nm
+											, :vo.srch_respman_nm
+											, :vo.srch_resp_dept
+											, :vo.srch_step
+											, :vo.srch_start_cnlsnday
+											, :vo.srch_end_cnlsnday
+											, :vo.srch_state
+											, :vo.srch_oppnt_cd
+											, :vo.srch_biz_clsfcn
+											, :vo.srch_cnclsnpurps_bigclsfcn
+											, :vo.isExcelFlag
+											, :vo.start_index
+											, :vo.end_index		)
+
+					) TM LEFT OUTER JOIN (
+								SELECT S.CNSDREQ_ID, S.RESP_DEPT, 
+											CASE WHEN MAX(S.RESPMAN_CNT) > 1 THEN 
+												CASE WHEN :vo.session_user_locale = 'ko' THEN
+													MIN(S.RESPMAN_NM) + ' 외 ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' 명'
+												WHEN :vo.session_user_locale = 'fr' THEN
+													MIN(S.RESPMAN_NM) + ' et ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' Personne(s)'
+												WHEN :vo.session_user_locale = 'de' THEN
+													MIN(S.RESPMAN_NM) + ' und ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' Person(en)'
+												ELSE
+													MIN(S.RESPMAN_NM) + ' and ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' others'
+												END
+													ELSE ISNULL(MIN(S.RESPMAN_NM), '')
+											END AS CNSDMAN
+								FROM	(
+											SELECT RES.CNSDREQ_ID, RES.RESP_DEPT, RES.RESPMAN_NM, ISNULL(USR.USER_SRT, 999) AS USER_SRT, 
+														MIN(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS MIN_USER_SRT, 
+														COUNT(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS RESPMAN_CNT 
+											FROM TN_CLM_CONT_CNSDREQ_RESPMAN RES LEFT OUTER JOIN TB_COM_USER USR
+											ON RES.RESPMAN_ID = USR.USER_ID
+											)	S	
+								WHERE S.USER_SRT = S.MIN_USER_SRT					
+								GROUP BY S.CNSDREQ_ID, S.RESP_DEPT
+								) TD
+			ON TM.CNSDREQ_ID = TD.CNSDREQ_ID
+			AND	TM.MN_CNSD_DEPT = TD.RESP_DEPT			
+			ORDER BY TM.REQ_DT DESC
+    		]]>
+  		</statement>	
+	</query> 
+
+	<!-- 계약 공통 리스트 (체결 후 등록, 체결 후 등록 : 2012.01.27 : 김재원 -->
+    <query id="clm.manage.listManage4_legalAdmin" isCamelCase="false">
+		<statement>
+    		<![CDATA[
+    		
+			SELECT 	TM.* /*, TD.CNSDMAN  */
+			FROM	(
+						SELECT * FROM DBO.[CLM.MANAGE.LISTMANAGE4_LEGALADMIN](
+											:vo.session_user_locale
+											, :vo.srch_review_title
+											, :vo.session_user_id
+											, :vo.srch_reqman_nm
+											, :vo.srch_start_reqday
+											, :vo.srch_end_reqday
+											, :vo.srch_cnsdman_nm
+											, :vo.srch_cntrt_no
+											, :vo.srch_cntrt_nm
+											, :vo.srch_respman_nm
+											, :vo.srch_resp_dept
+											, :vo.srch_step
+											, :vo.srch_start_cnlsnday
+											, :vo.srch_end_cnlsnday
+											, :vo.srch_state
+											, :vo.srch_oppnt_cd
+											, :vo.srch_biz_clsfcn
+											, :vo.srch_cnclsnpurps_bigclsfcn
+											, :vo.isExcelFlag
+											, :vo.start_index
+											, :vo.end_index
+											, :vo.comp_cd)
+
+					) TM /* LEFT OUTER JOIN (
+								SELECT S.CNSDREQ_ID, S.RESP_DEPT, 
+											CASE WHEN MAX(S.RESPMAN_CNT) > 1 THEN 
+												CASE WHEN :vo.session_user_locale = 'ko' THEN
+													MIN(S.RESPMAN_NM) + ' 외 ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' 명'
+												WHEN :vo.session_user_locale = 'fr' THEN
+													MIN(S.RESPMAN_NM) + ' et ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' Personne(s)'
+												WHEN :vo.session_user_locale = 'de' THEN
+													MIN(S.RESPMAN_NM) + ' und ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' Person(en)'
+												ELSE
+													MIN(S.RESPMAN_NM) + ' and ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' others'
+												END
+													ELSE ISNULL(MIN(S.RESPMAN_NM), '')
+											END AS CNSDMAN
+								FROM	(
+											SELECT RES.CNSDREQ_ID, RES.RESP_DEPT, RES.RESPMAN_NM, ISNULL(USR.USER_SRT, 999) AS USER_SRT, 
+														MIN(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS MIN_USER_SRT, 
+														COUNT(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS RESPMAN_CNT 
+											FROM TN_CLM_CONT_CNSDREQ_RESPMAN RES LEFT OUTER JOIN TB_COM_USER USR
+											ON RES.RESPMAN_ID = USR.USER_ID
+											)	S	
+								WHERE S.USER_SRT = S.MIN_USER_SRT					
+								GROUP BY S.CNSDREQ_ID, S.RESP_DEPT
+								) TD
+			ON TM.CNSDREQ_ID = TD.CNSDREQ_ID
+			AND	TM.MN_CNSD_DEPT = TD.RESP_DEPT		*/	
+			ORDER BY TM.REQ_DT DESC
+    		]]>
+  		</statement>	
+	</query> 
+	
+    <!-- MyApproval 리스트 => 의뢰별 : 2011.09.29 : 신남원 -->
+    <query id="clm.manage.listManageMyApproval1" isCamelCase="false">
+		<statement>
+    		<![CDATA[
+			SELECT TM.*, ISNULL(TD.CNSDMAN,'') CNSDMAN
+			FROM	(
+					SELECT * FROM DBO.[CLM.MANAGE.LISTMANAGEMYAPPROVAL1](
+									:vo.session_user_locale,
+									:vo.sElComp,
+									:vo.srch_review_title,
+									:vo.srch_reqman_nm,
+									:vo.srch_start_reqday,
+									:vo.srch_end_reqday,
+									:vo.srch_cnsdman_nm,
+									:vo.srch_cntrt_no,
+									:vo.srch_cntrt_nm,
+									:vo.srch_respman_nm,
+									:vo.srch_resp_dept,
+									:vo.menu_id,
+									:vo.srch_step,									
+									:vo.session_auth_comp_cd ,
+									#if (!$vo.srch_lMn_cnsd_dept.equals("") && $vo.srch_lMn_cnsd_dept != "null")
+									 	#foreach($Mn_cnsd_dept in $vo.srch_lMn_cnsd_dept)
+										    #if($velocityCount	== 1)
+										        '|$Mn_cnsd_dept|'
+										    #else
+										        '$Mn_cnsd_dept|'
+										    #end  
+										#end
+									#else
+										'',
+									#end
+									:vo.srch_start_cnlsnday,
+									:vo.srch_end_cnlsnday,
+									:vo.srch_str_org_acptday,
+									:vo.srch_end_org_acptday,
+									:vo.srch_state,									
+									:vo.srch_oppnt_cd,
+									:vo.srch_biz_clsfcn,
+									:vo.srch_cnclsnpurps_bigclsfcn,
+									:vo.top_role,
+									:vo.isOrgMgr,
+									:vo.srch_cntrt_trgt_det2,
+									:vo.srch_bfhdcstn_apbtman_nm,
+									:vo.srch_signman_nm ,
+									:vo.isExcelFlag,
+									:vo.start_index,
+									:vo.end_index
+						)
+					
+					) TM LEFT OUTER JOIN (
+								SELECT S.CNSDREQ_ID, S.RESP_DEPT, 
+											CASE WHEN MAX(S.RESPMAN_CNT) > 1 THEN 
+												CASE WHEN :vo.session_user_locale = 'ko' THEN
+													MIN(S.RESPMAN_NM) + '<br/>외 ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' 명'
+												WHEN :vo.session_user_locale = 'fr' THEN
+													MIN(S.RESPMAN_NM) + '<br/>et ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' Personne(s)'
+												WHEN :vo.session_user_locale = 'de' THEN
+													MIN(S.RESPMAN_NM) + '<br/>und ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' Person(en)'
+												ELSE
+													MIN(S.RESPMAN_NM) + '<br/>and ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' others'
+												END
+													ELSE ISNULL(MIN(S.RESPMAN_NM), '')
+											END AS CNSDMAN
+								FROM	(
+											SELECT RES.CNSDREQ_ID, RES.RESP_DEPT, RES.RESPMAN_NM, ISNULL(USR.USER_SRT, 999) AS USER_SRT, 
+														MIN(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS MIN_USER_SRT, 
+														COUNT(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS RESPMAN_CNT 
+											FROM TN_CLM_CONT_CNSDREQ_RESPMAN RES LEFT OUTER JOIN TB_COM_USER USR
+											ON RES.RESPMAN_ID = USR.USER_ID
+											)	S	
+								WHERE S.USER_SRT = S.MIN_USER_SRT					
+								GROUP BY S.CNSDREQ_ID, S.RESP_DEPT
+								) TD
+			ON TM.CNSDREQ_ID = TD.CNSDREQ_ID
+			AND	TM.MN_CNSD_DEPT = TD.RESP_DEPT			
+			ORDER BY TM.REQ_DT desc
+    		]]>
+  		</statement>	
+	</query>
+
+    <!-- MyApproval 리스트 => 계약별 : 2011.09.29 : 신남원 -->
+    <query id="clm.manage.listManageMyApproval2" isCamelCase="false">
+		<statement>
+    		<![CDATA[
+			SELECT 	TM.*, TD.CNSDMAN
+			FROM	(
+					SELECT RN, TOTAL_CNT, MN_CNSD_DEPT, REQ_DT, CNSDREQ_ID, CNTRT_ID, CNTRT_NM, CNTRT_OPPNT_NM, CNTRT_RESPMAN_NM, CNTRT_RESP_DEPT_NM, PRCS_DEPTH, DEPTH_STATUS, PRCS_DEPTH_NM, DEPTH_STATUS_NM, CNTRT_CNCLSNDAY,
+								(select dbo.LAS_CONT_CNSDREQ_RESPMAN_M(CNSDREQ_ID,', ','xx')); AS CNSDMANS /*xx : TB_COM_USER의 USER_NM 값으로 가져오기 위해*/
+					FROM	(
+							SELECT L.*, LD.RESP_DEPT, LD.RESPMAN_NM, LD.RESPMAN_ID,
+										row_number() OVER(PARTITION BY L.CNTRT_ID, L.CNSDREQ_ID, LD.RESP_DEPT ORDER BY LD.RESPMAN_NM) AS RD
+							FROM	(
+									SELECT 	M.*,
+											CASE WHEN :vo.session_user_locale= 'ko' THEN D1.CD_NM
+												 WHEN :vo.session_user_locale= 'fr' THEN D1.CD_NM_FRA
+												 WHEN :vo.session_user_locale= 'de' THEN D1.CD_NM_DEU
+														ELSE D1.CD_NM_ENG
+											END PRCS_DEPTH_NM,
+											CASE WHEN :vo.session_user_locale= 'ko' THEN D2.CD_NM
+											 	 WHEN :vo.session_user_locale= 'fr' THEN D2.CD_NM_FRA
+												 WHEN :vo.session_user_locale= 'de' THEN D2.CD_NM_DEU 
+														ELSE D2.CD_NM_ENG
+											END DEPTH_STATUS_NM
+									FROM	(				
+												SELECT T.*
+												FROM	(
+															SELECT ROWNUM RN, COUNT(1) OVER()  TOTAL_CNT, X.MN_CNSD_DEPT, X.REQ_DT, Y.*
+															FROM	(
+																		SELECT REQ.CNSDREQ_ID, REQ.MN_CNSD_DEPT, TO_CHAR(REQ_MAX.REQ_DT, 'YYYYMMDD') AS REQ_DT, REQ_MAX.REQ_DT AS REQDT
+         																  FROM TN_CLM_CONT_CNSDREQ REQ,
+																		      (SELECT FST_CNSDREQ_ID, MAX(CNSD_LEVEL) AS LVL, MIN(ISNULL(REQ_DT, REG_DT)) AS REQ_DT
+																		         FROM TN_CLM_CONT_CNSDREQ
+																		        WHERE DEL_YN = 'N'
+																		       GROUP BY FST_CNSDREQ_ID) REQ_MAX
+																		 WHERE REQ.FST_CNSDREQ_ID = REQ_MAX.FST_CNSDREQ_ID
+																		   AND REQ.CNSD_LEVEL = REQ_MAX.LVL
+																		   AND REQ.DEL_YN = 'N'
+																		/** 의뢰일자 **/																		/** 의뢰일자 **/
+																	#if(!$vo.srch_start_reqday.equals(""))
+																		AND		TO_CHAR(REQ.REQ_DT, 'YYYYMMDD') >= :vo.srch_start_reqday
+																	#end
+																	#if(!$vo.srch_end_reqday.equals(""))
+																		AND		TO_CHAR(REQ.REQ_DT, 'YYYYMMDD') <= :vo.srch_end_reqday
+																	#end
+																		/** 검토자 **/
+																	#if (!$vo.srch_cnsdman_nm.equals(""))
+																	 	AND		REQ.CNSDREQ_ID IN ( SELECT CNSDREQ_ID
+																									FROM	 TN_CLM_CONT_CNSDREQ_RESPMAN
+																									WHERE 	UPPER(RESPMAN_NM) LIKE '%' + :vo.srch_cnsdman_nm + '%'
+																									)
+																	#end																		
+																		) X, (
+																				SELECT 	CNSD.CNSDREQ_ID, MASTER.CNTRT_ID, MASTER.CNTRT_NM, MASTER.CNTRT_OPPNT_NM, MASTER.CNTRT_CNCLSNDAY,
+																						MASTER.CNTRT_RESPMAN_NM, MASTER.CNTRT_RESP_DEPT_NM, MASTER.PRCS_DEPTH, MASTER.DEPTH_STATUS
+																				FROM	TN_CLM_CONTRACT_CNSD CNSD, TN_CLM_CONTRACT_MASTER MASTER
+																				WHERE 	CNSD.CNTRT_ID = MASTER.CNTRT_ID
+																				AND		MASTER.DEL_YN = 'N'
+																				AND 	MASTER.CNTRT_INFO_GBN IN ('C05401', 'C05404')
+																				AND 	MASTER.CNTRT_STATUS < 'C02406'
+																				/** 계약명 **/
+																			#if(!$vo.srch_review_title.equals(""))
+																				AND		UPPER(MASTER.CNTRT_NM)  LIKE '%' + :vo.srch_review_title + '%'
+																			#end
+																				/** 담당자 **/
+																			#if(!$vo.srch_respman_nm.equals(""))
+																				AND		UPPER(MASTER.CNTRT_RESPMAN_NM)  LIKE '%' + :vo.srch_respman_nm + '%'
+																			#end
+																				/** 담당부서 **/
+																			#if (!$vo.srch_resp_dept.equals(""))
+																				AND		MASTER.CNTRT_RESP_UP_DEPT LIKE '%' + :vo.srch_resp_dept + '^%'
+																			#end																	
+																				/** 비즈니스단계**/
+																			#if (!$vo.srch_biz_clsfcn.equals(""))
+																				AND 	MASTER.BIZ_CLSFCN = :vo.srch_biz_clsfcn
+																			#end
+																				/** 체결목적 **/
+																			#if (!$vo.srch_cnclsnpurps_bigclsfcn.equals(""))	
+																				AND 	MASTER.CNCLSNPURPS_BIGCLSFCN = :vo.srch_cnclsnpurps_bigclsfcn	
+																			#end
+																				/** 계약단계 **/
+																			#if(!$vo.srch_step.equals(""))
+																				AND 	MASTER.PRCS_DEPTH = :vo.srch_step
+																			#end
+																				/** 계약상태 **/
+																			#if(!$vo.srch_state.equals(""))
+																				AND 	MASTER.DEPTH_STATUS = :vo.srch_state
+																			#end
+																				/** 계약상대방**/
+																			#if (!$vo.srch_oppnt_cd.equals(""))
+																				AND 	MASTER.CNTRT_OPPNT_CD = :vo.srch_oppnt_cd
+																			#end	
+																				/** 계약체결일**/																	
+																			#if(!$vo.srch_start_cnlsnday.equals(""))
+																				AND		MASTER.CNTRT_CNCLSNDAY >= :vo.srch_start_cnlsnday
+																			#end
+																			#if(!$vo.srch_end_cnlsnday.equals(""))
+																				AND		MASTER.CNTRT_CNCLSNDAY <= :vo.srch_end_cnlsnday
+																			#end																			
+																			#if ($vo.top_role.equals("C"))
+																			    AND		MASTER.REG_OPERDIV = :vo.session_blngt_orgnz
+																			    AND		MASTER.DEPTH_STATUS IN ('C02642', 'C02685', 'C02636')
+																			#end
+																			  ) Y
+															WHERE X.CNSDREQ_ID = Y.CNSDREQ_ID
+															ORDER BY X.REQDT DESC, X.CNSDREQ_ID DESC
+															) T
+												WHERE T.RN BETWEEN :vo.start_index AND :vo.end_index
+												) M , TB_COM_CD D1, TB_COM_CD D2
+									WHERE D1.SYS_CD = 'LAS'
+									--AND		D1.GRP_CD = 'C025'
+									AND		D1.CD = M.PRCS_DEPTH
+									AND		D2.SYS_CD = 'LAS'
+									--AND	  D2.GRP_CD = M.PRCS_DEPTH
+									AND		D2.CD = M.DEPTH_STATUS
+									) L, TN_CLM_CONT_CNSDREQ_RESPMAN LD
+							WHERE L.CNSDREQ_ID = LD.CNSDREQ_ID(+)
+							AND	L.MN_CNSD_DEPT = LD.RESP_DEPT(+)
+							) 
+					START WITH RD=1
+					CONNECT BY PRIOR RD = RD - 1 AND PRIOR RN = RN
+					GROUP BY RN, TOTAL_CNT, MN_CNSD_DEPT, REQ_DT, CNSDREQ_ID, CNTRT_ID, CNTRT_NM, CNTRT_OPPNT_NM, CNTRT_RESPMAN_NM, CNTRT_RESP_DEPT_NM, PRCS_DEPTH, DEPTH_STATUS, PRCS_DEPTH_NM, DEPTH_STATUS_NM, CNTRT_CNCLSNDAY
+					) TM, (
+								SELECT S.CNSDREQ_ID, S.RESP_DEPT, 
+											CASE WHEN MAX(S.RESPMAN_CNT) > 1 THEN 
+												CASE WHEN :vo.session_user_locale = 'ko' THEN
+													MIN(S.RESPMAN_NM) + ' 외 ' + TO_CHAR(MAX(S.RESPMAN_CNT) - 1) + ' 명'
+												WHEN :vo.session_user_locale = 'fr' THEN
+													MIN(S.RESPMAN_NM) + ' et ' + TO_CHAR(MAX(S.RESPMAN_CNT) - 1) + ' Personne(s)'
+												WHEN :vo.session_user_locale = 'de' THEN
+													MIN(S.RESPMAN_NM) + ' und ' + TO_CHAR(MAX(S.RESPMAN_CNT) - 1) + ' Person(en)'
+												ELSE
+													MIN(S.RESPMAN_NM) + ' and ' + TO_CHAR(MAX(S.RESPMAN_CNT) - 1) + ' others'
+												END
+													ELSE ISNULL(MIN(S.RESPMAN_NM), '')
+											END AS CNSDMAN
+								FROM	(
+											SELECT RES.CNSDREQ_ID, RES.RESP_DEPT, RES.RESPMAN_NM, ISNULL(USR.USER_SRT, 999) AS USER_SRT, 
+														MIN(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS MIN_USER_SRT, 
+														COUNT(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS RESPMAN_CNT 
+											FROM TN_CLM_CONT_CNSDREQ_RESPMAN RES, TB_COM_USER USR
+											WHERE RES.RESPMAN_ID = USR.USER_ID(+)
+											)	S	
+								WHERE S.USER_SRT = S.MIN_USER_SRT					
+								GROUP BY S.CNSDREQ_ID, S.RESP_DEPT
+								) TD
+			WHERE TM.CNSDREQ_ID = TD.CNSDREQ_ID(+)
+			AND	TM.MN_CNSD_DEPT = TD.RESP_DEPT(+)			
+			ORDER BY TM.REQ_DT DESC
+    		]]>
+  		</statement>	
+	</query>
+	
+    <!-- 계약서담당자변경 리스트 => 의뢰별 : 2011.09.29 : 신남원 -->
+    <query id="clm.manage.listManageRequest1" isCamelCase="false">
+		<statement>
+    		<![CDATA[
+			SELECT TM.*, TD.CNSDMAN
+			FROM	(
+					SELECT RN, TOTAL_CNT, CNSDREQ_ID, REQ_TITLE, MN_CNSD_DEPT, REQMAN_NM, REQ_DT, CNTRT_ID, CNTRT_CNT, CNTRT_RESPMAN_NM, CNTRT_RESP_DEPT_NM, CNTRT_OPPNT_NM, PRCS_DEPTH, DEPTH_STATUS, PRCS_DEPTH_NM, DEPTH_STATUS_NM,
+								(select dbo.LAS_CONT_CNSDREQ_RESPMAN_M(CNSDREQ_ID,', ','xx')); AS CNSDMANS /*xx : TB_COM_USER의 USER_NM 값으로 가져오기 위해*/
+					FROM	(
+							SELECT L.*, LD.RESP_DEPT, LD.RESPMAN_NM, LD.RESPMAN_ID,
+										row_number() OVER(PARTITION BY L.CNSDREQ_ID, LD.RESP_DEPT ORDER BY LD.RESPMAN_NM) AS RD
+							FROM	(
+										SELECT	M.*, D.CNTRT_RESPMAN_NM, D.CNTRT_RESP_DEPT_NM, D.CNTRT_OPPNT_NM, D.PRCS_DEPTH, D.DEPTH_STATUS,
+												CASE WHEN :vo.session_user_locale= 'ko' THEN D1.CD_NM
+													 WHEN :vo.session_user_locale= 'fr' THEN D1.CD_NM_FRA
+													 WHEN :vo.session_user_locale= 'de' THEN D1.CD_NM_DEU
+															ELSE D1.CD_NM_ENG
+												END PRCS_DEPTH_NM,
+												CASE WHEN :vo.session_user_locale= 'ko' THEN D2.CD_NM 
+													 WHEN :vo.session_user_locale= 'fr' THEN D2.CD_NM_FRA
+													 WHEN :vo.session_user_locale= 'de' THEN D2.CD_NM_DEU
+															ELSE D2.CD_NM_ENG
+												END  CD_NM
+												+
+												CASE WHEN D.DEPTH_STATUS IN ('C02606', 'C02608')
+															THEN 
+																CASE WHEN :vo.session_user_locale = 'ko' THEN
+																	CASE WHEN M.PLNDBN_REQ_YN = 'Y'
+																		THEN '(최종)'
+																		ELSE '(' +CAST(M.LVL AS NVARCHAR) + '차)'
+																 	END
+																 ELSE
+																 	CASE WHEN M.PLNDBN_REQ_YN = 'Y'
+																		THEN '(Final)'
+																		ELSE 
+																			CASE WHEN M.LVL = '1' THEN '(' + CAST(M.LVL AS NVARCHAR) + 'st)'
+																				 WHEN M.LVL = '2' THEN '(' + CAST(M.LVL AS NVARCHAR) + 'nd)'
+																				 WHEN M.LVL = '3' THEN '(' + CAST(M.LVL AS NVARCHAR) + 'rd)'
+																				 ELSE '(' + CAST(M.LVL AS NVARCHAR) + 'th)'
+																			END
+																 	END
+																 END
+															ELSE ''
+												END
+												AS DEPTH_STATUS_NM
+										FROM	(
+												SELECT T.*
+												FROM	(
+															SELECT ROWNUM RN, COUNT(1) OVER()  TOTAL_CNT, X.*, Y.CNTRT_ID, Y.CNTRT_CNT
+															FROM	(
+																		SELECT REQ.CNSDREQ_ID, REQ.REQ_TITLE, REQ.MN_CNSD_DEPT, REQ.REQMAN_NM, TO_CHAR(REQ_MAX.REQ_DT, 'YYYYMMDD') AS REQ_DT, REQ_MAX.REQ_DT AS REQDT,
+																		       REQ.PLNDBN_REQ_YN, REQ_MAX.LVL
+																		  FROM TN_CLM_CONT_CNSDREQ REQ,
+																		      (SELECT FST_CNSDREQ_ID, MAX(CNSD_LEVEL) AS LVL, MIN(ISNULL(REQ_DT, REG_DT)) AS REQ_DT
+																		         FROM TN_CLM_CONT_CNSDREQ
+																		        WHERE DEL_YN = 'N'
+																		       GROUP BY FST_CNSDREQ_ID) REQ_MAX
+																		 WHERE REQ.FST_CNSDREQ_ID = REQ_MAX.FST_CNSDREQ_ID
+																		   AND REQ.CNSD_LEVEL = REQ_MAX.LVL
+																		   AND REQ.DEL_YN = 'N'
+																		/** 의뢰명 **/
+																	#if(!$vo.srch_review_title.equals(""))
+																		AND		UPPER(REQ.REQ_TITLE)  LIKE '%' + :vo.srch_review_title + '%'
+																	#end
+																		/** 의뢰자 **/
+																	#if(!$vo.srch_reqman_nm.equals(""))
+																		AND		UPPER(REQ.REQMAN_NM)  LIKE '%' + :vo.srch_reqman_nm + '%'
+																	#end
+																		/** 의뢰일자 **/
+																	#if(!$vo.srch_start_reqday.equals(""))
+																		AND		TO_CHAR(REQ.REQ_DT, 'YYYYMMDD') >= :vo.srch_start_reqday
+																	#end
+																	#if(!$vo.srch_end_reqday.equals(""))
+																		AND		TO_CHAR(REQ.REQ_DT, 'YYYYMMDD') <= :vo.srch_end_reqday
+																	#end
+																		/** 검토자 **/
+																	#if (!$vo.srch_cnsdman_nm.equals(""))
+																	 	AND		REQ.CNSDREQ_ID IN ( SELECT CNSDREQ_ID
+																									FROM	 TN_CLM_CONT_CNSDREQ_RESPMAN
+																									WHERE 	UPPER(RESPMAN_NM) LIKE '%' + :vo.srch_cnsdman_nm + '%'
+																								)
+																	#end
+																		) X, (
+																				SELECT CNSDREQ_ID, MIN(CNTRT_ID) AS CNTRT_ID, COUNT(CNTRT_ID) AS CNTRT_CNT
+																				FROM	(
+																						SELECT  Z1.CNSDREQ_ID, Z1.CNTRT_ID
+																						FROM	(
+																								SELECT 	CNSD.CNSDREQ_ID, MASTER.CNTRT_ID, MASTER.CNTRT_NM
+																								FROM	TN_CLM_CONTRACT_CNSD CNSD, TN_CLM_CONTRACT_MASTER MASTER
+																								WHERE 	CNSD.CNTRT_ID = MASTER.CNTRT_ID
+																								AND		MASTER.DEL_YN = 'N'
+																								AND 	(MASTER.CNTRT_INFO_GBN IN ('C05401')
+																								         OR (MASTER.CNTRT_INFO_GBN IN ('C05404')
+																								             AND MASTER.PRCS_DEPTH IN ('C02504', 'C02505')))
+																								AND 	MASTER.CNTRT_STATUS < 'C02406'
+																								/** 담당자 **/
+																							#if(!$vo.srch_respman_nm.equals(""))
+																								AND		UPPER(MASTER.CNTRT_RESPMAN_NM)  LIKE '%' + :vo.srch_respman_nm + '%'
+																							#end
+																								/** 담당부서 **/
+																							#if (!$vo.srch_resp_dept.equals(""))
+																								AND		MASTER.CNTRT_RESP_UP_DEPT LIKE '%' + :vo.srch_resp_dept + '^%'
+																							#end
+																								/** 계약단계 **/
+																							#if(!$vo.srch_step.equals(""))
+																								AND 	MASTER.PRCS_DEPTH = :vo.srch_step
+																							#end
+																								/** 계약상태 **/
+																							#if(!$vo.srch_state.equals(""))
+																								AND 	MASTER.DEPTH_STATUS = :vo.srch_state
+																							#end
+																								/** 계약상대방**/
+																							#if (!$vo.srch_oppnt_cd.equals(""))
+																								AND 	MASTER.CNTRT_OPPNT_CD = :vo.srch_oppnt_cd
+																							#end	
+																							#if (!$vo.srch_demand_gbn.equals("T"))
+																								AND		MASTER.CNTRT_RESPMAN_ID = :vo.session_user_id
+																							#end
+																								AND 	MASTER.REG_OPERDIV = :vo.session_blngt_orgnz
+																							) Z1, (
+																									SELECT  CNTRT_ID, DEMND_STATUS
+																									FROM	TN_CLM_CONTRACT_AUTHREQ 
+																									WHERE 	DEMND_GBN = 'C04602'
+																									AND		DEMND_STATUS NOT IN ('C03702', 'C03703')
+																									AND		DEL_YN = 'N'
+																									/** 변경요청가능 목록 **/
+																								#if ($vo.srch_demand_gbn.equals("D"))
+																									AND		DEMNDMAN_ID = :vo.session_user_id
+																									/** 변경요청중인 목록 **/
+																								#elseif ($vo.srch_demand_gbn.equals("E"))
+																									AND		DEMNDMAN_ID = :vo.session_user_id
+																									AND		DEMND_STATUS = 'C03701'
+																									/** 변경요청 승인할 목록 **/ 
+																								#elseif ($vo.srch_demand_gbn.equals("T"))
+																									AND 	TRGTMAN_ID = :vo.session_user_id
+																									AND		DEMND_STATUS = 'C03701'	
+																								#end																							
+																								  ) Z2
+																				/** 변경요청가능 목록 **/
+																				#if ($vo.srch_demand_gbn.equals("D"))
+																						WHERE 	Z1.CNTRT_ID = Z2.CNTRT_ID(+)
+																						AND		Z2.DEMND_STATUS IS NULL
+																				/** 변경요청 승인할 목록 **/ 
+																				#elseif ($vo.srch_demand_gbn.equals("E"))
+																						WHERE 	Z1.CNTRT_ID = Z2.CNTRT_ID
+																				/** 변경요청중인 목록 **/
+																				#elseif ($vo.srch_demand_gbn.equals("T"))
+																						WHERE 	Z1.CNTRT_ID = Z2.CNTRT_ID
+																				#end
+																						)
+																				GROUP BY CNSDREQ_ID
+																				) Y
+															WHERE X.CNSDREQ_ID = Y.CNSDREQ_ID
+															ORDER BY X.REQDT DESC, X.CNSDREQ_ID DESC
+															) T
+												WHERE T.RN BETWEEN :vo.start_index AND :vo.end_index
+												) M, TN_CLM_CONTRACT_MASTER D, TB_COM_CD D1, TB_COM_CD D2
+									WHERE M.CNTRT_ID = D.CNTRT_ID
+									--AND		D1.GRP_CD = 'C025'
+									AND		D1.SYS_CD = 'LAS'
+									AND		D1.CD = D.PRCS_DEPTH
+									AND		D2.SYS_CD = 'LAS'
+									--AND	  D2.GRP_CD = D.PRCS_DEPTH
+									AND		D2.CD = D.DEPTH_STATUS
+									) L, TN_CLM_CONT_CNSDREQ_RESPMAN LD
+							WHERE L.CNSDREQ_ID = LD.CNSDREQ_ID(+)
+							AND	L.MN_CNSD_DEPT = LD.RESP_DEPT(+)
+							) 
+					START WITH RD=1
+					CONNECT BY PRIOR RD = RD - 1 AND PRIOR RN = RN
+					GROUP BY RN, TOTAL_CNT, CNSDREQ_ID, REQ_TITLE, MN_CNSD_DEPT, REQMAN_NM, REQ_DT, CNTRT_ID, CNTRT_CNT, CNTRT_RESPMAN_NM, CNTRT_RESP_DEPT_NM, CNTRT_OPPNT_NM, PRCS_DEPTH, DEPTH_STATUS, PRCS_DEPTH_NM, DEPTH_STATUS_NM
+					) TM, (
+								SELECT S.CNSDREQ_ID, S.RESP_DEPT, 
+											CASE WHEN MAX(S.RESPMAN_CNT) > 1 THEN 
+												CASE WHEN :vo.session_user_locale = 'ko' THEN
+													MIN(S.RESPMAN_NM) + ' 외 ' + TO_CHAR(MAX(S.RESPMAN_CNT) - 1) + ' 명'
+												WHEN :vo.session_user_locale = 'fr' THEN
+													MIN(S.RESPMAN_NM) + ' et ' + TO_CHAR(MAX(S.RESPMAN_CNT) - 1) + ' Personne(s)'
+												WHEN :vo.session_user_locale = 'de' THEN
+													MIN(S.RESPMAN_NM) + ' und ' + TO_CHAR(MAX(S.RESPMAN_CNT) - 1) + ' Person(en)'
+												ELSE
+													MIN(S.RESPMAN_NM) + ' and ' + TO_CHAR(MAX(S.RESPMAN_CNT) - 1) + ' others'
+												END
+													ELSE ISNULL(MIN(S.RESPMAN_NM), '')
+											END AS CNSDMAN
+								FROM	(
+											SELECT RES.CNSDREQ_ID, RES.RESP_DEPT, RES.RESPMAN_NM, ISNULL(USR.USER_SRT, 999) AS USER_SRT, 
+														MIN(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS MIN_USER_SRT, 
+														COUNT(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS RESPMAN_CNT 
+											FROM TN_CLM_CONT_CNSDREQ_RESPMAN RES, TB_COM_USER USR
+											WHERE RES.RESPMAN_ID = USR.USER_ID(+)
+											)	S	
+								WHERE S.USER_SRT = S.MIN_USER_SRT					
+								GROUP BY S.CNSDREQ_ID, S.RESP_DEPT
+								) TD
+			WHERE TM.CNSDREQ_ID = TD.CNSDREQ_ID(+)
+			AND	TM.MN_CNSD_DEPT = TD.RESP_DEPT(+)			
+			ORDER BY TM.REQ_DT DESC
+    		]]>
+  		</statement>	
+	</query>
+	
+    <!-- 계약서담당자변경 리스트 => 계약별 : 2011.09.29 : 신남원 -->
+    <query id="clm.manage.listManageRequest2" isCamelCase="false">
+		<statement>
+    		<![CDATA[
+			SELECT 	TM.*, TD.CNSDMAN
+			FROM	(
+					SELECT RN, TOTAL_CNT, MN_CNSD_DEPT, REQ_DT, CNSDREQ_ID, CNTRT_ID, CNTRT_NM, CNTRT_OPPNT_NM, CNTRT_RESPMAN_NM, CNTRT_RESP_DEPT_NM, PRCS_DEPTH, DEPTH_STATUS, PRCS_DEPTH_NM, DEPTH_STATUS_NM, CNTRT_CNCLSNDAY,
+								SUBSTRING(MAX(SYS_CONNECT_BY_PATH(RESPMAN_NM, ', ')), 2) AS CNSDMANS
+					FROM	(
+							SELECT L.*, LD.RESP_DEPT, LD.RESPMAN_NM, LD.RESPMAN_ID,
+										row_number() OVER(PARTITION BY L.CNTRT_ID, L.CNSDREQ_ID, LD.RESP_DEPT ORDER BY LD.RESPMAN_NM) AS RD
+							FROM	(
+									SELECT 	M.*,
+											CASE WHEN :vo.session_user_locale= 'ko' THEN D1.CD_NM
+											 	 WHEN :vo.session_user_locale= 'fr' THEN D1.CD_NM_FRA
+											 	 WHEN :vo.session_user_locale= 'de' THEN D1.CD_NM_DEU
+														ELSE D1.CD_NM_ENG
+											END PRCS_DEPTH_NM,
+											CASE WHEN :vo.session_user_locale= 'ko' THEN D2.CD_NM 
+												 WHEN :vo.session_user_locale= 'fr' THEN D2.CD_NM_FRA
+												 WHEN :vo.session_user_locale= 'de' THEN D2.CD_NM_DEU
+														ELSE D2.CD_NM_ENG
+											END
+											+
+											CASE WHEN M.DEPTH_STATUS IN ('C02606', 'C02608')
+														THEN 
+															CASE WHEN :vo.session_user_locale = 'ko' THEN
+																	CASE WHEN M.PLNDBN_REQ_YN = 'Y'
+																		THEN '(최종)'
+																		ELSE '(' + CAST(M.LVL AS NVARCHAR) + '차)'
+																 	END
+																 ELSE
+																 	CASE WHEN M.PLNDBN_REQ_YN = 'Y'
+																		THEN '(Final)'
+																		ELSE 
+																			CASE WHEN M.LVL = '1' THEN '(' +CAST(M.LVL AS NVARCHAR) + 'st)'
+																				 WHEN M.LVL = '2' THEN '(' +CAST(M.LVL AS NVARCHAR) + 'nd)'
+																				 WHEN M.LVL = '3' THEN '(' + CAST(M.LVL AS NVARCHAR) + 'rd)'
+																				 ELSE '(' + CAST(M.LVL AS NVARCHAR) + 'th)'
+																			END
+																 	END
+																 END
+															ELSE ''
+											END
+											AS DEPTH_STATUS_NM
+									FROM	(				
+												SELECT T.*
+												FROM	(
+															SELECT ROWNUM RN, COUNT(1) OVER()  TOTAL_CNT, X.MN_CNSD_DEPT, X.REQ_DT, X.PLNDBN_REQ_YN, X.LVL, Y.*
+															FROM	(
+																		SELECT REQ.CNSDREQ_ID, REQ.MN_CNSD_DEPT, TO_CHAR(REQ_MAX.REQ_DT, 'YYYYMMDD') AS REQ_DT, REQ_MAX.REQ_DT AS REQDT,
+																		       REQ.PLNDBN_REQ_YN, REQ_MAX.LVL
+																		  FROM TN_CLM_CONT_CNSDREQ REQ,
+																		      (SELECT FST_CNSDREQ_ID, MAX(CNSD_LEVEL) AS LVL, MIN(ISNULL(REQ_DT, REG_DT)) AS REQ_DT
+																		         FROM TN_CLM_CONT_CNSDREQ
+																		        WHERE DEL_YN = 'N'
+																		       GROUP BY FST_CNSDREQ_ID) REQ_MAX
+																		 WHERE REQ.FST_CNSDREQ_ID = REQ_MAX.FST_CNSDREQ_ID
+																		   AND REQ.CNSD_LEVEL = REQ_MAX.LVL
+																		   AND REQ.DEL_YN = 'N'
+																		/** 의뢰일자 **/																		/** 의뢰일자 **/
+																	#if(!$vo.srch_start_reqday.equals(""))
+																		AND		TO_CHAR(REQ.REQ_DT, 'YYYYMMDD') >= :vo.srch_start_reqday
+																	#end
+																	#if(!$vo.srch_end_reqday.equals(""))
+																		AND		TO_CHAR(REQ.REQ_DT, 'YYYYMMDD') <= :vo.srch_end_reqday
+																	#end																		
+																		/** 검토자 **/
+																	#if (!$vo.srch_cnsdman_nm.equals(""))
+																	 	AND		REQ.CNSDREQ_ID IN ( SELECT CNSDREQ_ID
+																									FROM	 TN_CLM_CONT_CNSDREQ_RESPMAN
+																									WHERE 	UPPER(RESPMAN_NM) LIKE '%' + :vo.srch_cnsdman_nm + '%'
+																									)
+																	#end																		
+																		) X, (
+																				SELECT Z1.*
+																				FROM	(
+																						SELECT 	CNSD.CNSDREQ_ID, MASTER.CNTRT_ID, MASTER.CNTRT_NM, MASTER.CNTRT_OPPNT_NM, MASTER.CNTRT_CNCLSNDAY,
+																								MASTER.CNTRT_RESPMAN_NM, MASTER.CNTRT_RESP_DEPT_NM, MASTER.PRCS_DEPTH, MASTER.DEPTH_STATUS
+																						FROM	TN_CLM_CONTRACT_CNSD CNSD, TN_CLM_CONTRACT_MASTER MASTER
+																						WHERE 	CNSD.CNTRT_ID = MASTER.CNTRT_ID
+																						AND		MASTER.DEL_YN = 'N'
+																						AND 	(MASTER.CNTRT_INFO_GBN IN ('C05401')
+																						         OR (MASTER.CNTRT_INFO_GBN IN ('C05404')
+																						             AND MASTER.PRCS_DEPTH IN ('C02504', 'C02505')))
+																						AND 	MASTER.CNTRT_STATUS < 'C02406'
+																						/** 계약명 **/
+																					#if(!$vo.srch_review_title.equals(""))
+																						AND		UPPER(MASTER.CNTRT_NM)  LIKE '%' + :vo.srch_review_title + '%'
+																					#end
+																						/** 담당자 **/
+																					#if(!$vo.srch_respman_nm.equals(""))
+																						AND		UPPER(MASTER.CNTRT_RESPMAN_NM)  LIKE '%' + :vo.srch_respman_nm + '%'
+																					#end
+																						/** 담당부서 **/
+																					#if (!$vo.srch_resp_dept.equals(""))
+																						AND		MASTER.CNTRT_RESP_UP_DEPT LIKE '%' + :vo.srch_resp_dept + '^%'
+																					#end																	
+																						/** 비즈니스단계**/
+																					#if (!$vo.srch_biz_clsfcn.equals(""))
+																						AND 	MASTER.BIZ_CLSFCN = :vo.srch_biz_clsfcn
+																					#end
+																						/** 체결목적 **/
+																					#if (!$vo.srch_cnclsnpurps_bigclsfcn.equals(""))	
+																						AND 	MASTER.CNCLSNPURPS_BIGCLSFCN = :vo.srch_cnclsnpurps_bigclsfcn	
+																					#end
+																						/** 계약단계 **/
+																					#if(!$vo.srch_step.equals(""))
+																						AND 	MASTER.PRCS_DEPTH = :vo.srch_step
+																					#end
+																						/** 계약상태 **/
+																					#if(!$vo.srch_state.equals(""))
+																						AND 	MASTER.DEPTH_STATUS = :vo.srch_state
+																					#end
+																						/** 계약상대방**/
+																					#if (!$vo.srch_oppnt_cd.equals(""))
+																						AND 	MASTER.CNTRT_OPPNT_CD = :vo.srch_oppnt_cd
+																					#end	
+																						/** 계약체결일**/																	
+																					#if(!$vo.srch_start_cnlsnday.equals(""))
+																						AND		MASTER.CNTRT_CNCLSNDAY >= :vo.srch_start_cnlsnday
+																					#end
+																					#if(!$vo.srch_end_cnlsnday.equals(""))
+																						AND		MASTER.CNTRT_CNCLSNDAY <= :vo.srch_end_cnlsnday
+																					#end																					
+																					#if (!$vo.srch_demand_gbn.equals("T"))
+																						AND		MASTER.CNTRT_RESPMAN_ID = :vo.session_user_id
+																					#end	
+																						AND 	MASTER.REG_OPERDIV = :vo.session_blngt_orgnz																				
+																						)Z1, (
+																								SELECT  CNTRT_ID, DEMND_STATUS
+																								FROM	TN_CLM_CONTRACT_AUTHREQ 
+																								WHERE 	DEMND_GBN = 'C04602'
+																								AND		DEMND_STATUS NOT IN ('C03702', 'C03703')
+																								AND		DEL_YN = 'N'
+																								/** 변경요청가능 목록 **/
+																							#if ($vo.srch_demand_gbn.equals("D"))
+																								AND		DEMNDMAN_ID = :vo.session_user_id
+																								/** 변경요청중인 목록 **/
+																							#elseif ($vo.srch_demand_gbn.equals("E"))
+																								AND		DEMNDMAN_ID = :vo.session_user_id
+																								AND		DEMND_STATUS = 'C03701'
+																								/** 변경요청 승인할 목록 **/ 
+																							#elseif ($vo.srch_demand_gbn.equals("T"))
+																								AND 	TRGTMAN_ID = :vo.session_user_id
+																								AND		DEMND_STATUS = 'C03701'	
+																							#end																						
+																							 ) Z2
+																		/** 변경요청가능 목록 **/
+																		#if ($vo.srch_demand_gbn.equals("D"))
+																				WHERE 	Z1.CNTRT_ID = Z2.CNTRT_ID(+)
+																				AND		Z2.DEMND_STATUS IS NULL
+																		/** 변경요청 승인할 목록 **/ 
+																		#elseif ($vo.srch_demand_gbn.equals("E"))
+																				WHERE 	Z1.CNTRT_ID = Z2.CNTRT_ID
+																		/** 변경요청중인 목록 **/
+																		#elseif ($vo.srch_demand_gbn.equals("T"))
+																				WHERE 	Z1.CNTRT_ID = Z2.CNTRT_ID
+																		#end
+																				) Y
+															WHERE X.CNSDREQ_ID = Y.CNSDREQ_ID
+															ORDER BY X.REQDT DESC, X.CNSDREQ_ID DESC
+															) T
+												WHERE T.RN BETWEEN :vo.start_index AND :vo.end_index
+												) M , TB_COM_CD D1, TB_COM_CD D2
+									WHERE 	D1.SYS_CD = 'LAS'
+									--AND		D1.GRP_CD = 'C025'
+									AND		D1.CD = M.PRCS_DEPTH
+									AND		D2.SYS_CD = 'LAS'
+									--AND	  	D2.GRP_CD = M.PRCS_DEPTH
+									AND		D2.CD = M.DEPTH_STATUS
+									) L, TN_CLM_CONT_CNSDREQ_RESPMAN LD
+							WHERE L.CNSDREQ_ID = LD.CNSDREQ_ID(+)
+							AND	L.MN_CNSD_DEPT = LD.RESP_DEPT(+)
+							) 
+					START WITH RD=1
+					CONNECT BY PRIOR RD = RD - 1 AND PRIOR RN = RN
+					GROUP BY RN, TOTAL_CNT, MN_CNSD_DEPT, REQ_DT, CNSDREQ_ID, CNTRT_ID, CNTRT_NM, CNTRT_OPPNT_NM, CNTRT_RESPMAN_NM, CNTRT_RESP_DEPT_NM, PRCS_DEPTH, DEPTH_STATUS, PRCS_DEPTH_NM, DEPTH_STATUS_NM, CNTRT_CNCLSNDAY
+					) TM, (
+								SELECT S.CNSDREQ_ID, S.RESP_DEPT, 
+											CASE WHEN MAX(S.RESPMAN_CNT) > 1 THEN 
+												CASE WHEN :vo.session_user_locale = 'ko' THEN
+													MIN(S.RESPMAN_NM) + ' 외 ' + TO_CHAR(MAX(S.RESPMAN_CNT) - 1) + ' 명'
+												WHEN :vo.session_user_locale = 'fr' THEN
+													MIN(S.RESPMAN_NM) + ' et ' + TO_CHAR(MAX(S.RESPMAN_CNT) - 1) + ' Personne(s)'
+												WHEN :vo.session_user_locale = 'de' THEN
+													MIN(S.RESPMAN_NM) + ' und ' + TO_CHAR(MAX(S.RESPMAN_CNT) - 1) + ' Person(en)'
+												ELSE
+													MIN(S.RESPMAN_NM) + ' and ' + TO_CHAR(MAX(S.RESPMAN_CNT) - 1) + ' others'
+												END
+													ELSE ISNULL(MIN(S.RESPMAN_NM), '')
+											END AS CNSDMAN
+								FROM	(
+											SELECT RES.CNSDREQ_ID, RES.RESP_DEPT, RES.RESPMAN_NM, ISNULL(USR.USER_SRT, 999) AS USER_SRT, 
+														MIN(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS MIN_USER_SRT, 
+														COUNT(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS RESPMAN_CNT 
+											FROM TN_CLM_CONT_CNSDREQ_RESPMAN RES, TB_COM_USER USR
+											WHERE RES.RESPMAN_ID = USR.USER_ID(+)
+											)	S	
+								WHERE S.USER_SRT = S.MIN_USER_SRT					
+								GROUP BY S.CNSDREQ_ID, S.RESP_DEPT
+								) TD
+			WHERE TM.CNSDREQ_ID = TD.CNSDREQ_ID(+)
+			AND	TM.MN_CNSD_DEPT = TD.RESP_DEPT(+)			
+			ORDER BY TM.REQ_DT desc
+    		]]>
+  		</statement>	
+	</query>	
+	
+    <!-- 준법지원 및 부서장의 계약서담당자변경 리스트 => 의뢰별 : 2011.12.05 : 최준영 : clm.manage.listManageRequest1 쿼리 참조하여 만듬. -->
+    <query id="clm.manage.listManageChange1" isCamelCase="false">
+		<statement>
+    		<![CDATA[
+			SELECT TM.* ,TD.CNSDMAN
+			  FROM (
+			         SELECT * FROM DBO.[CLM.MANAGE.LISTMANAGECHANGE1](
+			         		:vo.session_user_locale
+							,:vo.srch_review_title
+							,:vo.sElComp
+							,:vo.session_user_id
+							,:vo.srch_reqman_nm
+							,:vo.srch_start_reqday
+							,:vo.srch_end_reqday
+							,:vo.srch_cnsdman_nm
+							,:vo.srch_cntrt_no
+							,:vo.srch_respman_nm
+							,:vo.srch_resp_dept
+							,:vo.srch_step
+							,:vo.srch_start_cnlsnday
+							,:vo.srch_end_cnlsnday
+							,:vo.srch_state
+							,:vo.session_auth_comp_cd
+							,:vo.srch_oppnt_cd
+							,:vo.srch_biz_clsfcn
+							,:vo.srch_cnclsnpurps_bigclsfcn
+							,:vo.isExcelFlag
+							,:vo.start_index
+							,:vo.end_index
+							,:vo.request_Yn
+							,:vo.srch_str_org_acptday
+							,:vo.srch_end_org_acptday
+					 )
+			       ) TM LEFT OUTER JOIN
+			      (
+			         SELECT CNSDREQ_ID ,RESP_DEPT
+			               ,CASE WHEN MAX(RESPMAN_CNT) > 1
+			                          THEN 
+			                          	CASE WHEN :vo.session_user_locale = 'ko' THEN
+											MIN(RESPMAN_NM) + ' 외 ' + CAST((MAX(RESPMAN_CNT) - 1) AS NVARCHAR) + ' 명'
+										WHEN :vo.session_user_locale = 'fr' THEN
+											MIN(RESPMAN_NM) + ' et ' + CAST((MAX(RESPMAN_CNT) - 1) AS NVARCHAR) + ' Personne(s)'
+										WHEN :vo.session_user_locale = 'de' THEN
+											MIN(RESPMAN_NM) + ' und ' + CAST((MAX(RESPMAN_CNT) - 1) AS NVARCHAR) + ' Person(en)'
+										ELSE
+											MIN(RESPMAN_NM) + ' and ' + CAST((MAX(RESPMAN_CNT) - 1) AS NVARCHAR) + ' others'
+										END
+			                          ELSE ISNULL(MIN(RESPMAN_NM), ' ')
+			                END AS CNSDMAN
+			           FROM (
+			                  SELECT RES.CNSDREQ_ID ,RES.RESP_DEPT ,RES.RESPMAN_NM ,ISNULL(USR.USER_SRT, 999) AS USER_SRT
+			                        ,MIN(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS MIN_USER_SRT
+			                        ,COUNT(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS RESPMAN_CNT
+			                    FROM TN_CLM_CONT_CNSDREQ_RESPMAN RES LEFT OUTER JOIN
+			                        TB_COM_USER USR
+			                   ON RES.RESPMAN_ID = USR.USER_ID
+			                ) SA
+			          WHERE USER_SRT = MIN_USER_SRT
+			          GROUP BY CNSDREQ_ID, RESP_DEPT
+			       ) TD
+			 ON TM.CNSDREQ_ID = TD.CNSDREQ_ID
+			   AND TM.MN_CNSD_DEPT = TD.RESP_DEPT
+			 ORDER BY TM.REQ_DT desc
+    		]]>
+  		</statement>	
+	</query>
+	
+    <!-- 준법지원 및 부서장의 계약서담당자변경 리스트 => 계약별 : 2011.12.05 : 최준영 : clm.manage.listManageRequest2 쿼리 참조하여 만듬. -->
+    <query id="clm.manage.listManageChange2" isCamelCase="false">
+		<statement>
+    		<![CDATA[
+SELECT TM.* ,TD.CNSDMAN
+  FROM (
+         SELECT RN ,TOTAL_CNT ,MN_CNSD_DEPT ,REQ_DT ,CNSDREQ_ID ,CNTRT_ID ,CNTRT_NM ,CNTRT_OPPNT_NM ,CNTRT_RESPMAN_NM ,CNTRT_RESP_DEPT_NM
+               ,PRCS_DEPTH ,DEPTH_STATUS ,PRCS_DEPTH_NM ,DEPTH_STATUS_NM 
+               ,(select dbo.LAS_CONT_CNSDREQ_RESPMAN_M(CNSDREQ_ID,', ','xx')) AS CNSDMANS /*xx : TB_COM_USER의 USER_NM 값으로 가져오기 위해*/
+               ,CNTRT_CNCLSNDAY
+           FROM (
+                  SELECT L.* ,LD.RESP_DEPT ,LD.RESPMAN_NM ,LD.RESPMAN_ID
+                        ,ROW_NUMBER() OVER(PARTITION BY L.CNTRT_ID, L.CNSDREQ_ID, LD.RESP_DEPT ORDER BY LD.RESPMAN_NM) AS RD
+                    FROM (
+                           SELECT M.*
+                                 ,CASE WHEN :vo.session_user_locale= 'ko' THEN D1.CD_NM 
+                                 	   WHEN :vo.session_user_locale= 'fr' THEN D1.CD_NM_FRA
+                                 	   WHEN :vo.session_user_locale= 'de' THEN D1.CD_NM_DEU
+                                 	   ELSE D1.CD_NM_ENG END PRCS_DEPTH_NM
+                                 ,CASE WHEN :vo.session_user_locale= 'ko' THEN D2.CD_NM 
+                                 	   WHEN :vo.session_user_locale= 'fr' THEN D2.CD_NM_FRA
+                                 	   WHEN :vo.session_user_locale= 'de' THEN D2.CD_NM_DEU
+                                 	   ELSE D2.CD_NM_ENG END
+                                  +
+                                  CASE WHEN M.DEPTH_STATUS IN ('C02606', 'C02608')
+                                  			THEN 
+                                  				CASE WHEN :vo.session_user_locale = 'ko' THEN
+																	CASE WHEN M.PLNDBN_REQ_YN = 'Y'
+																		THEN '(최종)'
+																		ELSE '(' + CAST(M.LVL AS NVARCHAR) + '차)'
+																 	END
+																 ELSE
+																 	CASE WHEN M.PLNDBN_REQ_YN = 'Y'
+																		THEN '(Final)'
+																		ELSE 
+																			CASE WHEN M.LVL = '1' THEN '(' +CAST(M.LVL AS NVARCHAR) + 'st)'
+																				 WHEN M.LVL = '2' THEN '(' + CAST(M.LVL AS NVARCHAR) + 'nd)'
+																				 WHEN M.LVL = '3' THEN '(' + CAST(M.LVL AS NVARCHAR) + 'rd)'
+																				 ELSE '(' + CAST(M.LVL AS NVARCHAR) + 'th)'
+																			END
+																 	END
+																 END
+															ELSE ''
+                                  END
+                                  AS DEPTH_STATUS_NM
+                             FROM (
+                                    SELECT T.*
+                                      FROM (
+                                             SELECT ROWNUM AS RN ,COUNT(1) OVER() AS TOTAL_CNT ,X.MN_CNSD_DEPT ,X.REQ_DT ,X.PLNDBN_REQ_YN ,X.LVL ,Y.*
+                                               FROM (
+                                                      SELECT REQ.CNSDREQ_ID ,REQ.MN_CNSD_DEPT ,TO_CHAR(REQ_MAX.REQ_DT, 'YYYYMMDD') AS REQ_DT ,REQ_MAX.REQ_DT AS REQDT
+														      ,REQ.PLNDBN_REQ_YN, REQ_MAX.LVL
+														  FROM TN_CLM_CONT_CNSDREQ REQ,
+														      (SELECT FST_CNSDREQ_ID, MAX(CNSD_LEVEL) AS LVL, MIN(ISNULL(REQ_DT, REG_DT)) AS REQ_DT
+														         FROM TN_CLM_CONT_CNSDREQ
+														        WHERE DEL_YN = 'N'
+														       GROUP BY FST_CNSDREQ_ID) REQ_MAX
+														 WHERE REQ.FST_CNSDREQ_ID = REQ_MAX.FST_CNSDREQ_ID
+														   AND REQ.CNSD_LEVEL = REQ_MAX.LVL
+														   AND REQ.DEL_YN = 'N'
+#if (!$vo.srch_start_reqday.equals(""))
+                                                         AND TO_CHAR(REQ.REQ_DT, 'YYYYMMDD') >= :vo.srch_start_reqday
+#end
+#if (!$vo.srch_end_reqday.equals(""))
+                                                         AND TO_CHAR(REQ.REQ_DT, 'YYYYMMDD') <= :vo.srch_end_reqday
+#end
+#if (!$vo.srch_cnsdman_nm.equals(""))
+                                                         AND REQ.CNSDREQ_ID IN (SELECT CNSDREQ_ID FROM TN_CLM_CONT_CNSDREQ_RESPMAN WHERE UPPER(RESPMAN_NM) = :vo.srch_cnsdman_nm)
+#end
+                                                    ) X
+                                                   ,(
+                                                      SELECT CNSD.CNSDREQ_ID ,MASTER.CNTRT_ID ,MASTER.CNTRT_NM ,MASTER.CNTRT_OPPNT_NM ,MASTER.CNTRT_CNCLSNDAY
+                                                            ,MASTER.CNTRT_RESPMAN_NM ,MASTER.CNTRT_RESP_DEPT_NM ,MASTER.PRCS_DEPTH ,MASTER.DEPTH_STATUS
+                                                        FROM TN_CLM_CONTRACT_CNSD CNSD
+                                                            ,TN_CLM_CONTRACT_MASTER MASTER
+                                                       WHERE CNSD.CNTRT_ID = MASTER.CNTRT_ID
+                                                         AND MASTER.DEL_YN = 'N'
+                                                         #if(!$vo.session_auth_comp_cd.equals(""))
+                                                                               AND MASTER.COMP_CD IN ($vo.session_auth_comp_cd)
+                                                         #end
+                                                         AND (MASTER.CNTRT_INFO_GBN IN ('C05401')
+                                                              OR (MASTER.CNTRT_INFO_GBN IN ('C05404')
+                                                                  AND MASTER.PRCS_DEPTH IN ('C02504', 'C02505')))
+                                                         AND MASTER.CNTRT_STATUS < 'C02406'
+#if (!$vo.srch_review_title.equals(""))
+                                                         AND UPPER(MASTER.CNTRT_NM) LIKE '%' + :vo.srch_review_title + '%'
+#end
+
+#if (!$vo.srch_respman_nm.equals(""))
+                                                         AND UPPER(MASTER.CNTRT_RESPMAN_NM) = :vo.srch_respman_nm
+#end
+#if (!$vo.srch_resp_dept.equals(""))
+                                                         AND MASTER.CNTRT_RESP_UP_DEPT LIKE '%' + :vo.srch_resp_dept + '^%'
+#end
+#if (!$vo.srch_biz_clsfcn.equals(""))
+                                                         AND MASTER.BIZ_CLSFCN = :vo.srch_biz_clsfcn
+#end
+#if (!$vo.srch_cnclsnpurps_bigclsfcn.equals(""))
+                                                         AND MASTER.CNCLSNPURPS_BIGCLSFCN = :vo.srch_cnclsnpurps_bigclsfcn
+#end
+#if (!$vo.srch_step.equals(""))
+                                                         AND MASTER.PRCS_DEPTH = :vo.srch_step
+#end
+#if (!$vo.srch_state.equals(""))
+                                                         AND MASTER.DEPTH_STATUS = :vo.srch_state
+#end
+#if (!$vo.srch_oppnt_cd.equals(""))
+                                                         AND MASTER.CNTRT_OPPNT_CD = :vo.srch_oppnt_cd
+#end
+#if (!$vo.srch_start_cnlsnday.equals(""))
+                                                         AND MASTER.CNTRT_CNCLSNDAY >= :vo.srch_start_cnlsnday
+#end
+#if (!$vo.srch_end_cnlsnday.equals(""))
+                                                         AND MASTER.CNTRT_CNCLSNDAY <= :vo.srch_end_cnlsnday
+#end
+
+                                                    ) Y
+                                              WHERE X.CNSDREQ_ID = Y.CNSDREQ_ID
+                                              ORDER BY X.REQDT DESC ,X.CNSDREQ_ID DESC
+                                           ) T
+                                     WHERE T.RN BETWEEN :vo.start_index AND :vo.end_index
+                                  ) M
+                                 ,TB_COM_CD D1
+                                 ,TB_COM_CD D2
+                            WHERE D1.SYS_CD = 'LAS'
+                              AND D1.CD = M.PRCS_DEPTH
+                              AND D2.SYS_CD = 'LAS'
+                              AND D2.CD = M.DEPTH_STATUS
+                         ) L
+                        ,TN_CLM_CONT_CNSDREQ_RESPMAN LD
+                   WHERE L.CNSDREQ_ID = LD.CNSDREQ_ID(+)
+                     AND L.MN_CNSD_DEPT = LD.RESP_DEPT(+)
+				) 
+		  START WITH RD = 1
+		CONNECT BY PRIOR RD = RD - 1 AND PRIOR RN = RN
+		  GROUP BY RN ,TOTAL_CNT ,MN_CNSD_DEPT ,REQ_DT ,CNSDREQ_ID ,CNTRT_ID ,CNTRT_NM ,CNTRT_OPPNT_NM ,CNTRT_RESPMAN_NM
+		          ,CNTRT_RESP_DEPT_NM ,PRCS_DEPTH ,DEPTH_STATUS ,PRCS_DEPTH_NM ,DEPTH_STATUS_NM ,CNTRT_CNCLSNDAY
+       ) TM
+      ,(
+         SELECT CNSDREQ_ID ,RESP_DEPT
+               ,CASE WHEN MAX(RESPMAN_CNT) > 1
+                          THEN 
+                          	CASE WHEN :vo.session_user_locale = 'ko' THEN
+								MIN(RESPMAN_NM) + ' 외 ' + TO_CHAR(MAX(RESPMAN_CNT) - 1) + ' 명'
+							WHEN :vo.session_user_locale = 'fr' THEN
+								MIN(RESPMAN_NM) + ' et ' + TO_CHAR(MAX(RESPMAN_CNT) - 1) + ' Personne(s)'
+							WHEN :vo.session_user_locale = 'de' THEN
+								MIN(RESPMAN_NM) + ' und ' + TO_CHAR(MAX(RESPMAN_CNT) - 1) + ' Person(en)'
+							ELSE
+								MIN(RESPMAN_NM) + ' and ' + TO_CHAR(MAX(RESPMAN_CNT) - 1) + ' others'
+							END
+                          ELSE ISNULL(MIN(RESPMAN_NM), '')
+                END AS CNSDMAN
+           FROM (
+                  SELECT RES.CNSDREQ_ID ,RES.RESP_DEPT ,RES.RESPMAN_NM ,ISNULL(USR.USER_SRT, 999) AS USER_SRT
+                        ,MIN(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS MIN_USER_SRT
+                        ,COUNT(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS RESPMAN_CNT
+                    FROM TN_CLM_CONT_CNSDREQ_RESPMAN RES
+                        ,TB_COM_USER USR
+                   WHERE RES.RESPMAN_ID = USR.USER_ID(+)
+                )
+          WHERE USER_SRT = MIN_USER_SRT
+          GROUP BY CNSDREQ_ID ,RESP_DEPT
+       ) TD
+ WHERE TM.CNSDREQ_ID = TD.CNSDREQ_ID(+)
+   AND TM.MN_CNSD_DEPT = TD.RESP_DEPT(+)
+ ORDER BY TM.REQ_DT desc
+    		]]>
+  		</statement>	
+	</query>
+	
+	
+	<!-- 타시스템 연계되는 계약리스트 -->
+	<query id="clm.manage.listContractPop" isCamelCase="false">
+		<statement>
+		    <![CDATA[	
+			SELECT *
+			FROM	(
+						SELECT ROWNUM RN, COUNT(1) OVER()  TOTAL_CNT, X.*
+						FROM	(
+								SELECT	A.CNTRT_ID, A.BIZ_CLSFCN, A.DEPTH_CLSFCN, A.CNTRT_TRGT, A.CNCLSNPURPS_BIGCLSFCN, A.CNCLSNPURPS_MIDCLSFCN, A.CNTRT_RESP_DEPT_NM, A.CNTRT_RESPMAN_JIKGUP_NM,
+										A.CNTRT_NM, A.CNTRT_NO, A.CNTRT_RESPMAN_ID, A.CNTRT_RESPMAN_NM, A.PRCS_DEPTH, A.DEPTH_STATUS, A.CNTRT_STATUS, TO_CHAR(A.REG_DT, 'YYYYMMDD') AS REG_DT
+						      		 , CASE WHEN :vo.session_user_locale= 'ko' THEN B.CD_NM
+						      		 	    WHEN :vo.session_user_locale= 'fr' THEN B.CD_NM_FRA
+						      		 	    WHEN :vo.session_user_locale= 'de' THEN B.CD_NM_DEU
+						                    ELSE B.CD_NM_ENG
+						       		   END PRCS_DEPTH_NM
+						      		 , CASE WHEN :vo.session_user_locale= 'ko' THEN C.CD_NM
+						      		 		WHEN :vo.session_user_locale= 'fr' THEN C.CD_NM_FRA
+						      		 	    WHEN :vo.session_user_locale= 'de' THEN C.CD_NM_DEU
+						                	ELSE C.CD_NM_ENG
+						       		   END DEPTH_STATUS_NM							              
+						      		 , CASE WHEN :vo.session_user_locale= 'ko' THEN D.CD_NM
+						      		 		WHEN :vo.session_user_locale= 'fr' THEN D.CD_NM_FRA
+						      		 	    WHEN :vo.session_user_locale= 'de' THEN D.CD_NM_DEU
+						                	ELSE D.CD_NM_ENG
+						       		   END BIZ_CLSFCN_NM													
+								FROM 	TN_CLM_CONTRACT_MASTER A, TB_COM_CD B, TB_COM_CD C, TN_COM_CONTRACTTYPE_CD D
+								WHERE	A.DEL_YN = 'N'
+								AND		A.CNTRT_INFO_GBN IN ('C05401')
+								--AND		A.CNTRT_RESPMAN_ID = :vo.session_user_id
+								#if (!$vo.srch_review_title.equals(""))
+                                       AND A.CNTRT_NM LIKE  :vo.srch_review_title + '%'
+                                #end
+								
+								AND ( (A.PRCS_DEPTH = 'C02503'
+                                       AND A.DEPTH_STATUS = 'C02642')
+                                     OR A.PRCS_DEPTH IN ('C02504','C02505'))
+								AND 	A.CNTRT_STATUS < 'C02406'
+								AND		B.SYS_CD = 'LAS'
+								AND		A.PRCS_DEPTH = B.CD
+								AND		C.SYS_CD = 'LAS'
+								AND		A.DEPTH_STATUS = C.CD
+								AND		D.UP_TYPE_CD = 'T01'
+								AND		A.BIZ_CLSFCN = D.TYPE_CD
+								ORDER BY CNTRT_ID DESC
+								) X
+						) T
+			WHERE T.RN BETWEEN :vo.start_index and :vo.end_index		
+    		]]>
+  		</statement>	
+	</query>
+	
+	
+	<!-- IRP 연계되는 계약리스트 -->
+	<query id="clm.manage.listContractIRPPop" isCamelCase="false">
+		<statement>
+		    <![CDATA[	
+			SELECT *
+			FROM	(
+						SELECT ROWNUM RN, COUNT(1) OVER()  TOTAL_CNT, X.*
+						FROM	(
+								SELECT	A.CNTRT_ID, 
+					                       E.REQ_TITLE,
+					                       E.CNSDREQ_ID, 							
+										A.BIZ_CLSFCN, 
+										A.DEPTH_CLSFCN, 
+										A.CNTRT_TRGT, 
+										A.CNCLSNPURPS_BIGCLSFCN, 
+										A.CNCLSNPURPS_MIDCLSFCN, 
+										A.CNTRT_RESP_DEPT_NM, 
+										A.CNTRT_RESPMAN_JIKGUP_NM,
+										A.CNTRT_NM, A.CNTRT_NO, A.CNTRT_RESPMAN_ID, 
+										A.CNTRT_RESPMAN_NM, A.PRCS_DEPTH, A.DEPTH_STATUS, 
+										A.CNTRT_STATUS, TO_CHAR(A.REG_DT, 'YYYYMMDD') AS REG_DT
+										,A.SYS_NM, A.CNTRT_AMT, A.CRRNCY_UNIT, A.CNCLSN_PLNDDAY
+						      		 , CASE WHEN :vo.session_user_locale= 'ko' THEN B.CD_NM
+						      		 		WHEN :vo.session_user_locale= 'fr' THEN B.CD_NM_FRA
+						      		 		WHEN :vo.session_user_locale= 'de' THEN B.CD_NM_DEU
+						                    ELSE B.CD_NM_ENG
+						       		   END PRCS_DEPTH_NM
+						      		 , CASE WHEN :vo.session_user_locale= 'ko' THEN C.CD_NM
+						      		 		WHEN :vo.session_user_locale= 'fr' THEN C.CD_NM_FRA
+						      		 		WHEN :vo.session_user_locale= 'de' THEN C.CD_NM_DEU
+						                	ELSE C.CD_NM_ENG
+						       		   END DEPTH_STATUS_NM							              
+						      		 , CASE WHEN :vo.session_user_locale= 'ko' THEN D.CD_NM
+						      		 		WHEN :vo.session_user_locale= 'fr' THEN D.CD_NM_FRA
+						      		 		WHEN :vo.session_user_locale= 'de' THEN D.CD_NM_DEU
+						                	ELSE D.CD_NM_ENG
+						       		   END BIZ_CLSFCN_NM													
+								FROM 	TN_CLM_CONTRACT_MASTER A, 
+										TB_COM_CD B, 
+										TB_COM_CD C, 
+										TN_COM_CONTRACTTYPE_CD D,
+                       (
+
+
+                        SELECT F.REQ_TITLE,F.CNSDREQ_ID, G.CNTRT_ID
+                            FROM TN_CLM_CONT_CNSDREQ F, TN_CLM_CONTRACT_CNSD G
+                         WHERE F.DEL_YN='N'
+                         AND F.CNSDREQ_ID = G.CNSDREQ_ID
+                         AND F.CNSDREQ_ID = F.FST_CNSDREQ_ID
+
+                       ) E
+								WHERE	A.DEL_YN = 'N'
+								AND		A.CNTRT_INFO_GBN IN ('C05401')
+								AND (A.CNTRT_RESPMAN_ID = :vo.session_user_id or :vo.session_user_id IN (SELECT TRGTMAN_ID FROM LAS.TN_CLM_CONTRACT_AUTHREQ Z where Z.CNTRT_ID = A.CNTRT_ID))
+#if (!$vo.srch_review_title.equals(""))
+                                AND A.CNTRT_NM LIKE  '%'+:vo.srch_review_title + '%'
+#end
+
+#if (!$vo.srch_start_cnlsnday.equals(""))
+                                AND A.CNTRT_CNCLSNDAY >= :vo.srch_start_cnlsnday
+#end
+
+#if (!$vo.srch_end_cnlsnday.equals(""))
+                                AND A.CNTRT_CNCLSNDAY <= :vo.srch_end_cnlsnday
+#end
+                            
+								AND 	A.CNTRT_STATUS < 'C02406'
+								
+#if ($vo.srch_state.equals("1"))
+                                AND 	A.CNTRT_STATUS = 'C02401'
+#end
+  
+#if ($vo.srch_state.equals("2"))
+                                AND 	A.CNTRT_STATUS in ('C02402','C02403','C02404')
+#end  									
+
+								AND		B.SYS_CD = 'LAS'
+								AND		A.PRCS_DEPTH = B.CD
+								AND		C.SYS_CD = 'LAS'
+								AND		A.DEPTH_STATUS = C.CD
+								AND		D.UP_TYPE_CD = 'T01'
+								AND		A.BIZ_CLSFCN = D.TYPE_CD	
+                  				AND 	A.CNTRT_ID = E.CNTRT_ID											
+								ORDER BY CNTRT_ID DESC
+								) X
+						) T
+			WHERE T.RN BETWEEN :vo.start_index and :vo.end_index		
+    		]]>
+  		</statement>	
+	</query>	
+
+    	<!-- 의뢰목록의 Layer에 출력되는 계약목록 -->
+		<query id="clm.manage.listContractLayer" isCamelCase="false">
+			<statement>
+			<![CDATA[
+			SELECT	A.CNSDREQ_ID
+					, A.CNTRT_ID
+					, B.CNTRT_NM
+					, B.CNTRT_STATUS
+					, B.PRCS_DEPTH
+					, B.DEPTH_STATUS
+		      		, CASE WHEN :locale= 'ko' THEN C.CD_NM
+		      			   WHEN :locale= 'fr' THEN C.CD_NM_FRA
+		      			   WHEN :locale= 'de' THEN C.CD_NM_DEU
+		                    ELSE C.CD_NM_ENG
+		       		  END PRCS_DEPTH_NM
+		      		, CASE WHEN B.PRCS_DEPTH IN ('C02506', 'C02507', 'C02509')
+		      		      THEN 
+		      		      	CASE WHEN :vo.session_user_locale = 'ko' THEN '이관'
+		      		      	 WHEN :vo.session_user_locale = 'fr' THEN 'FR_이관'
+		      		      	 WHEN :vo.session_user_locale = 'de' THEN 'DE_이관'
+		      		      	 ELSE 'Transfer' END
+		      		      ELSE CASE WHEN :locale= 'ko' THEN D.CD_NM
+		      		      			WHEN :locale= 'fr' THEN D.CD_NM_FRA
+		      		      			WHEN :locale= 'de' THEN D.CD_NM_DEU
+			                	   ELSE D.CD_NM_ENG
+			                   END
+		       		  END DEPTH_STATUS_NM							
+		       		, B.CNTRT_CNCLSNDAY
+			 FROM	TN_CLM_CONT_CNSDREQ X, TN_CLM_CONTRACT_CNSD A, TN_CLM_CONTRACT_MASTER B, TB_COM_CD C, TB_COM_CD D 
+			 WHERE	X.CNSDREQ_ID = A.CNSDREQ_ID
+			   AND	A.CNTRT_ID = B.CNTRT_ID
+			   --AND  B.CNTRT_INFO_GBN IN ('C05401')
+			   --AND 	B.CNTRT_STATUS < 'C02406'
+			   AND	C.SYS_CD = 'LAS'
+			   --AND	C.GRP_CD = 'C025'
+			   AND	B.PRCS_DEPTH = C.CD
+			   AND  D.SYS_CD = 'LAS'
+			   --AND	D.GRP_CD = B.PRCS_DEPTH
+			   AND	B.DEPTH_STATUS = D.CD
+			   AND	A.CNSDREQ_ID = :cnsdreq_id
+			   AND	B.DEL_YN = 'N'
+			   AND  X.DEL_YN = 'N'
+			]]>
+			</statement>
+		</query>
+		
+	<!-- 의뢰현황 엑셀 다운 -->
+	<query id="clm.manage.listConsiderationExcel" isCamelCase="false">
+		<statement>
+		    <![CDATA[
+		       
+			WITH DUMMY_DATE AS (
+		        SELECT DT
+		          FROM (
+		                SELECT /*TO_DATE('2011-01-01', 'YYYY-MM-DD')*/
+		                       CONVERT(DATE, '2011-01-01',23) + (LEVEL - 1) AS DT
+		    	       	CONNECT BY TO_DATE('2011-01-01', 'YYYY-MM-DD') + (LEVEL - 1) <= (TO_DATE ('2022-12-31','YYYY-MM-DD') - 1)
+		               )
+		    )
+			SELECT   DEPT_NM
+			       , BIZ_CLSFCN1
+			       , BIZ_CLSFCN2
+			       , BIZ_CLSFCN
+			       , BIZ_CLSFCN3
+			       , REQ_TITLE
+			       , CNTRT_NM
+			       , CNTRT_RESPMAN_NM
+			       , CNTRT_RESP_DEPT_NM
+			       , SUBSTRING(CNTRT_RESP_DEPT_NM,instr(CNTRT_RESP_DEPT_NM,'(')) CNTRT_RESP_DEPT_NM2
+			       , ORIGIN_ACPT_DT
+			       , ORIGIN_RE_DT
+			      
+			 FROM(
+			   SELECT 
+			   		CASE WHEN :vo.session_user_locale = 'ko' THEN
+			   				DECODE (MN_CNSD_DEPT, 'A00000001','국내','A00000002','해외','IP')
+			   			WHEN :vo.session_user_locale = 'fr' THEN
+			   				DECODE (MN_CNSD_DEPT, 'A00000001','Corée','A00000002','International','IP')
+			   			WHEN :vo.session_user_locale = 'de' THEN
+			   				DECODE (MN_CNSD_DEPT, 'A00000001','Korea','A00000002','Global','IP')	
+			   			ELSE
+			   				DECODE (MN_CNSD_DEPT, 'A00000001','KOREA','A00000002','GLOBAL','IP')
+			   		END AS DEPT_NM
+			     , CD_NM1 AS BIZ_CLSFCN1
+			     , CD_NM2 AS BIZ_CLSFCN2
+			     , CD_NM3 AS BIZ_CLSFCN3  
+			     , CD_NM  AS BIZ_CLSFCN
+			     , REQ_TITLE
+			     , CNTRT_NM
+			     , CNTRT_RESPMAN_NM
+			     , CNTRT_RESP_DEPT_NM
+			     , ORIGIN_ACPT_DT
+			     , ORIGIN_RE_DT 
+			     , FINAL_ACPT_DT
+				   , FINAL_RE_DT
+			  
+			   FROM (
+			   SELECT ORIGIN_ACPT_DT
+			      ,ORIGIN_RE_DT
+			      ,CASE WHEN TO_CHAR(ACPT_DT, 'YYYYMMDD') = MOD_ACPT_DT THEN ACPT_DT 
+			         WHEN MOD_ACPT_DT IS NULL THEN ''
+			         ELSE TO_DATE(MOD_ACPT_DT + '08:00:00' ,'YYYY-MM-DD HH24.MI.SS') END FINAL_ACPT_DT
+			      ,CASE WHEN TO_CHAR(RE_DT, 'YYYYMMDD') = MOD_RE_DT THEN RE_DT 
+			         WHEN MOD_RE_DT IS NULL THEN ''
+			         ELSE TO_DATE(MOD_RE_DT + '00:00:00' ,'YYYY-MM-DD HH24.MI.SS')+ 1 DAY END FINAL_RE_DT
+			      ,REQ_TITLE
+			      ,CD_NM1
+			      ,CD_NM
+			      ,CD_NM2
+			      ,CD_NM3  
+			      ,CNTRT_NM
+			      ,CNTRT_RESPMAN_NM
+			      ,CNTRT_RESP_DEPT_NM
+			      ,MN_CNSD_DEPT  
+			    FROM (
+			       SELECT ACPT_DT 
+			         , RE_DT
+			         ,(SELECT MIN(DT) 
+			           FROM (
+			              SELECT DT.DT
+			               FROM (SELECT to_char(A.dt,'YYYYMMDD') as dt, B.DUTY_EXCEPTDAY  
+			                   FROM DUMMY_DATE A, TN_CLM_DUTY_EXCEPTDAY B 
+			                  WHERE TO_CHAR(A.DT,'YYYYMMDD') = B.DUTY_EXCEPTDAY(+)) DT
+			              WHERE DT.DUTY_EXCEPTDAY IS NULL
+			              ) 
+			          WHERE DT BETWEEN TO_CHAR(A.ACPT_DT,'YYYYMMDD') AND (SELECT MAX(DUTY_EXCEPTDAY) FROM TN_CLM_DUTY_EXCEPTDAY)) MOD_ACPT_DT
+							 ,(SELECT MAX(DT) 
+			           FROM (
+			              SELECT DT.DT
+			               FROM (SELECT to_char(A.dt,'YYYYMMDD') as dt, B.DUTY_EXCEPTDAY  
+			                   FROM DUMMY_DATE A, TN_CLM_DUTY_EXCEPTDAY B 
+			                  WHERE TO_CHAR(A.DT,'YYYYMMDD') = B.DUTY_EXCEPTDAY(+)) DT
+			              WHERE DT.DUTY_EXCEPTDAY IS NULL
+			              )
+			 					WHERE DT BETWEEN (SELECT MIN(DUTY_EXCEPTDAY) FROM TN_CLM_DUTY_EXCEPTDAY) AND TO_CHAR(A.RE_DT,'YYYYMMDD')) MOD_RE_DT
+			         , ORIGIN_ACPT_DT
+			         , RE_DT ORIGIN_RE_DT
+			         , REQ_TITLE
+			         , CASE WHEN :vo.session_user_locale = 'ko' THEN C1.CD_NM
+			              	WHEN :vo.session_user_locale = 'fr' THEN C1.CD_NM_FRA
+			              	WHEN :vo.session_user_locale = 'de' THEN C1.CD_NM_DEU
+			              	ELSE C1.CD_NM_ENG
+			           END CD_NM1
+			         , CASE WHEN :vo.session_user_locale = 'ko' THEN C2.CD_NM
+			              	WHEN :vo.session_user_locale = 'fr' THEN C2.CD_NM_FRA
+			              	WHEN :vo.session_user_locale = 'de' THEN C2.CD_NM_DEU
+			              	ELSE C2.CD_NM_ENG
+			           END CD_NM2
+			         , CASE WHEN :vo.session_user_locale = 'ko' THEN C3.CD_NM
+			              	WHEN :vo.session_user_locale = 'fr' THEN C3.CD_NM_FRA
+			              	WHEN :vo.session_user_locale = 'de' THEN C3.CD_NM_DEU
+			              	ELSE C3.CD_NM_ENG
+			           END CD_NM3
+			         , CASE WHEN :vo.session_user_locale = 'ko' THEN C.CD_NM
+			              	WHEN :vo.session_user_locale = 'fr' THEN C.CD_NM_FRA
+			              	WHEN :vo.session_user_locale = 'de' THEN C.CD_NM_DEU
+			              	ELSE C.CD_NM_ENG
+			           END CD_NM
+			         , B.CNTRT_NM
+			         , B.CNTRT_RESPMAN_NM
+			         , B.CNTRT_RESP_DEPT_NM
+			         , A.MN_CNSD_DEPT
+			        FROM (SELECT A.ACPT_DT ORIGIN_ACPT_DT
+			             , B.APBT_dt re_dt  --부부서 발신일시를 회신일시로 계산하기 위함 
+			             , CASE WHEN HOUR(A.ACPT_DT) < 8 THEN TO_DATE(TO_CHAR(A.ACPT_DT,'YYYY-MM-DD') + '08:00:00' ,'YYYY-MM-DD HH24.MI.SS')
+			                 WHEN HOUR(A.ACPT_DT) > 16 THEN TO_DATE(TO_CHAR(A.ACPT_DT,'YYYY-MM-DD') + '08:00:00' ,'YYYY-MM-DD HH24.MI.SS')+1 DAY 
+			                 WHEN A.ACPT_DT IS NULL THEN ''
+			                 ELSE A.ACPT_DT
+			               END ACPT_DT
+			             , A.REQ_TITLE
+			             , A.CNSDREQ_ID
+			             , A.MN_CNSD_DEPT
+			             , A.VC_CNSD_DEPT
+			             , B.CNTRT_ID
+			             , B.APBT_dt   --부부서 발신일시를 회신일시로 계산하기 위함 
+			            FROM TN_CLM_CONT_CNSDREQ A, 
+			                 TN_CLM_CONTRACT_CNSD B
+			           WHERE A.DEL_YN = 'N'
+			            AND A.PRGRS_STATUS <> 'C04201'
+			            AND TO_CHAR(A.ACPT_DT, 'YYYYMMDD') BETWEEN :vo.srch_start_reqday AND :vo.srch_end_reqday --- 기간 조건 
+			            AND A.MN_CNSD_DEPT = :vo.srch_mn_cnsd
+			            AND A.PREV_CNSDREQ_ID IS NULL 
+			            AND A.CNSDREQ_ID = B.CNSDREQ_ID
+			          ) A
+			          , TN_CLM_CONTRACT_MASTER B
+			          , (SELECT TYPE_CD, CD_NM FROM TN_COM_CONTRACTTYPE_CD) C
+			          , (SELECT TYPE_CD, CD_NM FROM TN_COM_CONTRACTTYPE_CD) C1
+			          , (SELECT TYPE_CD, CD_NM FROM TN_COM_CONTRACTTYPE_CD) C2
+			          , (SELECT TYPE_CD, CD_NM FROM TN_COM_CONTRACTTYPE_CD) C3
+			       WHERE A.CNTRT_ID = B.CNTRT_ID
+			         AND B.CNCLSNPURPS_BIGCLSFCN = C.TYPE_CD
+			         AND B.BIZ_CLSFCN   = C1.TYPE_CD
+			         AND B.DEPTH_CLSFCN = C2.TYPE_CD
+			         AND B.CNCLSNPURPS_MIDCLSFCN   = C3.TYPE_CD
+			         AND B.DEL_YN = 'N'
+			         AND B.CNTRT_INFO_GBN not in ( 'C05403' ,'C05402','C05499') 
+			         AND ISNULL(B.REG_OPERDIV, 'B00000000') = :vo.srch_resp_dept --사업부별 조건
+			       ORDER BY A.ACPT_DT
+			       )
+			    )
+			  )
+		          		    		
+			]]>
+			</statement>
+		</query>	
+	    <!-- 자동연장승인 리스트 => 의뢰별 : 2012.07.13  -->
+	    <query id="clm.manage.listManageAutoRenewApproval1" isCamelCase="false">
+		<statement>
+    		<![CDATA[
+			SELECT TM.*, TD.CNSDMAN
+			FROM	(
+					SELECT RN, TOTAL_CNT, CNSDREQ_ID, REQ_TITLE, MN_CNSD_DEPT, REQMAN_NM, REQ_DT, CNTRT_ID, CNTRT_NO,CNTRT_NM, CNTRT_CNT, CNTRT_RESPMAN_NM, CNTRT_RESP_DEPT_NM, CNTRT_OPPNT_NM, PRCS_DEPTH, DEPTH_STATUS, PRCS_DEPTH_NM, DEPTH_STATUS_NM,
+								(select dbo.LAS_CONT_CNSDREQ_RESPMAN_M(CNSDREQ_ID,', ','xx')) AS CNSDMANS /*xx : TB_COM_USER의 USER_NM 값으로 가져오기 위해*/
+					FROM	(
+							SELECT L.*, LD.RESP_DEPT, LD.RESPMAN_NM, LD.RESPMAN_ID,
+										row_number() OVER(PARTITION BY L.CNSDREQ_ID, LD.RESP_DEPT ORDER BY LD.RESPMAN_NM) AS RD
+							FROM	(
+										SELECT	M.*, D.CNTRT_RESPMAN_NM, D.CNTRT_RESP_DEPT_NM, D.CNTRT_OPPNT_NM, D.PRCS_DEPTH, D.DEPTH_STATUS,
+												CASE WHEN :vo.session_user_locale= 'ko' THEN D1.CD_NM 
+													 WHEN :vo.session_user_locale= 'fr' THEN D1.CD_NM_FRA
+													 WHEN :vo.session_user_locale= 'de' THEN D1.CD_NM_DEU
+															ELSE D1.CD_NM_ENG
+												END PRCS_DEPTH_NM,
+												CASE WHEN :vo.session_user_locale= 'ko' THEN D2.CD_NM 
+													 WHEN :vo.session_user_locale= 'fr' THEN D2.CD_NM_FRA
+													 WHEN :vo.session_user_locale= 'de' THEN D2.CD_NM_DEU
+															ELSE D2.CD_NM_ENG
+												END DEPTH_STATUS_NM
+										FROM	(
+												SELECT T.*
+												FROM	(
+															SELECT ROW_NUMBER() OVER (ORDER BY X.REQDT DESC, X.CNSDREQ_ID DESC) RN, CAST(COUNT(1) OVER() AS NUMERIC)  TOTAL_CNT
+																, X.*, Y.CNTRT_ID, Y.CNTRT_NO, Y.CNTRT_CNT, Y.CNTRT_NM
+															FROM	(
+																		SELECT REQ.CNSDREQ_ID, REQ.REQ_TITLE, REQ.MN_CNSD_DEPT, REQ.REQMAN_NM
+																				, REPLACE(CONVERT(CHAR(10), CONVERT(DATE, REQ_MAX.REQ_DT), 23),'-','') AS REQ_DT
+																				, REQ_MAX.REQ_DT AS REQDT
+																		  FROM TN_CLM_CONT_CNSDREQ REQ,
+																		      (SELECT FST_CNSDREQ_ID, MAX(CNSD_LEVEL) AS CNSD_LEVEL, MIN(ISNULL(REQ_DT, REG_DT)) AS REQ_DT
+																		         FROM TN_CLM_CONT_CNSDREQ
+																		        WHERE DEL_YN = 'N'
+																		       GROUP BY FST_CNSDREQ_ID) REQ_MAX
+																		 WHERE REQ.FST_CNSDREQ_ID = REQ_MAX.FST_CNSDREQ_ID
+																		   AND REQ.CNSD_LEVEL = REQ_MAX.CNSD_LEVEL
+																		   AND REQ.DEL_YN = 'N'
+																		/** 의뢰명 **/
+																	#if(!$vo.srch_review_title.equals(""))
+																		/** AND		UPPER(REQ.REQ_TITLE)  LIKE '%' + :vo.srch_review_title + '%' **/
+																		AND 'Y' =	CASE WHEN :vo.srch_review_title <> '' THEN
+																						(CASE WHEN CHARINDEX('[', :vo.srch_review_title ) >0 OR CHARINDEX(']',:vo.srch_review_title) >0 THEN 
+																									CASE WHEN (CHARINDEX('[', REQ.REQ_TITLE ) >0 OR CHARINDEX(']',REQ.REQ_TITLE) >0) AND
+																										REPLACE(REPLACE(UPPER(REQ.REQ_TITLE),'[','S'),']','E') LIKE
+																										'%' + REPLACE(REPLACE(UPPER( :vo.srch_review_title ),'[','S'),']','E') + '%' THEN 'Y'
+																									ELSE 'N' END
+																								WHEN UPPER(REQ.REQ_TITLE) LIKE '%' + UPPER( :vo.srch_review_title ) + '%' THEN 'Y'
+																								ELSE  'N' END)
+																					ELSE 'Y' END
+																	#end
+																		/** 의뢰자 **/
+																	#if(!$vo.srch_reqman_nm.equals(""))
+																		AND		UPPER(REQ.REQMAN_NM)  LIKE '%' + :vo.srch_reqman_nm + '%'
+																	#end
+																		/** 의뢰일자 **/
+																	#if(!$vo.srch_start_reqday.equals(""))
+																		AND		REPLACE(CONVERT(CHAR(10), CONVERT(DATE, REQ.REQ_DT), 23),'-','') >= :vo.srch_start_reqday
+																		
+																	#end
+																	#if(!$vo.srch_end_reqday.equals(""))
+																		AND		REPLACE(CONVERT(CHAR(10), CONVERT(DATE, REQ.REQ_DT), 23),'-','') <= :vo.srch_end_reqday
+																	#end
+																		/** 검토자 **/
+																	#if (!$vo.srch_cnsdman_nm.equals(""))
+																	 	AND		REQ.CNSDREQ_ID IN ( SELECT CNSDREQ_ID
+																									FROM	 TN_CLM_CONT_CNSDREQ_RESPMAN
+																									WHERE 	UPPER(RESPMAN_NM) LIKE '%' + :vo.srch_cnsdman_nm + '%'
+																								)
+																	#end
+																		) X, (
+																				SELECT CNSDREQ_ID, MIN(CNTRT_ID) AS CNTRT_ID,MIN(CNTRT_NO) AS CNTRT_NO, COUNT(CNTRT_ID) AS CNTRT_CNT, MAX(CNTRT_NM) AS CNTRT_NM
+																				FROM	(
+																							SELECT 	CNSD.CNSDREQ_ID, MASTER.CNTRT_ID, MASTER.CNTRT_NM, MASTER.CNTRT_NO
+																							FROM	TN_CLM_CONTRACT_CNSD CNSD, TN_CLM_CONTRACT_MASTER MASTER,TH_CLM_ORG_MNG HIS
+																							WHERE 	CNSD.CNTRT_ID 		= MASTER.CNTRT_ID
+																							AND     CNSD.CNTRT_ID       = HIS.CNTRT_ID
+																							AND		MASTER.DEL_YN 		= 'N'
+																							AND 	MASTER.CNTRT_STATUS = 'C02402'
+																							AND 	MASTER.PRCS_DEPTH 	= 'C02505'
+																							AND		MASTER.DEPTH_STATUS = 'C02685'
+																							#if(!$vo.session_auth_comp_cd.equals(""))
+																			                AND     MASTER.COMP_CD IN ($vo.session_auth_comp_cd)
+																		                    #end
+																							AND     HIS.GUBUN           = 'R'
+																							/** 계약명 **/
+																						#if(!$vo.srch_cntrt_nm.equals(""))
+																							AND		UPPER(MASTER.CNTRT_NM)  LIKE '%' + :vo.srch_cntrt_nm + '%'
+																						#end
+																						/** 계약ID **/
+																						#if(!$vo.srch_cntrt_no.equals(""))
+																							AND		UPPER(MASTER.CNTRT_NO)  LIKE '%' + :vo.srch_cntrt_no + '%'
+																						#end
+																							/** 담당자 **/
+																						#if(!$vo.srch_respman_nm.equals(""))
+																							AND		UPPER(MASTER.CNTRT_RESPMAN_NM)  LIKE '%' + :vo.srch_respman_nm + '%'
+																						#end
+																							/** 담당부서 **/
+																						#if (!$vo.srch_resp_dept.equals(""))
+																							AND		MASTER.CNTRT_RESP_UP_DEPT LIKE '%' + :vo.srch_resp_dept + '^%'
+																						#end
+																							/** 계약단계 **/
+																						#if(!$vo.srch_step.equals(""))
+																							AND 	MASTER.PRCS_DEPTH = :vo.srch_step
+																						#end
+																							/** 계약상태 **/
+																						#if(!$vo.srch_state.equals(""))
+																							AND 	MASTER.DEPTH_STATUS = :vo.srch_state
+																						#end
+																							/** 계약상대방**/
+																						#if (!$vo.srch_oppnt_cd.equals(""))
+																							AND 	MASTER.CNTRT_OPPNT_CD = :vo.srch_oppnt_cd
+																						#end
+																						/** 연계시스템**/
+																						#if (!$vo.srch_if_sys_cd.equals(""))
+																							AND 	MASTER.IF_SYS_CD = :vo.srch_if_sys_cd
+																						#end
+																							) TA
+																				GROUP BY CNSDREQ_ID
+																				) Y
+															WHERE X.CNSDREQ_ID = Y.CNSDREQ_ID
+															) T
+												WHERE T.RN BETWEEN :vo.start_index AND :vo.end_index
+												) M, TN_CLM_CONTRACT_MASTER D, TB_COM_CD D1, TB_COM_CD D2
+									WHERE M.CNTRT_ID = D.CNTRT_ID
+									AND		D1.SYS_CD = 'LAS'
+									AND		D1.CD = D.PRCS_DEPTH
+									AND		D2.SYS_CD = 'LAS'
+									AND		D2.CD = D.DEPTH_STATUS
+									) L LEFT OUTER JOIN TN_CLM_CONT_CNSDREQ_RESPMAN LD
+							ON L.CNSDREQ_ID = LD.CNSDREQ_ID
+							AND	L.MN_CNSD_DEPT = LD.RESP_DEPT
+							) TB 
+					/*		
+					START WITH RD=1
+					CONNECT BY PRIOR RD = RD - 1 AND PRIOR RN = RN
+					*/
+					GROUP BY RN, TOTAL_CNT, CNSDREQ_ID, REQ_TITLE, MN_CNSD_DEPT, REQMAN_NM, REQ_DT, CNTRT_ID,CNTRT_NO,CNTRT_NM, CNTRT_CNT, CNTRT_RESPMAN_NM, CNTRT_RESP_DEPT_NM, CNTRT_OPPNT_NM, PRCS_DEPTH, DEPTH_STATUS, PRCS_DEPTH_NM, DEPTH_STATUS_NM
+					) TM LEFT OUTER JOIN (
+								SELECT S.CNSDREQ_ID, S.RESP_DEPT, 
+											CASE WHEN MAX(S.RESPMAN_CNT) > 1 THEN 
+												CASE WHEN :vo.session_user_locale = 'ko' THEN
+													MIN(S.RESPMAN_NM) + ' 외 ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' 명'
+												WHEN :vo.session_user_locale = 'fr' THEN
+													MIN(S.RESPMAN_NM) + ' et ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' Personne(s)'
+												WHEN :vo.session_user_locale = 'de' THEN
+													MIN(S.RESPMAN_NM) + ' und ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' Person(en)'
+												ELSE
+													MIN(S.RESPMAN_NM) + ' and ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' Person(en)'
+												END
+													ELSE ISNULL(MIN(S.RESPMAN_NM), '')
+											END AS CNSDMAN
+								FROM	(
+											SELECT RES.CNSDREQ_ID, RES.RESP_DEPT, RES.RESPMAN_NM, ISNULL(USR.USER_SRT, 999) AS USER_SRT, 
+														MIN(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS MIN_USER_SRT, 
+														COUNT(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS RESPMAN_CNT 
+											FROM TN_CLM_CONT_CNSDREQ_RESPMAN RES LEFT OUTER JOIN TB_COM_USER USR
+											ON RES.RESPMAN_ID = USR.USER_ID
+											)	S	
+								WHERE S.USER_SRT = S.MIN_USER_SRT					
+								GROUP BY S.CNSDREQ_ID, S.RESP_DEPT
+								) TD
+			ON TM.CNSDREQ_ID = TD.CNSDREQ_ID
+			AND	TM.MN_CNSD_DEPT = TD.RESP_DEPT			
+			ORDER BY TM.REQ_DT desc
+    		]]>
+  		</statement>	
+	</query>
+
+    <!-- 자동연장승인 리스트 => 계약별 : 2012.07.13  -->
+    <query id="clm.manage.listManageAutoRenewApproval2" isCamelCase="false">
+		<statement>
+    		<![CDATA[
+			SELECT 	TM.*, TD.CNSDMAN
+			FROM	(
+					SELECT RN, TOTAL_CNT, MN_CNSD_DEPT, REQ_DT, CNSDREQ_ID, CNTRT_ID, CNTRT_NO, CNTRT_NM, CNTRT_OPPNT_NM, CNTRT_RESPMAN_NM, CNTRT_RESP_DEPT_NM, PRCS_DEPTH, DEPTH_STATUS, PRCS_DEPTH_NM, DEPTH_STATUS_NM, CNTRT_CNCLSNDAY,
+								(select dbo.LAS_CONT_CNSDREQ_RESPMAN_M(CNSDREQ_ID,', ','xx')) AS CNSDMANS /*xx : TB_COM_USER의 USER_NM 값으로 가져오기 위해*/
+					FROM	(
+							SELECT L.*, LD.RESP_DEPT, LD.RESPMAN_NM, LD.RESPMAN_ID,
+										row_number() OVER(PARTITION BY L.CNTRT_ID, L.CNSDREQ_ID, LD.RESP_DEPT ORDER BY LD.RESPMAN_NM) AS RD
+							FROM	(
+									SELECT 	M.*,
+											CASE WHEN :vo.session_user_locale= 'ko' THEN D1.CD_NM 
+												 WHEN :vo.session_user_locale= 'fr' THEN D1.CD_NM_FRA
+												 WHEN :vo.session_user_locale= 'de' THEN D1.CD_NM_DEU
+														ELSE D1.CD_NM_ENG
+											END PRCS_DEPTH_NM,
+											CASE WHEN :vo.session_user_locale= 'ko' THEN D2.CD_NM 
+												 WHEN :vo.session_user_locale= 'fr' THEN D2.CD_NM_FRA
+												 WHEN :vo.session_user_locale= 'de' THEN D2.CD_NM_DEU
+														ELSE D2.CD_NM_ENG
+											END DEPTH_STATUS_NM
+									FROM	(				
+												SELECT T.*
+												FROM	(
+															SELECT ROWNUM RN, COUNT(1) OVER()  TOTAL_CNT, X.MN_CNSD_DEPT, X.REQ_DT, Y.*
+															FROM	(
+																		SELECT REQ.CNSDREQ_ID, REQ.MN_CNSD_DEPT, TO_CHAR(REQ_MAX.REQ_DT, 'YYYYMMDD') AS REQ_DT, REQ_MAX.REQ_DT AS REQDT
+         																  FROM TN_CLM_CONT_CNSDREQ REQ,
+																		      (SELECT FST_CNSDREQ_ID, MAX(CNSD_LEVEL) AS LVL, MIN(ISNULL(REQ_DT, REG_DT)) AS REQ_DT
+																		         FROM TN_CLM_CONT_CNSDREQ
+																		        WHERE DEL_YN = 'N'
+																		       GROUP BY FST_CNSDREQ_ID) REQ_MAX
+																		 WHERE REQ.FST_CNSDREQ_ID = REQ_MAX.FST_CNSDREQ_ID
+																		   AND REQ.CNSD_LEVEL = REQ_MAX.LVL
+																		   AND REQ.DEL_YN = 'N'
+																		   /** 의뢰명 **/																		
+																	#if(!$vo.srch_review_title.equals(""))
+																		AND		UPPER(REQ.REQ_TITLE)  LIKE '%' + :vo.srch_review_title + '%'
+																	#end
+																		/** 의뢰일자 **/																		/** 의뢰일자 **/
+																	#if(!$vo.srch_start_reqday.equals(""))
+																		AND		TO_CHAR(REQ.REQ_DT, 'YYYYMMDD') >= :vo.srch_start_reqday
+																	#end
+																	#if(!$vo.srch_end_reqday.equals(""))
+																		AND		TO_CHAR(REQ.REQ_DT, 'YYYYMMDD') <= :vo.srch_end_reqday
+																	#end
+																		/** 검토자 **/
+																	#if (!$vo.srch_cnsdman_nm.equals(""))
+																	 	AND		REQ.CNSDREQ_ID IN ( SELECT CNSDREQ_ID
+																									FROM	 TN_CLM_CONT_CNSDREQ_RESPMAN
+																									WHERE 	UPPER(RESPMAN_NM) LIKE '%' + :vo.srch_cnsdman_nm + '%'
+																									)
+																	#end																		
+																		) X, (
+																				SELECT 	CNSD.CNSDREQ_ID, MASTER.CNTRT_ID, MASTER.CNTRT_NO, MASTER.CNTRT_NM, MASTER.CNTRT_OPPNT_NM, MASTER.CNTRT_CNCLSNDAY,
+																						MASTER.CNTRT_RESPMAN_NM, MASTER.CNTRT_RESP_DEPT_NM, MASTER.PRCS_DEPTH, MASTER.DEPTH_STATUS
+																				FROM	TN_CLM_CONTRACT_CNSD CNSD, TN_CLM_CONTRACT_MASTER MASTER,TH_CLM_ORG_MNG HIS
+																				WHERE 	CNSD.CNTRT_ID 		= MASTER.CNTRT_ID
+																				AND     CNSD.CNTRT_ID       = HIS.CNTRT_ID
+																				AND		MASTER.DEL_YN 		= 'N'
+																				AND 	MASTER.CNTRT_STATUS = 'C02402'
+																				AND 	MASTER.PRCS_DEPTH 	= 'C02505'
+																				AND		MASTER.DEPTH_STATUS = 'C02685'
+																				#if(!$vo.session_auth_comp_cd.equals(""))
+																			        AND MASTER.COMP_CD IN ($vo.session_auth_comp_cd)
+																		        #end
+																				AND     HIS.GUBUN           = 'R'
+																				/** 계약명 **/
+																			#if(!$vo.srch_cntrt_nm.equals(""))
+																				AND		UPPER(MASTER.CNTRT_NM)  LIKE '%' + :vo.srch_cntrt_nm + '%'
+																			#end
+																			/** 계약ID **/
+																			#if(!$vo.srch_cntrt_no.equals(""))
+																				AND		UPPER(MASTER.CNTRT_NO)  LIKE '%' + :vo.srch_cntrt_no + '%'
+																			#end
+																				/** 담당자 **/
+																			#if(!$vo.srch_respman_nm.equals(""))
+																				AND		UPPER(MASTER.CNTRT_RESPMAN_NM)  LIKE '%' + :vo.srch_respman_nm + '%'
+																			#end
+																				/** 담당부서 **/
+																			#if (!$vo.srch_resp_dept.equals(""))
+																				AND		MASTER.CNTRT_RESP_UP_DEPT LIKE '%' + :vo.srch_resp_dept + '^%'
+																			#end																	
+																				/** 비즈니스단계**/
+																			#if (!$vo.srch_biz_clsfcn.equals(""))
+																				AND 	MASTER.BIZ_CLSFCN = :vo.srch_biz_clsfcn
+																			#end
+																				/** 체결목적 **/
+																			#if (!$vo.srch_cnclsnpurps_bigclsfcn.equals(""))	
+																				AND 	MASTER.CNCLSNPURPS_BIGCLSFCN = :vo.srch_cnclsnpurps_bigclsfcn	
+																			#end
+																				/** 계약단계 **/
+																			#if(!$vo.srch_step.equals(""))
+																				AND 	MASTER.PRCS_DEPTH = :vo.srch_step
+																			#end
+																				/** 계약상태 **/
+																			#if(!$vo.srch_state.equals(""))
+																				AND 	MASTER.DEPTH_STATUS = :vo.srch_state
+																			#end
+																				/** 계약상대방**/
+																			#if (!$vo.srch_oppnt_cd.equals(""))
+																				AND 	MASTER.CNTRT_OPPNT_CD = :vo.srch_oppnt_cd
+																			#end	
+																				/** 계약체결일**/																	
+																			#if(!$vo.srch_start_cnlsnday.equals(""))
+																				AND		MASTER.CNTRT_CNCLSNDAY >= :vo.srch_start_cnlsnday
+																			#end
+																			#if(!$vo.srch_end_cnlsnday.equals(""))
+																				AND		MASTER.CNTRT_CNCLSNDAY <= :vo.srch_end_cnlsnday
+																			#end
+																			/** 연계시스템**/
+																			#if (!$vo.srch_if_sys_cd.equals(""))
+																				AND 	MASTER.IF_SYS_CD = :vo.srch_if_sys_cd
+																			#end
+																			  ) Y
+															WHERE X.CNSDREQ_ID = Y.CNSDREQ_ID
+															ORDER BY X.REQDT DESC, X.CNSDREQ_ID DESC
+															) T
+												WHERE T.RN BETWEEN :vo.start_index AND :vo.end_index
+												) M , TB_COM_CD D1, TB_COM_CD D2
+									WHERE D1.SYS_CD = 'LAS'
+									AND     D1.CD = M.PRCS_DEPTH
+									AND		D2.SYS_CD = 'LAS'
+									AND		D2.CD = M.DEPTH_STATUS
+									) L, TN_CLM_CONT_CNSDREQ_RESPMAN LD
+							WHERE L.CNSDREQ_ID = LD.CNSDREQ_ID(+)
+							AND	L.MN_CNSD_DEPT = LD.RESP_DEPT(+)
+							) 
+					START WITH RD=1
+					CONNECT BY PRIOR RD = RD - 1 AND PRIOR RN = RN
+					GROUP BY RN, TOTAL_CNT, MN_CNSD_DEPT, REQ_DT, CNSDREQ_ID, CNTRT_ID,CNTRT_NO, CNTRT_NM, CNTRT_OPPNT_NM, CNTRT_RESPMAN_NM, CNTRT_RESP_DEPT_NM, PRCS_DEPTH, DEPTH_STATUS, PRCS_DEPTH_NM, DEPTH_STATUS_NM, CNTRT_CNCLSNDAY
+					) TM, (
+								SELECT S.CNSDREQ_ID, S.RESP_DEPT, 
+											CASE WHEN MAX(S.RESPMAN_CNT) > 1 THEN 
+												CASE WHEN :vo.session_user_locale = 'ko' THEN
+													MIN(S.RESPMAN_NM) + ' 외 ' + TO_CHAR(MAX(S.RESPMAN_CNT) - 1) + ' 명'
+												WHEN :vo.session_user_locale = 'fr' THEN
+													MIN(S.RESPMAN_NM) + ' et ' + TO_CHAR(MAX(S.RESPMAN_CNT) - 1) + ' Personne(s)'
+												WHEN :vo.session_user_locale = 'de' THEN
+													MIN(S.RESPMAN_NM) + ' und ' + TO_CHAR(MAX(S.RESPMAN_CNT) - 1) + ' Person(en)'
+												ELSE
+													MIN(S.RESPMAN_NM) + ' and ' + TO_CHAR(MAX(S.RESPMAN_CNT) - 1) + ' others'
+												END
+													ELSE ISNULL(MIN(S.RESPMAN_NM), '')
+											END AS CNSDMAN
+								FROM	(
+											SELECT RES.CNSDREQ_ID, RES.RESP_DEPT, RES.RESPMAN_NM, ISNULL(USR.USER_SRT, 999) AS USER_SRT, 
+														MIN(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS MIN_USER_SRT, 
+														COUNT(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS RESPMAN_CNT 
+											FROM TN_CLM_CONT_CNSDREQ_RESPMAN RES, TB_COM_USER USR
+											WHERE RES.RESPMAN_ID = USR.USER_ID(+)
+											)	S	
+								WHERE S.USER_SRT = S.MIN_USER_SRT					
+								GROUP BY S.CNSDREQ_ID, S.RESP_DEPT
+								) TD
+			WHERE TM.CNSDREQ_ID = TD.CNSDREQ_ID(+)
+			AND	TM.MN_CNSD_DEPT = TD.RESP_DEPT(+)			
+			ORDER BY TM.REQ_DT desc
+    		]]>
+  		</statement>	
+	</query>	
+	
+	<!-- 체결후등록 승인 리스트 : 2012.07.23  -->
+    <query id="clm.manage.listManageRegistrationApproval" isCamelCase="false">
+		<statement>
+    		<![CDATA[
+			SELECT 	TM.*, TD.CNSDMAN
+				FROM	(
+					SELECT RN, TOTAL_CNT, MN_CNSD_DEPT, REQ_DT,REQ_TITLE,REQMAN_NM, CNSDREQ_ID, CNTRT_ID,  ISNULL(CNTRT_NO,'') CNTRT_NO, CNTRT_NM, CNTRT_OPPNT_NM, CNTRT_RESPMAN_NM, CNTRT_RESP_DEPT_NM, PRCS_DEPTH, DEPTH_STATUS, PRCS_DEPTH_NM, DEPTH_STATUS_NM, CNTRT_CNCLSNDAY,
+								ISNULL((select dbo.LAS_CONT_CNSDREQ_RESPMAN_M(CNSDREQ_ID,', ','xx')),'') AS CNSDMANS /*xx : TB_COM_USER의 USER_NM 값으로 가져오기 위해*/
+					FROM	(
+							SELECT L.*, LD.RESP_DEPT, LD.RESPMAN_NM, LD.RESPMAN_ID,
+										row_number() OVER(PARTITION BY L.CNTRT_ID, L.CNSDREQ_ID, LD.RESP_DEPT ORDER BY LD.RESPMAN_NM) AS RD
+							FROM	(
+									SELECT 	M.*,
+											CASE WHEN :vo.session_user_locale= 'ko' THEN D1.CD_NM
+												 WHEN :vo.session_user_locale= 'fr' THEN D1.CD_NM_FRA
+												 WHEN :vo.session_user_locale= 'de' THEN D1.CD_NM_DEU
+														ELSE D1.CD_NM_ENG
+											END PRCS_DEPTH_NM,
+											CASE WHEN :vo.session_user_locale= 'ko' THEN D2.CD_NM 
+												 WHEN :vo.session_user_locale= 'fr' THEN D2.CD_NM_FRA
+												 WHEN :vo.session_user_locale= 'de' THEN D2.CD_NM_DEU
+														ELSE D2.CD_NM_ENG
+											END DEPTH_STATUS_NM
+									FROM	(				
+												SELECT T.*
+												FROM	(
+															SELECT ROW_NUMBER() OVER (ORDER BY X.REQDT DESC, X.CNSDREQ_ID DESC) RN, CAST(COUNT(1) OVER() AS NUMERIC)  TOTAL_CNT
+															, X.MN_CNSD_DEPT, X.REQ_DT,X.REQ_TITLE,X.REQMAN_NM, Y.*
+															FROM	(
+																		SELECT REQ.CNSDREQ_ID, REQ.MN_CNSD_DEPT, 
+																			REPLACE(CONVERT(CHAR(10), CONVERT(DATE, REQ_MAX.REQ_DT), 23),'-','') AS REQ_DT, 
+																			REQ_MAX.REQ_DT AS REQDT, REQ.REQ_TITLE,REQ.REQMAN_NM
+         																  FROM TN_CLM_CONT_CNSDREQ REQ,
+																		      (SELECT FST_CNSDREQ_ID, MAX(CNSD_LEVEL) AS LVL, MIN(ISNULL(REQ_DT, REG_DT)) AS REQ_DT
+																		         FROM TN_CLM_CONT_CNSDREQ
+																		        WHERE DEL_YN = 'N'
+																		       GROUP BY FST_CNSDREQ_ID) REQ_MAX
+																		 WHERE REQ.FST_CNSDREQ_ID = REQ_MAX.FST_CNSDREQ_ID
+																		   AND REQ.CNSD_LEVEL = REQ_MAX.LVL
+																		   AND REQ.DEL_YN = 'N'
+																		   /** 의뢰명 **/																		
+																	#if(!$vo.srch_review_title.equals(""))
+																		/** AND		UPPER(REQ.REQ_TITLE)  LIKE '%' + :vo.srch_review_title + '%' **/
+																		AND 'Y' =	CASE WHEN :vo.srch_review_title <> '' THEN
+																						(CASE WHEN CHARINDEX('[', :vo.srch_review_title ) >0 OR CHARINDEX(']',:vo.srch_review_title) >0 THEN 
+																									CASE WHEN (CHARINDEX('[', REQ.REQ_TITLE ) >0 OR CHARINDEX(']',REQ.REQ_TITLE) >0) AND
+																										REPLACE(REPLACE(UPPER(REQ.REQ_TITLE),'[','S'),']','E') LIKE
+																										'%' + REPLACE(REPLACE(UPPER( :vo.srch_review_title ),'[','S'),']','E') + '%' THEN 'Y'
+																									ELSE 'N' END
+																								WHEN UPPER(REQ.REQ_TITLE) LIKE '%' + UPPER( :vo.srch_review_title ) + '%' THEN 'Y'
+																								ELSE  'N' END)
+																					ELSE 'Y' END
+																	#end
+																		/** 의뢰일자 **/																		/** 의뢰일자 **/
+																	#if(!$vo.srch_start_reqday.equals(""))
+																		AND		REPLACE(CONVERT(CHAR(10), CONVERT(DATE, REQ.REQ_DT), 23),'-','') >= :vo.srch_start_reqday																				
+																	#end
+																	#if(!$vo.srch_end_reqday.equals(""))
+																		AND		REPLACE(CONVERT(CHAR(10), CONVERT(DATE, REQ.REQ_DT), 23),'-','') <= :vo.srch_end_reqday
+																	#end
+																		/** 검토자 **/
+																	#if (!$vo.srch_cnsdman_nm.equals(""))
+																	 	AND		REQ.CNSDREQ_ID IN ( SELECT CNSDREQ_ID
+																									FROM	 TN_CLM_CONT_CNSDREQ_RESPMAN
+																									WHERE 	UPPER(RESPMAN_NM) LIKE '%' + :vo.srch_cnsdman_nm + '%'
+																									)
+																	#end																		
+																		) X, (
+																				SELECT 	CNSD.CNSDREQ_ID, MASTER.CNTRT_ID, MASTER.CNTRT_NO, MASTER.CNTRT_NM, MASTER.CNTRT_OPPNT_NM, MASTER.CNTRT_CNCLSNDAY,
+																						MASTER.CNTRT_RESPMAN_NM, MASTER.CNTRT_RESP_DEPT_NM, MASTER.PRCS_DEPTH, MASTER.DEPTH_STATUS
+																				FROM	TN_CLM_CONTRACT_CNSD CNSD, TN_CLM_CONTRACT_MASTER MASTER
+																				WHERE 	CNSD.CNTRT_ID 			= MASTER.CNTRT_ID
+																				AND		MASTER.DEL_YN 			= 'N'
+																				AND 	MASTER.CNTRT_STATUS 	= 'C02401'
+																				AND 	MASTER.PRCS_DEPTH 		= 'C02502'
+																				AND		MASTER.DEPTH_STATUS 	= 'C02636'
+																				AND		MASTER.CNTRT_INFO_GBN 	= 'C05404'
+																				#if(!$vo.session_auth_comp_cd.equals(""))
+																			        AND MASTER.COMP_CD IN ($vo.session_auth_comp_cd)
+																		        #end
+																				/** 계약명 **/
+																			#if(!$vo.srch_cntrt_nm.equals(""))
+																				AND		UPPER(MASTER.CNTRT_NM)  LIKE '%' + :vo.srch_cntrt_nm + '%'
+																			#end
+																			/** 계약ID **/
+																			#if(!$vo.srch_cntrt_no.equals(""))
+																				AND		UPPER(MASTER.CNTRT_NO)  LIKE '%' + :vo.srch_cntrt_no + '%'
+																			#end
+																				/** 담당자 **/
+																			#if(!$vo.srch_respman_nm.equals(""))
+																				AND		UPPER(MASTER.CNTRT_RESPMAN_NM)  LIKE '%' + :vo.srch_respman_nm + '%'
+																			#end
+																				/** 담당부서 **/
+																			#if (!$vo.srch_resp_dept.equals(""))
+																				AND		MASTER.CNTRT_RESP_UP_DEPT LIKE '%' + :vo.srch_resp_dept + '^%'
+																			#end																	
+																				/** 비즈니스단계**/
+																			#if (!$vo.srch_biz_clsfcn.equals(""))
+																				AND 	MASTER.BIZ_CLSFCN = :vo.srch_biz_clsfcn
+																			#end
+																				/** 체결목적 **/
+																			#if (!$vo.srch_cnclsnpurps_bigclsfcn.equals(""))	
+																				AND 	MASTER.CNCLSNPURPS_BIGCLSFCN = :vo.srch_cnclsnpurps_bigclsfcn	
+																			#end
+																				/** 계약단계 **/
+																			#if(!$vo.srch_step.equals(""))
+																				AND 	MASTER.PRCS_DEPTH = :vo.srch_step
+																			#end
+																				/** 계약상태 **/
+																			#if(!$vo.srch_state.equals(""))
+																				AND 	MASTER.DEPTH_STATUS = :vo.srch_state
+																			#end
+																				/** 계약상대방**/
+																			#if (!$vo.srch_oppnt_cd.equals(""))
+																				AND 	MASTER.CNTRT_OPPNT_CD = :vo.srch_oppnt_cd
+																			#end	
+																				/** 계약체결일**/																	
+																			#if(!$vo.srch_start_cnlsnday.equals(""))
+																				AND		MASTER.CNTRT_CNCLSNDAY >= :vo.srch_start_cnlsnday
+																			#end
+																			#if(!$vo.srch_end_cnlsnday.equals(""))
+																				AND		MASTER.CNTRT_CNCLSNDAY <= :vo.srch_end_cnlsnday
+																			#end
+																			/** 연계시스템**/
+																			#if (!$vo.srch_if_sys_cd.equals(""))
+																				AND 	MASTER.IF_SYS_CD = :vo.srch_if_sys_cd
+																			#end
+																			  ) Y
+															WHERE X.CNSDREQ_ID = Y.CNSDREQ_ID
+															) T
+												#if (!$vo.isExcelFlag + !$vo.isExcelFlag.equals("Y"))
+												WHERE T.RN BETWEEN :vo.start_index AND :vo.end_index
+            									#end
+												) M , TB_COM_CD D1, TB_COM_CD D2
+									WHERE D1.SYS_CD = 'LAS'
+									AND     D1.CD = M.PRCS_DEPTH
+									AND		D2.SYS_CD = 'LAS'
+									AND		D2.CD = M.DEPTH_STATUS
+									) L LEFT OUTER JOIN TN_CLM_CONT_CNSDREQ_RESPMAN LD
+							ON L.CNSDREQ_ID = LD.CNSDREQ_ID
+							AND	L.MN_CNSD_DEPT = LD.RESP_DEPT
+							) SSA
+					/*
+					START WITH RD=1
+					CONNECT BY PRIOR RD = RD - 1 AND PRIOR RN = RN
+					*/
+					GROUP BY RN, TOTAL_CNT, MN_CNSD_DEPT, REQ_DT,REQ_TITLE,REQMAN_NM, CNSDREQ_ID, CNTRT_ID, CNTRT_NO, CNTRT_NM, CNTRT_OPPNT_NM, CNTRT_RESPMAN_NM, CNTRT_RESP_DEPT_NM, PRCS_DEPTH, DEPTH_STATUS, PRCS_DEPTH_NM, DEPTH_STATUS_NM, CNTRT_CNCLSNDAY
+					
+					) TM LEFT OUTER JOIN (
+								SELECT S.CNSDREQ_ID, S.RESP_DEPT, 
+											CASE WHEN MAX(S.RESPMAN_CNT) > 1 THEN 
+												CASE WHEN :vo.session_user_locale = 'ko' THEN
+													MIN(S.RESPMAN_NM) + ' 외 ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' 명'
+												WHEN :vo.session_user_locale = 'fr' THEN
+													MIN(S.RESPMAN_NM) + ' et ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' Personne(s)'
+												WHEN :vo.session_user_locale = 'de' THEN
+													MIN(S.RESPMAN_NM) + ' und ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' Person(en)'
+												ELSE
+													MIN(S.RESPMAN_NM) + ' and ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' others'
+												END
+													ELSE ISNULL(MIN(S.RESPMAN_NM), '')
+											END AS CNSDMAN
+								FROM	(
+											SELECT RES.CNSDREQ_ID, RES.RESP_DEPT, RES.RESPMAN_NM, ISNULL(USR.USER_SRT, 999) AS USER_SRT, 
+														MIN(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS MIN_USER_SRT, 
+														COUNT(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS RESPMAN_CNT 
+											FROM TN_CLM_CONT_CNSDREQ_RESPMAN RES LEFT OUTER JOIN TB_COM_USER USR
+											ON RES.RESPMAN_ID = USR.USER_ID
+											)	S	
+								WHERE S.USER_SRT = S.MIN_USER_SRT					
+								GROUP BY S.CNSDREQ_ID, S.RESP_DEPT
+								) TD
+			ON TM.CNSDREQ_ID = TD.CNSDREQ_ID
+			AND	TM.MN_CNSD_DEPT = TD.RESP_DEPT			
+			ORDER BY TM.REQ_DT DESC
+    		]]>
+  		</statement>	
+	</query>		
+			
+		 <!-- 표준계약서 리스트 (의뢰별) -->
+    <query id="clm.manage.listStd1" isCamelCase="false">
+		<statement>
+    		<![CDATA[
+			SELECT TM.*, TD.CNSDMAN
+			FROM	(
+					SELECT RN, TOTAL_CNT, CNSDREQ_ID, REQ_TITLE, MN_CNSD_DEPT, REQMAN_NM, REQMAN_ID, REQ_DT, CNTRT_ID, CNTRT_CNT, CNTRT_RESPMAN_NM, CNTRT_RESPMAN_ID,
+							CNTRT_RESP_DEPT_NM, CNTRT_OPPNT_NM, PRCS_DEPTH, DEPTH_STATUS, PRCS_DEPTH_NM,CNTRT_NM, CNTRT_NO, ORG_ACPTDAY,
+							CASE WHEN :vo.session_user_locale = 'ko' THEN
+								CASE WHEN PRCS_DEPTH IN ('C02506', 'C02507', 'C02509') THEN '이관' ELSE DEPTH_STATUS_NM END
+							WHEN :vo.session_user_locale = 'fr' THEN
+								CASE WHEN PRCS_DEPTH IN ('C02506', 'C02507', 'C02509') THEN 'FR_이관' ELSE DEPTH_STATUS_NM END
+							WHEN :vo.session_user_locale = 'de' THEN
+								CASE WHEN PRCS_DEPTH IN ('C02506', 'C02507', 'C02509') THEN 'DE_이관' ELSE DEPTH_STATUS_NM END
+							ELSE
+								CASE WHEN PRCS_DEPTH IN ('C02506', 'C02507', 'C02509') THEN 'Transfer' ELSE DEPTH_STATUS_NM END
+							END  AS DEPTH_STATUS_NM,
+							(select dbo.LAS_CONT_CNSDREQ_RESPMAN_M(CNSDREQ_ID,'<br>','xx')) AS CNSDMANS /*xx : TB_COM_USER의 USER_NM 값으로 가져오기 위해*/
+					FROM	(
+							SELECT L.*, LD.RESP_DEPT, LD.RESPMAN_NM, LD.RESPMAN_ID,
+										row_number() OVER(PARTITION BY L.CNSDREQ_ID, LD.RESP_DEPT ORDER BY LD.RESPMAN_NM) AS RD
+							FROM	(
+										SELECT	M.*, D.CNTRT_RESPMAN_NM, D.CNTRT_RESPMAN_ID, D.CNTRT_RESP_DEPT_NM, D.CNTRT_OPPNT_NM, D.PRCS_DEPTH, D.DEPTH_STATUS,
+												CASE WHEN :vo.session_user_locale= 'ko' THEN D1.CD_NM
+													 WHEN :vo.session_user_locale= 'fr' THEN D1.CD_NM_FRA
+													 WHEN :vo.session_user_locale= 'de' THEN D1.CD_NM_DEU
+															ELSE D1.CD_NM_ENG
+												END PRCS_DEPTH_NM,
+												CASE WHEN :vo.session_user_locale= 'ko' THEN D2.CD_NM 
+													 WHEN :vo.session_user_locale= 'fr' THEN D2.CD_NM_FRA
+													 WHEN :vo.session_user_locale= 'de' THEN D2.CD_NM_DEU
+															ELSE D2.CD_NM_ENG
+												END
+												+
+												CASE WHEN D.DEPTH_STATUS IN ('C02601', 'C02606', 'C02608')
+															THEN 
+																 CASE WHEN :vo.session_user_locale = 'ko' THEN
+																	CASE WHEN M.PLNDBN_REQ_YN = 'Y'
+																		THEN '(최종)'
+																		ELSE '(' + CAST(M.LVL AS NVARCHAR) + '차)'
+																 	END
+																 ELSE
+																 	CASE WHEN M.PLNDBN_REQ_YN = 'Y'
+																		THEN '(Final)'
+																		ELSE 
+																			CASE WHEN M.LVL = '1' THEN '(' +CAST(M.LVL AS NVARCHAR) + 'st)'
+																				 WHEN M.LVL = '2' THEN '(' +CAST(M.LVL AS NVARCHAR) + 'nd)'
+																				 WHEN M.LVL = '3' THEN '(' +CAST(M.LVL AS NVARCHAR) + 'rd)'
+																				 ELSE '(' + CAST(M.LVL AS NVARCHAR) + 'th)'
+																			END
+																 	END
+																 END
+															ELSE ''
+												END 
+												AS DEPTH_STATUS_NM
+										FROM	(
+												SELECT T.*
+												FROM	(
+															SELECT ROW_NUMBER() OVER (ORDER BY X.REQDT DESC, X.CNSDREQ_ID DESC) RN, CAST(COUNT(1) OVER() AS NUMERIC) TOTAL_CNT, X.*, Y.CNTRT_ID, Y.CNTRT_CNT, Y.CNTRT_NM, Y.CNTRT_NO, Y.ORG_ACPTDAY
+															FROM	(
+																		SELECT REQ.CNSDREQ_ID, REQ.REQ_TITLE, REQ.MN_CNSD_DEPT, REQ.REQMAN_NM, REQ.REQMAN_ID
+																			, CONVERT(CHAR(10), CONVERT(DATE, REQ_MAX.REQ_DT), 23) AS REQ_DT /*YYYY-MM-DD*/
+																			,REQ_MAX.REQ_DT AS REQDT ,REQ.PLNDBN_REQ_YN ,REQ_MAX.LVL
+																		       
+																		  FROM TN_CLM_CONT_CNSDREQ REQ,
+																		      (SELECT FST_CNSDREQ_ID, MAX(CNSD_LEVEL) AS LVL, MIN(ISNULL(REQ_DT, REG_DT)) AS REQ_DT
+																		         FROM TN_CLM_CONT_CNSDREQ
+																		        WHERE DEL_YN = 'N'
+																		       GROUP BY FST_CNSDREQ_ID) REQ_MAX
+																		 WHERE REQ.FST_CNSDREQ_ID = REQ_MAX.FST_CNSDREQ_ID
+																		   AND REQ.CNSD_LEVEL = REQ_MAX.LVL
+																		   AND REQ.DEL_YN = 'N'
+																		#if(!$vo.session_auth_comp_cd.equals(""))
+																			AND REQ.COMP_CD IN ($vo.session_auth_comp_cd)
+																		#end													
+																		/** 의뢰명 **/
+																	#if(!$vo.srch_review_title.equals(""))
+																		/** AND		UPPER(REQ.REQ_TITLE)  LIKE '%' + :vo.srch_review_title + '%' **/ 
+																		AND 'Y' =	CASE WHEN :vo.srch_review_title <> '' THEN
+																						(CASE WHEN CHARINDEX('[', :vo.srch_review_title ) >0 OR CHARINDEX(']',:vo.srch_review_title) >0 THEN 
+																									CASE WHEN (CHARINDEX('[', REQ.REQ_TITLE ) >0 OR CHARINDEX(']',REQ.REQ_TITLE) >0) AND
+																										REPLACE(REPLACE(UPPER(REQ.REQ_TITLE),'[','S'),']','E') LIKE
+																										'%' + REPLACE(REPLACE(UPPER( :vo.srch_review_title ),'[','S'),']','E') + '%' THEN 'Y'
+																									ELSE 'N' END
+																								WHEN UPPER(REQ.REQ_TITLE) LIKE '%' + UPPER( :vo.srch_review_title ) + '%' THEN 'Y'
+																								ELSE  'N' END)
+																					ELSE 'Y' END
+																	#end
+																		/** 의뢰자 **/
+																	#if(!$vo.srch_reqman_nm.equals(""))
+																		AND		UPPER(REQ.REQMAN_NM)  LIKE '%' + :vo.srch_reqman_nm + '%'
+																	#end
+																		/** 의뢰일자 **/
+																	#if(!$vo.srch_start_reqday.equals(""))
+																		AND		REPLACE(CONVERT(CHAR(10), CONVERT(DATE, REQ_MAX.REQ_DT), 23),'-','') >= :vo.srch_start_reqday
+																	#end
+																	#if(!$vo.srch_end_reqday.equals(""))
+																		AND		REPLACE(CONVERT(CHAR(10), CONVERT(DATE, REQ_MAX.REQ_DT), 23),'-','') <= :vo.srch_end_reqday
+																	#end
+																		/** 검토자 **/
+																	#if (!$vo.srch_cnsdman_nm.equals(""))
+																	 	AND		REQ.CNSDREQ_ID IN ( SELECT CNSDREQ_ID
+																									FROM	 TN_CLM_CONT_CNSDREQ_RESPMAN
+																									WHERE 	UPPER(RESPMAN_NM) LIKE '%' + :vo.srch_cnsdman_nm + '%'
+																								)
+																	#end
+																	/** 계약 Owner_ship 정 검토 부서 **/
+																		#if (!$vo.srch_lMn_cnsd_dept.equals("") && $vo.srch_lMn_cnsd_dept != "null")
+																		 AND 	REQ.MN_CNSD_DEPT IN (
+																			#foreach($Mn_cnsd_dept in $vo.srch_lMn_cnsd_dept)
+																			    #if($velocityCount	== 1)
+																			        '$Mn_cnsd_dept'
+																			    #else
+																			        ,'$Mn_cnsd_dept'
+																			    #end  
+																			#end
+																		    )
+																		#end
+																		) X, (SELECT A1.CNSDREQ_ID
+										                                            ,A1.CNTRT_ID
+										                                            ,A1.CNTRT_CNT
+										                                            ,A2.CNTRT_NM
+										                                            ,A2.CNTRT_NO
+										                                            ,CONVERT(DATETIME, REPLACE(A2.ORG_ACPTDAY,'-',''), 112) AS ORG_ACPTDAY
+										                                        FROM (SELECT CNSDREQ_ID, MIN(CNTRT_ID) AS CNTRT_ID, COUNT(CNTRT_ID) AS CNTRT_CNT
+																						FROM	(
+																									SELECT 	CNSD.CNSDREQ_ID, MASTER.CNTRT_ID, MASTER.CNTRT_NM
+																									FROM	TN_CLM_CONTRACT_CNSD CNSD, TN_CLM_CONTRACT_MASTER MASTER
+																									WHERE 	CNSD.CNTRT_ID = MASTER.CNTRT_ID
+																									AND		MASTER.DEL_YN = 'N'
+																									AND     LEN(MASTER.CNSLT_NO) > 0
+																									AND     DEPTH_STATUS = 'C02602'
+																								#if($vo.status_mode.equals("myContract"))
+																									AND 	(MASTER.CNTRT_INFO_GBN IN ('C05401', 'C05402', 'C05403')
+																									         OR (MASTER.CNTRT_INFO_GBN IN ('C05404')
+																									             AND MASTER.PRCS_DEPTH IN ('C02504', 'C02505')))
+																								#else
+																									AND 	(MASTER.CNTRT_INFO_GBN IN ('C05401')
+																									         OR (MASTER.CNTRT_INFO_GBN IN ('C05404')
+																									             AND MASTER.PRCS_DEPTH IN ('C02504', 'C02505')))
+																								#end
+																								    /** 계약 ID srch_cntrt_id**/
+																							    #if(!$vo.srch_cntrt_no.equals(""))
+                                                                                                    AND     MASTER.CNTRT_NO LIKE :vo.srch_cntrt_no + '%'
+                                                                                                #end
+																							        /** 계약명 **/	
+																								#if (!$vo.srch_cntrt_nm.equals("") && $vo.srch_cntrt_nm != "null")
+					                                                                              AND MASTER.CNTRT_NM LIKE '%' + :vo.srch_cntrt_nm +'%'
+					                                                                            #end
+																									/** 담당자 **/
+																								#if(!$vo.srch_respman_nm.equals(""))
+																									AND		UPPER(MASTER.CNTRT_RESPMAN_NM)  LIKE '%' + :vo.srch_respman_nm + '%'
+																								#end
+																									/** 담당부서 **/
+																								#if (!$vo.srch_resp_dept.equals(""))
+																									AND		MASTER.CNTRT_RESP_UP_DEPT LIKE '%' + :vo.srch_resp_dept + '^%'
+																								#end
+																									/** 계약단계 **/
+																								#if(!$vo.srch_step.equals(""))
+																									AND 	MASTER.PRCS_DEPTH = :vo.srch_step
+																								#end
+																								    /** 계약체결일**/                                                                    
+					                                                                            #if(!$vo.srch_start_cnlsnday.equals(""))
+					                                                                                AND     MASTER.CNTRT_CNCLSNDAY >= :vo.srch_start_cnlsnday
+					                                                                            #end
+					                                                                            #if(!$vo.srch_end_cnlsnday.equals(""))
+					                                                                                AND     MASTER.CNTRT_CNCLSNDAY <= :vo.srch_end_cnlsnday
+					                                                                            #end
+					                                                                                /** 원본접수일 **/                                                                    
+                                                                                                #if(!$vo.srch_str_org_acptday.equals(""))
+                                                                                                    AND     MASTER.ORG_ACPTDAY >= :vo.srch_str_org_acptday
+                                                                                                #end
+                                                                                                #if(!$vo.srch_end_org_acptday.equals(""))
+                                                                                                    AND     MASTER.ORG_ACPTDAY <= :vo.srch_end_org_acptday
+                                                                                                #end
+																									/** 계약상태 **/
+																								#if(!$vo.srch_state.equals(""))
+																									AND 	MASTER.DEPTH_STATUS = :vo.srch_state
+																								#end
+																									/** 계약상대방**/
+																								#if (!$vo.srch_oppnt_cd.equals(""))
+																									AND 	MASTER.CNTRT_OPPNT_CD = :vo.srch_oppnt_cd
+																								#end	
+																									/** 연계시스템**/
+																								#if ($vo.srch_if_sys_cd.equals("NO"))
+																								    AND     MASTER.IF_SYS_CD IS NULL
+																								#elseif (!$vo.srch_if_sys_cd.equals(""))
+																									AND 	MASTER.IF_SYS_CD = :vo.srch_if_sys_cd
+																								#end
+																								    /** 비즈니스단계**/
+					                                                                            #if (!$vo.srch_biz_clsfcn.equals(""))
+					                                                                                AND     MASTER.BIZ_CLSFCN = :vo.srch_biz_clsfcn
+					                                                                            #end
+					                                                                                /** 체결목적 **/
+					                                                                            #if (!$vo.srch_cnclsnpurps_bigclsfcn.equals(""))    
+					                                                                                AND     MASTER.CNCLSNPURPS_BIGCLSFCN = :vo.srch_cnclsnpurps_bigclsfcn   
+					                                                                            #end	
+																								/** 유형 대분류**/
+																					#if (!$vo.srch_sSrch_Ltype_cd.equals("") && $vo.srch_sSrch_Ltype_cd != "null")
+																					 AND 	MASTER.CNCLSNPURPS_BIGCLSFCN IN (
+																						#foreach($ltype in $vo.srch_lsrch_Ltype_cd)
+																						    #if($velocityCount	== 1)
+																						        '$ltype'
+																						    #else
+																						        ,'$ltype'
+																						    #end  
+																						#end
+																					    )
+																					#end
+																					/** 유형 중분류**/
+																					#if (!$vo.srch_sSrch_Mtype_cd.equals("") && $vo.srch_sSrch_Mtype_cd != "null")
+																					 AND 	MASTER.CNCLSNPURPS_MIDCLSFCN IN (
+																						#foreach($mtype in $vo.srch_lsrch_Mtype_cd)
+																						    #if($velocityCount	== 1)
+																						        '$mtype'
+																						    #else
+																						        ,'$mtype'
+																						    #end  
+																						#end
+																					    )
+																					#end
+																					/** 유형 소분류**/
+																					#if (!$vo.srch_sSrch_Stype_cd.equals("") && $vo.srch_sSrch_Stype_cd != "null")
+																					 AND 	MASTER.CNTRT_TRGT IN (
+																						#foreach($stype in $vo.srch_lsrch_Stype_cd)
+																						    #if($velocityCount	== 1)
+																						        '$stype'
+																						    #else
+																						        ,'$stype'
+																						    #end  
+																						#end
+																					    )
+																					#end
+																					/** 지불 구분**/
+																					#if (!$vo.srch_lPayment_gbn.equals("") && $vo.srch_lPayment_gbn != "null")
+																					 AND 	MASTER.PAYMENT_GBN IN (
+																						#foreach($payGbn in $vo.srch_lPayment_gbn)
+																						    #if($velocityCount	== 1)
+																						        '$payGbn'
+																						    #else
+																						        ,'$payGbn'
+																						    #end  
+																						#end
+																					    )
+																					#end
+																					/** 자동 연장 **/
+																					#if (!$vo.srch_auto_rnew_yn.equals("") && $vo.srch_auto_rnew_yn != "null")
+																					 AND 	MASTER.AUTO_RNEW_YN IN (
+																						#foreach($AutoYn in $vo.srch_lAuto_rnew_yn)
+																						    #if($velocityCount	== 1)
+																						        '$AutoYn'
+																						    #else
+																						        ,'$AutoYn'
+																						    #end  
+																						#end
+																					    )
+																					#end
+																					/** 날인방식 **/
+																					#if (!$vo.srch_sSeal_mthd.equals("") && $vo.srch_sSeal_mthd != "null")
+																					 AND 	MASTER.SEAL_MTHD IN (
+																						#foreach($Seal_mthd in $vo.srch_lSeal_mthd)
+																						    #if($velocityCount	== 1)
+																						        '$Seal_mthd'
+																						    #else
+																						        ,'$Seal_mthd'
+																						    #end  
+																						#end
+																					    )
+																					#end
+																					/** 준거법 **/
+																					#if (!$vo.srch_sLoac.equals("") && $vo.srch_sLoac != "null")
+																					 AND 	MASTER.LOAC IN (
+																						#foreach($Loac in $vo.srch_lLoac)
+																						    #if($velocityCount	== 1)
+																						        '$Loac'
+																						    #else
+																						        ,'$Loac'
+																						    #end  
+																						#end
+																					    )
+																					#end
+																					/** 분쟁해결 방법 **/
+																					#if (!$vo.srch_sDesp_resolt_mthd.equals("") && $vo.srch_sDesp_resolt_mthd != "null")
+																					 AND 	MASTER.DSPT_RESOLT_MTHD IN (
+																						#foreach($Desp_resolt_mthd in $vo.srch_lDesp_resolt_mthd)
+																						    #if($velocityCount	== 1)
+																						        '$Desp_resolt_mthd'
+																						    #else
+																						        ,'$Desp_resolt_mthd'
+																						    #end  
+																						#end
+																					    )
+																					#end
+																					/** 계약 대상 상세 **/
+																					#if (!$vo.srch_cntrt_trgt_det2.equals("") && $vo.srch_cntrt_trgt_det2 != "null")
+																					  AND MASTER.CNTRT_TRGT_DET LIKE '%' + :vo.srch_cntrt_trgt_det2 +'%'
+																					#end
+																					/** 사전품의 승인자 **/
+																					#if (!$vo.srch_bfhdcstn_apbtman_nm.equals("") && $vo.srch_bfhdcstn_apbtman_nm != "null")
+																					  AND MASTER.BFHDCSTN_APBTMAN_NM LIKE '%' + :vo.srch_bfhdcstn_apbtman_nm +'%'
+																					#end
+																					/** 체결 예정 계약서 최종 확인(사용안함)
+																					#if (!$vo.srch_str_org_acptday.equals("") && !$vo.srch_end_org_acptday.equals(""))
+																					  AND MASTER.ORG_ACPTDAY BETWEEN :vo.srch_str_org_acptday AND :vo.srch_end_org_acptday
+																					#end**/
+																					/** 서명자 정보 **/
+																					#if (!$vo.srch_signman_nm.equals("") && $vo.srch_signman_nm != "null")
+																					  AND MASTER.SIGNMAN_NM LIKE '%' + :vo.srch_signman_nm +'%'
+																					#end
+																								
+																									) TA
+																						GROUP BY CNSDREQ_ID ) A1
+																		         ,TN_CLM_CONTRACT_MASTER A2
+																		  WHERE   A1.CNTRT_ID = A2.CNTRT_ID
+																		  
+																				) Y
+															WHERE X.CNSDREQ_ID = Y.CNSDREQ_ID
+															) T
+#if (!$vo.isExcelFlag + !$vo.isExcelFlag.equals("Y"))
+												WHERE T.RN BETWEEN :vo.start_index AND :vo.end_index
+#end
+												) M, TN_CLM_CONTRACT_MASTER D, TB_COM_CD D1, TB_COM_CD D2
+									WHERE M.CNTRT_ID = D.CNTRT_ID
+									AND		D1.SYS_CD = 'LAS'
+									AND		D1.CD = D.PRCS_DEPTH
+									AND		D2.SYS_CD = 'LAS'
+									AND		D2.CD = D.DEPTH_STATUS
+									) L LEFT OUTER JOIN TN_CLM_CONT_CNSDREQ_RESPMAN LD
+							ON L.CNSDREQ_ID = LD.CNSDREQ_ID
+							AND	L.MN_CNSD_DEPT = LD.RESP_DEPT
+							) TB
+					/*		
+					START WITH RD=1
+					CONNECT BY PRIOR RD = RD - 1 AND PRIOR RN = RN
+					*/
+					GROUP BY RN, CNTRT_NM, CNTRT_NO, ORG_ACPTDAY, TOTAL_CNT, CNSDREQ_ID, REQ_TITLE, MN_CNSD_DEPT, REQMAN_NM, REQMAN_ID, REQ_DT, CNTRT_ID, CNTRT_CNT, CNTRT_RESPMAN_NM, CNTRT_RESPMAN_ID, CNTRT_RESP_DEPT_NM, CNTRT_OPPNT_NM, PRCS_DEPTH, DEPTH_STATUS, PRCS_DEPTH_NM, DEPTH_STATUS_NM
+					) TM LEFT OUTER JOIN (
+								SELECT S.CNSDREQ_ID, S.RESP_DEPT, 
+											CASE WHEN MAX(S.RESPMAN_CNT) > 1 THEN 
+												CASE WHEN :vo.session_user_locale = 'ko' THEN
+													MIN(S.RESPMAN_NM) + '<br/>외 ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' 명'
+												WHEN :vo.session_user_locale = 'fr' THEN
+													MIN(S.RESPMAN_NM) + '<br/>et ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' Personne(s)'
+												WHEN :vo.session_user_locale = 'de' THEN
+													MIN(S.RESPMAN_NM) + '<br/>und ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' Person(en)'
+												ELSE
+													MIN(S.RESPMAN_NM) + '<br/>and ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' others'
+												END
+													ELSE ISNULL(MIN(S.RESPMAN_NM), '')
+											END AS CNSDMAN
+								FROM	(
+											SELECT RES.CNSDREQ_ID, RES.RESP_DEPT, RES.RESPMAN_NM, ISNULL(USR.USER_SRT, 999) AS USER_SRT, 
+														MIN(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS MIN_USER_SRT, 
+														COUNT(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS RESPMAN_CNT 
+											FROM TN_CLM_CONT_CNSDREQ_RESPMAN RES LEFT OUTER JOIN TB_COM_USER USR
+											ON RES.RESPMAN_ID = USR.USER_ID
+											)	S	
+								WHERE S.USER_SRT = S.MIN_USER_SRT					
+								GROUP BY S.CNSDREQ_ID, S.RESP_DEPT
+								) TD
+			ON TM.CNSDREQ_ID = TD.CNSDREQ_ID
+			AND	TM.MN_CNSD_DEPT = TD.RESP_DEPT			
+			ORDER BY TM.REQ_DT DESC
+						
+    		]]>
+  		</statement>	
+	</query>            
+
+    <!-- 표준계약서 리스트 (계약별) -->
+    <query id="clm.manage.listStd2" isCamelCase="false">
+		<statement>
+    		<![CDATA[
+			SELECT 	TM.*, TD.CNSDMAN
+			FROM	(
+					SELECT RN, TOTAL_CNT, MN_CNSD_DEPT, REQ_DT, CNSDREQ_ID, CNTRT_ID, CNTRT_NM, CNTRT_OPPNT_NM, CNTRT_RESPMAN_NM, 
+							CNTRT_RESP_DEPT_NM, PRCS_DEPTH, DEPTH_STATUS, PRCS_DEPTH_NM, CNTRT_CNCLSNDAY,
+							CASE WHEN :vo.session_user_locale = 'ko' THEN
+								CASE WHEN PRCS_DEPTH IN ('C02506', 'C02507', 'C02509') THEN '이관' ELSE DEPTH_STATUS_NM END
+							WHEN :vo.session_user_locale = 'fr' THEN
+								CASE WHEN PRCS_DEPTH IN ('C02506', 'C02507', 'C02509') THEN 'FR_이관' ELSE DEPTH_STATUS_NM END
+							WHEN :vo.session_user_locale = 'de' THEN
+								CASE WHEN PRCS_DEPTH IN ('C02506', 'C02507', 'C02509') THEN 'DE_이관' ELSE DEPTH_STATUS_NM END
+							ELSE
+								CASE WHEN PRCS_DEPTH IN ('C02506', 'C02507', 'C02509') THEN 'Transfer' ELSE DEPTH_STATUS_NM END 
+							END AS DEPTH_STATUS_NM,
+							(select dbo.LAS_CONT_CNSDREQ_RESPMAN_M(CNSDREQ_ID,', ','xx')) AS CNSDMANS, /*xx : TB_COM_USER의 USER_NM 값으로 가져오기 위해*/
+							BIZ_CLSFCN
+					FROM	(
+							SELECT L.*, LD.RESP_DEPT, LD.RESPMAN_NM, LD.RESPMAN_ID,
+										row_number() OVER(PARTITION BY L.CNTRT_ID, L.CNSDREQ_ID, LD.RESP_DEPT ORDER BY LD.RESPMAN_NM) AS RD
+							FROM	(
+									SELECT 	M.*,
+											CASE WHEN :vo.session_user_locale= 'ko' THEN D1.CD_NM
+												 WHEN :vo.session_user_locale= 'fr' THEN D1.CD_NM_FRA
+												 WHEN :vo.session_user_locale= 'de' THEN D1.CD_NM_DEU
+														ELSE D1.CD_NM_ENG
+											END PRCS_DEPTH_NM,
+											CASE WHEN :vo.session_user_locale= 'ko' THEN D2.CD_NM 
+												 WHEN :vo.session_user_locale= 'fr' THEN D2.CD_NM_FRA
+												 WHEN :vo.session_user_locale= 'de' THEN D2.CD_NM_DEU
+														ELSE D2.CD_NM_ENG
+											END 
+											+
+											CASE WHEN M.DEPTH_STATUS IN ('C02606', 'C02608')
+														THEN 
+															CASE WHEN :vo.session_user_locale = 'ko' THEN
+																	CASE WHEN M.PLNDBN_REQ_YN = 'Y'
+																		THEN '(최종)'
+																		ELSE '(' + CAST(M.LVL AS NVARCHAR) + '차)'
+																 	END
+																 ELSE
+																 	CASE WHEN M.PLNDBN_REQ_YN = 'Y'
+																		THEN '(Final)'
+																		ELSE 
+																			CASE WHEN M.LVL = '1' THEN '(' + CAST(M.LVL AS NVARCHAR) + 'st)'
+																				 WHEN M.LVL = '2' THEN '(' +CAST(M.LVL AS NVARCHAR) + 'nd)'
+																				 WHEN M.LVL = '3' THEN '(' + CAST(M.LVL AS NVARCHAR) + 'rd)'
+																				 ELSE '(' + CAST(M.LVL AS NVARCHAR) + 'th)'
+																			END
+																 	END
+																 END
+															ELSE ''
+											END
+											AS DEPTH_STATUS_NM
+									FROM	(				
+												SELECT T.*
+												FROM	(
+															SELECT ROWNUM RN, COUNT(1) OVER()  TOTAL_CNT, X.MN_CNSD_DEPT, X.REQ_DT, X.PLNDBN_REQ_YN, X.LVL, Y.*
+															FROM	(
+																		SELECT REQ.CNSDREQ_ID
+																		      , REQ.MN_CNSD_DEPT
+																		      , TO_CHAR(REQ_MAX.REQ_DT, 'YYYY-MM-DD') AS REQ_DT
+																		      , REQ_MAX.REQ_DT AS REQDT
+																		      , REQ.PLNDBN_REQ_YN
+																		      , REQ_MAX.LVL
+																		      , REQ.REQMAN_NM
+																		  FROM TN_CLM_CONT_CNSDREQ REQ,
+																		      (SELECT FST_CNSDREQ_ID, MAX(CNSD_LEVEL) AS LVL, MIN(ISNULL(REQ_DT, REG_DT)) AS REQ_DT
+																		         FROM TN_CLM_CONT_CNSDREQ
+																		        WHERE DEL_YN = 'N'
+																		       GROUP BY FST_CNSDREQ_ID) REQ_MAX
+																		 WHERE REQ.FST_CNSDREQ_ID = REQ_MAX.FST_CNSDREQ_ID
+																		   AND REQ.CNSD_LEVEL = REQ_MAX.LVL
+																		   AND REQ.DEL_YN = 'N'
+																		/** 의뢰일자 **/
+																	#if(!$vo.srch_start_reqday.equals(""))
+																		AND		TO_CHAR(REQ_MAX.REQ_DT, 'YYYYMMDD') >= :vo.srch_start_reqday
+																	#end
+																	#if(!$vo.srch_end_reqday.equals(""))
+																		AND		TO_CHAR(REQ_MAX.REQ_DT, 'YYYYMMDD') <= :vo.srch_end_reqday
+																	#end																		
+																		/** 검토자 **/
+																	#if (!$vo.srch_cnsdman_nm.equals(""))
+																	 	AND		REQ.CNSDREQ_ID IN ( SELECT CNSDREQ_ID
+																									FROM	 TN_CLM_CONT_CNSDREQ_RESPMAN
+																									WHERE 	UPPER(RESPMAN_NM) LIKE '%' + :vo.srch_cnsdman_nm + '%'
+																									)
+																	#end
+																	/** 계약 Owner_ship 정 검토 부서 **/
+																	#if (!$vo.srch_lMn_cnsd_dept.equals("") && $vo.srch_lMn_cnsd_dept != "null")
+																		 AND 	REQ.MN_CNSD_DEPT IN (
+																			#foreach($Mn_cnsd_dept in $vo.srch_lMn_cnsd_dept)
+																			    #if($velocityCount	== 1)
+																			        '$Mn_cnsd_dept'
+																			    #else
+																			        ,'$Mn_cnsd_dept'
+																			    #end  
+																			#end
+																		    )
+																		#end																		
+																		) X, (
+																				SELECT 	CNSD.CNSDREQ_ID
+																				      , MASTER.CNTRT_ID
+																				      , MASTER.CNTRT_NM
+																				      , MASTER.CNTRT_OPPNT_NM
+																				      , CASE WHEN MASTER.CNTRT_CNCLSNDAY IS NOT NULL
+																				                  THEN SUBSTRING(MASTER.CNTRT_CNCLSNDAY, 1, 4) + '-' + SUBSTRING(MASTER.CNTRT_CNCLSNDAY, 5, 2) + '-' + SUBSTRING(MASTER.CNTRT_CNCLSNDAY, 7, 2)
+																				                  ELSE ''
+																				        END AS CNTRT_CNCLSNDAY
+																				      , MASTER.CNTRT_RESPMAN_NM
+																				      , MASTER.CNTRT_RESP_DEPT_NM
+																				      , MASTER.PRCS_DEPTH
+																				      , MASTER.DEPTH_STATUS
+                                                                                      , MASTER.BIZ_CLSFCN
+																				FROM	TN_CLM_CONTRACT_CNSD CNSD, TN_CLM_CONTRACT_MASTER MASTER
+																				WHERE 	CNSD.CNTRT_ID = MASTER.CNTRT_ID
+																				AND		MASTER.DEL_YN = 'N' 
+																				AND     LEN(MASTER.CNSLT_NO) > 0
+																			#if($vo.status_mode.equals("myContract"))
+																				AND 	(MASTER.CNTRT_INFO_GBN IN ('C05401', 'C05402', 'C05403')
+																				         OR (MASTER.CNTRT_INFO_GBN IN ('C05404')
+																				             AND MASTER.PRCS_DEPTH IN ('C02504', 'C02505')))
+																			#else
+																				AND 	(MASTER.CNTRT_INFO_GBN IN ('C05401')
+																				         OR (MASTER.CNTRT_INFO_GBN IN ('C05404')
+																				             AND MASTER.PRCS_DEPTH IN ('C02504', 'C02505')))
+																			#end
+																			#if($vo.status_mode.equals("registration"))
+																				AND 	MASTER.CNTRT_INFO_GBN IN ('C05404')
+																			#end																			
+																            #if(!$vo.session_auth_comp_cd.equals(""))
+																			        AND MASTER.COMP_CD IN ($vo.session_auth_comp_cd)
+																		    #end													
+																				/** 계약명 **/
+																			#if(!$vo.srch_review_title.equals(""))
+																				AND		UPPER(MASTER.CNTRT_NM)  LIKE '%' + :vo.srch_review_title + '%'
+																			#end
+																				/** 담당자 **/
+																			#if(!$vo.srch_respman_nm.equals(""))
+																				AND		UPPER(MASTER.CNTRT_RESPMAN_NM)  LIKE '%' + :vo.srch_respman_nm + '%'
+																			#end
+																				/** 담당부서 **/
+																			#if (!$vo.srch_resp_dept.equals(""))
+																				AND		MASTER.CNTRT_RESP_UP_DEPT LIKE '%' + :vo.srch_resp_dept + '^%'
+																			#end																	
+																				/** 비즈니스단계**/
+																			#if (!$vo.srch_biz_clsfcn.equals(""))
+																				AND 	MASTER.BIZ_CLSFCN = :vo.srch_biz_clsfcn
+																			#end
+																				/** 체결목적 **/
+																			#if (!$vo.srch_cnclsnpurps_bigclsfcn.equals(""))	
+																				AND 	MASTER.CNCLSNPURPS_BIGCLSFCN = :vo.srch_cnclsnpurps_bigclsfcn	
+																			#end
+																				/** 계약단계 **/
+																			#if(!$vo.srch_step.equals(""))
+																				AND 	MASTER.PRCS_DEPTH = :vo.srch_step
+																			#end
+																				/** 계약상태 **/
+																			#if(!$vo.srch_state.equals(""))
+																				AND 	MASTER.DEPTH_STATUS = :vo.srch_state
+																			#end
+																				/** 계약상대방**/
+																			#if (!$vo.srch_oppnt_cd.equals(""))
+																				AND 	MASTER.CNTRT_OPPNT_CD = :vo.srch_oppnt_cd
+																			#end	
+																				/** 계약체결일**/																	
+																			#if(!$vo.srch_start_cnlsnday.equals(""))
+																				AND		MASTER.CNTRT_CNCLSNDAY >= :vo.srch_start_cnlsnday
+																			#end
+																			#if(!$vo.srch_end_cnlsnday.equals(""))
+																				AND		MASTER.CNTRT_CNCLSNDAY <= :vo.srch_end_cnlsnday
+																			#end
+																				/** 연계시스템**/
+																			#if (!$vo.srch_if_sys_cd.equals(""))
+																				AND 	MASTER.IF_SYS_CD = :vo.srch_if_sys_cd
+																			#end	
+																			/** 유형 대분류**/
+																			#if (!$vo.srch_sSrch_Ltype_cd.equals("") && $vo.srch_sSrch_Ltype_cd != "null")
+																			 AND 	MASTER.CNCLSNPURPS_BIGCLSFCN IN (
+																				#foreach($ltype in $vo.srch_lsrch_Ltype_cd)
+																				    #if($velocityCount	== 1)
+																				        '$ltype'
+																				    #else
+																				        ,'$ltype'
+																				    #end  
+																				#end
+																			    )
+																			#end
+																			/** 유형 중분류**/
+																			#if (!$vo.srch_sSrch_Mtype_cd.equals("") && $vo.srch_sSrch_Mtype_cd != "null")
+																			 AND 	MASTER.CNCLSNPURPS_MIDCLSFCN IN (
+																				#foreach($mtype in $vo.srch_lsrch_Mtype_cd)
+																				    #if($velocityCount	== 1)
+																				        '$mtype'
+																				    #else
+																				        ,'$mtype'
+																				    #end  
+																				#end
+																			    )
+																			#end
+																			/** 유형 소분류**/
+																			#if (!$vo.srch_sSrch_Stype_cd.equals("") && $vo.srch_sSrch_Stype_cd != "null")
+																			 AND 	MASTER.CNTRT_TRGT IN (
+																				#foreach($stype in $vo.srch_lsrch_Stype_cd)
+																				    #if($velocityCount	== 1)
+																				        '$stype'
+																				    #else
+																				        ,'$stype'
+																				    #end  
+																				#end
+																			    )
+																			#end
+																			/** 지불 구분**/
+																			#if (!$vo.srch_lPayment_gbn.equals("") && $vo.srch_lPayment_gbn != "null")
+																			 AND 	MASTER.PAYMENT_GBN IN (
+																				#foreach($payGbn in $vo.srch_lPayment_gbn)
+																				    #if($velocityCount	== 1)
+																				        '$payGbn'
+																				    #else
+																				        ,'$payGbn'
+																				    #end  
+																				#end
+																			    )
+																			#end
+																			/** 자동 연장 **/
+																			#if (!$vo.srch_auto_rnew_yn.equals("") && $vo.srch_auto_rnew_yn != "null")
+																			 AND 	MASTER.AUTO_RNEW_YN IN (
+																				#foreach($AutoYn in $vo.srch_lAuto_rnew_yn)
+																				    #if($velocityCount	== 1)
+																				        '$AutoYn'
+																				    #else
+																				        ,'$AutoYn'
+																				    #end  
+																				#end
+																			    )
+																			#end
+																			/** 날인방식 **/
+																			#if (!$vo.srch_sSeal_mthd.equals("") && $vo.srch_sSeal_mthd != "null")
+																			 AND 	MASTER.SEAL_MTHD IN (
+																				#foreach($Seal_mthd in $vo.srch_lSeal_mthd)
+																				    #if($velocityCount	== 1)
+																				        '$Seal_mthd'
+																				    #else
+																				        ,'$Seal_mthd'
+																				    #end  
+																				#end
+																			    )
+																			#end
+																			/** 준거법 **/
+																			#if (!$vo.srch_sLoac.equals("") && $vo.srch_sLoac != "null")
+																			 AND 	MASTER.LOAC IN (
+																				#foreach($Loac in $vo.srch_lLoac)
+																				    #if($velocityCount	== 1)
+																				        '$Loac'
+																				    #else
+																				        ,'$Loac'
+																				    #end  
+																				#end
+																			    )
+																			#end
+																			/** 분쟁해결 방법 **/
+																			#if (!$vo.srch_sDesp_resolt_mthd.equals("") && $vo.srch_sDesp_resolt_mthd != "null")
+																			 AND 	MASTER.DSPT_RESOLT_MTHD IN (
+																				#foreach($Desp_resolt_mthd in $vo.srch_lDesp_resolt_mthd)
+																				    #if($velocityCount	== 1)
+																				        '$Desp_resolt_mthd'
+																				    #else
+																				        ,'$Desp_resolt_mthd'
+																				    #end  
+																				#end
+																			    )
+																			#end
+																			/** 계약 대상 상세 **/
+																			#if (!$vo.srch_cntrt_trgt_det2.equals("") && $vo.srch_cntrt_trgt_det2 != "null")
+																			  AND MASTER.CNTRT_TRGT_DET LIKE '%' + :vo.srch_cntrt_trgt_det2 +'%'
+																			#end
+																			/** 사전품의 승인자 **/
+																			#if (!$vo.srch_bfhdcstn_apbtman_nm.equals("") && $vo.srch_bfhdcstn_apbtman_nm != "null")
+																			  AND MASTER.BFHDCSTN_APBTMAN_NM LIKE '%' + :vo.srch_bfhdcstn_apbtman_nm +'%'
+																			#end
+																			 /** 체결 예정 계약서 최종 확인 **/
+																			#if (!$vo.srch_str_org_acptday.equals("") && !$vo.srch_end_org_acptday.equals(""))
+																			  AND MASTER.ORG_ACPTDAY BETWEEN :vo.srch_str_org_acptday AND :vo.srch_end_org_acptday
+																			#end
+																			/** 서명자 정보 **/
+																			#if (!$vo.srch_signman_nm.equals("") && $vo.srch_signman_nm != "null")
+																			  AND MASTER.SIGNMAN_NM LIKE '%' + :vo.srch_signman_nm +'%'
+																			#end
+																			
+																			
+																				) Y
+															WHERE X.CNSDREQ_ID = Y.CNSDREQ_ID
+															ORDER BY X.REQDT DESC, X.CNSDREQ_ID DESC
+															) T
+#if (!$vo.isExcelFlag + !$vo.isExcelFlag.equals("Y"))
+												WHERE T.RN BETWEEN :vo.start_index AND :vo.end_index
+#end
+												) M , TB_COM_CD D1, TB_COM_CD D2
+									WHERE D1.SYS_CD = 'LAS'
+									--AND		D1.GRP_CD = 'C025'
+									AND		D1.CD = M.PRCS_DEPTH
+									AND		D2.SYS_CD = 'LAS'
+									--AND	  D2.GRP_CD = M.PRCS_DEPTH
+									AND		D2.CD = M.DEPTH_STATUS
+									) L, TN_CLM_CONT_CNSDREQ_RESPMAN LD
+							WHERE L.CNSDREQ_ID = LD.CNSDREQ_ID(+)
+							AND	L.MN_CNSD_DEPT = LD.RESP_DEPT(+)
+							) 
+					START WITH RD=1
+					CONNECT BY PRIOR RD = RD - 1 AND PRIOR RN = RN
+					GROUP BY RN, TOTAL_CNT, MN_CNSD_DEPT, REQ_DT, CNSDREQ_ID, CNTRT_ID, CNTRT_NM, CNTRT_OPPNT_NM, CNTRT_RESPMAN_NM, CNTRT_RESP_DEPT_NM, PRCS_DEPTH, DEPTH_STATUS, PRCS_DEPTH_NM, DEPTH_STATUS_NM, CNTRT_CNCLSNDAY, BIZ_CLSFCN
+					) TM, (
+								SELECT S.CNSDREQ_ID, S.RESP_DEPT, 
+											CASE WHEN MAX(S.RESPMAN_CNT) > 1 THEN 
+												CASE WHEN :vo.session_user_locale = 'ko' THEN
+													MIN(S.RESPMAN_NM) + ' 외 ' + TO_CHAR(MAX(S.RESPMAN_CNT) - 1) + ' 명'
+												WHEN :vo.session_user_locale = 'fr' THEN
+													MIN(S.RESPMAN_NM) + ' et ' + TO_CHAR(MAX(S.RESPMAN_CNT) - 1) + ' Personne(s)'
+												WHEN :vo.session_user_locale = 'de' THEN
+													MIN(S.RESPMAN_NM) + ' und ' + TO_CHAR(MAX(S.RESPMAN_CNT) - 1) + ' Person(en)'
+												ELSE
+													MIN(S.RESPMAN_NM) + ' and ' + TO_CHAR(MAX(S.RESPMAN_CNT) - 1) + ' others'
+												END
+													ELSE ISNULL(MIN(S.RESPMAN_NM), '')
+											END AS CNSDMAN
+								FROM	(
+											SELECT RES.CNSDREQ_ID, RES.RESP_DEPT, RES.RESPMAN_NM, ISNULL(USR.USER_SRT, 999) AS USER_SRT, 
+														MIN(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS MIN_USER_SRT, 
+														COUNT(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS RESPMAN_CNT 
+											FROM TN_CLM_CONT_CNSDREQ_RESPMAN RES, TB_COM_USER USR
+											WHERE RES.RESPMAN_ID = USR.USER_ID(+)
+											)	S	
+								WHERE S.USER_SRT = S.MIN_USER_SRT					
+								GROUP BY S.CNSDREQ_ID, S.RESP_DEPT
+								) TD
+			WHERE TM.CNSDREQ_ID = TD.CNSDREQ_ID(+)
+			AND	TM.MN_CNSD_DEPT = TD.RESP_DEPT(+)			
+			ORDER BY TM.REQ_DT desc
+    		]]>
+  		</statement>	
+	</query>
+	
+	<!-- 의뢰현황 (사업장 구분별) -->
+    <query id="clm.manage.listConsiderationCnsdDept" isCamelCase="false">
+		<statement>
+    		<![CDATA[
+			SELECT DECODE (MN_CNSD_DEPT, 'A00000001', '1', 'A00000002', '2', '3') AS DEPT_NO,
+       			   DECODE (MN_CNSD_DEPT, 'A00000001', 'Korea', 'A00000002', 'Global', 'IP') AS DEPT_NM,
+       			   COUNT(*) AS CNT
+			  FROM (SELECT A.CNSDREQ_ID ,
+			               B.CNTRT_ID ,
+			               B.APBT_DT ,
+			               A.MN_CNSD_DEPT
+			          FROM TN_CLM_CONT_CNSDREQ A,
+			               TN_CLM_CONTRACT_CNSD B
+			         WHERE A.DEL_YN = 'N'
+			           AND A.PRGRS_STATUS <> 'C04201'
+			           AND TO_CHAR(A.ACPT_DT, 'YYYYMMDD') BETWEEN :vo.srch_start_reqday AND :vo.srch_end_reqday
+			           AND A.PREV_CNSDREQ_ID IS NULL
+			           AND A.CNSDREQ_ID = B.CNSDREQ_ID ) A ,
+			       TN_CLM_CONTRACT_MASTER B
+			 WHERE A.CNTRT_ID = B.CNTRT_ID
+			   AND B.DEL_YN = 'N'
+			   AND B.CNTRT_INFO_GBN NOT IN ( 'C05403' ,'C05402' ,'C05499')
+			 GROUP BY DECODE (MN_CNSD_DEPT, 'A00000001', '1', 'A00000002', '2', '3'),
+			          DECODE (MN_CNSD_DEPT, 'A00000001', 'Korea', 'A00000002', 'Global', 'IP') 
+    		]]>
+  		</statement>	
+	</query> 
+	
+	<!-- 의뢰현황 (사업별) -->
+    <query id="clm.manage.listConsiderationCnsdOrgnz" isCamelCase="false">
+		<statement>
+    		<![CDATA[
+			SELECT DECODE (MN_CNSD_DEPT, 'A00000001', 'Korea', 'A00000002', 'Global', 'IP') AS DEPT_NM,
+			       MN_CNSD_DEPT,
+			       ISNULL(C.ORGNZ_NM, '') AS ORGNZ_NM,
+			       C.ORGNZ_CD,
+			       COUNT(*) AS CNT
+			  FROM (SELECT A.CNSDREQ_ID ,
+			               B.CNTRT_ID ,
+			               B.APBT_DT ,
+			               A.MN_CNSD_DEPT
+			          FROM TN_CLM_CONT_CNSDREQ A,
+			               TN_CLM_CONTRACT_CNSD B
+			         WHERE A.DEL_YN = 'N'
+			           AND A.PRGRS_STATUS <> 'C04201'
+			           AND TO_CHAR(A.ACPT_DT, 'YYYYMMDD') BETWEEN :vo.srch_start_reqday AND :vo.srch_end_reqday --- 기간 조건 
+			           AND A.PREV_CNSDREQ_ID IS NULL
+			           AND A.CNSDREQ_ID = B.CNSDREQ_ID ) A ,
+			       TN_CLM_CONTRACT_MASTER B,
+			       TN_CLM_UNITORGNZ C
+			 WHERE A.CNTRT_ID = B.CNTRT_ID
+			   AND B.DEL_YN = 'N'
+			   AND B.CNTRT_INFO_GBN NOT IN ( 'C05403' ,'C05402' ,'C05499')
+			   AND ISNULL(B.REG_OPERDIV, 'B00000000') = C.ORGNZ_CD 
+			   #if ($vo.dept_gbn.equals("1") + $vo.dept_gbn.equals("2"))
+			   	AND A.MN_CNSD_DEPT = DECODE(:vo.dept_gbn,'1','A00000001','2','A00000002')
+			   #else 
+			   		#if($vo.dept_gbn.equals("3"))
+			   			AND A.MN_CNSD_DEPT NOT IN ('A00000001','A00000002')
+			   		#else
+			   			AND ISNULL(B.REG_OPERDIV, 'B00000000') = :vo.srch_resp_dept --사업부별 조건
+			   		#end
+			   #end
+			 GROUP BY A.MN_CNSD_DEPT ,ISNULL(B.REG_OPERDIV, '') ,ISNULL(C.ORGNZ_NM, ''), C.ORGNZ_CD
+			 ORDER BY A.MN_CNSD_DEPT ,ISNULL(C.ORGNZ_NM, '') 
+    		]]>
+  		</statement>	
+	</query> 
+	
+	<!-- 통계에서 넘어오는 리스트 화면 쿼리 김재원 -->
+    <query id="clm.manage.listManage100" isCamelCase="false">
+		<statement>
+    		<![CDATA[
+			SELECT ZZ.* ,(SELECT CONVERT(CHAR(10),A1.REG_DT, 23) AS FirstR_DT 
+			 				FROM TN_CLM_CONT_CNSDREQ A1,TN_CLM_CONTRACT_CNSD A2 
+							WHERE A1.CNSDREQ_ID = A2.CNSDREQ_ID 
+								AND A1.DEL_YN = 'N' 
+								AND A1.cnsd_level ='1' 
+								AND A2.CNTRT_ID =ZZ.CNTRT_ID ) AS FIRSTR_DT 
+			FROM (
+  				SELECT XX.*, ROW_NUMBER() OVER (ORDER BY M_REG_DT DESC) AS XXROW FROM (
+					SELECT TM.*, TD.CNSDMAN
+					FROM	(SELECT * FROM 
+					#if (!$vo.isExcelFlag || !$vo.isExcelFlag.equals("Y"))
+						DBO.[CLM.MANAGE.LISTMANAGE100]
+					#else
+						DBO.[CLM.MANAGE.LISTMANAGE2]
+					#end
+													( :vo.session_user_locale
+													,:vo.sElComp
+													,:vo.session_auth_comp_cd
+													,:vo.session_blngt_orgnz
+													,:vo.session_dept_cd
+													,:vo.top_role
+													,:vo.session_manager_yn
+													,:vo.session_support_yn
+													,:vo.elUserlYn
+													,:vo.session_auth_apnt_yn
+													,:vo.session_user_id
+													,:vo.session_auth_apnt_dept
+													,:vo.srch_review_title
+													,:vo.srch_reqman_nm
+													,:vo.srch_start_reqday
+													,:vo.srch_end_reqday
+													,:vo.srch_cnsdman_nm
+													,
+													#if (!$vo.srch_lMn_cnsd_dept.equals("") && $vo.srch_lMn_cnsd_dept != "null")
+														#foreach($Mn_cnsd_dept in $vo.srch_lMn_cnsd_dept)
+														    #if($velocityCount	== 1)
+														        '|$Mn_cnsd_dept|'
+														    #else
+														        '$Mn_cnsd_dept|'
+														    #end  
+														#end
+													#else
+														''    
+													#end
+													,:vo.status_mode
+													,:vo.srch_cntrt_no
+													,:vo.srch_cntrt_nm
+													,:vo.srch_respman_nm
+													,:vo.srch_resp_dept_nm
+													,:vo.srch_step
+													,:vo.srch_start_cnlsnday
+													,:vo.srch_end_cnlsnday
+													,:vo.srch_str_org_acptday
+													,:vo.srch_end_org_acptday
+													,:vo.srch_state
+													,:vo.srch_oppnt_cd
+													,:vo.srch_biz_clsfcn
+													,:vo.srch_cnclsnpurps_bigclsfcn
+													,
+													#if (!$vo.srch_sSrch_Ltype_cd.equals("") && $vo.srch_sSrch_Ltype_cd != "null")
+														#foreach($ltype in $vo.srch_lsrch_Ltype_cd)
+														    #if($velocityCount	== 1)
+														        '|$ltype|'
+														    #else
+														        '$ltype|'
+														    #end  
+														#end
+													#else ''	
+													#end
+													,
+													#if (!$vo.srch_sSrch_Mtype_cd.equals("") && $vo.srch_sSrch_Mtype_cd != "null")
+														#foreach($mtype in $vo.srch_lsrch_Mtype_cd)
+														    #if($velocityCount	== 1)
+														        '|$mtype|'
+														    #else
+														        '$mtype|'
+														    #end  
+														#end
+													#else ''    
+													#end			
+													,
+													#if (!$vo.srch_sSrch_Stype_cd.equals("") && $vo.srch_sSrch_Stype_cd != "null")
+														#foreach($stype in $vo.srch_lsrch_Stype_cd)
+														    #if($velocityCount	== 1)
+														        '|$stype|'
+														    #else
+														        '$stype|'
+														    #end  
+														#end
+													#else ''    	
+													#end
+													,
+													#if (!$vo.srch_lPayment_gbn.equals("") && $vo.srch_lPayment_gbn != "null")
+													 	#foreach($payGbn in $vo.srch_lPayment_gbn)
+														    #if($velocityCount	== 1)
+														        '|$payGbn|'
+														    #else
+														        '$payGbn|'
+														    #end  
+														#end
+													#else ''    
+													#end
+													,
+													#if (!$vo.srch_auto_rnew_yn.equals("") && $vo.srch_auto_rnew_yn != "null")
+													 	#foreach($AutoYn in $vo.srch_lAuto_rnew_yn)
+														    #if($velocityCount	== 1)
+														        '|$AutoYn|'
+														    #else
+														        '$AutoYn|'
+														    #end  
+														#end
+													#else ''    
+													#end
+													,
+													#if (!$vo.srch_sSeal_mthd.equals("") && $vo.srch_sSeal_mthd != "null")
+													 	#foreach($Seal_mthd in $vo.srch_lSeal_mthd)
+														    #if($velocityCount	== 1)
+														        '|$Seal_mthd|'
+														    #else
+														        '$Seal_mthd|'
+														    #end  
+														#end
+													#else ''
+													#end
+													,
+													#if (!$vo.srch_sLoac.equals("") && $vo.srch_sLoac != "null")
+														#foreach($Loac in $vo.srch_lLoac)
+														    #if($velocityCount	== 1)
+														        '|$Loac|'
+														    #else
+														        '$Loac|'
+														    #end  
+														#end
+													#else ''
+													#end
+													,
+													#if (!$vo.srch_sDesp_resolt_mthd.equals("") && $vo.srch_sDesp_resolt_mthd != "null")
+														#foreach($Desp_resolt_mthd in $vo.srch_lDesp_resolt_mthd)
+														    #if($velocityCount	== 1)
+														        '|$Desp_resolt_mthd|'
+														    #else
+														        '$Desp_resolt_mthd|'
+														    #end  
+														#end
+													#else ''
+													#end
+													,:vo.srch_cntrt_trgt_det2
+													,:vo.srch_bfhdcstn_apbtman_nm
+													,:vo.srch_signman_nm
+													,:vo.closed_yn
+												)	) TM 
+					LEFT OUTER JOIN 
+					(		SELECT S.CNSDREQ_ID, S.RESP_DEPT, 
+											CASE WHEN MAX(S.RESPMAN_CNT) > 1 THEN 
+												CASE WHEN :vo.session_user_locale = 'ko' THEN
+													MIN(S.RESPMAN_NM) + '<br/>외 ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' 명'
+												WHEN :vo.session_user_locale = 'fr' THEN
+													MIN(S.RESPMAN_NM) + '<br/>et ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' Personne(s)'
+												WHEN :vo.session_user_locale = 'de' THEN
+													MIN(S.RESPMAN_NM) + '<br/>und ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' Person(en)'
+												ELSE
+													MIN(S.RESPMAN_NM) + '<br/>and ' + CAST((MAX(S.RESPMAN_CNT) - 1) AS NVARCHAR) + ' others'
+												END
+													ELSE ISNULL(MIN(S.RESPMAN_NM), '')
+											END AS CNSDMAN
+								FROM	(
+											SELECT RES.CNSDREQ_ID, RES.RESP_DEPT, RES.RESPMAN_NM, ISNULL(USR.USER_SRT, 999) AS USER_SRT, 
+														MIN(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS MIN_USER_SRT, 
+														COUNT(ISNULL(USR.USER_SRT, 999)) OVER(PARTITION BY CNSDREQ_ID, RESP_DEPT) AS RESPMAN_CNT 
+											  FROM TN_CLM_CONT_CNSDREQ_RESPMAN RES 
+								   LEFT OUTER JOIN TB_COM_USER USR ON RES.RESPMAN_ID = USR.USER_ID
+										 )	S	
+								WHERE S.USER_SRT = S.MIN_USER_SRT					
+								GROUP BY S.CNSDREQ_ID, S.RESP_DEPT
+					) TD 
+					ON TM.CNSDREQ_ID = TD.CNSDREQ_ID 
+				   AND TM.MN_CNSD_DEPT = TD.RESP_DEPT			
+				 ) XX ) ZZ
+			#if (!$vo.isExcelFlag || !$vo.isExcelFlag.equals("Y"))
+				WHERE ZZ.XXROW BETWEEN :vo.start_index AND :vo.end_index
+            #end
+            ORDER BY XXROW
+    		]]>
+  		</statement>	
+	</query>     
+	
+	<!-- 2014-07-24 Kevin added. -->
+	<!-- Get step/status information per cnsdreq_id -->
+	<query id="clm.manage.getStep_StatusInfo" isCamelCase="false">
+		<statement>
+    		<![CDATA[
+    			EXEC dbo.SP_CONTRACT_SELECT_STEP_STATUS_BY_CNSDREQID :vo.cnsdreq_id
+    		]]>
+  		</statement>	
+	</query>     
+    </queries>
+</queryservice>
