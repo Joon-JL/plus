@@ -841,13 +841,7 @@
 				<tr>
 					<th>D.P. Agreement</th>
 					<td colspan="5">
-						<!-- <c:out value="${lomRq2.cnclsnpurps_midclsfcn_etc}" /> -->
-						<c:if test="${lomRq2.cnclsnpurps_midclsfcn_etc == 'Y'}">
-							YES
-						</c:if>
-						<c:if test="${lomRq2.cnclsnpurps_midclsfcn_etc != 'Y'}">
-							NO
-						</c:if>
+						<c:out value="${lomRq2.cnclsnpurps_midclsfcn_etc}" />
 					</td>
 				</tr>
 			</table>

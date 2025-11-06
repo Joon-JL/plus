@@ -236,12 +236,15 @@
 		});
 		
 		initPage();
-		
+
 		// 준거법
 		getCodeSelectByUpCd("frm", "loac", "/common/clmsCom.do?method=listComCdByGrpCd&combo_abbr=F&combo_grp_cd=C022&combo_type=S&combo_del_yn=N&combo_selected=" + "<c:out value='${lomRq.loac}'/>");
 		// 분쟁_해결_방법
 		getCodeSelectByUpCd("frm", "dspt_resolt_mthd", "/common/clmsCom.do?method=listComCdByGrpCd&combo_abbr=F&combo_grp_cd=C023&combo_type=S&combo_del_yn=N&combo_selected=");
-			
+
+		// D.P.A Options Joon added 2025 Nov
+		getCodeSelectByUpCd("frm", "dpAgreement", "/common/clmsCom.do?method=listComCdByGrpCd&combo_abbr=F&combo_grp_cd=C073&combo_type=S&combo_del_yn=N&combo_selected=<c:out value='${lomRq.cnclsnpurps_midclsfcn_etc}'/>");
+
 		// 2014-05-29 Kevin added.
 		initCal("cntrtperiod_startday");	//계약기간
 		initCal("cntrtperiod_endday");		//계약기간
@@ -285,6 +288,31 @@
 		}, function(){
 			$(this).removeAttr().attr("src",collapseIcon);
 			$(this).parent().parent().parent().next('#tr_show_hq').attr("style", "display:none");
+		});
+
+		// D.P.A Joon added Nov, 2025
+		var $guideContent = $('#guideContent');
+		var $guideButton = $('#guideButton');
+		var $closeButton = $('#closeGuide');
+
+		// 1. Toggle visibility on button click
+		$guideButton.on('click', function(e) {
+			e.preventDefault(); // Prevents the link from navigating
+			$guideContent.toggleClass('visible');
+			return false;
+		});
+
+		// 2. Hide when the "Close" button inside the popover is clicked
+		$closeButton.on('click', function() {
+			$guideContent.removeClass('visible');
+		});
+
+		// 3. Optional: Hide popover when clicking anywhere else on the document
+		$(document).on('click', function(e) {
+			// If the click is not on the guide button or inside the guide content, hide it
+			if (!$guideButton.is(e.target) && !$guideContent.has(e.target).length) {
+				$guideContent.removeClass('visible');
+			}
 		});
 
 	});
@@ -950,9 +978,7 @@
 			}
 			
 			var escapeFormTags = (CrossEditor1.GetBodyValue() || '').replace(escapeFormReg,"");
-			 
-			  
-			
+
 			//frm.body_mime_rq.value =escapeFormTags.html(); // 2013-10-01 박병주 크로스에디터 적용		
 			$('#body_mime_rq').val(escapeFormTags);
 			if(arg =="DELIVERY" || arg =="DISPATCH" || arg == "RESP" || arg == "NOAPPROVAL"){
@@ -983,13 +1009,14 @@
 							alert("<spring:message code='las.page.field.main.confirmValue' arguments='"+msgVal+"' />");
 							return;
 						}
-						
-						// FERNANDO 2024-12-04
-						if ( typeof($('input:radio[name=dpAgreement]:checked').val()) == "undefined" ){
+
+						// Joon Nov 2025
+						var selectedValue = $('select[name="dpAgreement"]').val();
+
+						if (!selectedValue || selectedValue === "") {
 							alert("Please inform the Data Protection agreement.");
-							return;
+							return false; // Use return false to stop form submission
 						}
-						//
 						
 						if(frm.loac.value == "C02211" && frm.loac_etc.value == ""){//기타(자유기술)
 							msgVal = "<spring:message code='las.page.field.contractmanager.consideration_inner_d.loac_etc_rq' />";//준거법상세
@@ -2324,6 +2351,39 @@
 	}
 	
 </script>
+
+<style>
+	/* D.P.A css Joon added Nov, 2025 */
+	.guide-popover {
+		visibility: hidden;
+		opacity: 0;
+		transition: opacity 0.3s, visibility 0.3s;
+
+		/* Positioning and Stacking Context */
+		position: fixed;
+		z-index: 9999; /* High enough to be on top without max value */
+
+		/* Layout and Centering */
+		width: 700px;
+		padding: 20px;
+
+		/* Horizontal Positioning (Centers the popover on the 40% mark) */
+		top: 25%;
+		left: 40%;
+		transform: translateX(-50%);
+
+		/* Visual Styles */
+		background-color: #f9f9f9;
+		border: 1px solid #ccc;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+	}
+
+	.guide-popover.visible {
+		visibility: visible;
+		opacity: 1;
+	}
+
+</style>
 </head>
 <body>
 <div id="wrap">
@@ -2800,10 +2860,14 @@
 								</td>
 							</tr>
 							<tr>
-								<th>Data Protection Agreement required<span class='astro'>*</span></th>
-								<td>
-									<input type="radio" name="dpAgreement" value="Y" <%if("Y".equals(lomRq.get("cnclsnpurps_midclsfcn_etc"))){out.println(" checked");} %> />Yes
-									<input type="radio" name="dpAgreement" value="N" <%if("N".equals(lomRq.get("cnclsnpurps_midclsfcn_etc"))){out.println(" checked");} %> />No
+								<th>Data Protection Agreement required<span class='astro'>*</span>
+									<span id="guideButton" class="btn_all_b guide-button-style-fix">
+										<span class="help"></span>
+										<a><spring:message code="las.page.field.page.comments"/></a>
+									</span>
+								</th>
+								<td colspan="3">
+									<select name="dpAgreement" id="dpAgreement" style="width:auto;" required></select>
 								</td>
 							</tr>
 							<% }%>	
@@ -3862,6 +3926,20 @@
 		<script language="javascript" src="/script/clms/footer.js" type="text/javascript"></script>
 		<!-- // footer -->
 		<jsp:include page="/WEB-INF/jsp/secfw/common/DlgAlert.jsp"/>
-		<jsp:include page="/WEB-INF/jsp/secfw/common/CommonProgress.jsp"/>		
+		<jsp:include page="/WEB-INF/jsp/secfw/common/CommonProgress.jsp"/>
+
+
+	<div id="guideContent" class="guide-popover">
+		<p style="margin-top: 1rem">
+			1. Y (Standalone Data processing Agreement[DPA] or DPA included in the contract) <br>
+			2. Y (Separate Data processing Agreement[DPA] not included in the contract but does exist)  <br>
+			3. Y (Separate Data processing Agreement[DPA] to be concluded or amended)  <br>
+			4. Y (Standalone Data Sharing Agreement[DSA] or DSA included in the contract) <br>
+			5. Y (Standalone Joint Controllership Agreement[JCA]) or JCA included in the contract) <br>
+			6. Y (Separate Data Sharing Agreement[DSA] or Joint Controllership Agreement [JCA] not included in the contract but does exist) <br>
+			7. N (None of the above apply)  <br>
+		</p>
+		<button id="closeGuide" style="margin-top: 1rem">Close</button>
+	</div>
 </body>
 </html>
