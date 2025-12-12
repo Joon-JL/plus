@@ -287,7 +287,8 @@
 				 UPDATE TN_CLM_CONTRACT_MASTER
 				    SET SECRET_KEEPPERIOD = :vo.secret_keepperiod				  	
 				  	  , AUTO_RNEW_YN = ISNULL(:vo.auto_rnew_yn, AUTO_RNEW_YN) /*2014.04 jnam ISNULL 추가*/
-				  	  , cnclsnpurps_midclsfcn_etc = ISNULL(:vo.dpAgreement, cnclsnpurps_midclsfcn_etc)
+				  	  , CNCLSNPURPS_MIDCLSFCN_ETC = ISNULL(:vo.dpAgreement, CNCLSNPURPS_MIDCLSFCN_ETC)
+				  	  , CNCLSNAFT_CSTN_CAUSE = ISNULL(:vo.cnclsnaft_cstn_cause, CNCLSNAFT_CSTN_CAUSE)
 				  	#if($vo.plndbn_req_yn.equals("Y"))
 				  	  , OBLGT_LMT = :vo.oblgt_lmt
 				  	  , SPCL_COND = :vo.spcl_cond

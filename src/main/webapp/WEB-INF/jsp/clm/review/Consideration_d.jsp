@@ -23,7 +23,9 @@
  * 프로그램명 : 의뢰내역 - 검토의뢰 - 계약검토[일반의뢰]
  * 설	  명 : 
  * 작  성  자 : 제이남
+ * 수  정  자 : Joon Lee
  * 작  성  일 : 2013.04.01
+ * 수  정  일 : 2025.11.22
  */
 --%>
 <%@ include file="/WEB-INF/jsp/common/common.jsp" %>
@@ -315,6 +317,21 @@
 			}
 		});
 
+
+		if ($("#dpAgreement").val()) {
+			var agreementValue = $("#dpAgreement").val();
+			//console.log("agreementValue : " + agreementValue);
+
+			if (agreementValue !== 'undefined' && agreementValue !== 'null') {
+				updateRelDPAContract(agreementValue, true);
+				// var rel_dpa_cntrt_no = document.forms['frm'].rel_dpa_cntrt_no.value;
+				// console.log("rel_dpa_contrt_no :" + rel_dpa_cntrt_no);
+
+				// Use jQuery to set the value of the target field
+				// $("#cnclsnaft_cstn_cause").val(rel_dpa_cntrt_no);
+			}
+		}
+
 	});
 	
 	$(window).load(function(){	
@@ -424,45 +441,143 @@
 		};
 		$("#frm").ajaxSubmit(options);
 	  }
-	  
-	  /**
-		* 연관계약 계약 목록 팝업
-		*/
-		function popupListContract(arg){
-			var frm = document.frm;
-			if(frm.cntrt_nm.value != ""){		
-				var v_except_cntrt_id = frm.cntrt_id.value;
-				PopUpWindowOpen2("/clm/manage/myContractPop.do?method=listMyContract&status_mode=rel&except_cntrt_id="+v_except_cntrt_id , 1000, 600, false, "PopUpRelInfo");
-			}else{
-				alert("<spring:message code='las.page.msg.contractmanager.consideration_d.input_contract_name' />");//계약 기본 정보의 계약명을 선 입력 하세요.
-			}
+
+
+	/**
+	 * Updates the related DPA Contract ID field based on the passed selected value.
+	 * @param {string} selectedValue - The value of the dpAgreement select box.
+	 */
+	function updateRelDPAContract(selectedValue, isInit) {
+		var hasRelDpa = document.getElementById("has_rel_dpa");
+
+		// Safety check for the form and source field (still a good practice)
+		if (!document.forms['frm'] || !document.forms['frm'].cntrt_id) {
+			console.error("Required form element (frm.cntrt_id) is missing.");
+			return;
 		}
+
+		// Define the values that trigger the update (1, 4, 5)
+		const triggerValues = ['Y1', 'Y4', 'Y5'];
+
+		// Check if the selected value is one of the trigger values
+		if (triggerValues.includes(selectedValue)) {
+			hideRelContractButton(true);
+			// Get the value from the form field 'cntrt_id'
+			const cntrtIdValue = document.forms['frm'].cntrt_id.value;
+
+			// Use jQuery to set the value of the target field
+			$("#rel_dpa_cntrt_id").val(cntrtIdValue);
+			$("#rel_dpa_cntrt_name").val('');
+			$("#cnclsnaft_cstn_cause").val(document.getElementById('cntrt_no').value);
+			hasRelDpa.style.display = 'inline';
+
+		} else if (selectedValue === 'N1') {
+			hideRelContractButton(true);
+			// Clear the values
+			$("#rel_dpa_cntrt_id").val('');
+			$("#rel_dpa_cntrt_name").val('');
+			$("#cnclsnaft_cstn_cause").val('');
+			hasRelDpa.style.display = 'none';
+
+		} else {
+			// Clear the target field if the value is not 1, 4, or 5
+			// $("#rel_dpa_cntrt_id").val('');
+			// $("#cnclsnaft_cstn_cause").val('');
+			console.log(`DPA Agreement selected (${selectedValue}). Target field cleared.`);
+			console.log("cntrt No : " + $("#rel_dpa_cntrt_no").val());
+			$("#rel_dpa_cntrt_id").val('');
+			$("#rel_dpa_cntrt_name").val('');
+			if (!isInit) {
+				$("#cnclsnaft_cstn_cause").val('');
+			}
+			if (selectedValue === 'Y3') {
+				hasRelDpa.style.display = 'none';
+			} else {
+				hasRelDpa.style.display = 'inline';
+			}
+
+			hideRelContractButton(false);
+		}
+	}
+
+	function hideRelContractButton(isTrue) {
+		// 1. Get the element by its ID
+		var inputElement = document.getElementById("rel_dpa_cntrt_name");
+		var imgElement = document.getElementById("rel_dpa_cntrt_popup");
+
+		// 2. Change the display style
+		if (isTrue) {
+			inputElement.style.display = 'none';
+			imgElement.style.display = 'none';
+		} else {
+			inputElement.style.display = 'inline';
+			imgElement.style.display = 'inline';
+		}
+	}
+
+	/**
+	 * 연관계약 계약 목록 팝업
+	 */
+	function popupListContract(arg){
+		if (typeof arg === 'undefined') {
+			$("#popupTargetFieldId").val('rel_dpa_cntrt');
+		} else {
+			$("#popupTargetFieldId").val('parent_cntrt');
+		}
+
+		var frm = document.frm;
+		if(frm.cntrt_nm.value != ""){
+			var v_except_cntrt_id = frm.cntrt_id.value;
+			PopUpWindowOpen2("/clm/manage/myContractPop.do?method=listMyContract&status_mode=rel&except_cntrt_id="+v_except_cntrt_id , 1000, 600, false, "PopUpRelInfo");
+		}else{
+			alert("<spring:message code='las.page.msg.contractmanager.consideration_d.input_contract_name' />");//계약 기본 정보의 계약명을 선 입력 하세요.
+		}
+	}
 	
-		/**
-		* 연관계약 팝업 리턴 처리
-		*/	  
-		function setContract(id,name,biz,sArg){
-			//리턴값 변수에 저장
-			var cntrt_id = id;
-			var cntrt_name = name;
-			var srch_arg = sArg;
-			
+	/**
+	* 연관계약 팝업 리턴 처리
+	*/
+	function setContract(id,name,biz,sArg, cno){
+		//리턴값 변수에 저장
+		var cntrt_id = id;
+		var cntrt_name = name;
+		var srch_arg = sArg;
+		var cntrt_no = cno;
+		var targetFieldId = $("#popupTargetFieldId").val();
+
+		// Check if the context was successfully retrieved
+		if (targetFieldId) {
+			// Use the context ID to update the correct field pair dynamically
+			$("#" + targetFieldId + "_id").val(cntrt_id);
+			$("#" + targetFieldId + "_name").val(cntrt_name);
+			// $("#" + targetFieldId + "_no").val(cntrt_no);
+			$("#cnclsnaft_cstn_cause").val(cntrt_no);
+
+			// Clear the context field after use
+			$("#popupTargetFieldId").val('');
+
+		} else {
+			// Fallback to original static inputs if the context was missing
 			$("#parent_cntrt_id").val(cntrt_id);
-			if (srch_arg !=null && srch_arg != "")
-			{
-				$("#rel_type").val(srch_arg);// by joon . it's always null and not expected to be done.
-			}
 			$("#parent_cntrt_name").val(cntrt_name);
+			$("#rel_dpa_cntrt_id").val(cntrt_id);
+			$("#rel_dpa_cntrt_name").val(cntrt_name);
 		}
-	  
-		 /**
-		  * Obj init
-		  */
-		  function retRC(parent_cntrt_id ,parent_cntrt_nm ,rel_type){
-			  this.parent_cntrt_id = parent_cntrt_id;
-			  this.parent_cntrt_nm = parent_cntrt_nm;
-			  this.rel_type = rel_type;
-		  }
+
+		if (srch_arg !=null && srch_arg != "")
+		{
+			$("#rel_type").val(srch_arg);// by joon . it's always null and not expected to be done.
+		}
+	}
+
+	/**
+	  * Obj init
+	  */
+	function retRC(parent_cntrt_id ,parent_cntrt_nm ,rel_type){
+		this.parent_cntrt_id = parent_cntrt_id;
+		this.parent_cntrt_nm = parent_cntrt_nm;
+		this.rel_type = rel_type;
+	}
 		
 	/**
 	* 관련계약 팝업 선택 조회
@@ -1016,6 +1131,18 @@
 						if (!selectedValue || selectedValue === "") {
 							alert("Please inform the Data Protection agreement.");
 							return false; // Use return false to stop form submission
+						}
+
+						// cnclsnaft_cstn_cause
+						var selectedCnclsnaft_cstn_causeValue = $("#cnclsnaft_cstn_cause").val();
+
+						var hasRelDpa = document.getElementById("has_rel_dpa");
+
+						if (hasRelDpa.style.display === 'inline') {
+							if (!selectedCnclsnaft_cstn_causeValue || selectedCnclsnaft_cstn_causeValue === "") {
+								alert("Please inform the Contract ID of relevant DP contract.");
+								return false; // Use return false to stop form submission
+							}
 						}
 						
 						if(frm.loac.value == "C02211" && frm.loac_etc.value == ""){//기타(자유기술)
@@ -2364,7 +2491,7 @@
 		z-index: 9999; /* High enough to be on top without max value */
 
 		/* Layout and Centering */
-		width: 700px;
+		width: 1000px;
 		padding: 20px;
 
 		/* Horizontal Positioning (Centers the popover on the 40% mark) */
@@ -2382,6 +2509,18 @@
 		visibility: visible;
 		opacity: 1;
 	}
+
+	/*
+	input[readonly] {
+		background-color: #eee;
+
+		cursor: default;
+
+		color: #666;
+
+		border: 1px solid #ccc;
+		outline: none;
+	}*/
 
 </style>
 </head>
@@ -2516,7 +2655,7 @@
 					<input type="hidden" name="check_list_yn" id="check_list_yn" value="<c:out value='${lomRq.check_list_yn}'/>" />
 					<c:forEach var="cntrtMt" items="${listDc}">
 						<input type="hidden" name="master_cntrt_ids"  value="<c:out value='${cntrtMt.cntrt_id}' />" /> <!-- 계약_마스터_계약_ID -->	
-					</c:forEach>					
+					</c:forEach>
 					<!-- 2014-04-15 Kevin added. GERP 관련 페이지 형태 구분.(R/I) -->
 					<input type="hidden" name="gerpPageType" id="gerpPageType" />
 					
@@ -2612,6 +2751,7 @@
 							<c:out value="${lomRq.cntrt_nm}" escapeXml='false'/></span></td>
 							<th><spring:message code="las.page.field.contractManager.contractId"/><!-- 계약ID --></th>
 							<td><span class="fL"><c:out value="${lomRq.cntrt_no}" /></span></td>
+							<input type="hidden" id="cntrt_no" value="<c:out value="${lomRq.cntrt_no}" />" />
 						</tr>
 						<tr>
 							<th><spring:message code="las.page.field.contractmanager.consideration.reqman_nm" /><!-- 의뢰자 --></th>
@@ -2867,7 +3007,17 @@
 									</span>
 								</th>
 								<td colspan="3">
-									<select name="dpAgreement" id="dpAgreement" style="width:auto;" required></select>
+									<select name="dpAgreement" id="dpAgreement" style="width:auto;" required onchange="updateRelDPAContract(this.value, false);"></select>
+								</td>
+							</tr>
+							<tr>
+								<th>Contract ID of the relevant DP contract
+									<span id="has_rel_dpa" class='astro'>*</span>
+								</th>
+								<td colspan="3">
+									<input type="hidden" name="rel_dpa_cntrt_id" id="rel_dpa_cntrt_id" />
+									<span><input type="text" name="cnclsnaft_cstn_cause" id="cnclsnaft_cstn_cause" value="<c:out value='${lomRq.rel_dpa_cntrt_no}' escapeXml='false'/>"  readonly /></span>
+									<input type="text" name="rel_dpa_cntrt_name" id="rel_dpa_cntrt_name" class="text_search" style="width:30%" /><img id="rel_dpa_cntrt_popup" src="<%=IMAGE %>/icon/ico_search.gif" onclick="javascript:popupListContract();" class="cp" alt="search" />
 								</td>
 							</tr>
 							<% }%>	
@@ -3870,6 +4020,7 @@
 				<span id="btn_down10" class="btn_all_w" style="display:none" onclick="openPrint();"><span class="print"></span><a><spring:message code="las.page.field.contractManager.print"/></a></span>
 				<span id="btn_down8" class="btn_all_w" style="display:none" onclick="forwardConsideration('LIST');"><span class="list"></span><a><spring:message code="las.page.field.contractManager.list"/></a></span>
 			</div>
+					<input type="hidden" id="popupTargetFieldId" value="" />
 			<!-- //button -->
 			</form:form>
 				
@@ -3920,7 +4071,7 @@
 				e.editorTarget.SetValue(document.getElementById("body_mime_rq").value); // 컨텐츠 내용 에디터 삽입			
 			}
 		}
-		</script>	
+		</script>
 <% }%>
 		<!-- footer  -->
 		<script language="javascript" src="/script/clms/footer.js" type="text/javascript"></script>
@@ -3931,13 +4082,21 @@
 
 	<div id="guideContent" class="guide-popover">
 		<p style="margin-top: 1rem">
-			1. Y (Standalone Data processing Agreement[DPA] or DPA included in the contract) <br>
-			2. Y (Separate Data processing Agreement[DPA] not included in the contract but does exist)  <br>
-			3. Y (Separate Data processing Agreement[DPA] to be concluded or amended)  <br>
-			4. Y (Standalone Data Sharing Agreement[DSA] or DSA included in the contract) <br>
-			5. Y (Standalone Joint Controllership Agreement[JCA]) or JCA included in the contract) <br>
-			6. Y (Separate Data Sharing Agreement[DSA] or Joint Controllership Agreement [JCA] not included in the contract but does exist) <br>
-			7. N (None of the above apply)  <br>
+			1. Y - Standalone Data processing Agreement (DPA) or DPA included in the contract; this contract is a standalone DPA, or a DPA is included as exhibit or appendix to this contract. <br>
+			Note: If this contract includes data protection clauses which meet the requirements of a DPA in a form such as a Statement of Work (SOW), rather than a standard contract, then please select this response. <br>
+
+			2. Y - Separate Data processing Agreement (DPA) not included in the contract but does exist); separate DPA related to this contract is already in place. <br>
+			3. Y - Separate Data processing Agreement (DPA) needs to be created or amended; this contract requires a DPA, which will be concluded at a later date. <br>
+			Note: Even if a DPA is already in place with the counterparty but the DPA does not cover the entire scope of processing in this contract, thus resulting in a variation agreement being required, then please select this response. <br>
+
+			4. Y - Standalone Data Sharing Agreement (DSA) or DSA included in the contract; this contract is a standalone DSA, or a DSA is included as exhibit or appendix to this contract. <br>
+			Note: If this contract includes data protection clauses which meet the requirements of a DSA in a form such as a Statement of Work (SOW), rather than a standard contract, then please select this response. <br>
+
+			5. Y - Standalone Joint Controllership Agreement (JCA) or JCA included in the contract; this contract is a standalone JCA, or a JCA is included as exhibit or appendix to this contract. <br>
+			Note: If this contract includes data protection clauses which meet the requirements of a JCA in a form such as a Statement of Work (SOW), rather than a standard contract, then please select this response. <br>
+
+			6. Y - Separate Data Sharing Agreement (DSA) or Joint Controllership Agreement (JCA) not included in the contract but does exist; separate DSA or JCA related to this contract is already in place. <br>
+			7. N - None of the above apply; no data protection agreement required. <br>
 		</p>
 		<button id="closeGuide" style="margin-top: 1rem">Close</button>
 	</div>

@@ -734,17 +734,19 @@ public class ConsiderationController extends CommonController {
 			// 관련자 List
 			ArrayList<?> lomRm = null;
 			ListOrderedMap mapRm = null;
-			
+			String relDPACntrt_no = ""; //Contract ID of the relevant DP contract
 			if(listDc != null && listDc.size() > 0){
 				String[] relMan = new String[listDc.size()];
 				String cntrtInfoGbn = "";
+
 				
 				for(int i=0; i<listDc.size(); i++) {
 					mapRm = (ListOrderedMap)listDc.get(i);
 					relMan[i] = (String)mapRm.get("cntrt_id");
 					cntrtInfoGbn = (String)mapRm.get("cntrt_info_gbn");
+					relDPACntrt_no = (String)mapRm.get("CNCLSNAFT_CSTN_CAUSE");
 				}
-				
+
 				vo.setMaster_cntrt_ids(relMan);
 				lomRm = listRelationman(vo);													// 관련자 List
 				
@@ -752,7 +754,9 @@ public class ConsiderationController extends CommonController {
 					forwardURL = "/WEB-INF/jsp/clm/review/Consideration_old_d.jsp";	// (구)법무시스템 검토 데이터 조회 페이지로 변경
 				}
 			}
-			
+			this.getLogger().debug("relDPACntrt_no: " + relDPACntrt_no);
+			lomRq.put("rel_dpa_cntrt_no", relDPACntrt_no);
+
 			//====================================
 			//검토의견
 			//====================================
@@ -778,6 +782,10 @@ public class ConsiderationController extends CommonController {
 			
 			// 준거법 초기값 설정
 			lomRq.put("loac", StringUtil.convertEnterToBR(StringUtil.bvl((String)lomRq.get("loac"),"")));
+
+			// DPA Related CNTRT_NO
+			lomRq.put("CNCLSNAFT_CSTN_CAUSE", StringUtil.convertEnterToBR(StringUtil.bvl((String)lomRq.get("loac"),"")));
+
 			
 			vo.setCnclsnpurps_bigclsfcn((String)lomRq.get("cnclsnpurps_bigclsfcn"));
 			vo.setCnclsnpurps_midclsfcn((String)lomRq.get("cnclsnpurps_midclsfcn"));
@@ -2961,7 +2969,6 @@ public class ConsiderationController extends CommonController {
 			 * 접근 권한 설정 
 			 * 임시저장([B01]), 의견전달([B02]), 발신([B03]), 회신([B04]) 버튼, 유관부서검토요청[B06], 기타버튼[B99]	
 			**********************************************************/
-			
 			if("SAVE".equals(vo.getStat_flag())){
 				vo.setEvent_but("[B01]");
 			}else if("TABSAVE".equals(vo.getStat_flag())){
@@ -2985,21 +2992,21 @@ public class ConsiderationController extends CommonController {
 			//계약 상태 재조회 후 보류 상태이면 메시지 전달
 			List list = considerationService.detailContractMaster(vo);
 			String depthStatus = "";
-			if(null != list && list.size() > 0){
+
+			if (list != null && list.size() > 0) {
 				ListOrderedMap lomRq = null;
-				if(list != null && list.size() > 0){
-					lomRq= (ListOrderedMap)list.get(0);
-					depthStatus = (String)lomRq.get("depth_status");
-					
-					if("C02607".equals(depthStatus)){ //보류
-						mapRt.put("returnVal", 2);
-						mapRt.put("returnMsg", messageSource.getMessage("las.msg.error.hold",  null, new RequestContext(request).getLocale()));
-					}else{
-						if("TABSAVE".equals(vo.getStat_flag())){
-							mapRt= considerationService.returnTabConsideration(vo);
-						}else{
-							mapRt= considerationService.returnConsideration(vo);
-						}
+
+				lomRq = (ListOrderedMap) list.get(0);
+				depthStatus = (String) lomRq.get("depth_status");
+
+				if ("C02607".equals(depthStatus)) { // 보류 (Hold)
+					mapRt.put("returnVal", 2);
+					mapRt.put("returnMsg", messageSource.getMessage("las.msg.error.hold",  null, new RequestContext(request).getLocale()));
+				} else {
+					if ("TABSAVE".equals(vo.getStat_flag())) {
+						mapRt = considerationService.returnTabConsideration(vo);
+					} else {
+						mapRt = considerationService.returnConsideration(vo);
 					}
 				}
 			}
