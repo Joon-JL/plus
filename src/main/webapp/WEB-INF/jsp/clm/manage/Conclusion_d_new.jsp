@@ -22,6 +22,8 @@
     ArrayList sign      = (ArrayList)request.getAttribute("sign");
     ArrayList info      = (ArrayList)request.getAttribute("info");
     ArrayList defer		= (ArrayList)request.getAttribute("defer");
+
+    ArrayList authReqList = (ArrayList)request.getAttribute("authReqList");  // 관련자
 %>
 <%--
 /**
@@ -83,6 +85,29 @@ $(document).ready(function(){
 	$('input[name*=cntrt_cnclsn_yn]').bind('click', function(){
         initRequire();      
     });
+
+    var dateInputId = '#cntrt_cnclsnday';
+
+    // 1. Retain the change handler for manual typing
+    $(dateInputId).on('change', validateSelectedDate);
+
+    // 2. Attach a global document click listener (as requested by the user).
+    // This attempts to catch the moment the user clicks outside the calendar/input.
+    // We use a short timeout (200ms) to ensure the calendar script has written the value.
+    $(document).on('click', function(event) {
+        var $target = $(event.target);
+
+        // Optimization: Only run validation if the target is NOT the calendar input itself
+        // AND NOT part of the calendar modal (we use a common class name 'divBody' found
+        // in the ahmax script for the calendar container ID).
+
+        if (!$target.is(dateInputId) && !$target.closest('.divBody').length) {
+            // If user clicks elsewhere, check the date input value with a short delay.
+            // Delay set to 200ms to allow the calendar's internal script to finish writing the value.
+            setTimeout(validateSelectedDate, 200);
+        }
+    });
+
 });
 
 /*
@@ -531,6 +556,17 @@ function PopUpWindowOpen(surl, popupwidth, popupheight, bScroll, popName) {
  */
 function openChooseClient(){
     var frm = document.frm;
+
+    var items_str1 = $("input[name=arr_demnd_seqno]").map(function(){return this.value;}).get();
+    var items_str2 = $("input[name=arr_trgtman_id]").map(function(){return this.value;}).get();
+    var items_str3 = $("input[name=arr_trgtman_nm]").map(function(){return this.value;}).get();
+    var items_str4 = $("input[name=arr_trgtman_jikgup_nm]").map(function(){return this.value;}).get();
+    var items_str5 = $("input[name=arr_trgtman_dept_nm]").map(function(){return this.value;}).get();
+
+    var items = items_str1+"!@#$"+ items_str2  +"!@#$"+  items_str3  +"!@#$"+  items_str4 +"!@#$"+items_str5;
+
+    frm.chose_client.value = items;
+
     PopUpWindowOpen('', "530", "470", true, "PopUpChooseClient");
     frm.action = "<c:url value='/clm/manage/chooseClient.do' />";
     frm.method.value="forwardChooseClientPopup";
@@ -540,48 +576,53 @@ function openChooseClient(){
 
 //관련자정보세팅...
 function setListClientInfo(returnValue) {
-    var arrReturn 			= returnValue.split("!@#$");
-    
-    var frm 				= document.frm;
-    var innerHtml 			= "";
-    var arrSeqno			= "";
-	var arrTrgrtman_id 		= "";
-	var arrTrgrtman_nm  	= "";
-	var arrTrgrtman_jikgup 	= "";
-	var arrTrgrtman_dept    = "";
+    var arrReturn = returnValue.split("!@#$");
+    var innerHtml ="";
+    var isListEmpty = (arrReturn.length === 1 && arrReturn[0] === ""); // True if result is just "" or if no separator was found
+
+    //if(arrReturn[0]=="") { return ; }
+
     $('#id_trgtman_nm').html("");
-    if(arrReturn[0]=="") {
-        frm.authreq_client.value = "";
-        frm.chose_client.value = "";
-        return ;
-    }
-    for(var i=0; i < arrReturn.length;i++) {
-    	var arrInfo = arrReturn[i].split("|");
-    	if((i != 0 && i != 1) && (i % 2 == 0)){
-			innerHtml += "<br/>";
-    	}
-    	if(i != 0 && (i % 2 != 0)){
-    		innerHtml += ",";
-    	}
-        if(i > 0) {
-        	arrSeqno			= arrSeqno + "," + arrInfo[0];
-        	arrTrgrtman_id 		= arrTrgrtman_id + "," + arrInfo[1];
-        	arrTrgrtman_nm  	= arrTrgrtman_nm + "," + arrInfo[2];
-        	arrTrgrtman_jikgup 	= arrTrgrtman_jikgup + "," + arrInfo[3];
-        	arrTrgrtman_dept    = arrTrgrtman_dept + "," + arrInfo[4];
-        } else {
-        	arrSeqno			= arrInfo[0];
-        	arrTrgrtman_id 		= arrInfo[1];
-        	arrTrgrtman_nm  	= arrInfo[2];
-        	arrTrgrtman_jikgup 	= arrInfo[3];
-        	arrTrgrtman_dept    = arrInfo[4];
+
+    // Start building hidden fields for AJAX submission
+    var trgtmanIds = []; // Array to collect IDs
+
+    if (!isListEmpty) {
+
+        for (var i = 0; i < arrReturn.length; i++) {
+            var arrInfo = arrReturn[i].split("|");
+
+            if (arrInfo.length >= 5) {
+                // Add the ID to our array for later handling
+                trgtmanIds.push(arrInfo[1]);
+
+                if ((i != 0 && i != 1) && (i % 2 == 0)) {
+                    innerHtml += "<br/>";
+                }
+                if (i != 0 && (i % 2 != 0)) {
+                    innerHtml += ",";
+                }
+                innerHtml += "<input type='hidden' name='arr_demnd_seqno' id='arr_demnd_seqno' value='" + arrInfo[0] + "' />";
+                innerHtml += "<input type='hidden' name='arr_trgtman_id' id='arr_trgtman_id' value='" + arrInfo[1] + "' />";
+                innerHtml += "<input type='hidden' name='arr_trgtman_nm' id='arr_trgtman_nm' value='" + arrInfo[2] + "' />";
+                innerHtml += "<input type='hidden' name='arr_trgtman_jikgup_nm' id='arr_trgtman_jikgup_nm' value='" + arrInfo[3] + "' />";
+                innerHtml += "<input type='hidden' name='arr_trgtman_dept_nm' id='arr_trgtman_dept_nm' value='" + arrInfo[4] + "' />";
+                innerHtml += arrInfo[2] + "/" + arrInfo[3] + "/" + arrInfo[4];
+            }
         }
-    	innerHtml += arrInfo[2] +"/"+arrInfo[3] + "/" + arrInfo[4] ;
-    		
-    	$('#id_trgtman_nm').html(innerHtml);
+        $('#id_trgtman_nm').html(innerHtml);
     }
-    frm.authreq_client.value = returnValue;
-    frm.chose_client.value = arrSeqno + "!@#$" + arrTrgrtman_id + "!@#$" + arrTrgrtman_nm + "!@#$" + arrTrgrtman_jikgup + "!@#$" + arrTrgrtman_dept;
+
+    // 관련자 리스트 수정 여부 저장
+    $("#client_modify_div").val("Y");
+
+    var options = {
+        url: "<c:url value='/clm/review/consideration.do?method=modifyRefCCAJAX' />",
+        type: "post",
+        dataType: "json"
+    };
+
+    $("#frm").ajaxSubmit(options);
  }
 <%--버튼이벤트--%>
 /*
@@ -811,6 +852,54 @@ function setSealPerson(obj) {
 	 	PopUpWindow.focus();
 	 	
 	 }
+
+    /**
+     * Helper function to get the current date in YYYY-MM-DD format.
+     * This format allows for reliable string comparison.
+     * Joon Dec, 2025
+     */
+    function getTodayString() {
+        var today = new Date();
+        var yyyy = today.getFullYear();
+        var mm = today.getMonth() + 1; // Months start at 0
+        var dd = today.getDate();
+
+        // Pad month/day with leading zero if necessary
+        var mmStr = (mm < 10) ? '0' + mm : mm;
+        var ddStr = (dd < 10) ? '0' + dd : dd;
+
+        return ddStr + '-' + mmStr + '-' + yyyy;
+    }
+
+    /**
+     * Validates the date input field to ensure the date is no later than today.
+     * This function is triggered by the input's onChange event.
+     * Joon Dec, 2025
+     */
+    function validateSelectedDate() {
+        var dateInput = document.getElementById('cntrt_cnclsnday');
+        var selectedDate = dateInput.value;
+
+        // Skip validation if the field is empty or was just cleared
+        if (!selectedDate) {
+            return;
+        }
+
+        var todayStr = getTodayString();
+
+        // String comparison works because both dates are in YYYY-MM-DD format.
+        if (selectedDate > todayStr) {
+
+            // 1. Alert the user (using alert() as requested)
+            alert("The selected date cannot be later than today's date (" + todayStr + ").");
+
+            // 2. Clear the invalid date
+            dateInput.value = "";
+
+            // 3. Optional: Re-focus the field
+            dateInput.focus();
+        }
+    }
 //-->	
 </script>
 </head>
@@ -895,7 +984,9 @@ function setSealPerson(obj) {
             <input type="hidden" name="depth_status" id="depth_status" value="<c:out value='${contractLom.depth_status}'/>" />  <!-- 단계상태 -->
             <input type="hidden" name="cntrt_status" id="cntrt_status"  value="<c:out value='${contractLom.cntrt_status}'/>" />     <!-- 계약상태-->
             <input type="hidden" name="cntrt_respman_id" value="<c:out value='${contractLom.cntrt_respman_id}'/>"/>
-            <input type="hidden" name="chose_client" value="<c:out value='${reqAuthFormInfo}'/>" />
+            <input type="hidden" name="master_cntrt_id" id="master_cntrt_id" value="<c:out value='${contractLom.cntrt_id}'/>"  />
+            <input type="hidden" name="client_modify_div" id="client_modify_div"  />
+            <input type="hidden" name="chose_client" id="chose_client"  />
             <input type="hidden" name="authreq_client" value="<c:out value='${reqAuthSvcInfo}'/>" />
             <input type="hidden" name="srch_type_gbn" id="srch_type_gbn" value="SC0101" /> <!-- SC0101:날인담당자  /SC0102:증명서류발급담당자-->
             <!-- 2014-04-15 Kevin added. GERP 관련 페이지 형태 구분.(R/I) -->
@@ -1262,7 +1353,7 @@ function setSealPerson(obj) {
 	                <td colspan="3"><c:out value='${contractLom.cnclsn_plndday}'/></td>
 	                <th><spring:message code="clm.page.field.contract.conclusion.detail.conclusionday"/><span class="astro">*</span></th> <!-- 계약체결일 -->
 	                <td colspan="3">
-						<input type="text" name="cntrt_cnclsnday" id="cntrt_cnclsnday" value="<c:out value='${contractLom.cntrt_cnclsnday}'/>"  class="text_calendar02" required alt="<spring:message code="clm.page.field.contract.conclusion.detail.conclusionday"/>" />
+						<input type="text" name="cntrt_cnclsnday" id="cntrt_cnclsnday" onChange="validateSelectedDate();" value="<c:out value='${contractLom.cntrt_cnclsnday}'/>"  class="text_calendar02" required alt="<spring:message code="clm.page.field.contract.conclusion.detail.conclusionday"/>" />
 	                    ※ <spring:message code="clm.page.msg.manage.signCompl" />  
 	                </td>
 	            </tr>
@@ -1349,12 +1440,24 @@ function setSealPerson(obj) {
 	                </td>
 	            </tr>
 	            <tr>
-	                <th><spring:message code="clm.page.field.myapproval.etcinfo"/>  <img src="<%=IMAGE %>/common/step_q.gif" alt="info" title="<spring:message code="clm.page.msg.manage.announce064" htmlEscape="true" />" /></th>
-	                <td colspan="7">
+	                <th>
+                        <spring:message code="clm.page.field.myapproval.etcinfo"/>  <img src="<%=IMAGE %>/common/step_q.gif" alt="info" title="<spring:message code="clm.page.msg.manage.announce064" htmlEscape="true" />" />
                         <span class="tL">
                             <span class="btn_all_b" onclick='javascript:openChooseClient();'><span class="add"></span><a><spring:message code='clm.page.msg.manage.add' /></a></span>
                        </span>
-                       <span id="id_trgtman_nm"><c:out value="${reqAuthInfo}" /></span>
+                    </th>
+	                <td colspan="7">
+                       <span id="id_trgtman_nm">
+                            <%if(authReqList !=null && authReqList.size() >0){ %>
+                            <%for(int j=0;j<authReqList.size();j++){ %>
+                            <% ListOrderedMap lom = (ListOrderedMap)authReqList.get(j);%>
+                            <% if((j !=0 && j !=1) && (j % 2 == 0 )){%><br/><%}%>
+                            <% if(j != 0 && (j % 2 !=0 )){%>,<% }%>
+                            <input type="hidden" name="arr_demnd_seqno" id="arr_demnd_seqno" value="<%=lom.get("demnd_seqno") %>" /><input type="hidden" name="arr_trgtman_id" id="arr_trgtman_id" value="<%=lom.get("trgtman_id") %>" /><input type="hidden" name="arr_trgtman_nm" id="arr_trgtman_nm" value="<%=lom.get("trgtman_nm") %>" /><input type="hidden" name="arr_trgtman_jikgup_nm" id="arr_trgtman_jikgup_nm" value="<%=lom.get("trgtman_jikgup_nm") %>" /><input type="hidden" name="arr_trgtman_dept_nm" id="arr_trgtman_dept_nm" value="<%=lom.get("trgtman_dept_nm") %>" />
+                            <%=lom.get("trgtman_nm") %>/<%=lom.get("trgtman_jikgup_nm") %>/<%=lom.get("trgtman_dept_nm") %>
+                            <% }%>
+                            <% }%>
+                       </span>
 	               </td>
 	            </tr>           
 	        </table>
