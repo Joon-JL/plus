@@ -509,38 +509,39 @@ function openHis(mis_id){
  *의뢰자 리턴 객체 받기 심주완수정-2011.10.15
  */
  function setListClientInfo(returnValue) {
-// 	var frm = document.frm;
-       var arrReturn = returnValue.split("!@#$");
-       var innerHtml ="";	
-       
-       $('#id_trgtman_nm').html("");
-       
-       if(arrReturn[0]=="") {
-       	return ;
-       }
-       
-       for(var i=0; i < arrReturn.length;i++) {
-       	var arrInfo = arrReturn[i].split("|");
-       	if((i != 0 && i != 1) && (i % 2 == 0)){
-   			innerHtml += "<br/>";
-       	}
-       	if(i != 0 && (i % 2 != 0)){
-       		innerHtml += ",";
-       	}
-       		innerHtml += "<input type='hidden' name='arr_demnd_seqno' id='arr_demnd_seqno' value='"+ arrInfo[0] +"' />";
-       		innerHtml += "<input type='hidden' name='arr_trgtman_id' id='arr_trgtman_id' value='"+ arrInfo[1] +"' />";
-       		innerHtml += "<input type='hidden' name='arr_trgtman_nm' id='arr_trgtman_nm' value='"+ arrInfo[2] +"' />";		        	
-       		innerHtml += "<input type='hidden' name='arr_trgtman_jikgup_nm' id='arr_trgtman_jikgup_nm' value='"+ arrInfo[3] +"' />";
-       		innerHtml += "<input type='hidden' name='arr_trgtman_dept_nm' id='arr_trgtman_dept_nm' value='"+ arrInfo[4] +"' />";
-       		
-       		innerHtml += arrInfo[2] +"/"+arrInfo[3] + "/" + arrInfo[4] ;
-       		
-       	$('#id_trgtman_nm').html(innerHtml);
-       	
-       }
+     var arrReturn = returnValue.split("!@#$");
+     var innerHtml ="";
+     var isListEmpty = (arrReturn.length === 1 && arrReturn[0] === "");
+     $('#id_trgtman_nm').html("");
+
+     var trgtmanIds = [];
+
+     if(!isListEmpty) {
+         for(var i=0; i < arrReturn.length;i++) {
+             var arrInfo = arrReturn[i].split("|");
+
+             if (arrInfo.length >=5) {
+                 trgtmanIds.push(arrInfo[1]);
+                 if ((i != 0 && i != 1) && (i % 2 == 0)) {
+                     innerHtml += "<br/>";
+                 }
+                 if (i != 0 && (i % 2 != 0)) {
+                     innerHtml += ",";
+                 }
+                 innerHtml += "<input type='hidden' name='arr_demnd_seqno' id='arr_demnd_seqno' value='" + arrInfo[0] + "' />";
+                 innerHtml += "<input type='hidden' name='arr_trgtman_id' id='arr_trgtman_id' value='" + arrInfo[1] + "' />";
+                 innerHtml += "<input type='hidden' name='arr_trgtman_nm' id='arr_trgtman_nm' value='" + arrInfo[2] + "' />";
+                 innerHtml += "<input type='hidden' name='arr_trgtman_jikgup_nm' id='arr_trgtman_jikgup_nm' value='" + arrInfo[3] + "' />";
+                 innerHtml += "<input type='hidden' name='arr_trgtman_dept_nm' id='arr_trgtman_dept_nm' value='" + arrInfo[4] + "' />";
+                 innerHtml += arrInfo[2] + "/" + arrInfo[3] + "/" + arrInfo[4];
+             }
+         }
+         $('#id_trgtman_nm').html(innerHtml);
+     }
        
        // 관련자 리스트 수정 여부 저장
-       frm.client_modify_div.value = "Y";
+
+     $('#client_modify_div').val("Y");
        
        // 여기 부터 AJAX 로 실시간 DB 저장 처리   메소드 명 modifyRefCCAJAX
        var options = {   

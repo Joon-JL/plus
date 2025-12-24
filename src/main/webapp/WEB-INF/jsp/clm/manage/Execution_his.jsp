@@ -87,7 +87,7 @@
 	
 	<tr>
 		<th><spring:message code="clm.page.msg.manage.chrgCont" /></th>
-		<td><c:out value='${contractMstLom.cntrt_respman_nm}'/>/<c:out value='${contractMstLom.cntrt_respman_jikgup_nm}'/>/<c:out value='${contractMstLom.cntrt_resp_dept_nm}'/></td>
+		<td colspan="5"><c:out value='${contractMstLom.cntrt_respman_nm}'/>/<c:out value='${contractMstLom.cntrt_respman_jikgup_nm}'/>/<c:out value='${contractMstLom.cntrt_resp_dept_nm}'/></td>
 <%--	신성우 주석처리 2014-03-31		
 		<th><spring:message code="clm.page.msg.manage.preAnnDate" /></th>
 		<td colspan="3"><c:out value='${contractMstLom.exprt_notiday}'/></td>
