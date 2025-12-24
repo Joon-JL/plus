@@ -504,15 +504,17 @@ function changeToday(id,target){
 		}
 	}
 		
-	$("#" + id + "_cal").html(makeDate(today[0],eval(today[1]-1)),id);
+	// $("#" + id + "_cal").html(makeDate(today[0],eval(today[1]-1)),id);
+	// Move the 'id' inside the makeDate function call
+	$("#" + id + "_cal").html(makeDate(today[0],eval(today[1]-1), id));
 	$("#" + id + "_calMon").attr("value",eval(today[1]));
 	$("#" + id + "_calYear").attr("value",today[0]);
 	addHover(id,target);
 }
 
 function makeCal(id , tValue)
-{	 
-	 var cal_html = "";	 
+{
+	 var cal_html = "";
 	 var tDate = tValue.split(date_split_format);
 	 
 	 if ((tDate[0] % 4 == 0 )&& (tDate[0] % 100 != 0) || (Date[0] % 400 == 0)) mon[1] = 29;
@@ -603,7 +605,9 @@ function moveDate(id,plus){
 
 	$("#" + id + "_calMon").attr("value",month);
 	$("#" + id + "_calYear").attr("value",year);
-	$("#" + id + "_cal").html(makeDate(year,month-1),id);
+	// $("#" + id + "_cal").html(makeDate(year,month-1),id);
+	// Move the 'id' inside the makeDate function call
+	$("#" + id + "_cal").html(makeDate(year, month - 1, id));
 }
 
 	

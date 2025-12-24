@@ -86,27 +86,8 @@ $(document).ready(function(){
         initRequire();      
     });
 
-    var dateInputId = '#cntrt_cnclsnday';
-
-    // 1. Retain the change handler for manual typing
-    $(dateInputId).on('change', validateSelectedDate);
-
-    // 2. Attach a global document click listener (as requested by the user).
-    // This attempts to catch the moment the user clicks outside the calendar/input.
-    // We use a short timeout (200ms) to ensure the calendar script has written the value.
-    $(document).on('click', function(event) {
-        var $target = $(event.target);
-
-        // Optimization: Only run validation if the target is NOT the calendar input itself
-        // AND NOT part of the calendar modal (we use a common class name 'divBody' found
-        // in the ahmax script for the calendar container ID).
-
-        if (!$target.is(dateInputId) && !$target.closest('.divBody').length) {
-            // If user clicks elsewhere, check the date input value with a short delay.
-            // Delay set to 200ms to allow the calendar's internal script to finish writing the value.
-            setTimeout(validateSelectedDate, 200);
-        }
-    });
+    // Manual typing fallback validation
+    $('#cntrt_cnclsnday').on('change', validateSelectedDate);
 
 });
 
@@ -853,6 +834,46 @@ function setSealPerson(obj) {
 	 	
 	 }
 
+(function() {
+    // We use the library's own variables where possible to ensure format matching
+    function getTodayISO() {
+        var today = new Date();
+        var y = today.getFullYear();
+        var m = today.getMonth() + 1;
+        var d = today.getDate();
+        return y + "-" + (m < 10 ? "0" + m : m) + "-" + (d < 10 ? "0" + d : d);
+    }
+
+    // --- PATCH : Overwrite makeDate to remove attributes from future dates ---
+    if (typeof window.makeDate === 'function') {
+        var _originalMakeDate = window.makeDate;
+        window.makeDate = function(year, month, id) {
+            // If the ID is not ours, return standard rendering
+            if (id !== "cntrt_cnclsndayCal") {
+                return _originalMakeDate(year, month, id);
+            }
+
+            var html = _originalMakeDate(year, month, id);
+            var todayStr = getTodayISO();
+            var $temp = $("<div>" + html + "</div>");
+
+            $temp.find("div[value]").each(function() {
+                var cellDate = $(this).attr("value");
+                if (cellDate > todayStr) {
+                    $(this).addClass("dayDisabled");
+                    // CRITICAL: Remove 'value' so the library doesn't bind the click event
+                    $(this).removeAttr("value");
+                    // CRITICAL: Remove 'day' so the library's addHover styling (dayEv) fails
+                    $(this).removeAttr("day");
+                    $(this).attr("title", "Future dates are disabled");
+                }
+            });
+
+            return $temp.html();
+        };
+    }
+})();
+
     /**
      * Helper function to get the current date in YYYY-MM-DD format.
      * This format allows for reliable string comparison.
@@ -861,14 +882,9 @@ function setSealPerson(obj) {
     function getTodayString() {
         var today = new Date();
         var yyyy = today.getFullYear();
-        var mm = today.getMonth() + 1; // Months start at 0
-        var dd = today.getDate();
-
-        // Pad month/day with leading zero if necessary
-        var mmStr = (mm < 10) ? '0' + mm : mm;
-        var ddStr = (dd < 10) ? '0' + dd : dd;
-
-        return ddStr + '-' + mmStr + '-' + yyyy;
+        var mm = String(today.getMonth() + 1).padStart(2, '0');
+        var dd = String(today.getDate()).padStart(2, '0');
+        return yyyy + '-' + mm + '-' + dd;
     }
 
     /**
@@ -878,30 +894,39 @@ function setSealPerson(obj) {
      */
     function validateSelectedDate() {
         var dateInput = document.getElementById('cntrt_cnclsnday');
-        var selectedDate = dateInput.value;
+        var val = dateInput.value;
+        if (!val) return;
 
-        // Skip validation if the field is empty or was just cleared
-        if (!selectedDate) {
-            return;
-        }
+        var today = new Date();
+        var y = today.getFullYear();
+        var m = today.getMonth() + 1;
+        var d = today.getDate();
+        var todayStr = y + "-" + (m < 10 ? "0" + m : m) + "-" + (d < 10 ? "0" + d : d);
 
-        var todayStr = getTodayString();
-
-        // String comparison works because both dates are in YYYY-MM-DD format.
-        if (selectedDate > todayStr) {
-
-            // 1. Alert the user (using alert() as requested)
-            alert("The selected date cannot be later than today's date (" + todayStr + ").");
-
-            // 2. Clear the invalid date
+        if (val.replace(/\//g, '-') > todayStr) {
+            alert("<spring:message code='clm.page.msg.manage.announce173' />");
             dateInput.value = "";
-
-            // 3. Optional: Re-focus the field
             dateInput.focus();
         }
     }
 //-->	
 </script>
+
+<style type="text/css">
+    /* 1. Visual Style for Disabled Dates */
+    .dayDisabled {
+        color: #bbb !important;
+        background-color: #f9f9f9 !important;
+        cursor: default !important;
+        text-decoration: line-through !important;
+        /* 2. Physical Lock: Prevents mouse clicks even if logic fails */
+        pointer-events: none !important;
+    }
+    .dayDisabled:hover {
+        background-color: #f9f9f9 !important;
+        border: none !important;
+    }
+</style>
 </head>
 <body>
 <!-- container -->
