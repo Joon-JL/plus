@@ -2496,7 +2496,7 @@
 
 		/* Horizontal Positioning (Centers the popover on the 40% mark) */
 		top: 25%;
-		left: 40%;
+		left: 50%;
 		transform: translateX(-50%);
 
 		/* Visual Styles */
@@ -3000,10 +3000,11 @@
 								</td>
 							</tr>
 							<tr>
-								<th>Data Protection Agreement required<span class='astro'>*</span>
+								<th>Data Protection Agreement required <span class='astro'>*</span>
 									<span id="guideButton" class="btn_all_b guide-button-style-fix">
 										<span class="help"></span>
-										<a><spring:message code="las.page.field.page.comments"/></a>
+<%--										<a><spring:message code="las.page.field.page.comments"/></a>--%>
+										<a>Guide</a>
 									</span>
 								</th>
 								<td colspan="3">
@@ -4082,11 +4083,11 @@
 
 	<div id="guideContent" class="guide-popover">
 		<p style="margin-top: 1rem">
-			1. Y - Standalone Data processing Agreement (DPA) or DPA included in the contract; this contract is a standalone DPA, or a DPA is included as exhibit or appendix to this contract. <br>
+			1. Y - Standalone Data Processing Agreement (DPA) or DPA included in the contract; this contract is a standalone DPA, or a DPA is included as exhibit or appendix to this contract. <br>
 			Note: If this contract includes data protection clauses which meet the requirements of a DPA in a form such as a Statement of Work (SOW), rather than a standard contract, then please select this response. <br>
 
-			2. Y - Separate Data processing Agreement (DPA) not included in the contract but does exist); separate DPA related to this contract is already in place. <br>
-			3. Y - Separate Data processing Agreement (DPA) needs to be created or amended; this contract requires a DPA, which will be concluded at a later date. <br>
+			2. Y - Separate Data Processing Agreement (DPA) not included in the contract but does exist); separate DPA related to this contract is already in place. <br>
+			3. Y - Separate Data Processing Agreement (DPA) needs to be created or amended; this contract requires a DPA, which will be concluded at a later date. <br>
 			Note: Even if a DPA is already in place with the counterparty but the DPA does not cover the entire scope of processing in this contract, thus resulting in a variation agreement being required, then please select this response. <br>
 
 			4. Y - Standalone Data Sharing Agreement (DSA) or DSA included in the contract; this contract is a standalone DSA, or a DSA is included as exhibit or appendix to this contract. <br>
@@ -4096,8 +4097,12 @@
 			Note: If this contract includes data protection clauses which meet the requirements of a JCA in a form such as a Statement of Work (SOW), rather than a standard contract, then please select this response. <br>
 
 			6. Y - Separate Data Sharing Agreement (DSA) or Joint Controllership Agreement (JCA) not included in the contract but does exist; separate DSA or JCA related to this contract is already in place. <br>
-			7. N - None of the above apply; no data protection agreement required. <br>
-		</p>
+			7. N - No Data Processing; no data protection agreement required. <br><br><br>
+            * Y - Only one option can be selected above however, if multiple options need to be selected, the DPA takes precedence over any other agreements required.<br>
+            * In case of number 1,4 and 5, [The contract ID of relevant DP contract] field will be automatically filled in.<br>
+            * In case of number 2 and 6, lawyer/paralegal will need to  insert the contract ID in the [Contract ID of relevant DP contract] field referring to the relevant contract.<br>
+            * In case of number 3, lawyer/paralegal will need to insert the contract ID in the [Contract ID of relevant DP contract] field after conclusion of DPA.<br>
+        </p>
 		<button id="closeGuide" style="margin-top: 1rem">Close</button>
 	</div>
 </body>
