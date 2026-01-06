@@ -432,7 +432,7 @@ function setListClientInfo(returnValue) {
 	</colgroup>
     <tr>
         <th><spring:message code="clm.page.field.manageRequest.reqTitle"/></th>
-        <td colspan="6">[basicinfo=]<span id="spReqTitle"></span></td>
+        <td colspan="6"><span id="spReqTitle"></span></td>
     </tr>
     <tr class="lineAdd">
         <th><spring:message code="clm.page.field.manageRequest.demndmanNm"/></th>

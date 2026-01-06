@@ -4097,11 +4097,14 @@
 			Note: If this contract includes data protection clauses which meet the requirements of a JCA in a form such as a Statement of Work (SOW), rather than a standard contract, then please select this response. <br>
 
 			6. Y - Separate Data Sharing Agreement (DSA) or Joint Controllership Agreement (JCA) not included in the contract but does exist; separate DSA or JCA related to this contract is already in place. <br>
-			7. N - No Data Processing; no data protection agreement required. <br><br><br>
-            * Y - Only one option can be selected above however, if multiple options need to be selected, the DPA takes precedence over any other agreements required.<br>
-            * In case of number 1,4 and 5, [The contract ID of relevant DP contract] field will be automatically filled in.<br>
-            * In case of number 2 and 6, lawyer/paralegal will need to  insert the contract ID in the [Contract ID of relevant DP contract] field referring to the relevant contract.<br>
-            * In case of number 3, lawyer/paralegal will need to insert the contract ID in the [Contract ID of relevant DP contract] field after conclusion of DPA.<br>
+			7. N - No Data Processing; no Data Protection Agreement required. <br><br>
+
+            * Y - Only one option can be selected above however, if multiple options need to be selected, the <b><u>DPA takes precedence over any other agreements required.</u></b><br>
+            * In case of No. 1,4 and 5, [The contract ID of relevant DP contract] field will be automatically filled in.<br>
+            * In case of No. 2 and 6, lawyer/paralegal will need to  insert the contract ID in the [Contract ID of relevant DP contract] field referring to the relevant contract.
+        </p>
+        <p style="font-weight: bold">
+            * In the exceptional cases where No. 3 is selected, please make sure that the legal team follows up with the requestor to ensure that a new SELMS+ request is generated for the DPA which you selected at final review to be concluded at a later date. It is important to include the [contract ID from the original request] in the new request so that it is clear for audit purposes both matters are linked and finalised.
         </p>
 		<button id="closeGuide" style="margin-top: 1rem">Close</button>
 	</div>

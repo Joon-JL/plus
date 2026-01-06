@@ -741,7 +741,54 @@ function showMessage(msg) {
     frm.target = "PopUpWindow";
     frm.submit();
  }
- 
+
+
+// To receive user search result who will be added as CC.
+function setListClientInfo(returnValue) {
+    var arrReturn = returnValue.split("!@#$");
+    var innerHtml ="";
+    var isListEmpty = (arrReturn.length === 1 && arrReturn[0] === "");
+    //if(arrReturn[0]=="") { return ; }
+
+    $('#id_trgtman_nm').html("");
+
+    var trgtmanIds = [];
+
+    if(!isListEmpty) {
+        for(var i=0; i < arrReturn.length;i++) {
+            var arrInfo = arrReturn[i].split("|");
+
+            if (arrInfo.length >=5) {
+                trgtmanIds.push(arrInfo[1]);
+                if ((i != 0 && i != 1) && (i % 2 == 0)) {
+                    innerHtml += "<br/>";
+                }
+                if (i != 0 && (i % 2 != 0)) {
+                    innerHtml += ",";
+                }
+                innerHtml += "<input type='hidden' name='arr_demnd_seqno' id='arr_demnd_seqno' value='" + arrInfo[0] + "' />";
+                innerHtml += "<input type='hidden' name='arr_trgtman_id' id='arr_trgtman_id' value='" + arrInfo[1] + "' />";
+                innerHtml += "<input type='hidden' name='arr_trgtman_nm' id='arr_trgtman_nm' value='" + arrInfo[2] + "' />";
+                innerHtml += "<input type='hidden' name='arr_trgtman_jikgup_nm' id='arr_trgtman_jikgup_nm' value='" + arrInfo[3] + "' />";
+                innerHtml += "<input type='hidden' name='arr_trgtman_dept_nm' id='arr_trgtman_dept_nm' value='" + arrInfo[4] + "' />";
+                innerHtml += arrInfo[2] + "/" + arrInfo[3] + "/" + arrInfo[4];
+            }
+        }
+        $('#id_trgtman_nm').html(innerHtml);
+    }
+
+    // 관련자 리스트 수정 여부 저장
+    $("#client_modify_div").val("Y");
+
+    // 여기 부터 AJAX 로 실시간 DB 저장 처리   메소드 명 modifyRefCCAJAX
+    var options = {
+        url: "<c:url value='/clm/review/consideration.do?method=modifyRefCCAJAX' />",
+        type: "post",
+        dataType: "json"
+    };
+
+    $("#frm").ajaxSubmit(options);
+}
 </script>
 </head>
 <body onLoad='showMessage("<c:out value='${returnMessage}'/>");'>
@@ -1285,7 +1332,7 @@ function showMessage(msg) {
 							</td>
 						</tr>
 					</table>
-					<!-- //Conclusion Information -->
+                    <!-- //Conclusion Information -->
 									
 					<!-- Termination Information -->
 					<div class="title_basic" style='width:100%; margin:10px 0 0 0'> 
