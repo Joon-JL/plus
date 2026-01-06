@@ -299,24 +299,24 @@
 
 		// 1. Toggle visibility on button click
 		$guideButton.on('click', function(e) {
-			e.preventDefault(); // Prevents the link from navigating
-			$guideContent.toggleClass('visible');
-			return false;
-		});
 
-		// 2. Hide when the "Close" button inside the popover is clicked
-		$closeButton.on('click', function() {
-			$guideContent.removeClass('visible');
-		});
+			var $para = $("#guideContent");
+			var $button = $(this);
 
-		// 3. Optional: Hide popover when clicking anywhere else on the document
-		$(document).on('click', function(e) {
-			// If the click is not on the guide button or inside the guide content, hide it
-			if (!$guideButton.is(e.target) && !$guideContent.has(e.target).length) {
-				$guideContent.removeClass('visible');
+			// Check the state BEFORE toggling
+			// If it is currently visible, it means we are about to HIDE it.
+			if ($para.is(":visible")) {
+				// Wrap the text in <a> when updating HTML
+				$button.html('<a href="javascript:void(0);"><b>Guide - View</b></a>');
+			} else {
+				// Wrap the text in <a> when updating HTML
+				$button.html('<a href="javascript:void(0);"><b>Guide - Hide</b></a>');
 			}
-		});
 
+			// Execute the toggle animation
+			$para.slideToggle();
+
+		});
 
 		if ($("#dpAgreement").val()) {
 			var agreementValue = $("#dpAgreement").val();
@@ -2480,48 +2480,16 @@
 </script>
 
 <style>
-	/* D.P.A css Joon added Nov, 2025 */
-	.guide-popover {
-		visibility: hidden;
-		opacity: 0;
-		transition: opacity 0.3s, visibility 0.3s;
-
-		/* Positioning and Stacking Context */
-		position: fixed;
-		z-index: 9999; /* High enough to be on top without max value */
-
-		/* Layout and Centering */
-		width: 1000px;
-		padding: 20px;
-
-		/* Horizontal Positioning (Centers the popover on the 40% mark) */
-		top: 25%;
-		left: 50%;
-		transform: translateX(-50%);
-
-		/* Visual Styles */
+	/* 1. Hide the content by default */
+	#guideContent {
+		display: none;
+		padding: 15px;
+		margin-top: 10px;
 		background-color: #f9f9f9;
-		border: 1px solid #ccc;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+		border: 1px solid #ddd;
+		border-radius: 4px;
+		line-height: 1.6;
 	}
-
-	.guide-popover.visible {
-		visibility: visible;
-		opacity: 1;
-	}
-
-	/*
-	input[readonly] {
-		background-color: #eee;
-
-		cursor: default;
-
-		color: #666;
-
-		border: 1px solid #ccc;
-		outline: none;
-	}*/
-
 </style>
 </head>
 <body>
@@ -3000,15 +2968,39 @@
 								</td>
 							</tr>
 							<tr>
-								<th>Data Protection Agreement required <span class='astro'>*</span>
-									<span id="guideButton" class="btn_all_b guide-button-style-fix">
-										<span class="help"></span>
-<%--										<a><spring:message code="las.page.field.page.comments"/></a>--%>
-										<a>Guide</a>
-									</span>
+								<th style="vertical-align: top;">Data Protection Agreement required <span class='astro'>*</span>
+									<br>
+									<span id="guideButton" class="btn_all_b guide-button-style-fix"><a href="javascript:void(0);"><b>Guide - View</b></a></span>
 								</th>
 								<td colspan="3">
 									<select name="dpAgreement" id="dpAgreement" style="width:auto;" required onchange="updateRelDPAContract(this.value, false);"></select>
+
+									<div id="guideContent" style="display: none;">
+										<p style="margin-top: 1rem">
+											1. Y - Standalone Data Processing Agreement (DPA) or DPA included in the contract; this contract is a standalone DPA, or a DPA is included as exhibit or appendix to this contract. <br>
+											Note: If this contract includes data protection clauses which meet the requirements of a DPA in a form such as a Statement of Work (SOW), rather than a standard contract, then please select this response. <br>
+
+											2. Y - Separate Data Processing Agreement (DPA) not included in the contract but does exist); separate DPA related to this contract is already in place. <br>
+											3. Y - Separate Data Processing Agreement (DPA) needs to be created or amended; this contract requires a DPA, which will be concluded at a later date. <br>
+											Note: Even if a DPA is already in place with the counterparty but the DPA does not cover the entire scope of processing in this contract, thus resulting in a variation agreement being required, then please select this response. <br>
+
+											4. Y - Standalone Data Sharing Agreement (DSA) or DSA included in the contract; this contract is a standalone DSA, or a DSA is included as exhibit or appendix to this contract. <br>
+											Note: If this contract includes data protection clauses which meet the requirements of a DSA in a form such as a Statement of Work (SOW), rather than a standard contract, then please select this response. <br>
+
+											5. Y - Standalone Joint Controllership Agreement (JCA) or JCA included in the contract; this contract is a standalone JCA, or a JCA is included as exhibit or appendix to this contract. <br>
+											Note: If this contract includes data protection clauses which meet the requirements of a JCA in a form such as a Statement of Work (SOW), rather than a standard contract, then please select this response. <br>
+
+											6. Y - Separate Data Sharing Agreement (DSA) or Joint Controllership Agreement (JCA) not included in the contract but does exist; separate DSA or JCA related to this contract is already in place. <br>
+											7. N - No Data Processing; no Data Protection Agreement required. <br><br>
+
+											* Y - Only one option can be selected above however, if multiple options need to be selected, the <b><u>DPA takes precedence over any other agreements required.</u></b><br>
+											* In case of No. 1,4 and 5, [The contract ID of relevant DP contract] field will be automatically filled in.<br>
+											* In case of No. 2 and 6, lawyer/paralegal will need to  insert the contract ID in the [Contract ID of relevant DP contract] field referring to the relevant contract.
+										</p>
+										<p style="font-weight: bold">
+											* In the exceptional cases where No. 3 is selected, please make sure that you, the reviewer, follows up with the requestor to ensure that a new SELMS+ request is generated for the DPA which you selected at final review to be concluded at a later date.
+										</p>
+									</div>
 								</td>
 							</tr>
 							<tr>
@@ -4081,32 +4073,6 @@
 		<jsp:include page="/WEB-INF/jsp/secfw/common/CommonProgress.jsp"/>
 
 
-	<div id="guideContent" class="guide-popover">
-		<p style="margin-top: 1rem">
-			1. Y - Standalone Data Processing Agreement (DPA) or DPA included in the contract; this contract is a standalone DPA, or a DPA is included as exhibit or appendix to this contract. <br>
-			Note: If this contract includes data protection clauses which meet the requirements of a DPA in a form such as a Statement of Work (SOW), rather than a standard contract, then please select this response. <br>
 
-			2. Y - Separate Data Processing Agreement (DPA) not included in the contract but does exist); separate DPA related to this contract is already in place. <br>
-			3. Y - Separate Data Processing Agreement (DPA) needs to be created or amended; this contract requires a DPA, which will be concluded at a later date. <br>
-			Note: Even if a DPA is already in place with the counterparty but the DPA does not cover the entire scope of processing in this contract, thus resulting in a variation agreement being required, then please select this response. <br>
-
-			4. Y - Standalone Data Sharing Agreement (DSA) or DSA included in the contract; this contract is a standalone DSA, or a DSA is included as exhibit or appendix to this contract. <br>
-			Note: If this contract includes data protection clauses which meet the requirements of a DSA in a form such as a Statement of Work (SOW), rather than a standard contract, then please select this response. <br>
-
-			5. Y - Standalone Joint Controllership Agreement (JCA) or JCA included in the contract; this contract is a standalone JCA, or a JCA is included as exhibit or appendix to this contract. <br>
-			Note: If this contract includes data protection clauses which meet the requirements of a JCA in a form such as a Statement of Work (SOW), rather than a standard contract, then please select this response. <br>
-
-			6. Y - Separate Data Sharing Agreement (DSA) or Joint Controllership Agreement (JCA) not included in the contract but does exist; separate DSA or JCA related to this contract is already in place. <br>
-			7. N - No Data Processing; no Data Protection Agreement required. <br><br>
-
-            * Y - Only one option can be selected above however, if multiple options need to be selected, the <b><u>DPA takes precedence over any other agreements required.</u></b><br>
-            * In case of No. 1,4 and 5, [The contract ID of relevant DP contract] field will be automatically filled in.<br>
-            * In case of No. 2 and 6, lawyer/paralegal will need to  insert the contract ID in the [Contract ID of relevant DP contract] field referring to the relevant contract.
-        </p>
-        <p style="font-weight: bold">
-            * In the exceptional cases where No. 3 is selected, please make sure that the legal team follows up with the requestor to ensure that a new SELMS+ request is generated for the DPA which you selected at final review to be concluded at a later date. It is important to include the [contract ID from the original request] in the new request so that it is clear for audit purposes both matters are linked and finalised.
-        </p>
-		<button id="closeGuide" style="margin-top: 1rem">Close</button>
-	</div>
 </body>
 </html>
