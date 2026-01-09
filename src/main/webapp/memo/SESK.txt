@@ -1,0 +1,243 @@
+
+DECLARE @FromDate DATE = '2011-01-01'; --20110101
+DECLARE @ToDate DATE = '2026-01-06';
+DECLARE @COMP_CD VARCHAR(10) = 'SESK';
+
+SELECT DISTINCT
+          SUBSTRING(CAST(CONVERT(VARCHAR,m.REG_DT, 23) AS VARCHAR),1,4) AS "Registration Year",
+
+          SUBSTRING(CAST(CONVERT(VARCHAR,m.REG_DT, 23) AS VARCHAR),6,2) AS "Registration Month",
+
+          CONVERT(VARCHAR,m.REG_DT, 23) AS "Registration Date",
+
+
+
+          CASE WHEN M.COMP_CD in ( 'SEP', 'SESA' )                THEN 'SEIB'
+
+               WHEN M.COMP_CD in ( 'SEH-P', 'SEH-S' )        THEN 'SEH'
+
+               WHEN M.COMP_CD in ( 'SESG', 'SEAG' )                THEN 'SEAS'
+
+               WHEN M.COMP_CD in ( 'SRUK' )                                THEN 'EHQ'
+
+          ELSE M.COMP_CD
+
+          END AS "NERP Subsidiary"
+
+
+
+        , m.COMP_CD AS "SELMS+ Subsidiary"
+
+        , m.cntrt_no AS "Contract ID"
+
+        , req.REQ_TITLE AS "Request Title"
+
+        , m.CNTRT_NM AS "Contract Name"
+
+        , req.REQ_DEPT_NM AS "Requesting dept."
+
+        , CASE WHEN CHARINDEX('ESBO', UPPER(req.REQ_DEPT_NM)) > 0 THEN 'TRUE' ELSE 'FALSE' END AS "ESBO dept."
+
+        , req.REQMAN_NM AS "Requester (In Charge)"
+
+        , req.REQ_DT AS "Request Date"
+
+        , (SELECT cd_nm_eng FROM TN_COM_CONTRACTTYPE_CD WHERE TYPE_CD = m.CNCLSNPURPS_BIGCLSFCN) AS "Area of contract"
+
+        ,
+
+       ISNULL((SELECT cd_nm_eng FROM tn_com_contracttype_cd WHERE type_cd = m.biz_clsfcn), '') + ' / ' +
+
+       ISNULL((SELECT cd_nm_eng FROM tn_com_contracttype_cd WHERE type_cd = m.depth_clsfcn), '') + ' / ' +
+
+       ISNULL((SELECT cd_nm_eng FROM tn_com_contracttype_cd WHERE type_cd = m.cnclsnpurps_bigclsfcn), '') + ' / ' +
+
+       ISNULL((SELECT cd_nm_eng FROM tn_com_contracttype_cd WHERE type_cd = m.cnclsnpurps_midclsfcn), '') + ' / ' +
+
+       ISNULL((SELECT cd_nm_eng FROM tn_com_contracttype_cd WHERE type_cd = m.cnclsnpurps_midclsfcn_etc), '') AS "Contract Type"
+
+
+
+        , (SELECT cd_nm_eng FROM TN_COM_CONTRACTTYPE_CD WHERE TYPE_CD = m.CNTRT_TRGT) AS "Contract matter"
+
+        , TRY_CONVERT(DATE,m.CNTRTPERIOD_STARTDAY,23) AS "Contract start date"
+
+        , TRY_CONVERT(DATE,m.CNTRTPERIOD_ENDDAY,23) AS "Contract end date"
+
+        , m.CNTRT_AMT AS "Contract amount"
+
+        , m.CRRNCY_UNIT as "Currency Uinit"
+
+        , m.CNTRT_OPPNT_NM as "Counterparty"
+
+
+
+
+
+        , TRY_CONVERT(DATE,m.CNTRT_CNCLSNDAY, 23) as "Conclusion Date"
+
+
+
+        , cd1.CD_NM_ENG AS "Step"
+
+        , cd2.CD_NM_ENG AS "Status"
+
+        , ( SELECT TOP 1 r1.cnsdman_nm
+
+              FROM TN_CLM_CONTRACT_CNSD r1
+
+                 WHERE r1.CNTRT_ID = m.CNTRT_ID
+
+                   AND r1.CNSDREQ_ID = ( SELECT MAX(r2.CNSDREQ_ID)
+
+                                                                     FROM TN_CLM_CONTRACT_CNSD r2
+
+                                                                  WHERE r2.CNTRT_ID = r1.CNTRT_ID
+
+                                                                    AND r2.cnsdman_nm IS NOT NULL )
+
+      ) AS "Reviewer"
+
+
+
+
+
+        , gerp_data.CUSTOMER_NM as GERP_CUSTOMER_NM
+
+        , gerp_data.MANDATORY AS GERP_CONTRACT_REQUIRED
+
+        , gerp_data.VENDOR_TYPE_DESC AS GERP_VENDOR_TYPE
+
+        , gerp_data.GERP_CD AS GERP_CD
+
+        , gerp_data.GERP_DIVISION AS GERP_DIVISION
+
+        , gerp_data.COST_TYPE_DESC AS GERP_COST_TYPE
+
+
+
+        , ( SELECT CAST(SUBSTRING(r3.CNSD_OPNN,1,30000) AS NVARCHAR(MAX))
+
+              FROM TN_CLM_CONTRACT_CNSD r3
+
+                 WHERE r3.CNTRT_ID = m.CNTRT_ID
+
+                   AND r3.CNSDREQ_ID = ( SELECT MAX(r4.CNSDREQ_ID)
+
+                                                                     FROM TN_CLM_CONTRACT_CNSD r4
+
+                                                                  WHERE r4.CNTRT_ID = r3.CNTRT_ID
+
+                                                                    AND r4.cnsdman_nm IS NOT NULL )
+
+      ) AS "Last Legal Opinion 1"
+
+        , ( SELECT CAST(SUBSTRING(r3.CNSD_OPNN,30001,60000) AS NVARCHAR(MAX))
+
+              FROM TN_CLM_CONTRACT_CNSD r3
+
+                 WHERE r3.CNTRT_ID = m.CNTRT_ID
+
+                   AND r3.CNSDREQ_ID = ( SELECT MAX(r4.CNSDREQ_ID)
+
+                                                                     FROM TN_CLM_CONTRACT_CNSD r4
+
+                                                                  WHERE r4.CNTRT_ID = r3.CNTRT_ID
+
+                                                                    AND r4.cnsdman_nm IS NOT NULL )
+
+      ) AS "Last Legal Opinion 2"
+
+        , ( SELECT CAST(SUBSTRING(r3.CNSD_OPNN,60001,90000) AS NVARCHAR(MAX))
+
+              FROM TN_CLM_CONTRACT_CNSD r3
+
+                 WHERE r3.CNTRT_ID = m.CNTRT_ID
+
+                   AND r3.CNSDREQ_ID = ( SELECT MAX(r4.CNSDREQ_ID)
+
+                                                                     FROM TN_CLM_CONTRACT_CNSD r4
+
+                                                                  WHERE r4.CNTRT_ID = r3.CNTRT_ID
+
+                                                                    AND r4.cnsdman_nm IS NOT NULL )
+
+      ) AS "Last Legal Opinion 3"
+
+        , ( SELECT CAST(SUBSTRING(r3.CNSD_OPNN,90001,120000) AS NVARCHAR(MAX))
+
+              FROM TN_CLM_CONTRACT_CNSD r3
+
+                 WHERE r3.CNTRT_ID = m.CNTRT_ID
+
+                   AND r3.CNSDREQ_ID = ( SELECT MAX(r4.CNSDREQ_ID)
+
+                                                                     FROM TN_CLM_CONTRACT_CNSD r4
+
+                                                                  WHERE r4.CNTRT_ID = r3.CNTRT_ID
+
+                                                                    AND r4.cnsdman_nm IS NOT NULL )
+
+      ) AS "Last Legal Opinion 4"
+
+        , ( SELECT CAST(SUBSTRING(r3.CNSD_OPNN,120001,150000) AS NVARCHAR(MAX))
+
+              FROM TN_CLM_CONTRACT_CNSD r3
+
+                 WHERE r3.CNTRT_ID = m.CNTRT_ID
+
+                   AND r3.CNSDREQ_ID = ( SELECT MAX(r4.CNSDREQ_ID)
+
+                                                                     FROM TN_CLM_CONTRACT_CNSD r4
+
+                                                                  WHERE r4.CNTRT_ID = r3.CNTRT_ID
+
+                                                                    AND r4.cnsdman_nm IS NOT NULL )
+
+      ) AS "Last Legal Opinion 5"
+
+        , ( SELECT CAST(SUBSTRING(r3.CNSD_OPNN,150001,180000) AS NVARCHAR(MAX))
+
+              FROM TN_CLM_CONTRACT_CNSD r3
+
+                 WHERE r3.CNTRT_ID = m.CNTRT_ID
+
+                   AND r3.CNSDREQ_ID = ( SELECT MAX(r4.CNSDREQ_ID)
+
+                                                                     FROM TN_CLM_CONTRACT_CNSD r4
+
+                                                                  WHERE r4.CNTRT_ID = r3.CNTRT_ID
+
+                                                                    AND r4.cnsdman_nm IS NOT NULL )
+
+      ) AS "Last Legal Opinion 6"
+
+
+
+FROM
+
+( SELECT M.CNTRT_ID, MAX(CNSDREQ_ID) CNSDREQ_ID
+	FROM TN_CLM_CONTRACT_MASTER M INNER JOIN TN_CLM_CONTRACT_CNSD RES ON M.CNTRT_ID = RES.CNTRT_ID
+	WHERE 1=1
+	--AND M.CNTRT_NO LIKE 'EHQ25%'
+	AND M.COMP_CD = @COMP_CD
+	AND M.REG_DT >= @FromDate
+	AND M.REG_DT < @ToDate
+	GROUP BY M.CNTRT_ID
+) AS L
+	INNER JOIN TN_CLM_CONT_CNSDREQ REQ ON L.CNSDREQ_ID = REQ.CNSDREQ_ID
+	INNER JOIN TN_CLM_CONTRACT_CNSD RES ON REQ.CNSDREQ_ID = RES.CNSDREQ_ID AND L.CNTRT_ID = RES.CNTRT_ID
+	INNER JOIN TN_CLM_CONTRACT_MASTER M ON L.CNTRT_ID = M.CNTRT_ID
+	LEFT JOIN TB_COM_CD cd1        ON cd1.CD = m.PRCS_DEPTH
+    LEFT JOIN TB_COM_CD cd2        ON cd2.CD = m.DEPTH_STATUS
+	LEFT JOIN VW_GERP gerp_data ON gerp_data.CNTRT_ID = m.CNTRT_ID
+
+
+	WHERE M.DEL_YN <> 'Y' AND M.CNTRT_NO IS NOT NULL AND M.CNTRT_NO <> ''
+
+
+--, TN_COM_CONTRACTTYPE_CD T
+ORDER BY 1,2,3,4,5,6
+
+
+;
