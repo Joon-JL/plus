@@ -8730,6 +8730,331 @@ ORDER BY ISNULL(COMP_CD ,'zzzzzzzzzz'), ISNULL(RESPMAN_NM,'zzzzzzzzzzzz')
 			]]>
 			</statement>
 		</query>
+
+		<query id="las.statistics.listContracts" isCamelCase="false" isDynamic="true">
+			<statement>
+				<![CDATA[
+					SELECT
+							#if($vo.excelDownload)
+								/* No TOP 100 limit for Excel downloads */
+							#else
+								TOP 1000
+							#end
+							M.CNTRT_NO,
+							M.COMP_CD AS "Company Code",
+							M.CNTRT_NO AS "Contract ID",
+							M.CNTRTPERIOD_STARTDAY AS "Contract Start Date",
+							M.CNTRTPERIOD_ENDDAY  AS "Contract End Date",
+							CASE M.PRCS_DEPTH
+								WHEN 'C02501' THEN 'REVIEW'
+								WHEN 'C02502' THEN 'APPROVAL'
+								WHEN 'C02503' THEN 'REGISTRATION'
+								WHEN 'C02504' THEN 'EXECUTION'
+								WHEN 'C02505' THEN 'TERMINATION'
+								WHEN 'C02506' THEN 'SELMS'
+							END AS "Contract Status",
+							REQ.REQMAN_NM AS "Requester (In Charge)",
+							REQ.REQ_DEPT_NM AS "Requesting dept.",
+							REQ.REQ_TITLE AS "Request Title",
+							M.CNTRT_NM AS "Contract Name",
+							REQ.REQ_DT AS "Request Date",
+							CNTRT_OPPNT_CD as 'Counterparty Code',
+							CASE M.cnclsnpurps_midclsfcn_etc
+								WHEN 'Y' THEN 'Yes'
+								WHEN 'N' THEN 'No'
+								ELSE 'Not selected yet'
+							END AS "DP Agreement",
+							ISNULL((
+								SELECT STRING_AGG(CONCAT(TRGTMAN_NM, ' ( ', U.EMAIL, ' )'), ', ')
+								FROM TN_CLM_CONTRACT_AUTHREQ INNER JOIN TB_COM_USER U ON TRGTMAN_ID = U.USER_ID
+								WHERE CNTRT_ID = M.CNTRT_ID
+							), '') AS 'CCed'
+					FROM
+					( SELECT M.CNTRT_ID, MAX(CNSDREQ_ID) CNSDREQ_ID
+						FROM TN_CLM_CONTRACT_MASTER M INNER JOIN TN_CLM_CONTRACT_CNSD RES ON M.CNTRT_ID = RES.CNTRT_ID
+						WHERE 1=1
+						#if($vo.srch_comp_cd == 'all')
+							/* Logic for all companies */
+						#else
+							AND M.COMP_CD = :vo.srch_comp_cd
+						#end
+
+						AND M.REG_DT >= :vo.fromDate AND M.REG_DT < :vo.toDate
+						GROUP BY M.CNTRT_ID
+					) AS L
+					INNER JOIN TN_CLM_CONT_CNSDREQ REQ ON L.CNSDREQ_ID = REQ.CNSDREQ_ID
+					INNER JOIN TN_CLM_CONTRACT_CNSD RES ON REQ.CNSDREQ_ID = RES.CNSDREQ_ID AND L.CNTRT_ID = RES.CNTRT_ID
+					INNER JOIN TN_CLM_CONTRACT_MASTER M ON L.CNTRT_ID = M.CNTRT_ID
+					WHERE M.DEL_YN <> 'Y' AND M.CNTRT_NO IS NOT NULL AND M.CNTRT_NO <> ''
+					ORDER BY 1
+			]]>
+			</statement>
+		</query>
+
+		<query id="las.statistics.listSESKContracts" isCamelCase="false" isDynamic="true">
+			<statement>
+				<![CDATA[
+					SELECT
+						#if($vo.excelDownload)
+							/* No TOP 100 limit for Excel downloads */
+						#else
+							TOP 1000
+						#end
+						YEAR(m.REG_DT) AS [Registration Year],
+						MONTH(m.REG_DT) AS [Registration Month],
+						CONVERT(VARCHAR(10), m.REG_DT, 23) AS [Registration Date],
+						CASE
+							WHEN M.COMP_CD IN ('SEP', 'SESA')          THEN 'SEIB'
+							WHEN M.COMP_CD IN ('SEH-P', 'SEH-S')       THEN 'SEH'
+							WHEN M.COMP_CD IN ('SESG', 'SEAG')         THEN 'SEAS'
+							WHEN M.COMP_CD = 'SRUK'                    THEN 'EHQ'
+							ELSE M.COMP_CD
+						END AS [NERP Subsidiary],
+						M.COMP_CD AS [SELMS+ Subsidiary],
+						M.CNTRT_NO AS [Contract ID],
+						REQ.REQ_TITLE AS [Request Title],
+						M.CNTRT_NM AS [Contract Name],
+						REQ.REQ_DEPT_NM AS [Requesting dept.],
+						CASE
+							WHEN CHARINDEX('ESBO', UPPER(REQ.REQ_DEPT_NM)) > 0 THEN 'TRUE'
+							ELSE 'FALSE'
+						END AS [ESBO dept.],
+						REQ.REQMAN_NM AS [Requester (In Charge)],
+						REQ.REQ_DT AS [Request Date],
+						BIGCLSFCN.cd_nm_eng AS [Area of contract],
+						ISNULL(biz.cd_nm_eng, '') + ' / ' +
+						ISNULL(depth.cd_nm_eng, '') + ' / ' +
+						ISNULL(big.cd_nm_eng, '') + ' / ' +
+						ISNULL(mid.cd_nm_eng, '') + ' / ' +
+						ISNULL(mid_etc.cd_nm_eng, '') AS [Contract Type],
+						CNTRT_MATTER.cd_nm_eng AS [Contract Matter],
+						CONVERT(date, STUFF(STUFF(M.CNTRTPERIOD_STARTDAY, 5, 0, '-'), 8, 0, '-')) AS [Contract start date],
+						CONVERT(date, STUFF(STUFF(M.CNTRTPERIOD_ENDDAY, 5, 0, '-'), 8, 0, '-')) AS [Contract end date],
+						M.CNTRT_AMT AS [Contract amount],
+						ISNULL(M.CRRNCY_UNIT, '') AS [Currency Uinit],
+						M.CNTRT_OPPNT_NM AS [Counterparty],
+						CASE
+							WHEN M.CNTRT_CNCLSNDAY IS NULL OR M.CNTRT_CNCLSNDAY = ''
+								THEN ''
+							ELSE CONVERT(
+									varchar(10),
+									CONVERT(date, STUFF(STUFF(M.CNTRT_CNCLSNDAY, 5, 0, '-'), 8, 0, '-'))
+								)
+						END AS [Conclusion date],
+						cd1.CD_NM_ENG AS [Step],
+						cd2.CD_NM_ENG AS [Status],
+						ISNULL(RES.CNSDMAN_NM, '') AS [Reviewer],
+						gerp_data.CUSTOMER_NM AS GERP_CUSTOMER_NM,
+						gerp_data.MANDATORY AS GERP_CONTRACT_REQUIRED,
+						gerp_data.VENDOR_TYPE_DESC AS GERP_VENDOR_TYPE,
+						gerp_data.GERP_CD AS GERP_CD,
+						gerp_data.GERP_DIVISION AS GERP_DIVISION,
+						gerp_data.COST_TYPE_DESC AS GERP_COST_TYPE,
+						ISNULL(CAST(RES.CNSD_OPNN AS NVARCHAR(MAX)), '') AS [Last Legal Opinion]
+					FROM
+					( SELECT M.CNTRT_ID, MAX(CNSDREQ_ID) CNSDREQ_ID
+						FROM TN_CLM_CONTRACT_MASTER M INNER JOIN TN_CLM_CONTRACT_CNSD RES ON M.CNTRT_ID = RES.CNTRT_ID
+						WHERE 1=1
+						#if($vo.srch_comp_cd == 'all')
+							/* Logic for all companies */
+						#else
+							AND M.COMP_CD = :vo.srch_comp_cd
+						#end
+						AND M.REG_DT >= :vo.fromDate AND M.REG_DT < :vo.toDate
+						GROUP BY M.CNTRT_ID
+					) AS L
+						INNER JOIN TN_CLM_CONT_CNSDREQ REQ ON L.CNSDREQ_ID = REQ.CNSDREQ_ID
+						INNER JOIN TN_CLM_CONTRACT_CNSD RES ON REQ.CNSDREQ_ID = RES.CNSDREQ_ID AND L.CNTRT_ID = RES.CNTRT_ID
+						INNER JOIN TN_CLM_CONTRACT_MASTER M ON L.CNTRT_ID = M.CNTRT_ID
+						LEFT JOIN TB_COM_CD cd1 ON cd1.CD = m.PRCS_DEPTH
+						LEFT JOIN TB_COM_CD cd2 ON cd2.CD = m.DEPTH_STATUS
+						LEFT JOIN VW_GERP gerp_data ON gerp_data.CNTRT_ID = m.CNTRT_ID
+						LEFT JOIN tn_com_contracttype_cd AS BIGCLSFCN ON BIGCLSFCN.type_cd = M.CNCLSNPURPS_BIGCLSFCN
+						LEFT JOIN tn_com_contracttype_cd AS biz ON biz.type_cd = m.biz_clsfcn
+						LEFT JOIN tn_com_contracttype_cd AS depth ON depth.type_cd = m.depth_clsfcn
+						LEFT JOIN tn_com_contracttype_cd AS big ON big.type_cd = m.cnclsnpurps_bigclsfcn
+						LEFT JOIN tn_com_contracttype_cd AS mid ON mid.type_cd = m.cnclsnpurps_midclsfcn
+						LEFT JOIN tn_com_contracttype_cd AS mid_etc ON mid_etc.type_cd = m.cnclsnpurps_midclsfcn_etc
+						LEFT JOIN tn_com_contracttype_cd AS CNTRT_MATTER ON CNTRT_MATTER.type_cd = M.CNTRT_TRGT
+					WHERE M.DEL_YN <> 'Y' AND M.CNTRT_NO IS NOT NULL AND M.CNTRT_NO <> ''
+					ORDER BY 1,2,3,4,5,6
+			]]>
+			</statement>
+		</query>
+
+		<query id="las.statistics.listContractsEHQLayout1" isCamelCase="false" isDynamic="true">
+			<statement>
+				<![CDATA[
+					SELECT
+						#if($vo.excelDownload)
+							TOP 999
+							/* No TOP 100 limit for Excel downloads */
+						#else
+							TOP 1000
+						#end
+						YEAR(m.REG_DT) AS [Registration Year],
+						MONTH(m.REG_DT) AS [Registration Month],
+						CONVERT(VARCHAR(10), m.REG_DT, 23) AS [Registration Date],
+						CASE
+							WHEN M.COMP_CD IN ('SEP', 'SESA')          THEN 'SEIB'
+							WHEN M.COMP_CD IN ('SEH-P', 'SEH-S')       THEN 'SEH'
+							WHEN M.COMP_CD IN ('SESG', 'SEAG')         THEN 'SEAS'
+							WHEN M.COMP_CD = 'SRUK'                    THEN 'EHQ'
+							ELSE M.COMP_CD
+						END AS [NERP Subsidiary],
+						M.COMP_CD AS [SELMS+ Subsidiary],
+						M.CNTRT_NO AS [Contract ID],
+						REQ.REQ_TITLE AS [Request Title],
+						M.CNTRT_NM AS [Contract Name],
+						REQ.REQ_DEPT_NM AS [Requesting dept.],
+						CASE
+							WHEN CHARINDEX('ESBO', UPPER(REQ.REQ_DEPT_NM)) > 0 THEN 'TRUE'
+							ELSE 'FALSE'
+						END AS [ESBO dept.],
+						REQ.REQMAN_NM AS [Requester (In Charge)],
+						REQ.REQ_DT AS [Request Date],
+						BIGCLSFCN.cd_nm_eng AS [Area of contract],
+						ISNULL(biz.cd_nm_eng, '') + ' / ' +
+						ISNULL(depth.cd_nm_eng, '') + ' / ' +
+						ISNULL(big.cd_nm_eng, '') + ' / ' +
+						ISNULL(mid.cd_nm_eng, '') + ' / ' +
+						ISNULL(mid_etc.cd_nm_eng, '') AS [Contract Type],
+						CNTRT_MATTER.cd_nm_eng AS [Contract Matter],
+						CONVERT(date, STUFF(STUFF(M.CNTRTPERIOD_STARTDAY, 5, 0, '-'), 8, 0, '-')) AS [Contract start date],
+						CONVERT(date, STUFF(STUFF(M.CNTRTPERIOD_ENDDAY, 5, 0, '-'), 8, 0, '-')) AS [Contract end date],
+						M.CNTRT_AMT AS [Contract amount],
+						ISNULL(M.CRRNCY_UNIT, '') AS [Currency Uinit],
+						M.CNTRT_OPPNT_NM AS [Counterparty],
+						CASE
+							WHEN M.CNTRT_CNCLSNDAY IS NULL OR M.CNTRT_CNCLSNDAY = ''
+								THEN ''
+							ELSE CONVERT(
+									varchar(10),
+									CONVERT(date, STUFF(STUFF(M.CNTRT_CNCLSNDAY, 5, 0, '-'), 8, 0, '-'))
+								)
+						END AS [Conclusion date],
+						cd1.CD_NM_ENG AS [Step],
+						cd2.CD_NM_ENG AS [Status]
+					FROM
+					( SELECT M.CNTRT_ID, MAX(CNSDREQ_ID) CNSDREQ_ID
+						FROM TN_CLM_CONTRACT_MASTER M INNER JOIN TN_CLM_CONTRACT_CNSD RES ON M.CNTRT_ID = RES.CNTRT_ID
+						WHERE 1=1
+						#if($vo.srch_comp_cd == 'all')
+							/* Logic for all companies */
+						#else
+							AND M.COMP_CD = :vo.srch_comp_cd
+						#end
+						AND M.REG_DT >= :vo.fromDate AND M.REG_DT < :vo.toDate
+						GROUP BY M.CNTRT_ID
+					) AS L
+						INNER JOIN TN_CLM_CONT_CNSDREQ REQ ON L.CNSDREQ_ID = REQ.CNSDREQ_ID
+						INNER JOIN TN_CLM_CONTRACT_CNSD RES ON REQ.CNSDREQ_ID = RES.CNSDREQ_ID AND L.CNTRT_ID = RES.CNTRT_ID
+						INNER JOIN TN_CLM_CONTRACT_MASTER M ON L.CNTRT_ID = M.CNTRT_ID
+						LEFT JOIN TB_COM_CD cd1 ON cd1.CD = m.PRCS_DEPTH
+						LEFT JOIN TB_COM_CD cd2 ON cd2.CD = m.DEPTH_STATUS
+						/* LEFT JOIN VW_GERP gerp_data ON gerp_data.CNTRT_ID = m.CNTRT_ID */
+						LEFT JOIN tn_com_contracttype_cd AS BIGCLSFCN ON BIGCLSFCN.type_cd = M.CNCLSNPURPS_BIGCLSFCN
+						LEFT JOIN tn_com_contracttype_cd AS biz ON biz.type_cd = m.biz_clsfcn
+						LEFT JOIN tn_com_contracttype_cd AS depth ON depth.type_cd = m.depth_clsfcn
+						LEFT JOIN tn_com_contracttype_cd AS big ON big.type_cd = m.cnclsnpurps_bigclsfcn
+						LEFT JOIN tn_com_contracttype_cd AS mid ON mid.type_cd = m.cnclsnpurps_midclsfcn
+						LEFT JOIN tn_com_contracttype_cd AS mid_etc ON mid_etc.type_cd = m.cnclsnpurps_midclsfcn_etc
+						LEFT JOIN tn_com_contracttype_cd AS CNTRT_MATTER ON CNTRT_MATTER.type_cd = M.CNTRT_TRGT
+					WHERE M.DEL_YN <> 'Y' AND M.CNTRT_NO IS NOT NULL AND M.CNTRT_NO <> ''
+					ORDER BY 1,2,3,4,5,6
+			]]>
+			</statement>
+		</query>
+
+		<query id="las.statistics.listContractsEHQLayout2" isCamelCase="false" isDynamic="true">
+			<statement>
+				<![CDATA[
+					SELECT
+						#if($vo.excelDownload)
+							TOP 999 /* No TOP 100 limit for Excel downloads */
+						#else
+							TOP 1000
+						#end
+						YEAR(m.REG_DT) AS [Registration Year],
+						CONVERT(VARCHAR(10), m.REG_DT, 23) AS [Registration Date],
+						CASE
+							WHEN M.COMP_CD IN ('SEP', 'SESA')          THEN 'SEIB'
+							WHEN M.COMP_CD IN ('SEH-P', 'SEH-S')       THEN 'SEH'
+							WHEN M.COMP_CD IN ('SESG', 'SEAG')         THEN 'SEAS'
+							WHEN M.COMP_CD = 'SRUK'                    THEN 'EHQ'
+							ELSE M.COMP_CD
+						END AS [NERP Subsidiary],
+
+						REQ.REQ_TITLE AS [Request Title],
+						M.CNTRT_NM AS [Contract Name],
+
+
+						REQ.REG_NM as "Requester",
+
+						REQ.REQ_DT AS "Date of the first request",
+						ISNULL(CAST(TRY_CONVERT(DATE,m.org_acptday,23) AS VARCHAR), '') AS "Original Copy Receipt Date", -- cpy_regday = Copy Register Date
+						REQ.REQMAN_NM AS "In Charge",
+						REQ.REQ_DEPT_NM AS "Requesting Dept.",
+						M.CNTRT_OPPNT_NM as "Counterparty",
+						M.CNTRT_OPPNT_CD as 'Counterparty Code',
+						RES.CNSDMAN_NM AS "Reviewer",
+						M.CNTRT_NO AS "Contract ID",
+						cd1.CD_NM_ENG AS "Step", cd2.CD_NM_ENG AS "Status",
+						case
+							WHEN M.MOD_DT >= REQ.MOD_DT OR REQ.MOD_DT IS NULL THEN M.MOD_DT
+							WHEN REQ.MOD_DT > M.MOD_DT OR M.MOD_DT IS NULL THEN REQ.MOD_DT
+							ELSE NULL
+						END AS "Last Modification Date",
+
+						CASE WHEN m.CLOSE_YN = 'Y'
+								THEN 'Yes'
+								ELSE 'No'
+							  END AS "Closed", REQ.RE_DEMNDDAY,
+						ISNULL(CAST(TRY_CONVERT(date, REQ.RE_DEMNDDAY, 23) AS VARCHAR), '') AS "Requested Date for Reply",
+						(
+						SELECT MIN(a1.mod_dt)
+							FROM TN_CLM_CONT_CNSDREQ a1
+								INNER JOIN TN_CLM_CONTRACT_CNSD a2 ON a2.cnsdreq_id = a1.cnsdreq_id
+						WHERE a2.cntrt_id = M.cntrt_id
+						) AS "First Replied Date",
+						(
+						SELECT MAX(a1.mod_dt)
+							FROM TN_CLM_CONT_CNSDREQ a1
+								INNER JOIN TN_CLM_CONTRACT_CNSD a2 ON a2.cnsdreq_id = a1.cnsdreq_id
+						WHERE a2.cntrt_id = M.cntrt_id
+						) AS "Final Replied Date",
+						TRY_CONVERT(DATE,m.CNTRTPERIOD_STARTDAY,23) AS "Contract start date",
+						TRY_CONVERT(DATE,m.CNTRTPERIOD_ENDDAY,23) AS "Contract end date",
+						ISNULL(CAST(TRY_CONVERT(DATE,m.CNTRT_CNCLSNDAY, 23) AS VARCHAR), '') as "Conclusion Date",
+
+						CASE
+							WHEN m.cnclsnpurps_midclsfcn_etc = 'Y' THEN 'Yes'
+							WHEN m.cnclsnpurps_midclsfcn_etc = 'N' THEN 'No'
+							ELSE 'Not selected yet'
+						END AS "DP Agreement",
+						(
+						SELECT cd_nm_eng FROM TN_COM_CONTRACTTYPE_CD WHERE TYPE_CD = m.CNCLSNPURPS_BIGCLSFCN) AS "Area of contract",
+						ISNULL((
+							SELECT STRING_AGG(CONCAT(TRGTMAN_NM, ' ( ', U.EMAIL, ' )'), ', ')
+							FROM TN_CLM_CONTRACT_AUTHREQ INNER JOIN TB_COM_USER U ON TRGTMAN_ID = U.USER_ID
+							WHERE CNTRT_ID = M.CNTRT_ID
+						), '') AS 'CCed'
+					FROM
+					( SELECT M.CNTRT_ID, MAX(CNSDREQ_ID) CNSDREQ_ID
+						FROM TN_CLM_CONTRACT_MASTER M INNER JOIN TN_CLM_CONTRACT_CNSD RES ON M.CNTRT_ID = RES.CNTRT_ID
+						WHERE M.REG_DT >= :vo.fromDate AND M.REG_DT < :vo.toDate
+						GROUP BY M.CNTRT_ID
+					) AS L
+						INNER JOIN TN_CLM_CONT_CNSDREQ REQ ON L.CNSDREQ_ID = REQ.CNSDREQ_ID
+						INNER JOIN TN_CLM_CONTRACT_CNSD RES ON REQ.CNSDREQ_ID = RES.CNSDREQ_ID AND L.CNTRT_ID = RES.CNTRT_ID
+						INNER JOIN TN_CLM_CONTRACT_MASTER M ON L.CNTRT_ID = M.CNTRT_ID
+						LEFT JOIN TB_COM_CD cd1        ON cd1.CD = m.PRCS_DEPTH
+						LEFT JOIN TB_COM_CD cd2        ON cd2.CD = m.DEPTH_STATUS
+						WHERE M.DEL_YN <> 'Y' AND M.CNTRT_NO IS NOT NULL AND M.CNTRT_NO <> ''
+					ORDER BY 1,3
+			]]>
+			</statement>
+		</query>
 		
     </queries>
 </queryservice>

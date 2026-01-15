@@ -11,6 +11,8 @@ package com.sec.las.statistics.control;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -2007,12 +2009,12 @@ public class StatisticsController extends CommonController {
 			
 			return mav ;
 		}
-		
+
 
 		/**
 		 * Lapsed time by Request Statistics_Chart
-		 * 
-		 * @param vo
+		 * @param request
+		 * @param response
 		 * @return
 		 * @throws Exception
 		 */
@@ -2035,10 +2037,9 @@ public class StatisticsController extends CommonController {
 		}
 
 		/**
-		 * Lapsed time by Request Statistics_Chart data 
-		 * 
-		 * @param vo
-		 * @return json
+		 * Lapsed time by Request Statistics_Chart data
+		 * @param request
+		 * @param response
 		 * @throws Exception
 		 */
 	    public void statistics_List(HttpServletRequest request, HttpServletResponse response) throws Exception{
@@ -2322,6 +2323,157 @@ public class StatisticsController extends CommonController {
 			} 
 	    }
 
+
+	public ModelAndView listContracts(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		try {
+			HttpSession session = request.getSession(false);
+
+			List resultList = null;
+
+			// 1. Create a single Value Object (VO)
+			StatisticsVO vo = new StatisticsVO();
+
+			// 2. Set Default Values (Applied if request is empty)
+			LocalDate today = LocalDate.now();
+			LocalDate lastYear = today.minusYears(1).withDayOfYear(1);
+			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+			vo.setFromDate(lastYear.format(dtf));
+			vo.setToDate(today.format(dtf));
+			vo.setSrch_comp_cd("SESK"); // Default Company Code
+			vo.setExcelDownload(false);
+
+
+			// 3. THE BINDING (Single Source of Truth)
+			// This captures JSP parameters (fromDate, toDate, excelDownload, srch_comp_cd)
+			// and overwrites the defaults in the 'vo' object.
+			bind(request, vo);
+
+			// 4. DATA RETRIEVAL
+			// The service calls the SQL XML which uses vo.isExcelDownload() for dynamic limits.
+
+			boolean isInitialLoad = (request.getParameter("srch_comp_cd") == null);
+			if (!isInitialLoad) {
+				// Only execute query if it's NOT the initial load
+				resultList = statisticsService.listContracts(vo);
+			} else {
+				// On initial load, we provide an empty list to the JSP
+				resultList = new ArrayList();
+			}
+
+			// 4. RESPONSE HANDLING
+			if (vo.isExcelDownload()) {
+//				exportToCsv(response, resultList);
+				exportToCsv(response, resultList, vo.getQueryCode());
+				return null;
+			} else {
+				ModelAndView mav = new ModelAndView("/WEB-INF/jsp/las/statistics/Contracts.jsp");
+				mav.addObject("resultList", resultList);
+				mav.addObject("command", vo);
+				return mav;
+			}
+
+
+
+		}catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("Error");
+		}catch (Throwable t) {
+			t.printStackTrace();
+			throw new Exception("Error");
+		}
 	}
+
+	/**
+	 * Streams data as CSV with dynamic headers based on the queryCode.
+	 * @param response
+	 * @param dataList
+	 * @param queryCode
+	 * @throws Exception
+	 */
+	private void exportToCsv(HttpServletResponse response, List dataList, String queryCode) throws Exception {
+		response.setContentType("text/csv; charset=UTF-8");
+		response.setHeader("Content-Disposition", "attachment; filename=\"Contract_Statistics_" + queryCode + ".csv\"");
+
+		// Write UTF-8 Byte Order Mark (BOM) for Excel compatibility
+		response.getOutputStream().write(new byte[] { (byte)0xEF, (byte)0xBB, (byte)0xBF });
+
+		StringBuilder sb = new StringBuilder();
+
+		if (dataList == null || dataList.isEmpty()) {
+			response.getOutputStream().write("No data found".getBytes("UTF-8"));
+			return;
+		}
+
+		// Define Headers and Keys based on queryCode
+		String[] headers;
+		String[] keys;
+
+		if ("sesk".equals(queryCode)) {
+			headers = new String[]{"Registration Year", "Registration Month", "Registration Date", "NERP Subsidiary", "SELMS+ Subsidiary", "Contract ID", "Request Title", "Contract Name", "Requesting dept.", "ESBO dept.", "Requester (In Charge)", "Request Date", "Area of contract", "Contract Type", "Contract Matter", "Contract start date", "Contract end date", "Contract amount", "Currency Uinit", "Counterparty", "Conclusion date", "Step", "Status", "Reviewer", "GERP_CUSTOMER_NM", "GERP_CONTRACT_REQUIRED", "GERP_VENDOR_TYPE", "GERP_CD", "GERP_DIVISION", "GERP_COST_TYPE", "Last Legal Opinion" };
+			keys = new String[]{"Registration Year", "Registration Month", "Registration Date", "NERP Subsidiary", "SELMS+ Subsidiary", "Contract ID", "Request Title", "Contract Name","Requesting dept.", "ESBO dept.", "Requester (In Charge)", "Request Date", "Area of contract", "Contract Type", "Contract Matter", "Contract start date", "Contract end date", "Contract amount", "Currency Uinit", "Counterparty", "Conclusion date", "Step", "Status", "Reviewer", "GERP_CUSTOMER_NM", "GERP_CONTRACT_REQUIRED", "GERP_VENDOR_TYPE", "GERP_CD", "GERP_DIVISION", "GERP_COST_TYPE", "Last Legal Opinion"};
+		} else if ("l1".equals(queryCode)) {
+			headers = new String[]{"Registration Year", "Registration Month", "Registration Date", "NERP Subsidiary", "SELMS+ Subsidiary", "Contract ID", "Request Title", "Contract Name", "Requesting dept.", "ESBO dept.", "Requester (In Charge)", "Request Date", "Area of contract", "Contract Type", "Contract Matter", "Contract start date", "Contract end date", "Contract amount", "Currency Uinit", "Counterparty", "Conclusion date", "Step", "Status"};
+			keys = new String[]{"Registration Year", "Registration Month", "Registration Date", "NERP Subsidiary", "SELMS+ Subsidiary", "Contract ID", "Request Title", "Contract Name","Requesting dept.", "ESBO dept.", "Requester (In Charge)", "Request Date", "Area of contract", "Contract Type", "Contract Matter", "Contract start date", "Contract end date", "Contract amount", "Currency Uinit", "Counterparty", "Conclusion date", "Step", "Status"};
+		} else if ("l2".equals(queryCode)) {
+			headers = new String[]{"Registration Year", "Registration Date", "NERP Subsidiary", "Request Title",
+					"Contract Name", "Requester", "Date of the first request", "Original Copy Receipt Date",
+					"In Charge", "Requesting Dept.", "Counterparty", "Counterparty Code", "Reviewer", "Contract ID",
+					"Step", "Status", "Last Modification Date", "Closed", "Requested Date for Reply", "First Replied Date",
+					"Final Replied Date", "Contract start date", "Contract end date", "Conclusion Date",
+					"DP Agreement", "Area of contract", "CCed"};
+			keys = new String[]{"Registration Year", "Registration Date", "NERP Subsidiary", "Request Title",
+					"Contract Name", "Requester", "Date of the first request", "Original Copy Receipt Date",
+					"In Charge", "Requesting Dept.", "Counterparty", "Counterparty Code", "Reviewer", "Contract ID",
+					"Step", "Status", "Last Modification Date", "Closed", "Requested Date for Reply", "First Replied Date",
+					"Final Replied Date", "Contract start date", "Contract end date", "Conclusion Date",
+					"DP Agreement", "Area of contract", "CCed"};
+		} else {
+			// Default: "basic" layout
+			headers = new String[]{
+					"Company Code", "Contract ID", "Contract Start Date", "Contract End Date", "Contract Status",
+					"Requester (In Charge)", "Requesting dept.", "Request Title", "Contract Name", "Request Date",
+					"Counterparty Code", "DP Agreement", "CCed"
+			};
+			keys = new String[]{
+					"Company Code", "Contract ID", "Contract Start Date", "Contract End Date", "Contract Status",
+					"Requester (In Charge)", "Requesting dept.", "Request Title", "Contract Name", "Request Date",
+					"Counterparty Code", "DP Agreement", "CCed"
+			};
+		}
+
+		// 1. APPEND HEADER ROW
+		for (int i = 0; i < headers.length; i++) {
+			sb.append(headers[i]).append(i == headers.length - 1 ? "" : ",");
+		}
+		sb.append("\n");
+
+		// 2. APPEND DATA ROWS
+		for (Object obj : dataList) {
+			Map row = (Map) obj;
+			for (int i = 0; i < keys.length; i++) {
+				sb.append(formatCsvValue(row.get(keys[i]))).append(i == keys.length - 1 ? "" : ",");
+			}
+			sb.append("\n");
+		}
+
+		response.getOutputStream().write(sb.toString().getBytes("UTF-8"));
+		response.getOutputStream().flush();
+		response.getOutputStream().close();
+	}
+
+	/**
+	 * Helper to handle null values and wrap strings in quotes if they contain commas.
+	 */
+	private String formatCsvValue(Object value) {
+		if (value == null) return "";
+		String str = value.toString();
+		if (str.contains(",") || str.contains("\"") || str.contains("\n")) {
+			str = "\"" + str.replace("\"", "\"\"") + "\"";
+		}
+		return str;
+	}
+
+}
 	
 

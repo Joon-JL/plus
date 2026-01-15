@@ -108,7 +108,45 @@ public class StatisticsVO extends CommonVO {
 	private String srch_cntrtperiod_startday; //Contract Term
 	private String srch_cntrtperiod_endday; //Contract Term
 	private String sort_yn;	//통계차트 정렬 여부 구분용 추가 신성우 2014-03-21
-	
+
+	public String fromDate;
+	public String toDate;
+	private String queryCode;
+
+	public String getQueryCode() {
+		return queryCode;
+	}
+
+	public void setQueryCode(String queryCode) {
+		this.queryCode = queryCode;
+	}
+
+	public boolean isExcelDownload() {
+		return isExcelDownload;
+	}
+
+	public void setExcelDownload(boolean excelDownload) {
+		isExcelDownload = excelDownload;
+	}
+
+	public boolean isExcelDownload;
+
+	public String getFromDate() {
+		return fromDate;
+	}
+
+	public String getToDate() {
+		return toDate;
+	}
+
+	public void setFromDate(String fromDate) {
+		this.fromDate = fromDate;
+	}
+
+	public void setToDate(String toDate) {
+		this.toDate = toDate;
+	}
+
 	public String getSort_yn() {
 		return sort_yn;
 	}
