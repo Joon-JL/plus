@@ -8769,6 +8769,7 @@ ORDER BY ISNULL(COMP_CD ,'zzzzzzzzzz'), ISNULL(RESPMAN_NM,'zzzzzzzzzzzz')
 								FROM TN_CLM_CONTRACT_AUTHREQ INNER JOIN TB_COM_USER U ON TRGTMAN_ID = U.USER_ID
 								WHERE CNTRT_ID = M.CNTRT_ID
 							), '') AS 'CCed'
+							, L.CNSDREQ_ID, M.PRCS_DEPTH, M.DEPTH_STATUS
 					FROM
 					( SELECT M.CNTRT_ID, MAX(CNSDREQ_ID) CNSDREQ_ID
 						FROM TN_CLM_CONTRACT_MASTER M INNER JOIN TN_CLM_CONTRACT_CNSD RES ON M.CNTRT_ID = RES.CNTRT_ID
@@ -8821,7 +8822,7 @@ ORDER BY ISNULL(COMP_CD ,'zzzzzzzzzz'), ISNULL(RESPMAN_NM,'zzzzzzzzzzzz')
 						END AS [ESBO dept.],
 						REQ.REQMAN_NM AS [Requester (In Charge)],
 						REQ.REQ_DT AS [Request Date],
-						BIGCLSFCN.cd_nm_eng AS [Area of contract],
+						big.cd_nm_eng AS [Area of contract],
 						ISNULL(biz.cd_nm_eng, '') + ' / ' +
 						ISNULL(depth.cd_nm_eng, '') + ' / ' +
 						ISNULL(big.cd_nm_eng, '') + ' / ' +
@@ -8851,6 +8852,7 @@ ORDER BY ISNULL(COMP_CD ,'zzzzzzzzzz'), ISNULL(RESPMAN_NM,'zzzzzzzzzzzz')
 						gerp_data.GERP_DIVISION AS GERP_DIVISION,
 						gerp_data.COST_TYPE_DESC AS GERP_COST_TYPE,
 						ISNULL(CAST(RES.CNSD_OPNN AS NVARCHAR(MAX)), '') AS [Last Legal Opinion]
+						, L.CNSDREQ_ID, M.PRCS_DEPTH, M.DEPTH_STATUS
 					FROM
 					( SELECT M.CNTRT_ID, MAX(CNSDREQ_ID) CNSDREQ_ID
 						FROM TN_CLM_CONTRACT_MASTER M INNER JOIN TN_CLM_CONTRACT_CNSD RES ON M.CNTRT_ID = RES.CNTRT_ID
@@ -8869,7 +8871,6 @@ ORDER BY ISNULL(COMP_CD ,'zzzzzzzzzz'), ISNULL(RESPMAN_NM,'zzzzzzzzzzzz')
 						LEFT JOIN TB_COM_CD cd1 ON cd1.CD = m.PRCS_DEPTH
 						LEFT JOIN TB_COM_CD cd2 ON cd2.CD = m.DEPTH_STATUS
 						LEFT JOIN VW_GERP gerp_data ON gerp_data.CNTRT_ID = m.CNTRT_ID
-						LEFT JOIN tn_com_contracttype_cd AS BIGCLSFCN ON BIGCLSFCN.type_cd = M.CNCLSNPURPS_BIGCLSFCN
 						LEFT JOIN tn_com_contracttype_cd AS biz ON biz.type_cd = m.biz_clsfcn
 						LEFT JOIN tn_com_contracttype_cd AS depth ON depth.type_cd = m.depth_clsfcn
 						LEFT JOIN tn_com_contracttype_cd AS big ON big.type_cd = m.cnclsnpurps_bigclsfcn
@@ -8913,7 +8914,7 @@ ORDER BY ISNULL(COMP_CD ,'zzzzzzzzzz'), ISNULL(RESPMAN_NM,'zzzzzzzzzzzz')
 						END AS [ESBO dept.],
 						REQ.REQMAN_NM AS [Requester (In Charge)],
 						REQ.REQ_DT AS [Request Date],
-						BIGCLSFCN.cd_nm_eng AS [Area of contract],
+						big.cd_nm_eng AS [Area of contract],
 						ISNULL(biz.cd_nm_eng, '') + ' / ' +
 						ISNULL(depth.cd_nm_eng, '') + ' / ' +
 						ISNULL(big.cd_nm_eng, '') + ' / ' +
@@ -8935,6 +8936,7 @@ ORDER BY ISNULL(COMP_CD ,'zzzzzzzzzz'), ISNULL(RESPMAN_NM,'zzzzzzzzzzzz')
 						END AS [Conclusion date],
 						cd1.CD_NM_ENG AS [Step],
 						cd2.CD_NM_ENG AS [Status]
+						, L.CNSDREQ_ID, M.PRCS_DEPTH, M.DEPTH_STATUS
 					FROM
 					( SELECT M.CNTRT_ID, MAX(CNSDREQ_ID) CNSDREQ_ID
 						FROM TN_CLM_CONTRACT_MASTER M INNER JOIN TN_CLM_CONTRACT_CNSD RES ON M.CNTRT_ID = RES.CNTRT_ID
@@ -8953,7 +8955,6 @@ ORDER BY ISNULL(COMP_CD ,'zzzzzzzzzz'), ISNULL(RESPMAN_NM,'zzzzzzzzzzzz')
 						LEFT JOIN TB_COM_CD cd1 ON cd1.CD = m.PRCS_DEPTH
 						LEFT JOIN TB_COM_CD cd2 ON cd2.CD = m.DEPTH_STATUS
 						/* LEFT JOIN VW_GERP gerp_data ON gerp_data.CNTRT_ID = m.CNTRT_ID */
-						LEFT JOIN tn_com_contracttype_cd AS BIGCLSFCN ON BIGCLSFCN.type_cd = M.CNCLSNPURPS_BIGCLSFCN
 						LEFT JOIN tn_com_contracttype_cd AS biz ON biz.type_cd = m.biz_clsfcn
 						LEFT JOIN tn_com_contracttype_cd AS depth ON depth.type_cd = m.depth_clsfcn
 						LEFT JOIN tn_com_contracttype_cd AS big ON big.type_cd = m.cnclsnpurps_bigclsfcn
@@ -9039,6 +9040,7 @@ ORDER BY ISNULL(COMP_CD ,'zzzzzzzzzz'), ISNULL(RESPMAN_NM,'zzzzzzzzzzzz')
 							FROM TN_CLM_CONTRACT_AUTHREQ INNER JOIN TB_COM_USER U ON TRGTMAN_ID = U.USER_ID
 							WHERE CNTRT_ID = M.CNTRT_ID
 						), '') AS 'CCed'
+						, L.CNSDREQ_ID, M.PRCS_DEPTH, M.DEPTH_STATUS
 					FROM
 					( SELECT M.CNTRT_ID, MAX(CNSDREQ_ID) CNSDREQ_ID
 						FROM TN_CLM_CONTRACT_MASTER M INNER JOIN TN_CLM_CONTRACT_CNSD RES ON M.CNTRT_ID = RES.CNTRT_ID
