@@ -2375,6 +2375,52 @@ public class StatisticsController extends CommonController {
         try {
             HttpSession session = request.getSession(false);
 
+            StatisticsVO vo = new StatisticsVO();
+
+            // 2. Set Default Values (Applied if request is empty)
+            LocalDate today = LocalDate.now();
+            LocalDate lastYear = today.minusYears(1).withDayOfYear(1);
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+            vo.setFromDate(lastYear.format(dtf));
+            vo.setToDate(today.format(dtf));
+            vo.setSrch_comp_cd("SESK"); // Default Company Code
+            vo.setExcelDownload(false);
+
+            // 1. Bind request parameters to VO
+            bind(request, vo);
+
+            // 2. Determine if this is an AJAX request for the table or a full page load
+            boolean isAjax = "true".equals(request.getParameter("isAjax"));
+            boolean isInitialLoad = (request.getParameter("srch_comp_cd") == null);
+
+            List resultList = new ArrayList();
+            if (!isInitialLoad) {
+                resultList = statisticsService.listContracts(vo);
+            }
+
+            // 3. Handle Excel Download (Standard Request)
+            if (vo.isExcelDownload()) {
+                exportToCsv(response, resultList, vo.getQueryCode());
+                return null;
+            }
+
+            // 4. Select the view:
+            // If AJAX, return ONLY the table fragment.
+            // If Initial, return the full page container.
+            String viewName = isAjax ? "/WEB-INF/jsp/las/statistics/Contracts_l.jsp"
+                    : "/WEB-INF/jsp/las/statistics/Contracts.jsp";
+
+            ModelAndView mav = new ModelAndView(viewName);
+            mav.addObject("resultList", resultList);
+            mav.addObject("command", vo); // Still passed for initial defaults
+
+            return mav;
+
+
+
+            /*
+
             List resultList = null;
 
             // 1. Create a single Value Object (VO)
@@ -2419,7 +2465,7 @@ public class StatisticsController extends CommonController {
                 mav.addObject("command", vo);
                 return mav;
             }
-
+			*/
 
 
         }catch (Exception e) {
@@ -2513,14 +2559,26 @@ public class StatisticsController extends CommonController {
      * Helper to handle null values and wrap strings in quotes if they contain commas.
      */
     private String formatCsvValue(Object value) {
+
         if (value == null) return "";
+
         String str = value.toString();
-        if (str.contains(",") || str.contains("\"") || str.contains("\n")) {
+
+        // FIX: Remove all Carriage Returns and Newlines from HTML/Text content.
+        // This is the most important step for content containing <br> or <div> tags
+        // which often have hidden \r\n characters in the raw string.
+        str = str.replace("\r\n", " ")
+                .replace("\r", " ")
+                .replace("\n", " ");
+
+        // Standard CSV escaping
+        if (str.contains(",") || str.contains("\"")) {
             str = "\"" + str.replace("\"", "\"\"") + "\"";
         }
+
         return str;
     }
-
+    
 }
 	
 
