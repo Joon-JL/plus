@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
+        "http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd">
+
+<queryservice>
+    <queries>
+        <!-- 목록 -->
+        <query id="clm.admin.listContracts" isCamelCase="false">
+            <statement>
+                <![CDATA[
+                SELECT CNTRT_ID, CNTRT_NO, CNTRT_NM, PRCS_DEPTH, DEPTH_STATUS,
+                    CASE M.PRCS_DEPTH
+								WHEN 'C02501' THEN 'REVIEW'
+								WHEN 'C02502' THEN 'APPROVAL'
+								WHEN 'C02503' THEN 'REGISTRATION'
+								WHEN 'C02504' THEN 'EXECUTION'
+								WHEN 'C02505' THEN 'TERMINATION'
+								WHEN 'C02506' THEN 'SELMS'
+							END AS "Contract Status", M.CNTRT_RESPMAN_ID, M.CNTRT_RESPMAN_NM,
+					CD1.CD_NM_ENG + '-' + CD1.CD_NM AS "STATUS_1", cd2.CD_NM_ENG + '-' + CD2.CD_NM AS "STATUS_2"
+				FROM TN_CLM_CONTRACT_MASTER M
+				LEFT JOIN TB_COM_CD CD1        ON CD1.CD = M.PRCS_DEPTH
+				LEFT JOIN TB_COM_CD CD2        ON CD2.CD = M.DEPTH_STATUS
+				WHERE CNTRT_NO = :vo.srch_cntrt_no
+                ]]>
+            </statement>
+        </query>
+
+        <query id="clm.admin.changeContractStatus" isCamelCase="false">
+            <statement>
+                <![CDATA[
+                EXEC SP_CHG_STATUS_2 :vo.srch_cntrt_no, :vo.newStatus
+                ]]>
+            </statement>
+        </query>
+
+
+    </queries>
+</queryservice>
