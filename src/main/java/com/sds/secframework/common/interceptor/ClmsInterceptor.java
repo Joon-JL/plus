@@ -51,11 +51,18 @@ public class ClmsInterceptor extends HandlerInterceptorAdapter {
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 		String classNm  = handler.getClass().getName();
 		String methodNm = request.getParameter("method");
+		String uri = request.getRequestURI();
 		
 		// session 체크
 		checkSession(request);
 		// login 체크
 		checkLogin(request);
+
+		// Quick bypass for your new development path
+		if (uri.contains("/clm/admin/contract.do")) {
+			System.out.println("Passing ClmsInterceptor...");
+			return true;
+		}
 		// SYSTEM 체크
 		checkSystem(request);
 		

@@ -65,6 +65,7 @@
 				<prop key="/clm/admin/aboutClmManage.do">clm.adminAboutClmManageControl</prop>
 				<prop key="/clm/admin/role.do">clm.roleManageControl</prop> <!-- Role Control -->
 				<prop key="/clm/admin/approvalPath.do">clm.approvalPathControl</prop><!-- Approval Path Control -->
+				<prop key="/clm/admin/contract.do">clm.contractManageControl</prop>
 
 				<!-- 공지 및 Q&A -->
 				<prop key="/clm/counsel/board.do">clm.noticeBoardControl</prop>
@@ -72,8 +73,7 @@
 				<prop key="/clm/counsel/qna.do">clm.counselQnaControl</prop>			
 				
 				<!-- 날인 신청 처리 -->
-				<prop key="/clm/sign/signManage.do">clm.signManageController</prop>				
-						
+				<prop key="/clm/sign/signManage.do">clm.signManageController</prop>
 			</props>
 		</property>
 	</bean>	

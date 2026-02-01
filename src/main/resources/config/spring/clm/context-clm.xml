@@ -237,5 +237,10 @@
 	<bean id="clm.ApprovalPathService" class="com.sec.clm.admin.service.impl.ApprovalPathServiceImpl" parent="secfw.commonService">
 		<property name="userService" ref="secfw.userService" />
 	</bean>
+
+	<!--  Admin > ContractManage Control -->
+	<bean id="clm.ContractManageService" class="com.sec.clm.admin.service.impl.ContractManageServiceImpl" parent="secfw.commonService">
+
+	</bean>
 	
 </beans>
