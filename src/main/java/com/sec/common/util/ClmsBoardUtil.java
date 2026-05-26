@@ -54,19 +54,27 @@ public class ClmsBoardUtil {
 					
 		// 추가되는 option 있는 경우 option 을 해당 위치에 추가
 		if(addValue!=null) {
-			String newCombo = "<option value=\"" + addValue + "\">" + addText + "</option>" ;
-			
+			// 가입력 유입 데이터 보안 이스케이프 및 안전 바인딩 처리 (XSS 및 HTML 주입 방지)
+			String safeAddValue = StringUtil.bvlEscaped(addValue, "");
+			String safeAddText = StringUtil.bvlEscaped(addText, "");
+
+			String newCombo = "<option value=\"" + safeAddValue + "\">" + safeAddText + "</option>" ;
+
+			// String 결합 연산 최적화 (StringBuilder)
+			StringBuilder sb = new StringBuilder();
+
 			// 맨 처음에 추가
-			if(addPosition.equals("F")) {
-				combo = newCombo + combo ; 
+			if("F".equals(addPosition)) {
+				sb.append(newCombo).append(combo);
+				combo = sb.toString();
 			}
 			// 맨 마지막에 추가
-			else if (addPosition.equals("L")) {
-				combo = combo + newCombo ; 
+			else if ("L".equals(addPosition)) {
+				sb.append(combo).append(newCombo);
+				combo = sb.toString();
 			}
 		}
-		
-		
+
 		return combo ;
 	
 	}
@@ -344,14 +352,14 @@ public class ClmsBoardUtil {
 		//return serivce.getClassMethodRoleList(vo) ;
 		return serivce.getClassMethodAuthList(vo);
 	}
-	
-	
+
+
 	/**
 	 * 클래스 메소드의 권한이 있는지 여부
-	 * @param serivce ClassMethodAuthService
-	 * @param userAuthList 사용자 권한(역할) 리스트
-	 * @param classNm 클래스명
-	 * @param methodNm 메소드명
+	 * @param request
+	 * @param serivce
+	 * @param classNm
+	 * @param methodNm
 	 * @return
 	 * @throws Exception
 	 */

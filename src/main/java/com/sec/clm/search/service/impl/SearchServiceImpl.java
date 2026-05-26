@@ -341,15 +341,22 @@ public class SearchServiceImpl extends CommonServiceImpl implements SearchServic
 		
 		result = "<option value='' selected>-- ALL --</option>";
 
-		if (list != null && list.size() > 0) {
-			for (int i = 0; i < list.size(); i++) {
-				ListOrderedMap lom = (ListOrderedMap)list.get(i);
-				String type_cd		   = (String)lom.get("TYPE_CD"); //계약유형코드		
-				String cd_nm	       = (String)lom.get("CD_NM"); //계약유형명		
-				
-				result = result+"<option value='"+type_cd+"'>"+cd_nm+"</option>";
-			}
-		}
+		 if (list != null && !list.isEmpty()) {
+			 // String 누적 연산(+=) 대신 속도 향상 및 SonarQube 보안 준수를 위해 StringBuilder 사용
+			 StringBuilder sb = new StringBuilder(result);
+
+			 for (int i = 0; i < list.size(); i++) {
+				 ListOrderedMap lom = (ListOrderedMap)list.get(i);
+
+				 // 가입력 데이터 보안 이스케이프 전처리 적용 (XSS 및 주입 공격 방지)
+				 String type_cd = StringUtil.bvlEscaped((String)lom.get("TYPE_CD"), ""); //계약유형코드
+				 String cd_nm   = StringUtil.bvlEscaped((String)lom.get("CD_NM"), ""); //계약유형명
+
+				 sb.append("<option value='").append(type_cd).append("'>").append(cd_nm).append("</option>");
+			 }
+
+			 result = sb.toString();
+		 }
 
 		return result;
 	 }

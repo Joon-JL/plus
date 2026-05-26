@@ -45,15 +45,12 @@ public class CLMSCommonServiceImpl extends CommonServiceImpl implements CLMSComm
 	public void setPropertyService(PropertyService propertyService) {
 		this.propertyService = propertyService;
 	}
-	
+
 	/**
 	 * 대분류에 의한 공통 코드 리스트를 반환한다
-	 * @param GRP_CD 그룹코드
-	 * @param SELECTED 디폴트 선택 코드
-	 * @param LOCALE 한글영어 (ko : 한글, en : 영어)
-	 * @param ABBR 약어/Full Name (A:약어, F:풀네임)
-	 * @param DEL_YN 삭제여부(N : 삭제아닌 것들만, Y : 전부다)
-	 * @param TYPE 최상위 표지구분 (S : 선택, T : 전체, "" : NULL)
+	 * @param map
+	 * @return
+	 * @throws Exception
 	 */
 	 public String listComCdByGrpCd(HashMap map) throws Exception {
 		
@@ -188,76 +185,80 @@ public class CLMSCommonServiceImpl extends CommonServiceImpl implements CLMSComm
 		}
 
 		if (list != null && list.size() > 0) {
+			// String 누적 연산(+=) 대신 속도 향상 및 SonarQube 보안 준수를 위해 StringBuilder 사용
+			StringBuilder sb = new StringBuilder(result);
+
 			for (int i = 0; i < list.size(); i++) {
 				ListOrderedMap lom = (ListOrderedMap)list.get(i);
-				
+
 				String displayNm = "";
-				
-				String cd		   = (String)lom.get("cd");		
-				String cdNm	       = (String)lom.get("cd_nm");	
-				String cdAbbrNm	   = (String)lom.get("cd_abbr_nm");	
-				String cdNmEng     = (String)lom.get("cd_nm_eng");	
-				String cdAbbrNmEng = (String)lom.get("cd_abbr_nm_eng");
-				String cdNmFra     = (String)lom.get("cd_nm_fra");	
-				String cdAbbrNmFra = (String)lom.get("cd_abbr_nm_fra");
-				String cdNmDeu     = (String)lom.get("cd_nm_deu");	
-				String cdAbbrNmDeu = (String)lom.get("cd_abbr_nm_deu");
-				
-				String nationCd = (String)lom.get("useman_mng_itm2");
-						
-				if( cd.equals(selected)){
+
+				// 가입력 데이터 보안 이스케이프 및 안전 바인딩 처리 (XSS 예방)
+				String cd           = StringUtil.bvlEscaped((String)lom.get("cd"), "");
+				String cdNm         = StringUtil.bvlEscaped((String)lom.get("cd_nm"), "");
+				String cdAbbrNm     = StringUtil.bvlEscaped((String)lom.get("cd_abbr_nm"), "");
+				String cdNmEng      = StringUtil.bvlEscaped((String)lom.get("cd_nm_eng"), "");
+				String cdAbbrNmEng  = StringUtil.bvlEscaped((String)lom.get("cd_abbr_nm_eng"), "");
+				String cdNmFra      = StringUtil.bvlEscaped((String)lom.get("cd_nm_fra"), "");
+				String cdAbbrNmFra  = StringUtil.bvlEscaped((String)lom.get("cd_abbr_nm_fra"), "");
+				String cdNmDeu      = StringUtil.bvlEscaped((String)lom.get("cd_nm_deu"), "");
+				String cdAbbrNmDeu  = StringUtil.bvlEscaped((String)lom.get("cd_abbr_nm_deu"), "");
+
+				String nationCd     = StringUtil.bvlEscaped((String)lom.get("useman_mng_itm2"), "");
+
+				if (cd.equals(selected)) {
 					str = "selected";
-				}else{
+				} else {
 					str = "";
 				}
-				
-				//한영 표시문자 선택
-				if("ko".equals(locale)) {
-					if("A".equals(abbr)) {//약어이면
+
+				// 다국어 조건절 레이어 매핑
+				if ("ko".equals(locale)) {
+					if ("A".equals(abbr)) {
 						displayNm = cdAbbrNm;
 					} else {
 						displayNm = cdNm;
 					}
-				} else if("fr".equals(locale)) {
-					if("A".equals(abbr)) {//약어이면
+				} else if ("fr".equals(locale)) {
+					if ("A".equals(abbr)) {
 						displayNm = cdAbbrNmFra;
 					} else {
 						displayNm = cdNmFra;
 					}
-				} else if("de".equals(locale)) {
-					if("A".equals(abbr)) {//약어이면
+				} else if ("de".equals(locale)) {
+					if ("A".equals(abbr)) {
 						displayNm = cdAbbrNmDeu;
 					} else {
 						displayNm = cdNmDeu;
 					}
 				} else {
-					if("A".equals(abbr)) {//약어이면
+					if ("A".equals(abbr)) {
 						displayNm = cdAbbrNmEng;
 					} else {
 						displayNm = cdNmEng;
 					}
 				}
-				
-				if(nationCd=="" || nationCd==null){					
-					result = result+"<option value='"+cd+"' "+str+">"+displayNm+"</option>";
-				}else{
-					result = result+"<option value='"+cd+"' "+"title='"+nationCd+"' "+str+">"+displayNm+"</option>";
+
+				// 이스케이프가 완료된 컴포넌트 조합 주입 연산
+				if (nationCd.isEmpty()) {
+					sb.append("<option value='").append(cd).append("' ").append(str).append(">").append(displayNm).append("</option>");
+				} else {
+					sb.append("<option value='").append(cd).append("' title='").append(nationCd).append("' ").append(str).append(">").append(displayNm).append("</option>");
 				}
 			}
+
+			result = sb.toString();
 		}
 
 		return result;
 	 }
-	 
+
 	/**
 	 * 대분류에 의한 공통 코드 리스트를 반환한다
 	 * 체크박스 타입
-	 * @param GRP_CD 그룹코드
-	 * @param CHECKEDD 디폴트 선택 코드
-	 * @param LOCALE 한글영어 (ko : 한글, en : 영어)
-	 * @param ABBR 약어/Full Name (A:약어, F:풀네임)
-	 * @param DEL_YN 삭제여부(N : 삭제아닌 것들만, Y : 전부다)
-	 * @param TYPE 최상위 표지구분 (S : 선택, T : 전체, "" : NULL)
+	 * @param map
+	 * @return
+	 * @throws Exception
 	 */
 	 public String checkBoxComCdByGrpCd(HashMap map) throws Exception {
 		String result = "";
@@ -293,67 +294,77 @@ public class CLMSCommonServiceImpl extends CommonServiceImpl implements CLMSComm
 		List list = commonDAO.list("common.clmscom.listComCdByGrpCd", iHm);
 
 		if (list != null && list.size() > 0) {
+			// String 누적 연산(+=) 대신 속도 향상 및 SonarQube 보안 준수를 위해 StringBuilder 사용
+			StringBuilder sb = new StringBuilder(result);
+
 			for (int i = 0; i < list.size(); i++) {
 				ListOrderedMap lom = (ListOrderedMap)list.get(i);
-				
+
 				String displayNm = "";
-				
-				String cd		   = (String)lom.get("cd");		
-				String cdNm	       = (String)lom.get("cd_nm");	
-				String cdAbbrNm	   = (String)lom.get("cd_abbr_nm");	
-				String cdNmEng     = (String)lom.get("cd_nm_eng");	
-				String cdAbbrNmEng = (String)lom.get("cd_abbr_nm_eng");
-				String cdNmFra     = (String)lom.get("cd_nm_fra");	
-				String cdAbbrNmFra = (String)lom.get("cd_abbr_nm_fra");
-				String cdNmDeu     = (String)lom.get("cd_nm_deu");	
-				String cdAbbrNmDeu = (String)lom.get("cd_abbr_nm_deu");
-						
-				if( cd.equals(checked)){
+
+				// 가입력 데이터 보안 이스케이프 및 안전 바인딩 처리 (XSS 및 HTML 주입 방지)
+				String cd           = StringUtil.bvlEscaped((String)lom.get("cd"), "");
+				String cdNm         = StringUtil.bvlEscaped((String)lom.get("cd_nm"), "");
+				String cdAbbrNm     = StringUtil.bvlEscaped((String)lom.get("cd_abbr_nm"), "");
+				String cdNmEng      = StringUtil.bvlEscaped((String)lom.get("cd_nm_eng"), "");
+				String cdAbbrNmEng  = StringUtil.bvlEscaped((String)lom.get("cd_abbr_nm_eng"), "");
+				String cdNmFra      = StringUtil.bvlEscaped((String)lom.get("cd_nm_fra"), "");
+				String cdAbbrNmFra  = StringUtil.bvlEscaped((String)lom.get("cd_abbr_nm_fra"), "");
+				String cdNmDeu      = StringUtil.bvlEscaped((String)lom.get("cd_nm_deu"), "");
+				String cdAbbrNmDeu  = StringUtil.bvlEscaped((String)lom.get("cd_abbr_nm_deu"), "");
+
+				if (cd.equals(checked)) {
 					str = "checked";
-				}else{
+				} else {
 					str = "";
 				}
-				
-				//한영 표시문자 선택
-				if("ko".equals(locale)) {
-					if("A".equals(abbr)) {//약어이면
+
+				// 다국어 조건절 레이어 매핑
+				if ("ko".equals(locale)) {
+					if ("A".equals(abbr)) {
 						displayNm = cdAbbrNm;
 					} else {
 						displayNm = cdNm;
 					}
-				} else if("fr".equals(locale)) {
-					if("A".equals(abbr)) {//약어이면
+				} else if ("fr".equals(locale)) {
+					if ("A".equals(abbr)) {
 						displayNm = cdAbbrNmFra;
 					} else {
 						displayNm = cdNmFra;
 					}
-				} else if("de".equals(locale)) {
-					if("A".equals(abbr)) {//약어이면
+				} else if ("de".equals(locale)) {
+					if ("A".equals(abbr)) {
 						displayNm = cdAbbrNmDeu;
 					} else {
 						displayNm = cdNmDeu;
 					}
 				} else {
-					if("A".equals(abbr)) {//약어이면
+					if ("A".equals(abbr)) {
 						displayNm = cdAbbrNmEng;
 					} else {
 						displayNm = cdNmEng;
 					}
 				}
-				
-				result = result + "<input type='checkBox'  class='pL10' name='"+name+"' value='"+cd+"' "+str+">"+" "+displayNm+"</input>";
+
+				// 외부 입력 name 속성도 안전하게 차단 후 빌더 패턴 조합 (HTML 표준에 맞춰 무의미한 묶음 </input> 제거 후 스페이스 유지)
+				String safeName = StringUtil.bvlEscaped(name, "");
+				sb.append("<input type='checkBox' class='pL10' name='").append(safeName)
+						.append("' value='").append(cd).append("' ").append(str).append("> ")
+						.append(displayNm);
 			}
+
+			result = sb.toString();
 		}
 
 		return result;
-	 }	 
-	 
+	 }
+
 	/**
 	 * 대분류에 의한 공통 코드 리스트를 반환한다.(List 반환)
-	 * @param SYS_CD 시스템코드
-	 * @param GRP_CD 그룹코드
-	 * @param DEL_YN 삭제여부(N : 삭제아닌 것들만, Y : 전부다)
-	 */	 
+	 * @param vo
+	 * @return
+	 * @throws Exception
+	 */
 	 public List listComCdByGrpCd2(CLMSCommonVO vo) throws Exception{
 
 		String sysCd = StringUtil.bvl(vo.getSys_cd(), "");
@@ -375,25 +386,19 @@ public class CLMSCommonServiceImpl extends CommonServiceImpl implements CLMSComm
 		 
 		 return commonDAO.list("common.clmscom.listComCdByGrpCd", iHm);
 	}
-	 
-	 
-	 /**
-	  * 테이블에서 해당 코드를 가져와서 Select Box의 <OPtion>을 채운다.
-	  *
-	  * @param     GBN   구분(CONTRACTTYPE:계약유형,  )
-	  * @param     UP_CD 상위코드
-	  * @param     SELECTED 디폴트 선택 코드
-	  * @param     DEL_YN 삭제여부(N:삭제아닌 것들만, Y:전부다)
-	  * @param     LOCALE 한글영어(ko:한,en:영)
-	  * @param     ABBR 약어/Full Name(A:약어,F:풀네임)
-	  * @param TYPE 최상위 표지구분 (S : 선택, T : 전체, N : 사용하지 않음, "" : NULL)
-	  * @return    Select Box의 <OPtion> ( <option value="code">code_nm_s</option><optio...)
-	  * @exception Exception
-	  */
+
+
+	/**
+	 * 테이블에서 해당 코드를 가져와서 Select Box의 <OPtion>을 채운다.
+	 * @param hm
+	 * @return
+	 * @throws Exception
+	 */
 	public String getComboHTML(HashMap hm) throws Exception{
-		String result = "";
+		if (hm == null) return "";
+
 		String str = "";
-		
+
 		String gbn      = (String)hm.get("GBN");
 		String upCd     = StringUtil.bvl((String)hm.get("UP_CD"), "");
 		String selected = StringUtil.bvl((String)hm.get("SELECTED"),"");
@@ -401,201 +406,182 @@ public class CLMSCommonServiceImpl extends CommonServiceImpl implements CLMSComm
 		String abbr     = StringUtil.bvl((String)hm.get("ABBR"),"A");
 		String delYn    = StringUtil.bvl((String)hm.get("DEL_YN"),"N");
 		String type     = StringUtil.bvl((String)hm.get("TYPE"), "");
-		//사업부코드일경우 사용
 		String addYn    = StringUtil.bvl((String)hm.get("ADD_YN"),"N");
-		
+
 		HashMap iHm = new HashMap();
 		iHm.put("up_cd", upCd);
 		iHm.put("del_yn", delYn);
-		
+
 		List list = null;
-		
-		if("CONTRACTTYPE".equals(gbn)){ //계약유형 리스트 콤보
+
+		if("CONTRACTTYPE".equals(gbn)){
 			list = commonDAO.list("common.clmscom.getContracttypeCombo", iHm);
-		}else if("OPERDIV".equals(gbn)){ //사업부 코드리스트
+		}else if("OPERDIV".equals(gbn)){
 			list = commonDAO.list("common.clmcom.listOperdivCd", iHm);
 		}
-		
+
 		String title       = "";
-		
-		//한영 표시문자 선택
+
 		if("ko".equals(locale)) {
-			//최상위표시
 			if("S".equals(type)) {
 				title     = "-- 선택 --";
 			} else if("T".equals(type)) {
 				title     = "-- 전체 --";
 			} else if("N".equals(type)) {
 				title     = "-- 사용하지않음 --";
-			} else {
-				title     = "";
 			}
 		} else {
-			//최상위표시
 			if("S".equals(type)) {
 				title     = "-- Select --";
 			} else if("T".equals(type)) {
 				title     = "-- All --";
 			} else if("N".equals(type)) {
 				title     = "-- None --";
-			} else {
-				title     = "";
-			}						
+			}
 		}
-		
-		if(!"".equals(title)) {
-			result = "<option value=''>"+title+"</option>";
+
+		// String 누적 연산(+=) 대신 속도 향상 및 SonarQube 보안 준수를 위해 StringBuilder 사용
+		StringBuilder sb = new StringBuilder();
+
+		if(!title.isEmpty()) {
+			sb.append("<option value=''>").append(title).append("</option>");
 		}
-		
-		//사업부코드 일 경우
+
 		if("OPERDIV".equals(gbn) && "Y".equals(addYn)){
 			String selectChk = "";
 			if("total".equals(selected)){
 				selectChk = "selected";
 			}
 			if("ko".equals(locale)) {
-				result = result + "<option value='total' "+selectChk+">전사</option>";
+				sb.append("<option value='total' ").append(selectChk).append(">전사</option>");
 			} else {
-				result = result + "<option value='total' "+selectChk+">TOTAL</option>";
-			}		
-
+				sb.append("<option value='total' ").append(selectChk).append(">TOTAL</option>");
+			}
 		}
-		
-		if(list != null && list.size()>0) {
+
+		if(list != null && !list.isEmpty()) {
 			for(int i=0; i<list.size(); i++) {
 				ListOrderedMap lom = (ListOrderedMap)list.get(i);
-				
+
 				String displayNm = "";
-				
-				String cd		   = (String)lom.get("cd");		
-				String cdNm	       = (String)lom.get("cd_nm");	
-				String cdAbbrNm	   = (String)lom.get("cd_nm_abbr");	
-				String cdNmEng     = (String)lom.get("cd_nm_eng");	
-				String cdAbbrNmEng = (String)lom.get("cd_nm_abbr_eng");
-				
-				/*** 계약유형 다국어 적용 (2013.11.27 이종민) ***/
-				String cdNmFra     = (String)lom.get("cd_nm_fra");	
-				String cdAbbrNmFra = (String)lom.get("cd_nm_abbr_fra");
-				String cdNmDeu     = (String)lom.get("cd_nm_deu");	
-				String cdAbbrNmDeu = (String)lom.get("cd_nm_abbr_deu");
-				
+
+				// 가입력 데이터 보안 이스케이프 및 안전 바인딩 처리 (XSS 및 HTML 주입 방지)
+				String cd           = StringUtil.bvlEscaped((String)lom.get("cd"), "");
+				String cdNm         = StringUtil.bvlEscaped((String)lom.get("cd_nm"), "");
+				String cdAbbrNm     = StringUtil.bvlEscaped((String)lom.get("cd_nm_abbr"), "");
+				String cdNmEng      = StringUtil.bvlEscaped((String)lom.get("cd_nm_eng"), "");
+				String cdAbbrNmEng  = StringUtil.bvlEscaped((String)lom.get("cd_nm_abbr_eng"), "");
+				String cdNmFra      = StringUtil.bvlEscaped((String)lom.get("cd_nm_fra"), "");
+				String cdAbbrNmFra  = StringUtil.bvlEscaped((String)lom.get("cd_nm_abbr_fra"), "");
+				String cdNmDeu      = StringUtil.bvlEscaped((String)lom.get("cd_nm_deu"), "");
+				String cdAbbrNmDeu  = StringUtil.bvlEscaped((String)lom.get("cd_nm_abbr_deu"), "");
+
 				if( cd.equals(selected)){
 					str = "selected";
 				}else{
 					str = "";
 				}
-				
-				//한영 표시문자 선택
+
 				if("ko".equals(locale)) {
-					if("A".equals(abbr)) {//약어이면
+					if("A".equals(abbr)) {
 						displayNm = cdAbbrNm;
 					} else {
 						displayNm = cdNm;
 					}
 				} else if("fr".equals(locale)) {
-					if("A".equals(abbr)) {//약어이면
+					if("A".equals(abbr)) {
 						displayNm = cdAbbrNmFra;
 					} else {
 						displayNm = cdNmFra;
 					}
 				} else if("de".equals(locale)) {
-					if("A".equals(abbr)) {//약어이면
+					if("A".equals(abbr)) {
 						displayNm = cdAbbrNmDeu;
 					} else {
 						displayNm = cdNmDeu;
 					}
 				}  else {
-					if("A".equals(abbr)) {//약어이면
+					if("A".equals(abbr)) {
 						displayNm = cdAbbrNmEng;
 					} else {
 						displayNm = cdNmEng;
 					}
 				}
-				result = result+"<option value='"+cd+"' "+str+">"+displayNm+"</option>";
+				sb.append("<option value='").append(cd).append("' ").append(str).append(">").append(displayNm).append("</option>");
 			}
 		}
-		
-		
-		return result;
+
+		return sb.toString();
 	}
 
-	 /**
-	  * 테이블에서 해당 코드를 가져와서 Select Box의 <OPtion>을 채운다.
-	  * @param LOCALE 한글영어(ko:한,en:영)
-	  * @param SELECTED 디폴트 선택 코드
-	  * @param UP_ORGNZ_CD 상위조직코드
-	  * @param TYPE 최상위 표지구분 (S : 선택, T : 전체, N : 사용하지 않음, "" : NULL)
-	  * @return Select Box의 <OPtion> ( <option value="code">code_nm_s</option><optio...)
-	  * @exception Exception
-	  */
+	/**
+	 * 테이블에서 해당 코드를 가져와서 Select Box의 <OPtion>을 채운다.
+	 * @param hm
+	 * @return
+	 * @throws Exception
+	 */
 	public String getUnitOrgnzComboHTML(HashMap hm) throws Exception{
-		String result = "";
+		if (hm == null) return "";
+
 		String str = "";
-		
-		String up_orgnz_cd 	= StringUtil.bvl((String)hm.get("UP_ORGNZ_CD"),"");
-		//String locale   	= StringUtil.bvl((String)hm.get("LOCALE"),"en");
-		String locale     	= StringUtil.bvl((String)hm.get("LOCALE"), "H");
-		String abbr     	= StringUtil.bvl((String)hm.get("ABBR"),"F");
-		String type     	= StringUtil.bvl((String)hm.get("TYPE"), "");
-		String selected 	= StringUtil.bvl((String)hm.get("SELECTED"),"");
-		
+
+		String up_orgnz_cd     = StringUtil.bvl((String)hm.get("UP_ORGNZ_CD"),"");
+		String locale      = StringUtil.bvl((String)hm.get("LOCALE"), "H");
+		String abbr        = StringUtil.bvl((String)hm.get("ABBR"),"F");
+		String type        = StringUtil.bvl((String)hm.get("TYPE"), "");
+		String selected    = StringUtil.bvl((String)hm.get("SELECTED"),"");
+
 		HashMap iHm = new HashMap();
 		iHm.put("up_orgnz_cd", up_orgnz_cd);
-		
-		List list = null;
-		
-		list = commonDAO.list("common.clmscom.getUnitOrgnzCombo", iHm);
-		
+
+		List list = commonDAO.list("common.clmscom.getUnitOrgnzCombo", iHm);
+
 		String title       = "";
-		
-		//한영 표시문자 선택
+
 		if("H".equals(locale)) {
-			//최상위표시
 			if("S".equals(type)) {
 				title     = "-- 선택 --";
 			} else if("T".equals(type)) {
 				title     = "-- 전체 --";
 			} else if("N".equals(type)) {
 				title     = "-- 사용하지않음 --";
-			} else {
-				title     = "";
 			}
 		} else {
-			//최상위표시
 			if("S".equals(type)) {
 				title     = "-- Select --";
 			} else if("T".equals(type)) {
 				title     = "-- All --";
 			} else if("N".equals(type)) {
 				title     = "-- None --";
-			} else {
-				title     = "";
-			}						
+			}
 		}
-		
-		if(!"".equals(title)) {
-			result = "<option value=''>"+title+"</option>";
+
+		// String 누적 연산(+=) 대신 성능 향상 및 SonarQube 보안 기준 충족을 위해 StringBuilder 사용
+		StringBuilder sb = new StringBuilder();
+
+		if(!title.isEmpty()) {
+			sb.append("<option value=''>").append(title).append("</option>");
 		}
-		
-		if (list != null && list.size() > 0) {
+
+		if (list != null && !list.isEmpty()) {
 			for (int i = 0; i < list.size(); i++) {
 				ListOrderedMap lom = (ListOrderedMap)list.get(i);
-				
+
 				String displayNm = "";
-				
-				String orgnz_cd		   = (String)lom.get("orgnz_cd");		
-				String orgnz_nm	       = (String)lom.get("orgnz_nm");	
-				String orgnz_nm_eng	   = (String)lom.get("orgnz_nm_eng");
-				String orgnz_nm_abbr   = (String)lom.get("orgnz_nm_abbr");
-				String orgnz_nm_abbr_eng = (String)lom.get("orgnz_nm_abbr_eng");
-						
+
+				// 외부 입력/조회 데이터 보안 이스케이프 처리 (XSS 및 HTML 주입 방지)
+				String orgnz_cd = StringUtil.bvlEscaped((String)lom.get("orgnz_cd"), "");
+				String orgnz_nm = StringUtil.bvlEscaped((String)lom.get("orgnz_nm"), "");
+				String orgnz_nm_eng = StringUtil.bvlEscaped((String)lom.get("orgnz_nm_eng"), "");
+				String orgnz_nm_abbr = StringUtil.bvlEscaped((String)lom.get("orgnz_nm_abbr"), "");
+				String orgnz_nm_abbr_eng = StringUtil.bvlEscaped((String)lom.get("orgnz_nm_abbr_eng"), "");
+
 				if( orgnz_cd.equals(selected)){
 					str = "selected";
 				}else{
 					str = "";
 				}
-				
-				//한영 표시문자 선택
+
 				if("H".equals(locale)) {
 					if("A".equals(abbr)) {
 						displayNm = orgnz_nm_abbr;
@@ -609,32 +595,24 @@ public class CLMSCommonServiceImpl extends CommonServiceImpl implements CLMSComm
 						displayNm = orgnz_nm_eng;
 					}
 				}
-				result = result+"<option value='"+orgnz_cd+"' "+str+">"+displayNm+"</option>";
-				
+				sb.append("<option value='").append(orgnz_cd).append("' ").append(str).append(">").append(displayNm).append("</option>");
 			}
 		}
-		
-		return result;		
+
+		return sb.toString();
 	}
-	
-	 /**
-	  * 테이블에서 해당 코드를 가져와서 Select Box의 <OPtion>을 채운다.(법무담당자용)
-	  * @param SYS_CD 시스템코드 
-	  * @param LOCALE 한글영어(ko:한,en:영)
-	  * @param BLNGT_ORGNZ 소속조직코드
-	  * @param TYPE 최상위 표지구분 (S : 선택, T : 전체, N : 사용하지 않음, "" : NULL)
-	  * @param SELECTED 디폴트 선택 코드
-	  * @param STATS 담당자 선택 코드
-	  * @param CNSDREQ_ID 검토의뢰ID
-	  * @param OPP_DEPT_DIV 상대소속부서 여부
-	  * @param SRCH_DEPT 검색부서
-	  * @return Select Box의 <OPtion> ( <option value="code">code_nm_s</option><optio...)
-	  * @exception Exception
-	  */
+
+	/**
+	 * 테이블에서 해당 코드를 가져와서 Select Box의 <OPtion>을 채운다.(법무담당자용)
+	 * @param hm
+	 * @return
+	 * @throws Exception
+	 */
 	public String getLasPersonComboHTML(HashMap hm) throws Exception{
-		String result = "";
+		if (hm == null) return "";
+
 		String str = "";
-		
+
 		String sys_cd = StringUtil.bvl((String)hm.get("SYS_CD"),"");
 		String locale   = StringUtil.bvl((String)hm.get("LOCALE"),"en");
 		String blngt_orgnz     = StringUtil.bvl((String)hm.get("BLNGT_ORGNZ"),"");
@@ -644,171 +622,159 @@ public class CLMSCommonServiceImpl extends CommonServiceImpl implements CLMSComm
 		String cnsdreq_id = StringUtil.bvl((String)hm.get("CNSDREQ_ID"),"");
 		String opp_dept_div = StringUtil.bvl((String)hm.get("OPP_DEPT_DIV"),"");
 		String srch_dept = StringUtil.bvl((String)hm.get("SRCH_DEPT"),"");
-		
+
 		HashMap iHm = new HashMap();
 		iHm.put("sys_cd", sys_cd);
 		iHm.put("blngt_orgnz", blngt_orgnz);
 		iHm.put("cnsdreq_id", cnsdreq_id);
 		iHm.put("opp_dept_div", opp_dept_div);
 		iHm.put("srch_dept", srch_dept);
-		
+
 		List list = null;
-		
-		// stats파라미터 값이 y 혹은 Y이면 담당자 이름 (일, 월, 년, 전체 담당자 지정 카운트) 쿼리 실행
+
 		if("Y".equals(stats) || "y".equals(stats)){
 			list = commonDAO.list("common.clmscom.getLasPersonCombo2", iHm);
 		}
 		else{
-			if(cnsdreq_id != ""){
-				list = commonDAO.list("common.clmscom.getLasCnsdreqPersonCombo", iHm);		// 담당자 리스트[배정]
+			if(!cnsdreq_id.isEmpty()){
+				list = commonDAO.list("common.clmscom.getLasCnsdreqPersonCombo", iHm);
 			}else{
-				list = commonDAO.list("common.clmscom.getLasPersonCombo", iHm);				// 담당자 리스트[전체]
+				list = commonDAO.list("common.clmscom.getLasPersonCombo", iHm);
 			}
 		}
 		String title       = "";
-		
-		//한영 표시문자 선택
+
 		if("ko".equals(locale)) {
-			//최상위표시
 			if("S".equals(type)) {
 				title     = "-- 선택 --";
 			} else if("T".equals(type)) {
 				title     = "-- 전체 --";
 			} else if("N".equals(type)) {
 				title     = "-- 사용하지않음 --";
-			} else {
-				title     = "";
 			}
 		} else {
-			//최상위표시
 			if("S".equals(type)) {
 				title     = "-- Select --";
 			} else if("T".equals(type)) {
 				title     = "-- All --";
 			} else if("N".equals(type)) {
 				title     = "-- None --";
-			} else {
-				title     = "";
-			}						
+			}
 		}
-		
-		if(!"".equals(title)) {
-			result = "<option value=''>"+title+"</option>";
+
+		// String 누적 연산(+=) 대신 속도 향상 및 SonarQube 보안 준수를 위해 StringBuilder 사용
+		StringBuilder sb = new StringBuilder();
+
+		if(!title.isEmpty()) {
+			sb.append("<option value=''>").append(title).append("</option>");
 		}
-		
-		if (list != null && list.size() > 0) {
+
+		if (list != null && !list.isEmpty()) {
 			for (int i = 0; i < list.size(); i++) {
 				ListOrderedMap lom = (ListOrderedMap)list.get(i);
-				
+
 				String displayNm = "";
-				
-				String user_id		   = (String)lom.get("user_id");		
-				String user_nm	       = (String)lom.get("user_nm");	
-				String user_nm_eng	   = (String)lom.get("user_nm_eng");	
-				String user_stats	   = (String)lom.get("user_stats");
-						
+
+				// 가입력 데이터 보안 이스케이프 및 안전 바인딩 처리 (XSS 및 HTML 주입 방지)
+				String user_id       = StringUtil.bvlEscaped((String)lom.get("user_id"), "");
+				String user_nm        = StringUtil.bvlEscaped((String)lom.get("user_nm"), "");
+				String user_nm_eng    = StringUtil.bvlEscaped((String)lom.get("user_nm_eng"), "");
+				String user_stats     = StringUtil.bvlEscaped((String)lom.get("user_stats"), "");
+
 				if( user_id.equals(selected)){
 					str = "selected";
 				}else{
 					str = "";
 				}
-				
-				//한영 표시문자 선택
+
 				if("ko".equals(locale)) {
 					displayNm = user_nm;
 				} else {
 					displayNm = user_nm_eng;
 				}
+
 				if("Y".equals(stats) || "y".equals(stats)){
-					result = result+"<option value='"+user_id+"' "+str+">"+displayNm+" "+user_stats+"</option>";
+					sb.append("<option value='").append(user_id).append("' ").append(str).append(">").append(displayNm).append(" ").append(user_stats).append("</option>");
 				}
 				else{
-					result = result+"<option value='"+user_id+"' "+str+">"+displayNm+"</option>";
+					sb.append("<option value='").append(user_id).append("' ").append(str).append(">").append(displayNm).append("</option>");
 				}
-				
 			}
 		}
-		
-		return result;		
+
+		return sb.toString();
 	}
-	
-	
-	 /**
-	  * 테이블에서 해당 코드를 가져와서 Select Box의 <OPtion>을 채운다.(법무시스템 총괄 콤보박스용)
-	  * @param SYS_CD 시스템코드 
-	  * @param LOCALE 한글영어(ko:한,en:영)
-	  * @param BLNGT_ORGNZ 소속조직코드
-	  * @param TYPE 최상위 표지구분 (S : 선택, T : 전체, N : 사용하지 않음, "" : NULL)
-	  * @return Select Box의 <OPtion> ( <option value="code">code_nm_s</option><optio...)
-	  * @exception Exception
-	  */
+
+
+	/**
+	 * 테이블에서 해당 코드를 가져와서 Select Box의 <OPtion>을 채운다.(법무시스템 총괄 콤보박스용)
+	 * @param hm
+	 * @return
+	 * @throws Exception
+	 */
 	public String getLasEpsuborgComboHTML(HashMap hm) throws Exception{
-		String result = "";
+		if (hm == null) return "";
+
 		String str = "";
-		
+
 		String locale   = StringUtil.bvl((String)hm.get("LOCALE"),"en");
 		String type     = StringUtil.bvl((String)hm.get("TYPE"), "");
 		String selected = StringUtil.bvl((String)hm.get("SELECTED"),"");
-		
+
 		HashMap iHm = new HashMap();
-		
-		List list = null;
-		
-		list = commonDAO.list("common.clmscom.getLasEpsuborgCombo", iHm);
-		
+
+		List list = commonDAO.list("common.clmscom.getLasEpsuborgCombo", iHm);
+
 		String title       = "";
-		
-		//한영 표시문자 선택
+
 		if("ko".equals(locale)) {
-			//최상위표시
 			if("S".equals(type)) {
 				title     = "-- 선택 --";
 			} else if("T".equals(type)) {
 				title     = "-- 전체 --";
 			} else if("N".equals(type)) {
 				title     = "-- 사용하지않음 --";
-			} else {
-				title     = "";
 			}
 		} else {
-			//최상위표시
 			if("S".equals(type)) {
 				title     = "-- Select --";
 			} else if("T".equals(type)) {
 				title     = "-- All --";
 			} else if("N".equals(type)) {
 				title     = "-- None --";
-			} else {
-				title     = "";
-			}						
+			}
 		}
-		
-		if(!"".equals(title)) {
-			result = "<option value=''>"+title+"</option>";
+
+		// String 누적 연산(+=) 대신 속도 향상 및 SonarQube 보안 준수를 위해 StringBuilder 사용
+		StringBuilder sb = new StringBuilder();
+
+		if(!title.isEmpty()) {
+			sb.append("<option value=''>").append(title).append("</option>");
 		}
-		
-		if (list != null && list.size() > 0) {
+
+		if (list != null && !list.isEmpty()) {
 			for (int i = 0; i < list.size(); i++) {
 				ListOrderedMap lom = (ListOrderedMap)list.get(i);
-				
-				String dept_nm = (String)lom.get("dept_nm");
-				String grp_dept_cd = (String)lom.get("grp_dept_cd");
-				String intnl_dept_cd = (String)lom.get("intnl_dept_cd");
-				String crtrnday = (String)lom.get("crtrnday");
-				String dept_lvl = (String)lom.get("dept_lvl");
-						
+
+				// 가입력 데이터 보안 이스케이프 및 안전 바인딩 처리 (XSS 및 HTML 주입 방지)
+				String dept_nm        = StringUtil.bvlEscaped((String)lom.get("dept_nm"), "");
+				String grp_dept_cd    = StringUtil.bvlEscaped((String)lom.get("grp_dept_cd"), "");
+				String intnl_dept_cd  = StringUtil.bvlEscaped((String)lom.get("intnl_dept_cd"), "");
+				String crtrnday       = StringUtil.bvlEscaped((String)lom.get("crtrnday"), "");
+				String dept_lvl       = StringUtil.bvlEscaped((String)lom.get("dept_lvl"), "");
+
 				if( intnl_dept_cd.equals(selected)){
 					str = "selected";
 				}else{
 					str = "";
 				}
-				result = result+"<option value='"+intnl_dept_cd+"' "+str+">"+dept_nm+"</option>";
-				
+				sb.append("<option value='").append(intnl_dept_cd).append("' ").append(str).append(">").append(dept_nm).append("</option>");
 			}
 		}
-		
-		return result;		
+
+		return sb.toString();
 	}
+
 	/**
 	 * 부서 리스트를 반환한다 (트리 구조)
 	 */

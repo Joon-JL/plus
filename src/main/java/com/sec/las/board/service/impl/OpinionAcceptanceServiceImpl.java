@@ -517,23 +517,27 @@ public class OpinionAcceptanceServiceImpl extends CommonServiceImpl implements O
 			String contents							= "";
 			String user_mail = "";
 			String today = DateUtil.dateIn(DateUtil.today());
-			
+
 			HashMap<String,String> hm = new HashMap<String,String>();
 
 			MailVO mailVo = new MailVO();
-			
+
 			//모듈아이디 및 misId 세팅 -> (각 시스템/업무별로 개별 Key값을 입력)
-		
 			String moduleId = vo.getSys_cd();
 			String misId = EsbUtil.generateMisId("MAIL");
-			
+
 			Locale locale1 = new Locale((String)vo.getSession_user_locale() );
-		
-			//메시지 처리
-			mainTitle	= (String)messageSource.getMessage("las.msg.field.opnion.sendmail001", null, locale1); // [SELMS+]A Request for Comments has been submitted.
-			contents	= (String)messageSource.getMessage("las.msg.field.opnion.sendmail004", null, locale1)	 // A request for Comments has been submitted by the Requester as above. 
-					+ "<BR>" + (String)messageSource.getMessage("las.msg.field.opnion.sendmail005", null, locale1);  // Check and answer the request in SELMS+. 
-			
+
+			//메시지 처리 (하드코딩 리소스 메시지이므로 보안 위협이 없으나, String 결합 연산 최적화를 위해 StringBuilder 적용)
+			mainTitle = (String)messageSource.getMessage("las.msg.field.opnion.sendmail001", null, locale1); // [SELMS+]A Request for Comments has been submitted.
+
+			StringBuilder contentsBuilder = new StringBuilder();
+			contentsBuilder.append((String)messageSource.getMessage("las.msg.field.opnion.sendmail004", null, locale1)) // A request for Comments has been submitted by the Requester as above.
+					.append("<BR>")
+					.append((String)messageSource.getMessage("las.msg.field.opnion.sendmail005", null, locale1)); // Check and answer the request in SELMS+.
+
+			contents = contentsBuilder.toString();
+
 			mailVo.setModule_id(moduleId);
 			mailVo.setMis_id(misId);
 			mailVo.setMsg_key("11");
@@ -635,90 +639,82 @@ public class OpinionAcceptanceServiceImpl extends CommonServiceImpl implements O
 			throw new Exception("Error");
 		}
 	}
-	
+
 	/**
 	 * 메일 컨텐츠 생성
-	 * @param HashMap
-	 * @return String
+	 * @param hm
+	 * @return
 	 * @throws Exception
 	 */
-	private String getMailContent(HashMap<String,String> hm) throws Exception{
-		
-		String content= "";
-		StringBuffer topHtml =  new StringBuffer();	
-		StringBuffer bottomHtml = new StringBuffer();
-		String contHtml = "";
-		
+	private String getMailContent(HashMap<String,String> hm) throws Exception {
+
+		if (hm == null) return "";
+
+		// 성능 최적화 및 SonarQube 코드 스멜(StringBuffer 무조건 지적) 제거를 위해 StringBuilder 사용
+		StringBuilder topHtml = new StringBuilder();
+		StringBuilder bottomHtml = new StringBuilder();
+		StringBuilder contHtmlBuilder = new StringBuilder();
+
 		String last_locale = StringUtil.bvl((String)hm.get("last_locale"), "en");
-		
 		Locale locale1 = new Locale(last_locale);
-		
-		String strUrl = "http://"+propertyService.getProperty("secfw.url.lasdomain");		
 
-		String main_title =  (String)hm.get("main_title");
-		String subject =  (String)hm.get("subject");
-		String requester =  (String)hm.get("requester");		
-		String request_date =  (String)hm.get("date");	
-		String contents =  (String)hm.get("contents");
-		
-		contHtml += "<table class='list_basic mt20'>";
-		contHtml += "<colgroup>";
-		contHtml += "<col width='14%' />";
-		contHtml += "<col width='36%'/>";
-		contHtml += "<col width='14%' />";
-		contHtml += "<col width='36%'/>";
-		contHtml += "</colgroup>";
-		contHtml += "<tr><th>"+(String)messageSource.getMessage("las.msg.field.opnion.sendmail002", null, locale1)+"</th><td colspan='3'>" + subject + "</td></tr>";
-		contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.contract.request.user", null, locale1)+"</th><td colspan='3'>" + requester + "</td></tr>";
-		contHtml += "<tr><th>"+(String)messageSource.getMessage("las.msg.field.opnion.sendmail003", null, locale1)+"</th><td colspan='3'>" + request_date+ "</td></tr>";
-		contHtml += "<tr class='end'><th>"+(String)messageSource.getMessage("clm.page.field.admin.subject.detail", null, locale1)+"</th><td colspan='3'>" + contents + "</td></tr>";
-		contHtml += "</table>";
-		
-		//상단 구성
-		topHtml.append("<!DOCTYPE html>");
-		topHtml.append("<html>");
-		topHtml.append("<head>");
-		topHtml.append("<meta charset='utf-8' />");
-	//	topHtml.append("<meta http-equiv='X-UA-Compatible' content='IE=8; IE=9' />");
+		// 외부 프로퍼티 파일 도메인 경로 보안 바인딩 처리
+		String strUrl = "http://" + StringUtil.bvl(propertyService.getProperty("secfw.url.lasdomain"), "");
 
-		topHtml.append("<title>"+(String)messageSource.getMessage("clm.main.title", null, locale1)+"</title>");
-	
-		topHtml.append("<link href='"+strUrl+"/style/las/"+locale1+"/mail.css' type=\"text/css\" rel=\"stylesheet\">");
-		topHtml.append("<link href='"+strUrl+"/style/las/"+locale1+"/las.css' type=\"text/css\" rel=\"stylesheet\">");
-		topHtml.append("<script language=\"javascript\" src=\""+strUrl+"/script/clms/common.js\" type=\"text/javascript\"></script>");
-		//topHtml.append("<!--[if IE]> <script src=\"http://html5shiv.googlecode.com/svn/trunk/html5.js\"></script> <![endif]-->");
-		topHtml.append("</head>");
-		
-		topHtml.append("<body>");
-		topHtml.append("<div class=\"mailWrap\">");
-		topHtml.append("<div class=\"mail_top\"></div>");
-		topHtml.append("<div class=\"mail_mid\">");	
-		
-		//제목
-		topHtml.append("<DIV class=page_list>");
-		topHtml.append("<DIV class=in><span>" + main_title + "</span></DIV>");
-		topHtml.append("</DIV>");		
-		
+		// 가입력 데이터 보안 이스케이프 및 안전 바인딩 처리 (XSS 및 HTML 주입 방지)
+		String main_title   = StringUtil.bvlEscaped((String)hm.get("main_title"), "");
+		String subject      = StringUtil.bvlEscaped((String)hm.get("subject"), "");
+		String requester    = StringUtil.bvlEscaped((String)hm.get("requester"), "");
+		String request_date = StringUtil.bvlEscaped((String)hm.get("date"), "");
+		String contents     = StringUtil.bvlEscapeWithBR((String)hm.get("contents"), ""); // 멀티라인 텍스트 영역 보안 이스케이프
+
+		// contHtml 문자열 누적 연산(+=) 제거 후 빌더 패턴 최적화 적용
+		contHtmlBuilder.append("<table class='list_basic mt20'>")
+				.append("<colgroup>")
+				.append("<col width='14%' />")
+				.append("<col width='36%'/>")
+				.append("<col width='14%' />")
+				.append("<col width='36%'/>")
+				.append("</colgroup>")
+				.append("<tr><th>").append((String)messageSource.getMessage("las.msg.field.opnion.sendmail002", null, locale1)).append("</th><td colspan='3'>").append(subject).append("</td></tr>")
+				.append("<tr><th>").append((String)messageSource.getMessage("clm.page.field.contract.request.user", null, locale1)).append("</th><td colspan='3'>").append(requester).append("</td></tr>")
+				.append("<tr><th>").append((String)messageSource.getMessage("las.msg.field.opnion.sendmail003", null, locale1)).append("</th><td colspan='3'>").append(request_date).append("</td></tr>")
+				.append("<tr class='end'><th>").append((String)messageSource.getMessage("clm.page.field.admin.subject.detail", null, locale1)).append("</th><td colspan='3'>").append(contents).append("</td></tr>")
+				.append("</table>");
+
+		// 상단 구성
+		topHtml.append("<!DOCTYPE html>")
+				.append("<html>")
+				.append("<head>")
+				.append("<meta charset='utf-8' />")
+				.append("<title>").append((String)messageSource.getMessage("clm.main.title", null, locale1)).append("</title>")
+				.append("<link href='").append(strUrl).append("/style/las/").append(locale1).append("/mail.css' type=\"text/css\" rel=\"stylesheet\">")
+				.append("<link href='").append(strUrl).append("/style/las/").append(locale1).append("/las.css' type=\"text/css\" rel=\"stylesheet\">")
+				.append("<script language=\"javascript\" src=\"").append(strUrl).append("/script/clms/common.js\" type=\"text/javascript\"></script>")
+				.append("</head>")
+				.append("<body>")
+				.append("<div class=\"mailWrap\">")
+				.append("<div class=\"mail_top\"></div>")
+				.append("<div class=\"mail_mid\">")
+				.append("<DIV class=page_list>")
+				.append("<DIV class=in><span>").append(main_title).append("</span></DIV>")
+				.append("</DIV>");
+
 		// 하단 SELMS+ 바로가기
-		
-		String slasDomain = (String)propertyService.getProperty("secfw.url.domain");
-		String pageLink	= (String)messageSource.getMessage("las.mail.field.lawconsultImpl.sysLink", null, locale1);  //  SELMS+ 바로가기
-		
-		bottomHtml.append("<div class='tC mt20'>");
-		bottomHtml.append("<span class=\"btn_mail_gosys\"><a href=\"" + slasDomain +  "\" target=_blank>"+pageLink+"</a></span>");
-		bottomHtml.append("</div>");
-		
-		bottomHtml.append("</div>");
-		bottomHtml.append("<div class=\"mail_btm\"></div>");
-		bottomHtml.append("</div>");
-		bottomHtml.append("</body>");
-		bottomHtml.append("</html>");
-		
-		/** 기본구성 End **/
-		
-		content = topHtml.toString() + contHtml + bottomHtml.toString();	
-		return content;
-	
+		String slasDomain = StringUtil.bvl(propertyService.getProperty("secfw.url.domain"), "");
+		String pageLink   = (String)messageSource.getMessage("las.mail.field.lawconsultImpl.sysLink", null, locale1);
+
+		bottomHtml.append("<div class='tC mt20'>")
+				.append("<span class=\"btn_mail_gosys\"><a href=\"").append(slasDomain).append("\" target=_blank>").append(pageLink).append("</a></span>")
+				.append("</div>")
+				.append("</div>")
+				.append("<div class=\"mail_btm\"></div>")
+				.append("</div>")
+				.append("</body>")
+				.append("</html>");
+
+		// 최종 결과 반환 최적화
+		return topHtml.toString() + contHtmlBuilder.toString() + bottomHtml.toString();
 	}
 
 }

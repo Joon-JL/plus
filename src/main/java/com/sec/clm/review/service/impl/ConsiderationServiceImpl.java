@@ -563,43 +563,44 @@ public class ConsiderationServiceImpl extends CommonServiceImpl implements Consi
          * 등록자_ID REG_ID TN_CLM_RELATION_CONTRACT 등록자_명 REG_NM
          */
 
-        if (list != null && list.size() > 0) {
+		if (list != null && !list.isEmpty()) {
 
-            for (int i = 0; i < list.size(); i++) {
-                ListOrderedMap lom = (ListOrderedMap) list.get(i);
+			for (int i = 0; i < list.size(); i++) {
+				ListOrderedMap lom = (ListOrderedMap) list.get(i);
 
-                resultSb.append("<tr id=\"trRelationContractCont\">");
-                resultSb.append(" <td> " + (String) lom.get("real_type_nm") + "</td>");
-                // resultSb.append(" <td> " + (String)lom.get("req_title") +
-                // "</td>" );
-                // Sungwoo Replacement 2014-07-11
-                resultSb.append(" <td> <a href=\"javascript:goDetail('"
-                        + StringUtil.convertHtmlTochars((String) lom.get("cnsdreq_id")) + "');\">"
-                        + StringUtil.convertHtmlTochars((String) lom.get("req_title")) + "</a></td>");
-                resultSb.append(" <td> " + (String) lom.get("rel_defn") + "</td>");
-                resultSb.append(
-                        " <td> " + StringUtil.convertEnterToBR(StringUtil.convertHtmlTochars((String) lom.get("expl")))
-                                + "</td>");
-                if (!"".equals(vo.getSubmit_status())) {
-                    resultSb.append(
-                            " <td><span id=\"id_relCImg\"><a href=\"javascript:actionRelationContract('delete','"
-                                    + (String) lom.get("parent_cntrt_id")
-                                    + "');\"><img src=\"/script/secfw/jquery/uploadify/cancel_new_en.gif\"></a></span></td>");
-                } else {
-                    resultSb.append("<td></td>");
-                }
-                resultSb.append("</tr>");
-            } // end for
-        } else {
-            Locale locale1 = new Locale((String) vo.getSession_user_locale());
+				resultSb.append("<tr id=\"trRelationContractCont\">");
 
-            // 등록된 연관계약이 없습니다.
-            resultSb.append(
-                    "<tr id=\"trRelationContractCont\"><td colspan=\"5\">"
-                            + (String) messageSource.getMessage(
-                            "las.page.field.considerationImpl.listRelationContract01", null, locale1)
-                            + "</td></tr>");
-        } // end if(list != null)
+				// real_type_nm (Single-line escaped)
+				resultSb.append(" <td> ").append(StringUtil.bvlEscaped((String) lom.get("real_type_nm"), "")).append("</td>");
+
+				// cnsdreq_id & req_title (Single-line escaped inside attribute and element text)
+				resultSb.append(" <td> <a href=\"javascript:goDetail('")
+						.append(StringUtil.bvlEscaped((String) lom.get("cnsdreq_id"), "")).append("');\">")
+						.append(StringUtil.bvlEscaped((String) lom.get("req_title"), "")).append("</a></td>");
+
+				// rel_defn (Single-line escaped)
+				resultSb.append(" <td> ").append(StringUtil.bvlEscaped((String) lom.get("rel_defn"), "")).append("</td>");
+
+				// expl (Multi-line layout field - processed securely)
+				resultSb.append(" <td> ").append(StringUtil.bvlEscapeWithBR((String) lom.get("expl"), "")).append("</td>");
+
+				if (!"".equals(vo.getSubmit_status())) {
+					// parent_cntrt_id (Single-line attribute value escaped)
+					resultSb.append(" <td><span id=\"id_relCImg\"><a href=\"javascript:actionRelationContract('delete','")
+							.append(StringUtil.bvlEscaped((String) lom.get("parent_cntrt_id"), "")).append("');\"><img src=\"/script/secfw/jquery/uploadify/cancel_new_en.gif\"></a></span></td>");
+				} else {
+					resultSb.append("<td></td>");
+				}
+				resultSb.append("</tr>");
+			} // end for
+		} else {
+			Locale locale1 = new Locale((String) vo.getSession_user_locale());
+
+			// 등록된 연관계약이 없습니다. (하드코딩 메시지 리소스이므로 안전함)
+			resultSb.append("<tr id=\"trRelationContractCont\"><td colspan=\"5\">")
+					.append((String) messageSource.getMessage("las.page.field.considerationImpl.listRelationContract01", null, locale1))
+					.append("</td></tr>");
+		} // end if(list != null)
 
         resultMap.put("cntRc", list.size());
         resultMap.put("contRc", resultSb.toString());

@@ -579,11 +579,13 @@ public class ConsiderationHQServiceImpl extends CommonServiceImpl implements Con
 			// clm.page.field.mailsend.HQASSIGNSend02=검토 의뢰하신 계약에 대한 검토자가 지정되었습니다.<br>검토 회신 일정 등 문의사항이 있는 경우 지정된 검토자와 직접 협의하시기 바랍니다.<br>검토 회신 완료된 경우 싱글 메일로 자동 통보됩니다.
 			// clm.page.field.mailsend.HQREPLYSend01=[ECMS HQ 계약검토 결과가 회신되었습니다. 
 			// clm.page.field.mailsend.HQREPLYSend02=검토 의뢰하신 계약에 대한 HQ 회신을 드렸으니 ECMS을 통하여 확인하시기 바랍니다.<br>회신 의견에 대하여 추가적인 질의사항이 있는 경우 재의뢰를 하시기 바랍니다.
-			
+
+			StringBuilder htmlBuilder = new StringBuilder();
+
 			if("REQ".equals(mode)){
 
 				mainTitle	= (String)messageSource.getMessage("clm.page.field.mailsend.HQREQSend01", null, locale1); 
-				contents 	= (String)messageSource.getMessage("clm.page.field.mailsend.HQREQSend02", null, locale1); 
+				contents 	= (String)messageSource.getMessage("clm.page.field.mailsend.HQREQSend02", null, locale1);
 				
 /*				의뢰명
 				계약명
@@ -593,22 +595,47 @@ public class ConsiderationHQServiceImpl extends CommonServiceImpl implements Con
 				법인 검토자
 				내 용
 */
-				
-				contHtml += "<table class='list_basic mt20'>";
-				contHtml += "<colgroup>";
-				contHtml += "<col width='20%' />";
-				contHtml += "<col width='30%'/>";
-				contHtml += "<col width='14%' />";
-				contHtml += "<col width='36%'/>";
-				contHtml += "</colgroup>";
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.manageCommon.srchReqTitle", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("REQ_TITLE") + "</td></tr>"; // 의뢰명
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.manageCommon.srchCntrtNm", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("CNTRT_NM") + "</td></tr>"; // 계약명
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.manageCommon.srchStatus", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("HQ_CNSD_STATUS")+ "</td></tr>"; // 상태
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.manageCommon.srchReqmanNm", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("REQMAN_NM")+ "</td></tr>"; // 의뢰자
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.manageCommon.srchReqDay", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("REQ_DT")+ "</td></tr>"; // 의뢰일
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.manageCommon.srchCnsdmanNm", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("SUB_REQMAN_NM")+ "</td></tr>"; // 법인 검토자
-				contHtml += "<tr class='end'><th>"+(String)messageSource.getMessage("clm.page.field.admin.subject.detail", null, locale1)+"</th><td colspan='3'>" + contents + "</td></tr>";
-				contHtml += "</table>";
+
+				htmlBuilder.append("<table class='list_basic mt20'>");
+				htmlBuilder.append("<colgroup>");
+				htmlBuilder.append("<col width='20%' />");
+				htmlBuilder.append("<col width='30%'/>");
+				htmlBuilder.append("<col width='14%' />");
+				htmlBuilder.append("<col width='36%'/>");
+				htmlBuilder.append("</colgroup>");
+
+				// 의뢰명 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("clm.page.field.manageCommon.srchReqTitle", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("REQ_TITLE"), "")).append("</td></tr>");
+
+				// 계약명 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("clm.page.field.manageCommon.srchCntrtNm", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("CNTRT_NM"), "")).append("</td></tr>");
+
+				// 상태 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("clm.page.field.manageCommon.srchStatus", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("HQ_CNSD_STATUS"), "")).append("</td></tr>");
+
+				// 의뢰자 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("clm.page.field.manageCommon.srchReqmanNm", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("REQMAN_NM"), "")).append("</td></tr>");
+
+				// 의뢰일 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("clm.page.field.manageCommon.srchReqDay", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("REQ_DT"), "")).append("</td></tr>");
+
+				// 법인 검토자 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("clm.page.field.manageCommon.srchCnsdmanNm", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("SUB_REQMAN_NM"), "")).append("</td></tr>");
+
+				// 상세 내용 (Multi-line layout field - processed securely)
+				htmlBuilder.append("<tr class='end'><th>").append((String)messageSource.getMessage("clm.page.field.admin.subject.detail", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscapeWithBR(contents, "")).append("</td></tr>");
+
+				htmlBuilder.append("</table>");
+
+				// 최종 결과 할당
+				contHtml = htmlBuilder.toString();
 				
 			} else if("ASSIGN".equals(mode)){
 			
@@ -622,21 +649,41 @@ public class ConsiderationHQServiceImpl extends CommonServiceImpl implements Con
 				의뢰일
 				회신일
 				내 용 
-				*/		
-				
-				contHtml += "<table class='list_basic mt20'>";
-				contHtml += "<colgroup>";
-				contHtml += "<col width='20%' />";
-				contHtml += "<col width='30%'/>";
-				contHtml += "<col width='14%' />";
-				contHtml += "<col width='36%'/>";
-				contHtml += "</colgroup>";
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.manageCommon.srchReqTitle", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("REQ_TITLE") + "</td></tr>"; // 의뢰명
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.manageCommon.srchCntrtNm", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("CNTRT_NM") + "</td></tr>"; // 계약명
-				contHtml += "<tr><th> HQ "+(String)messageSource.getMessage("clm.page.msg.manage.reviewer", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("HQ_RESPMAN_NM") + "</td></tr>"; // HQ검토자 HQ_RESPMAN_NM
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.manageCommon.srchReqDay", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("REQ_DT")+ "</td></tr>"; // 의뢰일
-				contHtml += "<tr class='end'><th>"+(String)messageSource.getMessage("clm.page.field.admin.subject.detail", null, locale1)+"</th><td colspan='3'>" + contents + "</td></tr>";
-				contHtml += "</table>";
+				*/
+
+
+				htmlBuilder.append("<table class='list_basic mt20'>");
+				htmlBuilder.append("<colgroup>");
+				htmlBuilder.append("<col width='20%' />");
+				htmlBuilder.append("<col width='30%'/>");
+				htmlBuilder.append("<col width='14%' />");
+				htmlBuilder.append("<col width='36%'/>");
+				htmlBuilder.append("</colgroup>");
+
+				// 의뢰명 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("clm.page.field.manageCommon.srchReqTitle", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("REQ_TITLE"), "")).append("</td></tr>");
+
+				// 계약명 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("clm.page.field.manageCommon.srchCntrtNm", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("CNTRT_NM"), "")).append("</td></tr>");
+
+				// HQ검토자 (Single-line escaped)
+				htmlBuilder.append("<tr><th> HQ ").append((String)messageSource.getMessage("clm.page.msg.manage.reviewer", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("HQ_RESPMAN_NM"), "")).append("</td></tr>");
+
+				// 의뢰일 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("clm.page.field.manageCommon.srchReqDay", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("REQ_DT"), "")).append("</td></tr>");
+
+				// 상세 내용 (Multi-line layout field - processed securely)
+				htmlBuilder.append("<tr class='end'><th>").append((String)messageSource.getMessage("clm.page.field.admin.subject.detail", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscapeWithBR(contents, "")).append("</td></tr>");
+
+				htmlBuilder.append("</table>");
+
+				// 최종 결과 할당
+				contHtml = htmlBuilder.toString();
 				
 			} else if("REPLY".equals(mode)){
 				
@@ -650,67 +697,128 @@ public class ConsiderationHQServiceImpl extends CommonServiceImpl implements Con
 				의뢰일
 				회신일
 				내 용 
-				*/		
-				
-				contHtml += "<table class='list_basic mt20'>";
-				contHtml += "<colgroup>";
-				contHtml += "<col width='20%' />";
-				contHtml += "<col width='30%'/>";
-				contHtml += "<col width='14%' />";
-				contHtml += "<col width='36%'/>";
-				contHtml += "</colgroup>";
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.manageCommon.srchReqTitle", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("REQ_TITLE") + "</td></tr>"; // 의뢰명
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.manageCommon.srchCntrtNm", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("CNTRT_NM") + "</td></tr>"; // 계약명
-				contHtml += "<tr><th> HQ "+(String)messageSource.getMessage("clm.page.msg.manage.reviewer", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("HQ_RESPMAN_NM") + "</td></tr>"; // HQ검토자 HQ_RESPMAN_NM
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.manageCommon.srchReqDay", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("REQ_DT")+ "</td></tr>"; // 의뢰일
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.msg.manage.replyDate", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("RESP_DT")+ "</td></tr>"; // 회신일
-				contHtml += "<tr class='end'><th>"+(String)messageSource.getMessage("clm.page.field.admin.subject.detail", null, locale1)+"</th><td colspan='3'>" + contents + "</td></tr>";
-				contHtml += "</table>";
+				*/
+
+				htmlBuilder.append("<table class='list_basic mt20'>");
+				htmlBuilder.append("<colgroup>");
+				htmlBuilder.append("<col width='20%' />");
+				htmlBuilder.append("<col width='30%'/>");
+				htmlBuilder.append("<col width='14%' />");
+				htmlBuilder.append("<col width='36%'/>");
+				htmlBuilder.append("</colgroup>");
+
+				// 의뢰명 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("clm.page.field.manageCommon.srchReqTitle", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("REQ_TITLE"), "")).append("</td></tr>");
+
+				// 계약명 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("clm.page.field.manageCommon.srchCntrtNm", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("CNTRT_NM"), "")).append("</td></tr>");
+
+				// HQ검토자 (Single-line escaped)
+				htmlBuilder.append("<tr><th> HQ ").append((String)messageSource.getMessage("clm.page.msg.manage.reviewer", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("HQ_RESPMAN_NM"), "")).append("</td></tr>");
+
+				// 의뢰일 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("clm.page.field.manageCommon.srchReqDay", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("REQ_DT"), "")).append("</td></tr>");
+
+				// 회신일 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("clm.page.msg.manage.replyDate", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("RESP_DT"), "")).append("</td></tr>");
+
+				// 상세 내용 (Multi-line layout field - processed securely)
+				htmlBuilder.append("<tr class='end'><th>").append((String)messageSource.getMessage("clm.page.field.admin.subject.detail", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscapeWithBR(contents, "")).append("</td></tr>");
+
+				htmlBuilder.append("</table>");
+
+				// 최종 결과 할당
+				contHtml = htmlBuilder.toString();
 				
 			} else if("REJECT".equals(mode)){
 				
 				mainTitle = (String)messageSource.getMessage("clm.page.field.mailsend.HQREPLYSend03", null, locale1); 
 				// contents	 = (String)messageSource.getMessage("clm.page.field.mailsend.HQREPLYSend03", null, locale1);
-				
-				String rtn_cont = StringUtil.convertEnterToBR(StringUtil.bvl(vo.getRtn_cont(),"")); // 배정의견
-				
-				contHtml += "<table class='list_basic mt20'>";
-				contHtml += "<colgroup>";
-				contHtml += "<col width='20%' />";
-				contHtml += "<col width='30%'/>";
-				contHtml += "<col width='14%' />";
-				contHtml += "<col width='36%'/>";
-				contHtml += "</colgroup>";
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.manageCommon.srchReqTitle", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("REQ_TITLE") + "</td></tr>"; // 의뢰명
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.manageCommon.srchCntrtNm", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("CNTRT_NM") + "</td></tr>"; // 계약명
-				contHtml += "<tr><th> HQ "+(String)messageSource.getMessage("clm.page.msg.manage.reviewer", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("HQ_RESPMAN_NM") + "</td></tr>"; // HQ검토자 HQ_RESPMAN_NM
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.manageCommon.srchReqDay", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("REQ_DT")+ "</td></tr>"; // 의뢰일
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("las.page.field.contractManager.reject", null, locale1)+" Date </th><td colspan='3'>" + (String)info_lom.get("RESP_DT")+ "</td></tr>"; // 반려일
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("las.page.field.lawconsult.rejctcont", null, locale1)+"</th><td colspan='3'>" + rtn_cont + "</td></tr>"; //  반려사유
-			//	contHtml += "<tr class='end'><th>"+(String)messageSource.getMessage("clm.page.field.admin.subject.detail", null, locale1)+"</th><td colspan='3'>" + contents + "</td></tr>";
-				contHtml += "</table>";
+
+				// 배정의견 (Multi-line text area containing potential paragraph breaks - secured via our escape helper)
+				String rtn_cont = StringUtil.bvlEscapeWithBR(vo.getRtn_cont(), "");
+
+				htmlBuilder.append("<table class='list_basic mt20'>");
+				htmlBuilder.append("<colgroup>");
+				htmlBuilder.append("<col width='20%' />");
+				htmlBuilder.append("<col width='30%'/>");
+				htmlBuilder.append("<col width='14%' />");
+				htmlBuilder.append("<col width='36%'/>");
+				htmlBuilder.append("</colgroup>");
+
+				// 의뢰명 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("clm.page.field.manageCommon.srchReqTitle", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("REQ_TITLE"), "")).append("</td></tr>");
+
+				// 계약명 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("clm.page.field.manageCommon.srchCntrtNm", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("CNTRT_NM"), "")).append("</td></tr>");
+
+				// HQ검토자 (Single-line escaped)
+				htmlBuilder.append("<tr><th> HQ ").append((String)messageSource.getMessage("clm.page.msg.manage.reviewer", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("HQ_RESPMAN_NM"), "")).append("</td></tr>");
+
+				// 의뢰일 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("clm.page.field.manageCommon.srchReqDay", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("REQ_DT"), "")).append("</td></tr>");
+
+				// 반려일 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("las.page.field.contractManager.reject", null, locale1))
+						.append(" Date </th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("RESP_DT"), "")).append("</td></tr>");
+
+				// 반려사유 (Already safely sanitized above)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("las.page.field.lawconsult.rejctcont", null, locale1))
+						.append("</th><td colspan='3'>").append(rtn_cont).append("</td></tr>");
 				
 			} else  if("ADMIN_REPLY".equals(mode)){
 				
 				mainTitle = (String)messageSource.getMessage("clm.page.field.mailsend.HQREPLYSend01", null, locale1); // [ECMS]Reply to Contract HQ's Review has been sent.
-				
-				String rtn_cont = StringUtil.convertEnterToBR(StringUtil.bvl(vo.getRtn_cont(),"")); // 의견
-			//	String rtn_user_nm =  vo.getSession_user_nm() + "/" + vo.getSession_jikgup_nm() + "/" + vo.getSession_dept_nm(); // 세션 이름 / 직급 / 부서  
-				
-				contHtml += "<table class='list_basic mt20'>";
-				contHtml += "<colgroup>";
-				contHtml += "<col width='20%' />";
-				contHtml += "<col width='30%'/>";
-				contHtml += "<col width='14%' />";
-				contHtml += "<col width='36%'/>";
-				contHtml += "</colgroup>";
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.manageCommon.srchReqTitle", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("REQ_TITLE") + "</td></tr>"; // 의뢰명
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.manageCommon.srchCntrtNm", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("CNTRT_NM") + "</td></tr>"; // 계약명
-				contHtml += "<tr><th> HQ "+(String)messageSource.getMessage("clm.page.msg.manage.reviewer", null, locale1)+"</th><td colspan='3'>"  + (String)info_lom.get("SESSION_MAN_NM") + "</td></tr>"; // HQ검토자 HQ_RESPMAN_NM
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.manageCommon.srchReqDay", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("REQ_DT")+ "</td></tr>"; // 의뢰일
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("las.page.field.contractManager.reject", null, locale1)+" Date </th><td colspan='3'>" + (String)info_lom.get("RESP_DT")+ "</td></tr>"; // 반려일
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("las.page.field.lawconsult.rejctcont", null, locale1)+"</th><td colspan='3'>" + rtn_cont + "</td></tr>"; //  반려사유
-				contHtml += "</table>";
+
+				// 의견 (Multi-line text area containing potential paragraph breaks - secured via our escape helper)
+				String rtn_cont = StringUtil.bvlEscapeWithBR(vo.getRtn_cont(), "");
+
+				htmlBuilder.append("<table class='list_basic mt20'>");
+				htmlBuilder.append("<colgroup>");
+				htmlBuilder.append("<col width='20%' />");
+				htmlBuilder.append("<col width='30%'/>");
+				htmlBuilder.append("<col width='14%' />");
+				htmlBuilder.append("<col width='36%'/>");
+				htmlBuilder.append("</colgroup>");
+
+				// 의뢰명 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("clm.page.field.manageCommon.srchReqTitle", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("REQ_TITLE"), "")).append("</td></tr>");
+
+				// 계약명 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("clm.page.field.manageCommon.srchCntrtNm", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("CNTRT_NM"), "")).append("</td></tr>");
+
+				// HQ검토자 (Single-line escaped)
+				htmlBuilder.append("<tr><th> HQ ").append((String)messageSource.getMessage("clm.page.msg.manage.reviewer", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("SESSION_MAN_NM"), "")).append("</td></tr>");
+
+				// 의뢰일 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("clm.page.field.manageCommon.srchReqDay", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("REQ_DT"), "")).append("</td></tr>");
+
+				// 반려일 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("las.page.field.contractManager.reject", null, locale1))
+						.append(" Date </th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("RESP_DT"), "")).append("</td></tr>");
+
+				// 반려사유 (Already safely sanitized above)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("las.page.field.lawconsult.rejctcont", null, locale1))
+						.append("</th><td colspan='3'>").append(rtn_cont).append("</td></tr>");
+
+				htmlBuilder.append("</table>");
+
+				// 최종 결과 할당
+				contHtml = htmlBuilder.toString();
 				
 			} else if("RE_REQ".equals(mode)){
 				
@@ -724,23 +832,47 @@ public class ConsiderationHQServiceImpl extends CommonServiceImpl implements Con
                 */
 				
 				mainTitle = (String)messageSource.getMessage("clm.page.field.mailsend.HQREPLYSend04", null, locale1); // [ECMS] Re-request for Contract has been submitted.
-				
-				contHtml += "<table class='list_basic mt20'>";
-				contHtml += "<colgroup>";
-				contHtml += "<col width='20%' />";
-				contHtml += "<col width='30%'/>";
-				contHtml += "<col width='14%' />";
-				contHtml += "<col width='36%'/>";
-				contHtml += "</colgroup>";
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.manageCommon.srchReqTitle", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("REQ_TITLE") + "</td></tr>"; // 의뢰명
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.manageCommon.srchCntrtNm", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("CNTRT_NM") + "</td></tr>"; // 계약명
-				//contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.manageCommon.srchStatus", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("HQ_CNSD_STATUS")+ "</td></tr>"; // 상태 
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.manageCommon.srchStatus", null, locale1)+"</th><td colspan='3'>HQ Review in Progress</td></tr>"; // 상태 the result of the SQL is already fixed stmt, so no problem even it is fixed text.
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.manageCommon.srchReqmanNm", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("REQMAN_NM")+ "</td></tr>"; // 의뢰자
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.manageCommon.srchReqDay", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("REQ_DT")+ "</td></tr>"; // 의뢰일
-				contHtml += "<tr><th>"+(String)messageSource.getMessage("clm.page.field.manageCommon.srchCnsdmanNm", null, locale1)+"</th><td colspan='3'>" + (String)info_lom.get("SUB_REQMAN_NM")+ "</td></tr>"; // 법인 검토자
-				contHtml += "<tr class='end'><th>"+(String)messageSource.getMessage("clm.page.field.admin.subject.detail", null, locale1)+"</th><td colspan='3'>" + contents + "</td></tr>";  // 메일 내용
-				contHtml += "</table>";				
+
+				htmlBuilder.append("<table class='list_basic mt20'>");
+				htmlBuilder.append("<colgroup>");
+				htmlBuilder.append("<col width='20%' />");
+				htmlBuilder.append("<col width='30%'/>");
+				htmlBuilder.append("<col width='14%' />");
+				htmlBuilder.append("<col width='36%'/>");
+				htmlBuilder.append("</colgroup>");
+
+				// 의뢰명 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("clm.page.field.manageCommon.srchReqTitle", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("REQ_TITLE"), "")).append("</td></tr>");
+
+				// 계약명 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("clm.page.field.manageCommon.srchCntrtNm", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("CNTRT_NM"), "")).append("</td></tr>");
+
+				// 상태 (하드코딩 텍스트이므로 유입 보안 위험 없음)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("clm.page.field.manageCommon.srchStatus", null, locale1))
+						.append("</th><td colspan='3'>HQ Review in Progress</td></tr>");
+
+				// 의뢰자 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("clm.page.field.manageCommon.srchReqmanNm", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("REQMAN_NM"), "")).append("</td></tr>");
+
+				// 의뢰일 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("clm.page.field.manageCommon.srchReqDay", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("REQ_DT"), "")).append("</td></tr>");
+
+				// 법인 검토자 (Single-line escaped)
+				htmlBuilder.append("<tr><th>").append((String)messageSource.getMessage("clm.page.field.manageCommon.srchCnsdmanNm", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscaped((String)info_lom.get("SUB_REQMAN_NM"), "")).append("</td></tr>");
+
+				// 메일 내용 (Multi-line layout field - processed securely)
+				htmlBuilder.append("<tr class='end'><th>").append((String)messageSource.getMessage("clm.page.field.admin.subject.detail", null, locale1))
+						.append("</th><td colspan='3'>").append(StringUtil.bvlEscapeWithBR(contents, "")).append("</td></tr>");
+
+				htmlBuilder.append("</table>");
+
+				// 최종 결과 할당
+				contHtml = htmlBuilder.toString();
 			}else {
 				throw new Exception("sendHQMail : parameta mode is null");				
 			}
@@ -868,71 +1000,66 @@ public class ConsiderationHQServiceImpl extends CommonServiceImpl implements Con
 	 * @return String
 	 * @throws Exception
 	 */
-	private String getMailContent(HashMap<String,String> hm) throws Exception{
-		
-		String content= "";
-		StringBuffer topHtml =  new StringBuffer();	
-		StringBuffer bottomHtml = new StringBuffer();
-		String contHtml = "";
-		
-		String last_locale = StringUtil.bvl((String)hm.get("last_locale"), "en");
-		
-		Locale locale1 = new Locale(last_locale);
-		
-		String strUrl = "http://"+propertyService.getProperty("secfw.url.lasdomain");		
+	private String getMailContent(HashMap<String, String> hm) throws Exception {
 
-		String main_title =  (String)hm.get("main_title");
-		String subject =  (String)hm.get("subject");
-		String requester =  (String)hm.get("requester");		
-		String request_date =  (String)hm.get("date");	
-		String contents =  (String)hm.get("contents");
-		
-		contHtml = (String)hm.get("contHtml");
-		
-		//상단 구성
+		if (hm == null) {
+			return "";
+		}
+
+		// 성능 개선 및 SonarQube 표준 준수를 위해 StringBuffer를 StringBuilder로 변경
+		StringBuilder topHtml = new StringBuilder();
+		StringBuilder bottomHtml = new StringBuilder();
+
+		String last_locale = StringUtil.bvl((String)hm.get("last_locale"), "en");
+		Locale locale1 = new Locale(last_locale);
+
+		// 외부 프로퍼티 파일 도메인 경로 보안 바인딩 처리
+		String strUrl = "http://" + StringUtil.bvl(propertyService.getProperty("secfw.url.lasdomain"), "");
+
+		// 단일 라인 데이터 보안 이스케이프 적용 (XSS 원천 차단)
+		String main_title = StringUtil.bvlEscaped((String)hm.get("main_title"), "");
+
+		// 이미 이전 단계에서 완벽하게 StringBuilder 처리가 끝난 컨텍스트 조각 바인딩
+		String contHtml = StringUtil.bvl((String)hm.get("contHtml"), "");
+
+		// 상단 HTML 레이아웃 구성
 		topHtml.append("<!DOCTYPE html>");
 		topHtml.append("<html>");
 		topHtml.append("<head>");
 		topHtml.append("<meta charset='utf-8' />");
-		//topHtml.append("<meta http-equiv='X-UA-Compatible' content='IE=8; IE=9' />");
 
-		topHtml.append("<title>"+(String)messageSource.getMessage("clm.main.title", null, locale1)+"</title>");
-	
-		topHtml.append("<link href='"+strUrl+"/style/las/"+locale1+"/mail.css' type=\"text/css\" rel=\"stylesheet\">");
-		topHtml.append("<link href='"+strUrl+"/style/las/"+locale1+"/las.css' type=\"text/css\" rel=\"stylesheet\">");
-		topHtml.append("<script language=\"javascript\" src=\""+strUrl+"/script/clms/common.js\" type=\"text/javascript\"></script>");
-		//topHtml.append("<!--[if IE]> <script src=\"http://html5shiv.googlecode.com/svn/trunk/html5.js\"></script> <![endif]-->");
+		topHtml.append("<title>").append((String)messageSource.getMessage("clm.main.title", null, locale1)).append("</title>");
+
+		topHtml.append("<link href='").append(strUrl).append("/style/las/").append(locale1).append("/mail.css' type=\"text/css\" rel=\"stylesheet\">");
+		topHtml.append("<link href='").append(strUrl).append("/style/las/").append(locale1).append("/las.css' type=\"text/css\" rel=\"stylesheet\">");
+		topHtml.append("<script language=\"javascript\" src=\"").append(strUrl).append("/script/clms/common.js\" type=\"text/javascript\"></script>");
 		topHtml.append("</head>");
-		
+
 		topHtml.append("<body>");
 		topHtml.append("<div class=\"mailWrap\">");
 		topHtml.append("<div class=\"mail_top\"></div>");
-		topHtml.append("<div class=\"mail_mid\">");	
-		
-		//제목
+		topHtml.append("<div class=\"mail_mid\">");
+
+		// 제목 바인딩 영역 (안전하게 이스케이프된 변수 주입)
 		topHtml.append("<DIV class=page_list>");
-		topHtml.append("<DIV class=in><span>" + main_title + "</span></DIV>");
-		topHtml.append("</DIV>");		
-		
-		// 하단 SELMS+ 바로가기
-		
-		String slasDomain = (String)propertyService.getProperty("secfw.url.domain");
-		String pageLink	= (String)messageSource.getMessage("las.mail.field.lawconsultImpl.sysLink", null, locale1);  //  SELMS+ 바로가기
-		
+		topHtml.append("<DIV class=in><span>").append(main_title).append("</span></DIV>");
+		topHtml.append("</DIV>");
+
+		// 하단 SELMS+ 바로가기 시스템 도메인 및 다국어 속성 구성
+		String slasDomain = StringUtil.bvl(propertyService.getProperty("secfw.url.domain"), "");
+		String pageLink = (String)messageSource.getMessage("las.mail.field.lawconsultImpl.sysLink", null, locale1);
+
 		bottomHtml.append("<div class='tC mt20'>");
-		bottomHtml.append("<span class=\"btn_mail_gosys\"><a href=\"" + slasDomain +  "\" target=_blank>"+pageLink+"</a></span>");
+		bottomHtml.append("<span class=\"btn_mail_gosys\"><a href=\"").append(slasDomain).append("\" target=_blank>").append(pageLink).append("</a></span>");
 		bottomHtml.append("</div>");
-		
+
 		bottomHtml.append("</div>");
 		bottomHtml.append("<div class=\"mail_btm\"></div>");
 		bottomHtml.append("</div>");
 		bottomHtml.append("</body>");
 		bottomHtml.append("</html>");
-		
-		/** 기본구성 End **/
-		
-		content = topHtml.toString() + contHtml + bottomHtml.toString();	
-		return content;
-	
+
+		// 최종 결과 스트링 안전 병합 연산 리턴
+		return topHtml.toString() + contHtml + bottomHtml.toString();
 	}
 }

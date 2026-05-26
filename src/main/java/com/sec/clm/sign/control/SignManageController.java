@@ -1786,12 +1786,11 @@ public class SignManageController extends CommonController {
 			throw new Exception("Error");
 		}
 	}
-	
+
 	/**
 	 * 날인신청 승인이력 정보를 조회한다.
-	 * 
-	 * @param request
-	 * @return ModelAndView
+	 * @param ref_key
+	 * @return
 	 * @throws Exception
 	 */
 	private List listSignAppr(String ref_key) throws Exception {
@@ -1814,11 +1813,12 @@ public class SignManageController extends CommonController {
 			throw new Exception("Error");
 		}
 	}
-	
+
 	/**
 	 * 사용자 ROLE에 따른 권한 제어
-	 * @param request
-	 * @return String
+	 * @param vo
+	 * @param gubn_cd
+	 * @return
 	 * @throws Exception
 	 */
 	private boolean checkAuthByRole(SignManageVO vo,String gubn_cd) throws Exception{
@@ -1853,11 +1853,11 @@ public class SignManageController extends CommonController {
 
 		return hasRight;
 	}
-	
+
 	/**
 	 * 사용자 ROLE에 따른 권한 제어
-	 * @param request
-	 * @return String
+	 * @param vo
+	 * @return
 	 * @throws Exception
 	 */
 	private boolean checkAuthByRole(SignManageVO vo) throws Exception{
@@ -1899,100 +1899,85 @@ public class SignManageController extends CommonController {
 	 * @return String
 	 * @throws Exception
 	 */
-	
 	public String makeAppHtml(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		ModelAndView mav= new ModelAndView();
-		
-		//화면에서 넘어온 값 정리
-		String forwardURL = "/WEB-INF/jsp/clm/sign/Sign_i.jsp";;
 
-		SignManageForm form = null;
-		form = new SignManageForm();
-		SignManageVO vo = null;
-		vo = new SignManageVO();
-		
+		ModelAndView mav = new ModelAndView();
+
+		String forwardURL = "/WEB-INF/jsp/clm/sign/Sign_i.jsp";
+
+		SignManageForm form = new SignManageForm();
+		SignManageVO vo = new SignManageVO();
+
 		bind(request, form);
 		bind(request, vo);
-		
+
 		COMUtil.getUserAuditInfo(request, form);
 		COMUtil.getUserAuditInfo(request, vo);
-		
-		String temp_apl_sqn = StringUtil.bvl((String)request.getAttribute("temp_apl_sqn"),"");
-		
-		if(!temp_apl_sqn.equals(""))
+
+		String temp_apl_sqn = StringUtil.bvl((String)request.getAttribute("temp_apl_sqn"), "");
+
+		if (!temp_apl_sqn.isEmpty()) {
 			vo.setApl_sqn(temp_apl_sqn);
-		
-		//결재창에 표시될 부분의 스트링 값.		
+		}
+
 		String strUrl = (request.getRequestURL()).toString();
-		
-		String url  = strUrl.substring(0, strUrl.indexOf("/", 7) + 1);
-		String attach_url  = url + "/clms/common/clmsfile.do?method=doClmsDownload&file_id=";	
-		
-		String title_1 = messageSource.getMessage("clm.field.signmng.apltab", null, new RequestContext(request).getLocale()); // 날인/증명서류 발급 신청		                
-		String title_2 = messageSource.getMessage("clm.field.signmng.apprmsg9", null, new RequestContext(request).getLocale()); // 날인/증명서류 발급 신청을 상신하오니 재가하여 주시기 바랍니다.
-		
-		String lavel_1 = messageSource.getMessage("clm.field.signmng.basicinfo", null, new RequestContext(request).getLocale()); // 기본내역
-		String lavel_2 = messageSource.getMessage("clm.field.signmng.title", null, new RequestContext(request).getLocale()); // 건명
-		String lavel_3 = messageSource.getMessage("clm.field.signmng.towhere", null, new RequestContext(request).getLocale()); // 제출처
-		String lavel_4 = messageSource.getMessage("clm.field.signmng.reqman", null, new RequestContext(request).getLocale()); // 신청자
-		String lavel_5 = messageSource.getMessage("clm.field.signmng.reqday", null, new RequestContext(request).getLocale()); // 신청일자
-		String lavel_6 = messageSource.getMessage("clm.field.signmng.apltype", null, new RequestContext(request).getLocale()); // 신청유형
-		String lavel_7 = messageSource.getMessage("clm.field.signmng.detaildsc", null, new RequestContext(request).getLocale()); // 세부내용 // clm.field.signmng.detaildsc
-		String lavel_8 = messageSource.getMessage("clm.page.field.srch.attach", null, new RequestContext(request).getLocale()); // 첨부
-		String lavel_9 = messageSource.getMessage("clm.field.signmng.aplinfo", null, new RequestContext(request).getLocale()); // 신청내역
-		String lavel_10 = messageSource.getMessage("clm.field.signmng.apl", null, new RequestContext(request).getLocale()); // 날인신청
-		String lavel_11 = messageSource.getMessage("clm.field.signmng.aploutreq", null, new RequestContext(request).getLocale()); // 인장반출 신청
-		String lavel_12 = messageSource.getMessage("clm.field.signmng.aplno", null, new RequestContext(request).getLocale()); // 반출인장번호
-		String lavel_13 = messageSource.getMessage("clm.field.signmng.apprmsg3", null, new RequestContext(request).getLocale()); // 회사 외부로의 인장반출을 신청합니다.
-		String lavel_14 = messageSource.getMessage("clm.field.signmng.outfromto", null, new RequestContext(request).getLocale()); // 반출기간
-		String lavel_15 = messageSource.getMessage("clm.field.signmng.doc", null, new RequestContext(request).getLocale()); // 증명서류
-		String lavel_16 = messageSource.getMessage("clm.field.signmng.cert1", null, new RequestContext(request).getLocale()); // 법인인감증명서
-		String lavel_17 = messageSource.getMessage("clm.field.signmng.cert2", null, new RequestContext(request).getLocale()); // 등기부등본
-		String lavel_18 = messageSource.getMessage("clm.field.signmng.cert3", null, new RequestContext(request).getLocale()); // 등기부초본
-		String lavel_19 = messageSource.getMessage("clm.field.signmng.cert4", null, new RequestContext(request).getLocale()); // 사용인감계
-		String lavel_20 = messageSource.getMessage("clm.field.signmng.usem", null, new RequestContext(request).getLocale()); // 사용용도
-		String lavel_21 = messageSource.getMessage("clm.field.signmng.cert5", null, new RequestContext(request).getLocale()); // 일반위임장
-		String lavel_22 = messageSource.getMessage("clm.field.signmng.cert6", null, new RequestContext(request).getLocale()); // 공증위임장
-		String lavel_23 = messageSource.getMessage("clm.field.signmng.cert7", null, new RequestContext(request).getLocale()); // 대표이사신분증사본
-		String lavel_24 = messageSource.getMessage("clm.field.signmng.manhis", null, new RequestContext(request).getLocale()); // 담당자내역
-		String lavel_25 = messageSource.getMessage("clm.field.signmng.aplprcman", null, new RequestContext(request).getLocale()); // 날인담당자
-		String lavel_26 = messageSource.getMessage("clm.field.signmng.docprcman", null, new RequestContext(request).getLocale()); // 증명서류 발급담당자
-		String lavel_27 = messageSource.getMessage("clm.field.signmng.adddoccnt", null, new RequestContext(request).getLocale()); // 부 
-		String lavel_28 = messageSource.getMessage("clm.page.field.decidearbitrarilyre.note", null, new RequestContext(request).getLocale()); // 비고
-		
-		
-		// 본문에 표기할 내용을 DB에서 조회해 온다
-		// 상세정보취득
-		List resultList = null;
-		
-		resultList = signManageService.detailSign(vo);
-		ListOrderedMap lom = null;		
-					
-		// 첨부파일 정보 취득
+		String url = strUrl.substring(0, strUrl.indexOf("/", 7) + 1);
+		String attach_url = url + "/clms/common/clmsfile.do?method=doClmsDownload&file_id=";
+
+		java.util.Locale currentLocale = new RequestContext(request).getLocale();
+		String title_1 = messageSource.getMessage("clm.field.signmng.apltab", null, currentLocale);
+		String title_2 = messageSource.getMessage("clm.field.signmng.apprmsg9", null, currentLocale);
+
+		String lavel_1 = messageSource.getMessage("clm.field.signmng.basicinfo", null, currentLocale);
+		String lavel_2 = messageSource.getMessage("clm.field.signmng.title", null, currentLocale);
+		String lavel_3 = messageSource.getMessage("clm.field.signmng.towhere", null, currentLocale);
+		String lavel_4 = messageSource.getMessage("clm.field.signmng.reqman", null, currentLocale);
+		String lavel_5 = messageSource.getMessage("clm.field.signmng.reqday", null, currentLocale);
+		String lavel_6 = messageSource.getMessage("clm.field.signmng.apltype", null, currentLocale);
+		String lavel_7 = messageSource.getMessage("clm.field.signmng.detaildsc", null, currentLocale);
+		String lavel_8 = messageSource.getMessage("clm.page.field.srch.attach", null, currentLocale);
+		String lavel_9 = messageSource.getMessage("clm.field.signmng.aplinfo", null, currentLocale);
+		String lavel_10 = messageSource.getMessage("clm.field.signmng.apl", null, currentLocale);
+		String lavel_11 = messageSource.getMessage("clm.field.signmng.aploutreq", null, currentLocale);
+		String lavel_12 = messageSource.getMessage("clm.field.signmng.aplno", null, currentLocale);
+		String lavel_13 = messageSource.getMessage("clm.field.signmng.apprmsg3", null, currentLocale);
+		String lavel_14 = messageSource.getMessage("clm.field.signmng.outfromto", null, currentLocale);
+		String lavel_15 = messageSource.getMessage("clm.field.signmng.doc", null, currentLocale);
+		String lavel_16 = messageSource.getMessage("clm.field.signmng.cert1", null, currentLocale);
+		String lavel_17 = messageSource.getMessage("clm.field.signmng.cert2", null, currentLocale);
+		String lavel_18 = messageSource.getMessage("clm.field.signmng.cert3", null, currentLocale);
+		String lavel_19 = messageSource.getMessage("clm.field.signmng.cert4", null, currentLocale);
+		String lavel_20 = messageSource.getMessage("clm.field.signmng.usem", null, currentLocale);
+		String lavel_21 = messageSource.getMessage("clm.field.signmng.cert5", null, currentLocale);
+		String lavel_22 = messageSource.getMessage("clm.field.signmng.cert6", null, currentLocale);
+		String lavel_23 = messageSource.getMessage("clm.field.signmng.cert7", null, currentLocale);
+		String lavel_24 = messageSource.getMessage("clm.field.signmng.manhis", null, currentLocale);
+		String lavel_25 = messageSource.getMessage("clm.field.signmng.aplprcman", null, currentLocale);
+		String lavel_26 = messageSource.getMessage("clm.field.signmng.docprcman", null, currentLocale);
+		String lavel_27 = messageSource.getMessage("clm.field.signmng.adddoccnt", null, currentLocale);
+		String lavel_28 = messageSource.getMessage("clm.page.field.decidearbitrarilyre.note", null, currentLocale);
+
+		List resultList = signManageService.detailSign(vo);
+		ListOrderedMap lom = null;
 		List attachList = signManageService.getAttachList(vo);
-		
-		String appr_status = "";  // 결재 상태 값
-		String ref_key = "";    // 첨부 파일 키
-		String cntrt_id = "";   // 계약 아이디
-		String cnsdreq_id = ""; // 의뢰 아이디
-		String txt = "";    // 본문 내용 (br거친 내용)
-		String txt2 = "";   // 본문 내용 (br안거친 생짜)
-		String title = ""; // 날인 신청 제목
-		String seal_yn = ""; // 날인 신청 여부
+
+		String appr_status = "";
+		String ref_key = "";
+		String cntrt_id = "";
+		String cnsdreq_id = "";
+		String txt = "";
+		String title = "";
+		String seal_yn = "";
 		String seal_knd_nm = "";
 		String apl_out_yn = "";
-		String doc_yn = ""; // 문서 선택 여부
-		BigDecimal doc1 = null; // 신청 문서 부수
-		BigDecimal doc2 = null; // 신청 문서 부수
-		BigDecimal doc3 = null; // 신청 문서 부수
-		BigDecimal doc4 = null; // 신청 문서 부수
-		BigDecimal doc5 = null; // 신청 문서 부수
-		BigDecimal doc6 = null; // 신청 문서 부수
-		BigDecimal doc7 = null; // 신청 문서 부수
-		BigDecimal doc8 = null; // 신청 문서 부수
-		BigDecimal doc9 = null; // 신청 문서 부수
-		BigDecimal doc10 = null; // 신청 문서 부수
+		String doc_yn = "";
+		BigDecimal doc1 = null;
+		BigDecimal doc2 = null;
+		BigDecimal doc3 = null;
+		BigDecimal doc4 = null;
+		BigDecimal doc5 = null;
+		BigDecimal doc6 = null;
+		BigDecimal doc7 = null;
 		String use_summ = "";
 		String doc_scrtxt = "";
 		String sbm = "";
@@ -2003,19 +1988,20 @@ public class SignManageController extends CommonController {
 		String doc_issuer_txt = "";
 		String apl_seal_no = "";
 		String apl_ymd_txt = "";
-		
+
 		List listSignAppr = null;
 
-		if(resultList.size() > 0){				
-			lom = (ListOrderedMap)resultList.get(0);				
+		if (resultList != null && !resultList.isEmpty()) {
+			lom = (ListOrderedMap)resultList.get(0);
 			appr_status = (String)lom.get("SEAL_RQST_STATUS");
-			cntrt_id = StringUtil.bvl((String)lom.get("CNTRT_ID"),"");
-			cnsdreq_id = StringUtil.bvl((String)lom.get("CNSDREQ_ID"),"");
-			txt = StringUtil.convertEnterToBR((String)lom.get("TXT"));
-			txt2 = (String)lom.get("TXT");
-			title = (String)lom.get("TITLE");
+			cntrt_id = StringUtil.bvl((String)lom.get("CNTRT_ID"), "");
+			cnsdreq_id = StringUtil.bvl((String)lom.get("CNSDREQ_ID"), "");
+
+			// 보안 검증 적용 변수 추출 (XSS 방지 전처리)
+			txt = StringUtil.bvlEscapeWithBR((String)lom.get("TXT"), "");
+			title = StringUtil.bvlEscaped((String)lom.get("TITLE"), "");
 			seal_yn = (String)lom.get("SEAL_YN");
-			seal_knd_nm = (String)lom.get("SEAL_KND_NM");
+			seal_knd_nm = StringUtil.bvlEscaped((String)lom.get("SEAL_KND_NM"), "");
 			apl_out_yn = (String)lom.get("APL_OUT_YN");
 			doc_yn = (String)lom.get("DOC_YN");
 			doc1  = (BigDecimal)lom.get("DOC1");
@@ -2025,482 +2011,214 @@ public class SignManageController extends CommonController {
 			doc5  = (BigDecimal)lom.get("DOC5");
 			doc6  = (BigDecimal)lom.get("DOC6");
 			doc7  = (BigDecimal)lom.get("DOC7");
-			doc8  = (BigDecimal)lom.get("DOC8");
-			doc9  = (BigDecimal)lom.get("DOC9");
-			doc10 = (BigDecimal)lom.get("DOC10");
-			use_summ = (String)lom.get("USE_SUMM");
-			doc_scrtxt = (String)lom.get("DOC_SCRTXT");
-			sbm = (String)lom.get("SBM");
-			seal_rqstman_txt = (String)lom.get("SEAL_RQSTMAN_TXT");
-			reg_dt = lom.get("REG_DT").toString();
-			apl_cls_nm = (String)lom.get("APL_CLS_NM");
-			seal_ffmtman_txt = (String)lom.get("SEAL_FFMTMAN_TXT");
-			doc_issuer_txt = (String)lom.get("DOC_ISSUER_TXT");
-			apl_seal_no = (String)lom.get("APL_SEAL_NO");
-			apl_ymd_txt = (String)lom.get("APL_YMD_TXT");
-			
-			
+			use_summ = StringUtil.bvlEscaped((String)lom.get("USE_SUMM"), "");
+			doc_scrtxt = StringUtil.bvlEscaped((String)lom.get("DOC_SCRTXT"), "");
+			sbm = StringUtil.bvlEscaped((String)lom.get("SBM"), "");
+			seal_rqstman_txt = StringUtil.bvlEscaped((String)lom.get("SEAL_RQSTMAN_TXT"), "");
+			reg_dt = lom.get("REG_DT") != null ? StringUtil.bvlEscaped(lom.get("REG_DT").toString(), "") : "";
+			apl_cls_nm = StringUtil.bvlEscaped((String)lom.get("APL_CLS_NM"), "");
+			seal_ffmtman_txt = StringUtil.bvlEscaped((String)lom.get("SEAL_FFMTMAN_TXT"), "");
+			doc_issuer_txt = StringUtil.bvlEscaped((String)lom.get("DOC_ISSUER_TXT"), "");
+			apl_seal_no = StringUtil.bvlEscaped((String)lom.get("APL_SEAL_NO"), "");
+			apl_ymd_txt = StringUtil.bvlEscaped((String)lom.get("APL_YMD_TXT"), "");
+
 			form.setTxt(txt);
-							
-			// 의뢰 아이디가 존재 하는 경우 체결에서 넘어온 날인 신청건으로 간주하고, 존재 하지 않는 경우 날인 신청화면에서 신청한 날인 신청으로 판단한다.
-			if("".equals(cnsdreq_id)){
-				ref_key = vo.getApl_sqn();					
+
+			if ("".equals(cnsdreq_id)) {
+				ref_key = vo.getApl_sqn();
 			} else {
 				ref_key = cnsdreq_id;
 			}
-			
-			// 반려나 승인이 된 신청이 경우 승인이력 정보 취득
-			if(appr_status.equals("AP0103") || appr_status.equals("AP0104")){
+
+			if ("AP0103".equals(appr_status) || "AP0104".equals(appr_status)) {
 				vo.setRef_key(ref_key);
 				vo.setCnsdreq_id(cnsdreq_id);
-				listSignAppr = signManageService.listSignAppr(vo);					
+				listSignAppr = signManageService.listSignAppr(vo);
 			}
-		}			
-		
-		// 첨부파일 참조를 위한 키 설정
+		}
+
 		form.setCnsdreq_id(cnsdreq_id);
 		form.setRef_key(cntrt_id + "@" + cnsdreq_id);
-		
-		// 버튼 권한 처리
+
 		vo.setAuth_str_id(vo.getApl_sqn());
 		vo.setSession_user_role_cds(vo.getSession_user_role_cds());
 		vo.setSession_user_id(vo.getSession_user_id());
-		// 수정/삭제 권한 
+
 		boolean auth_modify = signManageService.authModify(MODIFY, vo);
-		// 날인처리/ 반납처리 권한
-		boolean auth_sign_process = signManageService.authProcess(SEAL, vo);	
-		// 증명서류 처리권한
+		boolean auth_sign_process = signManageService.authProcess(SEAL, vo);
 		boolean auth_doc_process = signManageService.authProcess(DOC, vo);
-		
-		// 본문 만들기 - HEARDER
-		StringBuffer sb =  new StringBuffer();		
-		   
+
+		// 성능 개선을 위해 명시적인 StringBuilder 선언 및 사용
+		StringBuilder sb = new StringBuilder();
+
 		sb.append("<!DOCTYPE html>\n")
-		  .append("<html>\n")
-		  .append("<head>\n")
-		//  .append("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=8; IE=9\" />\n")
-		  .append("<title>"+ title +"</title>\n")    
-		  .append("<LINK href=\""+url+"/style/las/ko/las.css\"   type=\"text/css\" rel=\"stylesheet\">\n")
-		  .append("<LINK href=\""+url+"/style/las/ko/mail.css\"   type=\"text/css\" rel=\"stylesheet\">\n")
-		  .append("</head>\n")
-		  .append("<body>\n")
-		
-		  .append("<div id=\"m_wrap\">\n")
-		  .append("    <div class=\"m_header menu2\">\n")
-		  .append("    <h1></h1>\n")
-		  .append("    <h2>" + title_1 +"<span class=\"confidential\"></SPAN></h2>\n") // 날인/증명서류 발급 신청
-		  .append("    </div>\n")
-		  .append("    <div id=\"m_container\">\n")
-		  .append("        <div class=\"contents\">\n")
-		  .append("        <h3>\n")
-		  .append("        <p>" + title_2 + "</p></h3>\n") // 날인/증명서류 발급 신청을 상신하오니 재가하여 주시기 바랍니다.
-		
-		
-		// 본문 만들기 - BODY
+				.append("<html>\n")
+				.append("<head>\n")
+				.append("<title>").append(title).append("</title>\n")
+				.append("<LINK href=\"").append(url).append("/style/las/ko/las.css\" type=\"text/css\" rel=\"stylesheet\">\n")
+				.append("<LINK href=\"").append(url).append("/style/las/ko/mail.css\" type=\"text/css\" rel=\"stylesheet\">\n")
+				.append("</head>\n")
+				.append("<body>\n")
+				.append("<div id=\"m_wrap\">\n")
+				.append("    <div class=\"m_header menu2\">\n")
+				.append("    <h1></h1>\n")
+				.append("    <h2>").append(title_1).append("<span class=\"confidential\"></SPAN></h2>\n")
+				.append("    </div>\n")
+				.append("    <div id=\"m_container\">\n")
+				.append("        <div class=\"contents\">\n")
+				.append("        <h3>\n")
+				.append("        <p>").append(title_2).append("</p></h3>\n")
+				.append("<div class=\"title_basic mt0\">\n")
+				.append("    <h4>").append(lavel_1).append("</h4>\n")
+				.append("</div>\n")
+				.append("<table class=\"list_basic\" id=\"lom_basic_info\">\n")
+				.append("    <colgroup>\n")
+				.append("       <col width=\"27%\" />\n")
+				.append("       <col width=\"*\" />\n")
+				.append("    </colgroup>\n")
+				.append("    <tr>\n")
+				.append("       <th>").append(lavel_2).append("</th>\n")
+				.append("       <td class='overflow' id=\"lom_title\">").append(title).append("</td>\n")
+				.append("    </tr>\n")
+				.append("    <tr>\n")
+				.append("       <th>").append(lavel_3).append("</th>\n")
+				.append("       <td class='overflow'>").append(sbm).append("</td>\n")
+				.append("    </tr>\n")
+				.append("    <tr>\n")
+				.append("       <th>").append(lavel_4).append("</th>\n")
+				.append("        <td>").append(seal_rqstman_txt).append("</td>\n")
+				.append("    </tr>\n")
+				.append("    <tr>\n")
+				.append("        <th>").append(lavel_5).append("</th>\n")
+				.append("       <td>").append(reg_dt).append("</td>\n")
+				.append("    </tr>\n")
+				.append("    <tr>\n")
+				.append("       <th>").append(lavel_6).append("</th>\n")
+				.append("       <td>").append(apl_cls_nm).append("</td>\n")
+				.append("    </tr>\n")
+				.append("    <tr>\n")
+				.append("       <th>").append(lavel_7).append("</th>\n")
+				.append("       <td>").append(txt).append("</td>\n")
+				.append("    </tr>\n");
 
-	      .append("<div class=\"title_basic mt0\">\n")
-		  .append("	<h4>" + lavel_1 +"</h4>\n") // 기본내역
-		  .append("</div>\n")
-		  .append("")
-		  .append("<table class=\"list_basic\" id=\"lom_basic_info\">\n")
-		  .append("	<colgroup>\n")
-		  .append("		<col width=\"27%\" />\n")
-		  .append("		<col width=\"*%\" />\n")
-		  .append("	</colgroup>					\n")		
-		  .append("	<tr>\n")
-		  .append("		<th>" + lavel_2 +"</th>\n") // 건명
-		  .append("		<td class='overflow' id=\"lom_title\" >" + title + "</td>\n")
-		  .append("	</tr>\n")
-		  .append("	<tr>\n")
-		  .append("		<th>" + lavel_3 +"</th>\n") // 제출처
-		  .append("		<td class='overflow'>" + sbm + "</td>\n")
-		  .append("	</tr>\n")
-		  .append("	<tr>\n")
-		  .append("		<th>" + lavel_4 +"</th>\n") // 신청자
-		  .append("	    <td>" + seal_rqstman_txt + "</td>\n")
-		  .append("	</tr>\n")
-		  .append("	<tr>\n")
-		  .append("	    <th>" + lavel_5 +"</th>\n") // 신청일자
-		  .append("		<td>" + reg_dt + "</td>\n")
-		  .append("	</tr>\n")
-		  .append("	<tr>\n")
-		  .append("		<th>" + lavel_6 +"</th>\n") // 신청유형
-		  .append("		<td>" + apl_cls_nm + "</td>\n")
-		  .append("	</tr>\n")
-		  .append("	<tr>\n")
-		  .append("		<th>" + lavel_7 +"</th>\n") // 세부내용
-		  .append("		<td>" + txt + "</td>\n")							
-		  .append("	</tr>\n");
- 		
- 			if (attachList.size() > 0){
- 				sb.append("<tr>\n")
- 				  .append("<th>" + lavel_8 +"</th><td>\n"); // 첨부
- 					
-				for(int i=0;i<attachList.size();i++){
-					
-					ListOrderedMap fLom = (ListOrderedMap)attachList.get(i);
-					
-					sb.append("<a href='" + attach_url + fLom.get("FILE_ID") +"'>"+fLom.get("ORG_FILE_NM") +" ("+fLom.get("FILE_SZ")+" byte)</a>" + "<br>\n");
-					                                                                                           
-				}
-				
- 				sb.append("</td></tr> \n");
- 			}
-		 		 
-		sb.append("</table>\n"); // 본문 1차 끝
-		
-		// 본문 2차 시작
-		
-		
-		sb.append("<div class=\"title_basic mt10\">\n")
-		  .append("	<h4>" + lavel_9 +"</h4>\n") // 신청내역
-		  .append("</div>\n")
+		if (attachList != null && !attachList.isEmpty()) {
+			sb.append("<tr>\n")
+					.append("<th>").append(lavel_8).append("</th><td>\n");
 
-		  .append("<table class=\"list_basic\" id=\"lom_apl_info\">\n")
-		  .append("	<colgroup>\n")
-		  .append("		<col width=\"27%\" />\n")
-		  .append("		<col width=\"*%\" />\n")
-		  .append("	</colgroup>\n");
-		
-		if("Y".equals(seal_yn)){
-			sb.append("	<tr>\n")
-			  .append("		<th>" + lavel_10 +"</th>\n")  // 날인신청
-			  .append("		<td>"+seal_knd_nm +"</td>\n")
-			  .append("	</tr>\n");	
-		}
-		
-		if("Y".equals(apl_out_yn)){
-			sb.append("	<tr>\n")
-			  .append("		<th >" + lavel_11 +"</th>\n")  // 인장반출신청
-			  .append( "		<td>\n")
-			  .append( "			 [" + lavel_12 +"] " + apl_seal_no + lavel_13) // 인장번호 회사외부로의 반출을 신청합니다.
-			  .append( "		</td>\n")
-			  .append( "	</tr>\n")
-			  .append( "	<tr>\n")
-			  .append( "		<th >" + lavel_14 +"</th>\n") // 반출기간
-			  .append( "		<td>" + apl_ymd_txt + "</td>\n")
-			  .append( "	</tr>\n");
-		}
-		
-		if("Y".equals(doc_yn)){
-			sb.append("	<tr>\n")
-			.append( "		<th> " + lavel_15 +"</th>\n") //증명서류
-			.append( "		<td>\n");
-			
-			if(!"".equals(doc1) && doc1 != null){
-				sb.append( "	" + lavel_16 +" : " + doc1 + " " + lavel_27 +" <br>\n"); // 법인인감증명서
-			}
-			
-			if(!"".equals(doc2) && doc2 != null){
-				sb.append( "	" + lavel_17 +" : " + doc2 + " " + lavel_27 +" <br>\n"); // 등기부등본
-			}
-			
-			if(!"".equals(doc3) && doc3 != null){
-				sb.append( "	" + lavel_18 +" : " + doc3 + " " + lavel_27 +" <br>\n"); //등기부초본
-			}
-			
-			if(!"".equals(doc4) && doc4 != null){
-				sb.append( "	" + lavel_19 +" : " + doc4 + " " + lavel_27 +" <br>\n") //사용인감계
-				  .append( "	" + lavel_20 +" : " + use_summ + "<br>\n"); // 사용용도
-			}
-			
-			if(!"".equals(doc5) && doc5 != null){
-				sb.append( "	" + lavel_21 +" : " + doc5 + " " + lavel_27 +" <br>\n"); // 일반위임장
-			}
-			
-			if(!"".equals(doc6) && doc6 != null){
-				sb.append( "	" + lavel_22 +" : " + doc6 + " " + lavel_27 +" <br>\n"); // 공증위임장
-			}
-			
-			if(!"".equals(doc7) && doc7 != null){
-				sb.append( "	" + lavel_23 +" : " + doc7 + " " + lavel_27 + " \n"); // 대표이사신분증
-			}
-			
-			sb.append( "</td>\n")
-			  .append( "</tr>\n");
-			
-			if(!"".equals(doc_scrtxt)){
-				sb.append( "	<tr>\n")
-				  .append( "		<th>" + lavel_28 + "</th>\n") //비고
-				  .append( "		<td>" + doc_scrtxt + "</td>\n")
-				  .append( "</tr>\n");
-			}
-			
-			sb.append("</table>\n");
-			
-			sb.append("<div class=\"title_basic mt10\">\n")
-			  .append("	<h4>" + lavel_24 +"</h4>\n") // 담당자내역
-			  .append("</div>\n")
-			  .append("<table class=\"list_basic\" id=\"lom_basic_info\">\n")
-			  .append("	<colgroup>\n")
-			  .append("		<col width=\"27%\" />\n")
-			  .append("		<col width=\"*%\" />\n")
-			  .append("	</colgroup>					\n");
-			
-			
-		
-			if("Y".equals(seal_yn)){
-				sb.append("	<tr>\n")
-				  .append("		<th >" + lavel_25 +"</th>\n") // 날인담당자
-				  .append("		<td>" + seal_ffmtman_txt + "</td>\n")
-				  .append("	</tr>\n");
-			}
-								
-			
-			if("Y".equals(doc_yn)){
-				sb.append("	<tr>\n")
-				  .append("		<th >" + lavel_26 +"</th>\n") // 증명서루 발급담당자
-				  .append("		<td>" + doc_issuer_txt + "</td>\n")
-				  .append("	</tr>\n");
-			}
-								
+			for (int i = 0; i < attachList.size(); i++) {
+				ListOrderedMap fLom = (ListOrderedMap)attachList.get(i);
+				String fileId = StringUtil.bvlEscaped((String)fLom.get("FILE_ID"), "");
+				String fileNm = StringUtil.bvlEscaped((String)fLom.get("ORG_FILE_NM"), "");
+				String fileSz = StringUtil.bvlEscaped(String.valueOf(fLom.get("FILE_SZ")), "0");
 
-			sb.append("</table>\n")
-			  .append("</div>\n")
-			  .append("</div>\n")
-			  .append("</div>\n")
-			  .append("</body>\n")
-			  .append("</html>\n");
-				
+				sb.append("<a href='").append(attach_url).append(fileId).append("'>")
+						.append(fileNm).append(" (").append(fileSz).append(" byte)</a><br>\n");
+			}
+			sb.append("</td></tr> \n");
 		}
-		
-				
-			
-		
-		String contents = sb.toString();
-		
-		return contents;
-		
+
+		sb.append("</table>\n")
+				.append("<div class=\"title_basic mt10\">\n")
+				.append("    <h4>").append(lavel_9).append("</h4>\n")
+				.append("</div>\n")
+				.append("<table class=\"list_basic\" id=\"lom_apl_info\">\n")
+				.append("    <colgroup>\n")
+				.append("       <col width=\"27%\" />\n")
+				.append("       <col width=\"*\" />\n")
+				.append("    </colgroup>\n");
+
+		if ("Y".equals(seal_yn)) {
+			sb.append("    <tr>\n")
+					.append("       <th>").append(lavel_10).append("</th>\n")
+					.append("       <td>").append(seal_knd_nm).append("</td>\n")
+					.append("    </tr>\n");
+		}
+
+		if ("Y".equals(apl_out_yn)) {
+			sb.append("    <tr>\n")
+					.append("       <th>").append(lavel_11).append("</th>\n")
+					.append("      <td>\n")
+					.append("          [").append(lavel_12).append("] ").append(apl_seal_no).append(lavel_13)
+					.append("      </td>\n")
+					.append("   </tr>\n")
+					.append("   <tr>\n")
+					.append("       <th>").append(lavel_14).append("</th>\n")
+					.append("      <td>").append(apl_ymd_txt).append("</td>\n")
+					.append("   </tr>\n");
+		}
+
+		if ("Y".equals(doc_yn)) {
+			sb.append("    <tr>\n")
+					.append("    <th> ").append(lavel_15).append("</th>\n")
+					.append("    <td>\n");
+
+			if (doc1 != null) {
+				sb.append("   ").append(lavel_16).append(" : ").append(doc1).append(" ").append(lavel_27).append(" <br>\n");
+			}
+			if (doc2 != null) {
+				sb.append("   ").append(lavel_17).append(" : ").append(doc2).append(" ").append(lavel_27).append(" <br>\n");
+			}
+			if (doc3 != null) {
+				sb.append("   ").append(lavel_18).append(" : ").append(doc3).append(" ").append(lavel_27).append(" <br>\n");
+			}
+			if (doc4 != null) {
+				sb.append("   ").append(lavel_19).append(" : ").append(doc4).append(" ").append(lavel_27).append(" <br>\n")
+						.append("   ").append(lavel_20).append(" : ").append(use_summ).append("<br>\n");
+			}
+			if (doc5 != null) {
+				sb.append("   ").append(lavel_21).append(" : ").append(doc5).append(" ").append(lavel_27).append(" <br>\n");
+			}
+			if (doc6 != null) {
+				sb.append("   ").append(lavel_22).append(" : ").append(doc6).append(" ").append(lavel_27).append(" <br>\n");
+			}
+			if (doc7 != null) {
+				sb.append("   ").append(lavel_23).append(" : ").append(doc7).append(" ").append(lavel_27).append(" \n");
+			}
+
+			sb.append("</td>\n")
+					.append("</tr>\n");
+
+			if (doc_scrtxt != null && !doc_scrtxt.isEmpty()) {
+				sb.append("   <tr>\n")
+						.append("      <th>").append(lavel_28).append("</th>\n")
+						.append("      <td>").append(doc_scrtxt).append("</td>\n")
+						.append("</tr>\n");
+			}
+		}
+
+		sb.append("</table>\n")
+				.append("<div class=\"title_basic mt10\">\n")
+				.append("    <h4>").append(lavel_24).append("</h4>\n")
+				.append("</div>\n")
+				.append("<table class=\"list_basic\" id=\"lom_basic_info_2\">\n")
+				.append("    <colgroup>\n")
+				.append("       <col width=\"27%\" />\n")
+				.append("       <col width=\"*\" />\n")
+				.append("    </colgroup>\n");
+
+		if ("Y".equals(seal_yn)) {
+			sb.append("    <tr>\n")
+					.append("       <th>").append(lavel_25).append("</th>\n")
+					.append("       <td>").append(seal_ffmtman_txt).append("</td>\n")
+					.append("    </tr>\n");
+		}
+
+		if ("Y".equals(doc_yn)) {
+			sb.append("    <tr>\n")
+					.append("       <th>").append(lavel_26).append("</th>\n")
+					.append("       <td>").append(doc_issuer_txt).append("</td>\n")
+					.append("    </tr>\n");
+		}
+
+		sb.append("</table>\n")
+				.append("</div>\n")
+				.append("</div>\n")
+				.append("</div>\n")
+				.append("</body>\n")
+				.append("</html>\n");
+
+		return sb.toString();
 	}
-	
-	
-	/*
-	 *상신 HTML 작성
-	 jsp에서 사용되던 것 백업으로 남겨둠.
-	function makeApprovalHTMLXXXXXXXXXXXX(){
-		 		
-		var makeFlag = true;
-		frm.approval_content.value = "";
 
-		// var url  = "<spring:message code='secfw.url.domain' />";
-		var url  = "<%=strServer%>";
-		var attach_url  = url + "/clms/common/clmsfile.do?method=doClmsDownload&file_id=";	
-		
-		var title_1 = "<spring:message code='clm.field.signmng.apltab' />"; // 날인/증명서류 발급 신청
-		var title_2 = "<spring:message code='clm.field.signmng.apprmsg9' />"; // 날인/증명서류 발급 신청을 상신하오니 재가하여 주시기 바랍니다.
-		
-		var lavel_1 = "<spring:message code='clm.field.signmng.basicinfo' />"; // 기본내역
-		var lavel_2 = "<spring:message code='clm.field.signmng.title' />"; // 건명
-		var lavel_3 = "<spring:message code='clm.field.signmng.towhere' />"; // 제출처
-		var lavel_4 = "<spring:message code='clm.field.signmng.reqman' />"; // 신청자
-		var lavel_5 = "<spring:message code='clm.field.signmng.reqday' />"; // 신청일자
-		var lavel_6 = "<spring:message code='clm.field.signmng.apltype' />"; // 신청유형
-		var lavel_7 = "<spring:message code='clm.field.signmng.detaildsc' />"; // 세부내용 // clm.field.signmng.detaildsc
-		var lavel_8 = "<spring:message code='clm.page.field.srch.attach' />"; // 첨부
-		var lavel_9 = "<spring:message code='clm.field.signmng.aplinfo' />"; // 신청내역
-		var lavel_10 = "<spring:message code='clm.field.signmng.apl' />"; // 날인신청
-		var lavel_11 = "<spring:message code='clm.field.signmng.aploutreq' />"; // 인장반출 신청
-		var lavel_12 = "<spring:message code='clm.field.signmng.aplno' />"; // 반출인장번호
-		var lavel_13 = "<spring:message code='clm.field.signmng.apprmsg3' />"; // 회사 외부로의 인장반출을 신청합니다.
-		var lavel_14 = "<spring:message code='clm.field.signmng.outfromto' />"; // 반출기간
-		var lavel_15 = "<spring:message code='clm.field.signmng.doc' />"; // 증명서류
-		var lavel_16 = "<spring:message code='clm.field.signmng.cert1' />"; // 법인인감증명서
-		var lavel_17 = "<spring:message code='clm.field.signmng.cert2' />"; // 등기부등본
-		var lavel_18 = "<spring:message code='clm.field.signmng.cert3' />"; // 등기부초본
-		var lavel_19 = "<spring:message code='clm.field.signmng.cert4' />"; // 사용인감계
-		var lavel_20 = "<spring:message code='clm.field.signmng.usem' />"; // 사용용도
-		var lavel_21 = "<spring:message code='clm.field.signmng.cert5' />"; // 일반위임장
-		var lavel_22 = "<spring:message code='clm.field.signmng.cert6' />"; // 공증위임장
-		var lavel_23 = "<spring:message code='clm.field.signmng.cert7' />"; // 대표이사신분증사본
-		var lavel_24 = "<spring:message code='clm.field.signmng.manhis' />"; // 담당자내역
-		var lavel_25 = "<spring:message code='clm.field.signmng.aplprcman' />"; // 날인담당자
-		var lavel_26 = "<spring:message code='clm.field.signmng.docprcman' />"; // 증명서류 발급담당자
-		var lavel_27 = "<spring:message code='clm.field.signmng.adddoccnt' />"; // 부 
-		var lavel_28 = "<spring:message code='clm.page.field.decidearbitrarilyre.note' />"; // 비고
-		
-		var txt_val = $("#rel_txt").val();
-		
-		var cont_header = "";		
-		   
-		cont_header += "<!DOCTYPE html>\n";
-		cont_header += "<html>\n";
-		cont_header += "<head>\n";
-		cont_header += "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=8; IE=9\" />\n";
-		cont_header += "<title>"+ $("#lom_title").html() +"</title>\n";
-		cont_header += "<LINK href=\""+url+"/style/las/ko/las.css\"   type=\"text/css\" rel=\"stylesheet\">";
-		cont_header += "<LINK href=\""+url+"/style/las/ko/mail.css\"   type=\"text/css\" rel=\"stylesheet\">";
-		cont_header += "</head>\n";
-		cont_header += "<body>";				
-		
-		cont_header +="<div id=\"m_wrap\">\n";
-		cont_header +="    <div class=\"m_header menu2\">\n";
-		cont_header +="    <h1></h1>\n";
-		cont_header +="    <h2>" + title_1 +"<span class=\"confidential\"></SPAN></h2>\n"; // 날인/증명서류 발급 신청
-		cont_header +="    </div>\n";
-		cont_header +="    <div id=\"m_container\">\n";
-		cont_header +="        <div class=\"contents\">\n";
-		cont_header +="        <h3>\n";
-		cont_header +="        <p>" + title_2 + "</p></h3>\n"; // 날인/증명서류 발급 신청을 상신하오니 재가하여 주시기 바랍니다.
-		
-		var cont_basic = "";
-
-	    cont_basic += "<div class=\"title_basic mt0\">";
-		cont_basic += "	<h4>" + lavel_1 +"</h4>"; // 기본내역
-		cont_basic += "</div>";
-		cont_basic += "";
-		cont_basic += "<table class=\"list_basic\" id=\"lom_basic_info\">";
-		cont_basic += "	<colgroup>";
-		cont_basic += "		<col width=\"27%\" />";
-		cont_basic += "		<col width=\"*%\" />";
-		cont_basic += "	</colgroup>					";		
-		cont_basic += "	<tr>";
-		cont_basic += "		<th>" + lavel_2 +"</th>"; // 건명
-		cont_basic += "		<td class='overflow' id=\"lom_title\" >" + "<c:out value='${lom.title}' escapeXml='false' />" + "</td>";
-		cont_basic += "	</tr>";
-		cont_basic += "	<tr>";
-		cont_basic += "		<th>" + lavel_3 +"</th>"; // 제출처
-		cont_basic += "		<td class='overflow'>" + "<c:out value='${lom.sbm}' escapeXml='false' />" + "</td>";
-		cont_basic += "	</tr>";
-		cont_basic += "	<tr>";
-		cont_basic += "		<th>" + lavel_4 +"</th>"; // 신청자
-		cont_basic += "	    <td>" + "<c:out value='${lom.seal_rqstman_txt}' />" + "</td>";
-		cont_basic += "	</tr>";
-		cont_basic += "	<tr>";
-		cont_basic += "	    <th>" + lavel_5 +"</th>"; // 신청일자
-		cont_basic += "		<td>" + "<c:out value='${lom.reg_dt}' />" + "</td>";
-		cont_basic += "	</tr>";
-		cont_basic += "	<tr>";
-		cont_basic += "		<th>" + lavel_6 +"</th>"; // 신청유형
-		cont_basic += "		<td>" + "<c:out value='${lom.apl_cls_nm}' />" + "</td>";
-		cont_basic += "	</tr>";
-  		cont_basic += "	<tr>";
-		cont_basic += "		<th  >" + lavel_7 +"</th>"; // 세부내용
-		cont_basic += "		<td>" + txt_val + "</td>";							
- 		cont_basic += "	</tr>"; 
- 		
- 			<c:if test="${!empty attachList}">		
-		 		cont_basic += "	<tr>";
-				cont_basic += "		<th >" + lavel_8 +"</th><td style='height:100px; background:red'>"; // 첨부
- 					
-				<c:forEach var="list" items="${attachList}">
-						cont_basic += "<a href='" + attach_url + "<c:out value='${list.file_id}' />' ><c:out value='${list.org_file_nm}' /> (<c:out value='${list.file_sz}' /> byte)</a>" + "<br>";		
-				</c:forEach>
-				
-				cont_basic += "</td></tr> "; 
-			</c:if>
-		
-		cont_basic += "</table>"; // 
-		
-		var cont_apl = "";
-		
-		cont_apl += "<div class=\"title_basic mt10\">";
-		cont_apl += "	<h4>" + lavel_9 +"</h4>"; // 신청내역
-		cont_apl += "</div>";
-
-		cont_apl += "<table class=\"list_basic\" id=\"lom_apl_info\">";
-		cont_apl += "	<colgroup>";
-		cont_apl += "		<col width=\"27%\" />";
-		cont_apl += "		<col width=\"*%\" />";
-		cont_apl += "	</colgroup>";
-		
-		<c:if test="${lom.seal_yn eq 'Y'}" >		
-			cont_apl += "	<tr>";
-			cont_apl += "		<th>" + lavel_10 +"</th>";  // 날인신청
-			cont_apl += "		<td><c:out value='${lom.seal_knd_nm}' /></td>";
-			cont_apl += "	</tr>";		
-		</c:if>
-		
-		<c:if test="${lom.apl_out_yn eq 'Y'}">		
-			cont_apl += "	<tr>";
-			cont_apl += "		<th >" + lavel_11 +"</th>";  // 인장반출신청
-			cont_apl += "		<td>";
-			cont_apl += "			 [" + lavel_12 +"] " + "<c:out value='${lom.apl_seal_no}' escapeXml='false' />" + lavel_13; // 인장번호 회사외부로의 반출을 신청합니다.
-			cont_apl += "		</td>";
-			cont_apl += "	</tr>";
-			cont_apl += "	<tr>";
-			cont_apl += "		<th >" + lavel_14 +"</th>"; // 반출기간
-			cont_apl += "		<td>" + "<c:out value='${lom.apl_ymd_txt}' escapeXml='false' />" + "</td>";
-			cont_apl += "	</tr>";			
-		</c:if>
-		
-		<c:if test="${lom.doc_yn eq 'Y'}">		
-			cont_apl += "	<tr>";
-			cont_apl += "		<th> " + lavel_15 +"</th>"; //증명서류
-			cont_apl += "		<td>";
-			
-			<c:if test="${!empty lom.doc1 }">				
-				cont_apl += "	" + lavel_16 +" : " + "<c:out value='${lom.doc1}' />" + " " + lavel_27 +" <br>"; // 법인인감증명서
-			</c:if>
-			<c:if test="${!empty lom.doc2 }">				
-				cont_apl += "	" + lavel_17 +" : " + "<c:out value='${lom.doc2}' />" + " " + lavel_27 +" <br>"; // 등기부등본
-			</c:if>
-			<c:if test="${!empty lom.doc3 }">				
-				cont_apl += "	" + lavel_18 +" : " + "<c:out value='${lom.doc3}' />" + " " + lavel_27 +" <br>"; //등기부초본
-			</c:if>		
-			<c:if test="${!empty lom.doc4 }">	
-				cont_apl += "	" + lavel_19 +" : " + "<c:out value='${lom.doc4}' />" + " " + lavel_27 +" <br>"; //사용인감계
-				cont_apl += "	" + lavel_20 +" : " + "<c:out value='${lom.use_summ}' escapeXml='false' />" + "<br>"; // 사용용도
-			</c:if>
-			<c:if test="${!empty lom.doc5 }">				
-				cont_apl += "	" + lavel_21 +" : " + "<c:out value='${lom.doc5}' />" + " " + lavel_27 +" <br>"; // 일반위임장
-			</c:if>	
-			<c:if test="${!empty lom.doc6 }">				
-				cont_apl += "	" + lavel_22 +" : " + "<c:out value='${lom.doc6}' />" + " " + lavel_27 +" <br>"; // 공증위임장
-			</c:if>	
-			<c:if test="${!empty lom.doc7 }">				
-				cont_apl += "	" + lavel_23 +" : " + "<c:out value='${lom.doc7}' />" + " " + lavel_27 + " "; // 대표이사신분증
-			</c:if>		
-			cont_apl += "</td>";
-			cont_apl += "</tr>";			
-			<c:if test="${!empty lom.doc_scrtxt}">	
-			cont_apl += "	<tr>";
-			cont_apl += "		<th>" + lavel_28 + "</th>"; //비고
-			cont_apl += "		<td>" + "<c:out value='${lom.doc_scrtxt}' escapeXml='false' />" + "</td>";
-			cont_apl += "</tr>";	
-			</c:if>	
-		</c:if>
-		
-		cont_apl += "</table>";	
-		
-		var cont_person = "";
-
-	    cont_person += "<div class=\"title_basic mt10\">";
-		cont_person += "	<h4>" + lavel_24 +"</h4>"; // 담당자내역
-		cont_person += "</div>";
-		cont_person += "<table class=\"list_basic\" id=\"lom_basic_info\">";
-		cont_person += "	<colgroup>";
-		cont_person += "		<col width=\"27%\" />";
-		cont_person += "		<col width=\"*%\" />";
-		cont_person += "	</colgroup>					";		
-	
-		<c:if test="${lom.seal_yn eq 'Y'}">		
-			cont_person += "	<tr>";
-			cont_person += "		<th >" + lavel_25 +"</th>"; // 날인담당자
-			cont_person += "		<td>" +"<c:out value='${lom.seal_ffmtman_txt}' />" + "</td>";
-			cont_person += "	</tr>";				
-		</c:if>	
-		
-		<c:if test="${lom.doc_yn eq 'Y'}">
-			cont_person += "	<tr>";
-			cont_person += "		<th >" + lavel_26 +"</th>"; // 증명서루 발급담당자
-			cont_person += "		<td>" + "<c:out value='${lom.doc_issuer_txt}' />" + "</td>";
-			cont_person += "	</tr>";				
-		</c:if>	
-
-		cont_person += "</table>";
-		
-		var cont_footer = "";		
-		
-		cont_footer += "</div>";
-		cont_footer += "</div>";
-		cont_footer += "</body>\n";
-		cont_footer += "</html>\n";
-		
-		frm.approval_title.value = $("#lom_title").html();
-		frm.approval_content.value = cont_header + cont_basic + cont_apl + cont_person + cont_footer;
-	
-		return makeFlag;
-	}
-	*/
 
 }
