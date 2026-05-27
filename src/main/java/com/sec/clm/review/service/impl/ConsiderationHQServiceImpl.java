@@ -915,7 +915,7 @@ public class ConsiderationHQServiceImpl extends CommonServiceImpl implements Con
 					user_mail 	= (String)lom.get("EMAIL");
 					
 					//상신자 정보 조회{EpId가 없는 경우는 관리자에게 메일 전송)
-					if(user_mail == null || user_mail == ""){
+					if(user_mail == null || user_mail.isEmpty()){
 						/*
 						user_id 	= propertyService.getProperty("clms.admin.id");
 						user_mail 	= propertyService.getProperty("clms.admin.email");
@@ -1023,41 +1023,38 @@ public class ConsiderationHQServiceImpl extends CommonServiceImpl implements Con
 		String contHtml = StringUtil.bvl((String)hm.get("contHtml"), "");
 
 		// 상단 HTML 레이아웃 구성
-		topHtml.append("<!DOCTYPE html>");
-		topHtml.append("<html>");
-		topHtml.append("<head>");
-		topHtml.append("<meta charset='utf-8' />");
 
-		topHtml.append("<title>").append((String)messageSource.getMessage("clm.main.title", null, locale1)).append("</title>");
+		// 상단 HTML 레이아웃 빌더 패턴 최적화 연산 수행 (연속 체이닝으로 바이트코드 용량 축소)
+		topHtml.append("<!DOCTYPE html>")
+				.append("<html>")
+				.append("<head>")
+				.append("<meta charset='utf-8' />")
+				.append("<title>").append((String)messageSource.getMessage("clm.main.title", null, locale1)).append("</title>")
+				.append("<link href='").append(strUrl).append("/style/las/").append(locale1).append("/mail.css' type=\"text/css\" rel=\"stylesheet\">")
+				.append("<link href='").append(strUrl).append("/style/las/").append(locale1).append("/las.css' type=\"text/css\" rel=\"stylesheet\">")
+				.append("<script language=\"javascript\" src=\"").append(strUrl).append("/script/clms/common.js\" type=\"text/javascript\"></script>")
+				.append("</head>")
+				.append("<body>")
+				.append("<div class=\"mailWrap\">")
+				.append("<div class=\"mail_top\"></div>")
+				.append("<div class=\"mail_mid\">")
+				.append("<DIV class=\"page_list\">") // 클래스 속성 문자열 따옴표 기입 보완
+				.append("<DIV class=\"in\"><span>").append(main_title).append("</span></DIV>")
+				.append("</DIV>");
 
-		topHtml.append("<link href='").append(strUrl).append("/style/las/").append(locale1).append("/mail.css' type=\"text/css\" rel=\"stylesheet\">");
-		topHtml.append("<link href='").append(strUrl).append("/style/las/").append(locale1).append("/las.css' type=\"text/css\" rel=\"stylesheet\">");
-		topHtml.append("<script language=\"javascript\" src=\"").append(strUrl).append("/script/clms/common.js\" type=\"text/javascript\"></script>");
-		topHtml.append("</head>");
-
-		topHtml.append("<body>");
-		topHtml.append("<div class=\"mailWrap\">");
-		topHtml.append("<div class=\"mail_top\"></div>");
-		topHtml.append("<div class=\"mail_mid\">");
-
-		// 제목 바인딩 영역 (안전하게 이스케이프된 변수 주입)
-		topHtml.append("<DIV class=page_list>");
-		topHtml.append("<DIV class=in><span>").append(main_title).append("</span></DIV>");
-		topHtml.append("</DIV>");
-
-		// 하단 SELMS+ 바로가기 시스템 도메인 및 다국어 속성 구성
+// 하단 SELMS+ 바로가기 시스템 도메인 및 다국어 속성 구성
 		String slasDomain = StringUtil.bvl(propertyService.getProperty("secfw.url.domain"), "");
-		String pageLink = (String)messageSource.getMessage("las.mail.field.lawconsultImpl.sysLink", null, locale1);
+		String pageLink   = (String)messageSource.getMessage("las.mail.field.lawconsultImpl.sysLink", null, locale1);
 
-		bottomHtml.append("<div class='tC mt20'>");
-		bottomHtml.append("<span class=\"btn_mail_gosys\"><a href=\"").append(slasDomain).append("\" target=_blank>").append(pageLink).append("</a></span>");
-		bottomHtml.append("</div>");
-
-		bottomHtml.append("</div>");
-		bottomHtml.append("<div class=\"mail_btm\"></div>");
-		bottomHtml.append("</div>");
-		bottomHtml.append("</body>");
-		bottomHtml.append("</html>");
+// 하단 레이아웃 빌더 체이닝 및 target 속성 이스케이프 따옴표 누락 처리 보완
+		bottomHtml.append("<div class='tC mt20'>")
+				.append("<span class=\"btn_mail_gosys\"><a href=\"").append(slasDomain).append("\" target=\"_blank\">").append(pageLink).append("</a></span>") // target="_blank" 수정 완료
+				.append("</div>")
+				.append("</div>")
+				.append("<div class=\"mail_btm\"></div>")
+				.append("</div>")
+				.append("</body>")
+				.append("</html>");
 
 		// 최종 결과 스트링 안전 병합 연산 리턴
 		return topHtml.toString() + contHtml + bottomHtml.toString();
