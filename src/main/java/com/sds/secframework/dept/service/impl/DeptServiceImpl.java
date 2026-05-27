@@ -17,7 +17,7 @@ public class DeptServiceImpl extends CommonServiceImpl implements DeptService {
 	
 	/**
 	 * 부서 목록 조회(Tree형식)
-	 * @param dept_nm 부서명
+	 * @param vo 부서명
 	 * @return 부서리스트 (Tree형식)
 	 * @throws Exception
 	 */
@@ -57,14 +57,14 @@ public class DeptServiceImpl extends CommonServiceImpl implements DeptService {
 				jo.put("title"    , treeTitle);
 				jo.put("key"      , treeKey);
 				jo.put("treeUpKey", treeUpKey);
-				
+
 				String selectMenuId = StringUtil.bvl(vo.getSelect_dept_cd(), "");
-				if(selectMenuId.equals(treeKey)) jo.put("activate", new Boolean(true));
+				if(selectMenuId.equals(treeKey)) jo.put("activate", Boolean.TRUE);
 				
-				if("Y".equals(treeSelect)) jo.put("select", new Boolean(true));
+				if("Y".equals(treeSelect)) jo.put("select", Boolean.TRUE);
 				if("N".equals(treeIsLeaf)) {
-					jo.put("isFolder", new Boolean(true));
-					jo.put("expand", new Boolean(true));
+					jo.put("isFolder", Boolean.TRUE);
+					jo.put("expand", Boolean.TRUE);
 					ja = new JSONArray();
 					jo.put("children", ja);
 				}
@@ -113,7 +113,7 @@ public class DeptServiceImpl extends CommonServiceImpl implements DeptService {
 	
 	/**
 	 * 하위 부서 조회
-	 * @param dept_cd 상위부서코드
+	 * @param vo 상위부서코드
 	 * @return 부서리스트
 	 * @throws Exception
 	 */
@@ -202,39 +202,7 @@ public class DeptServiceImpl extends CommonServiceImpl implements DeptService {
 			}
 		}
 				
-		return jsonArray;	
-		
-//		ArrayList listDeptAl = (ArrayList)commonDAO.list("secfw.dept.listChildDept", vo);
-//
-//		JSONArray jsonArray = new JSONArray();
-//
-//		if(listDeptAl!=null && listDeptAl.size()>0) {
-//			
-//			ListOrderedMap levelLom = (ListOrderedMap)listDeptAl.get(0);
-//			
-//			//정보는 array에 담는다.
-//			for(int i=0; i<listDeptAl.size(); i++) {
-//				ListOrderedMap lom = (ListOrderedMap)listDeptAl.get(i);
-//				
-//				String treeKey    = (String)lom.get("tree_key");
-//				String treeUpKey  = (String)lom.get("tree_up_key");
-//				String treeTitle  = (String)lom.get("tree_title");
-//				String treeIsLeaf = (String)lom.get("tree_isleaf");
-//				
-//				JSONObject jo = new JSONObject();
-//				
-//				jo.put("data"    , treeTitle);
-//				jo.put("attribute", new JSONObject().put("id", treeKey));
-//				
-//				if("N".equals(treeIsLeaf)) {
-//					jo.put("state", "close");
-//				} 
-//
-//				jsonArray.add(jo);
-//			}
-//		}
-//				
-//		return jsonArray;	
+		return jsonArray;
 	}
 
 }

@@ -203,30 +203,37 @@ public class ObjectCopyUtil {
 				setFieldValue(vo, srcField, fieldValue, type) ;
 			}
 			// BigDecimal 인 경우
-			else if(t.equals("java.math.BigDecimal")){
-				t = srcField.getType().getName() ;
-				
-				if(t.equals("int")) {
-					fieldValue = new Integer(((BigDecimal)fieldValue).intValue()) ;
-					type = fieldValue.getClass() ;
-				} else if(t.equals("byte")) {
-					fieldValue = new Byte(((BigDecimal)fieldValue).byteValue()) ;
-					type = fieldValue.getClass() ;
-				} else if(t.equals("double")) {
-					fieldValue = new Double(((BigDecimal)fieldValue).doubleValue()) ;
-					type = fieldValue.getClass() ;
-				} else if(t.equals("float")) {
-					fieldValue = new Float(((BigDecimal)fieldValue).floatValue()) ;
-					type = fieldValue.getClass() ;
-				} else if(t.equals("long")) {
-					fieldValue = new Long(((BigDecimal)fieldValue).longValue()) ;
-					type = fieldValue.getClass() ;
-				} else if(t.equals("short")) {
-					fieldValue = new Short(((BigDecimal)fieldValue).shortValue()) ;
-					type = fieldValue.getClass() ;
+			else if (t.equals("java.math.BigDecimal")) {
+				t = srcField.getType().getName();
+
+				// fieldValue가 null인 경우를 대비한 기본적인 방어 검증을 추가해두면 훨씬 안전합니다.
+				if (fieldValue != null) {
+					BigDecimal bdValue = (BigDecimal) fieldValue;
+
+					if (t.equals("int")) {
+						fieldValue = Integer.valueOf(bdValue.intValue());
+						type = fieldValue.getClass();
+					} else if (t.equals("byte")) {
+						fieldValue = Byte.valueOf(bdValue.byteValue());
+						type = fieldValue.getClass();
+					} else if (t.equals("double")) {
+						fieldValue = Double.valueOf(bdValue.doubleValue());
+						type = fieldValue.getClass();
+					} else if (t.equals("float")) {
+						fieldValue = Float.valueOf(bdValue.floatValue());
+						type = fieldValue.getClass();
+					} else if (t.equals("long")) {
+						fieldValue = Long.valueOf(bdValue.longValue());
+						type = fieldValue.getClass();
+					} else if (t.equals("short")) {
+						fieldValue = Short.valueOf(bdValue.shortValue());
+						type = fieldValue.getClass();
+					}
 				}
-				setFieldValue(vo, srcField, fieldValue, type) ;
-			} 
+
+				setFieldValue(vo, srcField, fieldValue, type);
+			}
+
 			// 배열인 경우
 			else if(t.startsWith("[")) {
 				Object[] fieldValueArray =  (Object[])fieldValue ;

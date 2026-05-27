@@ -270,9 +270,8 @@ public class PageUtil implements Serializable{
     public String getPageNavi(PageUtil pageUtil, String sContext){
    
     	StringBuffer pageString = new StringBuffer();
-    	pageString.append("");
-    	
-    	String sPrefix = "";
+
+        String sPrefix = "";
         if ( ! "".equals(StringUtil.nvl(sContext,""))) {
             sPrefix = sContext;
         }
@@ -339,9 +338,8 @@ public class PageUtil implements Serializable{
      */
     public String getCpisPageNavi(PageUtil pageUtil, String sContext) {
     	StringBuffer pageString = new StringBuffer();
-    	pageString.append("");
-    	
-    	String sPrefix = "";
+
+        String sPrefix = "";
     	
     	if (!"".equals(StringUtil.nvl(sContext, ""))) {
     		sPrefix = sContext;
@@ -418,7 +416,7 @@ public class PageUtil implements Serializable{
 		}else{
 			endIndex = thisPage*rowPerPage;
 		}
-		return new Integer(endIndex).toString();
+		return Integer.toString(endIndex);
 	}
 
 	/**
@@ -432,7 +430,7 @@ public class PageUtil implements Serializable{
 		}else{
 			startIndex = (thisPage-1)*rowPerPage + 1;
 		}
-		return new Integer(startIndex).toString();
+		return Integer.toString(startIndex);
 	}
 
 	/**

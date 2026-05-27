@@ -16,45 +16,57 @@ import com.sds.secframework.dataIF.service.DataLoadService;
 public class DataLoadServiceImpl extends CommonServiceImpl implements DataLoadService {
 
 	private String genQuery(String tempTableName, String realTableName, String[] tempColumnNames, String[] realColumnNames, String gbn) throws Exception {
-		
+
 		String sql = "";
-		
-		//템프테이블 입력
-		if(gbn != null && "TEMP_INSERT".equals(gbn)) {
-			sql = "INSERT INTO " + tempTableName + " ( ";
-			
-			for(int i=0; i<tempColumnNames.length;i++) {
-				sql += tempColumnNames[i];
-				if(i+1<tempColumnNames.length) 
-					sql += ",";
+
+		// 1. 방어 코드: 루프 처리를 위한 상위 조건 검증 및 상수를 앞에 두는 Null-Safe 비교 처리
+		if (gbn != null && "TEMP_INSERT".equals(gbn)) {
+			// 컬럼 개수를 기반으로 대략적인 버퍼 초기 용량을 산정하여 할당 (배열 확장 오버헤드 최소화)
+			StringBuilder sb = new StringBuilder(128 + (tempColumnNames.length * 15));
+
+			sb.append("INSERT INTO ").append(tempTableName).append(" ( ");
+
+			for (int i = 0; i < tempColumnNames.length; i++) {
+				sb.append(tempColumnNames[i]);
+				if (i + 1 < tempColumnNames.length) {
+					sb.append(",");
+				}
 			}
-			sql += ") VALUES (";
-			
-			for(int i=0; i<tempColumnNames.length;i++) {
-				sql += "?";
-				if(i+1<tempColumnNames.length) 
-					sql += ",";
-			}		
-			sql += ")";
-		//Real 테이블 입력
-		} if(gbn != null && "REAL_INSERT".equals(gbn)) {
-			sql = "INSERT INTO " + realTableName + " ( ";
-			
-			for(int i=0; i<realColumnNames.length;i++) {
-				sql += realColumnNames[i];
-				if(i+1<realColumnNames.length) 
-					sql += ",";
+			sb.append(") VALUES (");
+
+			for (int i = 0; i < tempColumnNames.length; i++) {
+				sb.append("?");
+				if (i + 1 < tempColumnNames.length) {
+					sb.append(",");
+				}
 			}
-			sql += ") SELECT ";
-			for(int i=0; i<tempColumnNames.length;i++) {
-				sql += tempColumnNames[i];
-				if(i+1<tempColumnNames.length) 
-					sql += ",";
+			sb.append(")");
+			sql = sb.toString();
+		}
+		// 2. 오타 수정: 단순 독립 'if'문을 'else if' 구조로 정렬하여 불필요한 연산 조건 차단
+		else if (gbn != null && "REAL_INSERT".equals(gbn)) {
+			StringBuilder sb = new StringBuilder(256 + (realColumnNames.length * 15) + (tempColumnNames.length * 15));
+
+			sb.append("INSERT INTO ").append(realTableName).append(" ( ");
+
+			for (int i = 0; i < realColumnNames.length; i++) {
+				sb.append(realColumnNames[i]);
+				if (i + 1 < realColumnNames.length) {
+					sb.append(",");
+				}
 			}
-			sql += " FROM " + tempTableName;
-			
-		} 
-		
+			sb.append(") SELECT ");
+
+			for (int i = 0; i < tempColumnNames.length; i++) {
+				sb.append(tempColumnNames[i]);
+				if (i + 1 < tempColumnNames.length) {
+					sb.append(",");
+				}
+			}
+			sb.append(" FROM ").append(tempTableName);
+			sql = sb.toString();
+		}
+
 		return sql;
 
 	}

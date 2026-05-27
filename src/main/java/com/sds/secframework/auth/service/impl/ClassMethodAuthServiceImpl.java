@@ -97,11 +97,14 @@ public class ClassMethodAuthServiceImpl extends CommonServiceImpl implements Cla
 	public Map detail(ClassMethodAuthVO vo) throws Exception {
 		List list = commonDAO.list("secfw.classmethodauth.detail", vo) ;
 		Map map = null ;
-		if(list!=null && list.size()!=0){
-			map = (Map)list.get(0) ;
+
+		// 1. null과 비어있는 상태를 한 번에 안전하게 체크
+		if (list != null && !list.isEmpty()) {
+			map = (Map) list.get(0);
 		}
-		else if(list.size()==0){
-			map = new ListOrderedMap() ;
+		// 2. list가 null이거나 비어있을(size가 0일) 경우 안전하게 빈 맵 생성
+		else {
+			map = new ListOrderedMap();
 		}
 		return map;
 	}

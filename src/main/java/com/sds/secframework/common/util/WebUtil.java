@@ -14,35 +14,41 @@ public final class WebUtil
 	* @param s 입력문자열
 	* @return 변환된 문자열
 	*/
+	public static String nl2br(String s) {
+		// 1. 방어 코드: 입력값이 null이거나 비어있으면 즉시 처리 종료
+		if (s == null || s.isEmpty()) {
+			return "";
+		}
 
-	public static String nl2br(String s)
-	{
-		int i = s.length();
-		String s1 = "";
-		for (int j = 0; j < i; j++)
-		{
+		int len = s.length();
+
+		// 2. 초기 버퍼 크기를 입력 스트링 대비 약간의 여유(공간 확장)를 두어 할당 (배열 재할당 오버헤드 방지)
+		StringBuilder sb = new StringBuilder(len + 16);
+
+		for (int j = 0; j < len; j++) {
 			char c = s.charAt(j);
-			if (c == '\r')
-			{
-				if (j < i - 1)
-					if (s.charAt(j + 1) == '\n')
-						j++;
-				s1 = s1 + "<BR>";
+
+			if (c == '\r') {
+				// \r\n (윈도우 개행문자) 처리: 다음 글자가 \n 이면 인덱스 건너뜀
+				if (j < len - 1 && s.charAt(j + 1) == '\n') {
+					j++;
+				}
+				sb.append("<BR>");
 			}
-			else if (c == '\n')
-			{
-				if (j < i - 1)
-					if (s.charAt(j + 1) == '\r')
-						j++;
-				s1 = s1 + "<BR>";
+			else if (c == '\n') {
+				// \n\r 처리: 다음 글자가 \r 이면 인덱스 건너뜀
+				if (j < len - 1 && s.charAt(j + 1) == '\r') {
+					j++;
+				}
+				sb.append("<BR>");
 			}
-			else
-			{
-				s1 = s1 + c;
+			else {
+				// 3. 일반 문자는 임시 객체 생성 없이 버퍼에 직접 추가
+				sb.append(c);
 			}
 		}
 
-		return s1;
+		return sb.toString();
 	}
 
 	/**

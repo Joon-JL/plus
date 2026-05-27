@@ -569,10 +569,14 @@ public class ExcelBuilder {
 	public void setRowHeight(double height) {
 		this.rowHeight = (float)height;
 	}
-	
+
 	private void setCountCell(int sheetIndex, int count) {
-		if (countCell[sheetIndex] < count)
-			countCell[sheetIndex] = count;
+		// Array대비 안전성 검증을 위해 크기 체크(Boundary Check)를 선행하는 것이 좋습니다.
+		if (sheetIndex >= 0 && sheetIndex < countCell.length) {
+			if (countCell[sheetIndex] < count) {
+				countCell[sheetIndex] = count;
+			}
+		}
 	}
 	
 	private void setColumnWidth() {
@@ -813,16 +817,46 @@ public class ExcelBuilder {
 			}
 		}
 	}*/
+
+	/*
+	public void addTitleRow(int sheetIndex, String[] titles) {
+    HSSFSheet sheet = this.wb.getSheetAt(sheetIndex);
+
+    setCountCell(sheetIndex, titles.length);
+
+    // 1. 시트에 기존 데이터(Row)가 존재하는지 확인
+    if (sheet.getPhysicalNumberOfRows() > 0) {
+       int startRow = sheet.getFirstRowNum();
+       int endRow = sheet.getLastRowNum();
+
+       // 2. 안전성 검증: 시작 인덱스가 0 이상일 때만 아래로 1칸(shift=1) 이동 수행
+       if (startRow >= 0 && endRow >= startRow) {
+          sheet.shiftRows(startRow, endRow, 1, true, true);
+       }
+    }
+
+    // 2010.10.02 첫 번째 row에 Confidential 문구 삽입
+    HSSFRow confidentialRow = sheet.createRow(0);
+    // ... 후속 타이틀 처리 로직
+}
+ */
 	public void addTitleRow(int sheetIndex, String[] titles) {
 		HSSFSheet sheet = this.wb.getSheetAt(sheetIndex);
 		
 		setCountCell(sheetIndex, titles.length);
 
-		if(sheet.rowIterator().hasNext()) {
-			sheet.shiftRows(sheet.getFirstRowNum()-1, sheet.getLastRowNum(), 1, true, true);
+		// 1. 시트에 기존 데이터(Row)가 존재하는지 확인
+		if (sheet.getPhysicalNumberOfRows() > 0) {
+			int startRow = sheet.getFirstRowNum();
+			int endRow = sheet.getLastRowNum();
+
+			// 2. 안전성 검증: 시작 인덱스가 0 이상일 때만 아래로 1칸(shift=1) 이동 수행
+			if (startRow >= 0 && endRow >= startRow) {
+				sheet.shiftRows(startRow, endRow, 1, true, true);
+			}
 		}
-		
-		//	2010.10.02 첫 번째 row에 Confidential 문구 삽입
+
+		// 2010.10.02 첫 번째 row에 Confidential 문구 삽입
 		HSSFRow confidentialRow = sheet.createRow(0);
 		//HSSFCell confidentialCell = confidentialRow.createCell((short)(titles.length-1));
 		HSSFCell confidentialCell = confidentialRow.createCell((int)(0),(int)(0));		
@@ -904,14 +938,20 @@ public class ExcelBuilder {
 
 		setCountCell(sheetIndex, cellValues.length);
 
-		if(rowNum > -1) {
-			if(isShift && sheet.rowIterator().hasNext() && sheet.getLastRowNum() > rowNum) {
+		// 1. 명시적인 행 번호가 주어졌을 때 처리 (0번 index 포함)
+		if (rowNum >= 0) {
+			// getPhysicalNumberOfRows가 0보다 크고, 마지막 행 인덱스가 삽입하려는 위치보다 클 때만 shift 수행
+			if (isShift && sheet.getPhysicalNumberOfRows() > 0 && sheet.getLastRowNum() >= rowNum) {
 				sheet.shiftRows(rowNum, sheet.getLastRowNum(), 1, true, true);
 			}
-		} else {
-			rowNum = sheet.rowIterator().hasNext() ? sheet.getLastRowNum()+1 : 0;
+		}
+		// 2. 행 번호가 지정되지 않은 경우 (-1 등) 하단에 순차적으로 추가(Append) 처리
+		else {
+			// 시트에 행이 하나도 없다면 0번, 있다면 마지막 행 번호 + 1을 안전하게 할당
+			rowNum = (sheet.getPhysicalNumberOfRows() == 0) ? 0 : sheet.getLastRowNum() + 1;
 		}
 
+		// 3. 행 생성 및 높이 지정 (기존 데이터 초기화 및 오버라이트 현상 방지 완료)
 		HSSFRow row = sheet.createRow(rowNum);
 		setRowHeight(row);
 		
@@ -969,77 +1009,90 @@ public class ExcelBuilder {
 	 * @param vo
 	 */
 	public void addRow(int sheetIndex, String[] fieldNames, Object vo) {
+		// 1. 방어 코드: 인자값이 유효하지 않으면 즉시 종료 (NullPointerException 및 리플렉션 취약점 원천 차단)
+		if (fieldNames == null || vo == null || fieldNames.length == 0) {
+			return;
+		}
+
 		HSSFSheet sheet = this.wb.getSheetAt(sheetIndex);
-		int currentRowNum = sheet.rowIterator().hasNext() ? sheet.getLastRowNum()+1 : 0;
-		
+
+		// 2. 로우 인덱스 안전 계산: 시트가 비어있으면 0, 아니면 마지막 행 + 1 (기존 행 초기화/오버라이트 방지)
+		int currentRowNum = (sheet.getPhysicalNumberOfRows() == 0) ? 0 : sheet.getLastRowNum() + 1;
+
+		// 3. 배열 크기 바운더리 체크가 내장된 안전한 메서드 호출
 		setCountCell(sheetIndex, fieldNames.length);
 
-		if(fieldNames != null && vo != null && fieldNames.length > 0) {
-			int fieldCount = fieldNames.length;
-			
-			HSSFRow row = sheet.createRow(currentRowNum);
-			setRowHeight(row);
-			
-			initCellStyle(fieldCount);
-			
-			int maxLines = 1;
+		int fieldCount = fieldNames.length;
 
-			HSSFCell[] cells = new HSSFCell[fieldCount];
-			
-			int mergeStart = 0;
+		HSSFRow row = sheet.createRow(currentRowNum);
+		setRowHeight(row);
 
-			for(int i=0;i<fieldCount;i++) {
-				if(fieldNames[i] == MERGE_LEFT) {
-					if(i > 0) {
-						cells[i] = row.createCell((short)i);
-						cells[i].setCellStyle(applyCellStyle(cells[i], mergeStart));
-						sheet.addMergedRegion(new Region(currentRowNum, (short)(i-1), currentRowNum, (short)i));
-					}
-				} else if(fieldNames[i].equals(MERGE_UP)) {
-					if(currentRowNum > 0) {
-						cells[i] = row.createCell((short)i);
-						cells[i].setCellStyle(applyCellStyle(cells[i], i));
-						sheet.addMergedRegion(new Region(currentRowNum-1, (short)i, currentRowNum, (short)i));
-					}
-				} else {
-					mergeStart = i;
-					
-					String methodName = "get" + fieldNames[i].substring(0,1).toUpperCase();
-					methodName += fieldNames[i].length() > 1 ? fieldNames[i].substring(1) : "";
-					
-					Object value = null;
-					try {
-						value = vo.getClass().getMethod(methodName, new Class[] {}).invoke(vo, new Object[] {});
-						value = value == null ? "" : value;
-					} catch(Exception e) {
-						value = "";
-					}
+		initCellStyle(fieldCount);
 
+		int maxLines = 1;
+		HSSFCell[] cells = new HSSFCell[fieldCount];
+		int mergeStart = 0;
+
+		for (int i = 0; i < fieldCount; i++) {
+			// 데이터가 없거나 요소가 null인 경우 방어 처리
+			if (fieldNames[i] == null) {
+				continue;
+			}
+
+			// 4. 문자열 주소 비교(==) 오류를 값 비교(.equals)로 수정 (Merge_Left 누락 버그 해결)
+			if (MERGE_LEFT.equals(fieldNames[i])) {
+				if (i > 0) {
 					cells[i] = row.createCell((short)i);
-					cells[i].setCellStyle(applyCellStyle(cells[i],i));
-					if(value.getClass().equals(Short.class)
-							|| value.getClass().equals(Long.class)
-							|| value.getClass().equals(Integer.class)
-							|| value.getClass().equals(BigDecimal.class)) {
-						cells[i].setCellType(HSSFCell.CELL_TYPE_NUMERIC);
-						cells[i].setCellValue(Long.parseLong(value.toString()));
-					} else if(value.getClass().equals(Double.class)
-							|| value.getClass().equals(Float.class)) {
-						cells[i].setCellType(HSSFCell.CELL_TYPE_NUMERIC);
-						cells[i].setCellValue(Double.parseDouble(value.toString()));
-					} else {
-						String cellValue = value.toString(); 
-						cells[i].setCellValue(new HSSFRichTextString(cellValue));
-						
-						if (cellValue.indexOf("\n") > 0) {
-							cells[i].getCellStyle().setWrapText(true);
-							
-							if (this.rowHeight == 0) {
-								String[] lines = cellValue.split("\n");
-								if (lines.length > maxLines) {
-									row.setHeight((short)(row.getHeight() * lines.length));
-									maxLines = lines.length;
-								}
+					cells[i].setCellStyle(applyCellStyle(cells[i], mergeStart));
+					sheet.addMergedRegion(new Region(currentRowNum, (short)(i-1), currentRowNum, (short)i));
+				}
+			} else if (fieldNames[i].equals(MERGE_UP)) {
+				if (currentRowNum > 0) {
+					cells[i] = row.createCell((short)i);
+					cells[i].setCellStyle(applyCellStyle(cells[i], i));
+					sheet.addMergedRegion(new Region(currentRowNum-1, (short)i, currentRowNum, (short)i));
+				}
+			} else {
+				mergeStart = i;
+
+				// 리플렉션을 위한 Getter 메서드명 생성 규칙 최적화
+				String firstChar = fieldNames[i].substring(0, 1).toUpperCase();
+				String remainingChars = fieldNames[i].length() > 1 ? fieldNames[i].substring(1) : "";
+				String methodName = "get" + firstChar + remainingChars;
+
+				Object value = null;
+				try {
+					value = vo.getClass().getMethod(methodName, new Class<?>[] {}).invoke(vo, new Object[] {});
+				} catch(Exception e) {
+					value = "";
+				}
+
+				if (value == null) {
+					value = "";
+				}
+
+				cells[i] = row.createCell((short)i);
+				cells[i].setCellStyle(applyCellStyle(cells[i], i));
+
+				// 5. getClass().equals() 방식을 안전하고 직관적인 'instanceof' 패턴으로 전면 수정
+				if (value instanceof Short || value instanceof Long || value instanceof Integer || value instanceof java.math.BigDecimal) {
+					cells[i].setCellType(HSSFCell.CELL_TYPE_NUMERIC);
+					cells[i].setCellValue(Long.parseLong(value.toString()));
+				} else if (value instanceof Double || value instanceof Float) {
+					cells[i].setCellType(HSSFCell.CELL_TYPE_NUMERIC);
+					cells[i].setCellValue(Double.parseDouble(value.toString()));
+				} else {
+					String cellValue = value.toString();
+					cells[i].setCellValue(new HSSFRichTextString(cellValue));
+
+					if (cellValue.indexOf("\n") > 0) {
+						cells[i].getCellStyle().setWrapText(true);
+
+						if (this.rowHeight == 0) {
+							String[] lines = cellValue.split("\n");
+							if (lines.length > maxLines) {
+								row.setHeight((short)(row.getHeight() * lines.length));
+								maxLines = lines.length;
 							}
 						}
 					}

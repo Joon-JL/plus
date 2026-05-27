@@ -270,9 +270,8 @@ public class BoardPageUtil implements Serializable{
     public String getPageNavi(BoardPageUtil boardPageUtil, String sContext){
    
     	StringBuffer pageString = new StringBuffer();
-    	pageString.append("");
-    	   	
-    	String sPrefix = "";
+
+        String sPrefix = "";
         if ( ! "".equals(StringUtil.nvl(sContext,""))) {
             sPrefix = sContext;
         }
@@ -324,9 +323,8 @@ public class BoardPageUtil implements Serializable{
     public String getPageNavi(BoardPageUtil boardPageUtil, String sContext, String langCode){
     	   
     	StringBuffer pageString = new StringBuffer();
-    	pageString.append("");
-    	   	
-    	String sPrefix = "";
+
+        String sPrefix = "";
         if ( ! "".equals(StringUtil.nvl(sContext,""))) {
             sPrefix = sContext;
         }
@@ -379,9 +377,8 @@ public class BoardPageUtil implements Serializable{
      */
     public String getCpisPageNavi(BoardPageUtil boardPageUtil, String sContext) {
     	StringBuffer pageString = new StringBuffer();
-    	pageString.append("");
-    	
-    	String sPrefix = "";
+
+        String sPrefix = "";
     	
     	if (!"".equals(StringUtil.nvl(sContext, ""))) {
     		sPrefix = sContext;
@@ -458,7 +455,7 @@ public class BoardPageUtil implements Serializable{
 		}else{
 			endIndex = thisPage*rowPerPage;
 		}
-		return new Integer(endIndex).toString();
+		return Integer.toString(endIndex);
 	}
 
 	/**
@@ -472,7 +469,7 @@ public class BoardPageUtil implements Serializable{
 		}else{
 			startIndex = (thisPage-1)*rowPerPage + 1;
 		}
-		return new Integer(startIndex).toString();
+		return Integer.toString(startIndex);
 	}
 
 	/**

@@ -24,29 +24,37 @@ public class COMUtil {
 
 	public static Properties  prop;
 	
-	 public static String getProperties(String key) throws Exception {
-		  String result = "";
-		  
-		  setProperties();
-		  result = new String(prop.getProperty(key).getBytes(),"utf-8");
-		  
-		  String result1 = new String(prop.getProperty(key).getBytes(),"utf-8");
-		  String result2 = new String(prop.getProperty(key).getBytes(),"euc-kr");
-		  String result3 = new String(prop.getProperty(key).getBytes(),"iso-8859-1");
-		 	  
-		  return result;
-	 } 
+	public static String getProperties(String key) throws Exception {
+		String result = "";
 
-	 public static void setProperties() throws Exception {
+		setProperties();
+		result = new String(prop.getProperty(key).getBytes(),"utf-8");
 
-		  if (prop == null) {
-			  String strProp = System.getProperty("property.properties");
-			  
-			  prop = new Properties();
-			  prop.load(new FileInputStream(strProp));
+		String result1 = new String(prop.getProperty(key).getBytes(),"utf-8");
+		String result2 = new String(prop.getProperty(key).getBytes(),"euc-kr");
+		String result3 = new String(prop.getProperty(key).getBytes(),"iso-8859-1");
 
-		  }
-	 }
+		return result;
+	}
+
+	public static void setProperties() throws Exception {
+
+		if (prop == null) {
+			String strProp = System.getProperty("property.properties");
+
+			// 1. 시스템 프로퍼티 누락 시 예외가 발생하지 않도록 사전 검증 방어 코드 추가
+			if (strProp == null || strProp.trim().isEmpty()) {
+				throw new IllegalArgumentException("System property 'property.properties' is missing.");
+			}
+
+			prop = new Properties();
+
+			// 2. Try-With-Resources 구문을 사용하여 파일 입력 스트림 자동 Close 처리 (자원 누수 방지)
+			try (FileInputStream fis = new FileInputStream(strProp)) {
+				prop.load(fis);
+			}
+		}
+	}
 	 
 		public static HashMap getNamoContentAndFileInfo(String value) throws IOException, Exception {
 			

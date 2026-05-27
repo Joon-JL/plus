@@ -412,24 +412,34 @@ public class FileUtil {
 	  * @return   File Attatch 문자열(DocID*로컬파일명*파일정보*서버파일명*크기|....)
 	  *                               DocID*로컬파일명*파일정보*서버파일명*크기 
 	  */
-	  public static String getFileInfosToString(ArrayList collist)
-	  {
-	  	String fileInfos = "";
-
-	    if( collist.size() > 0){
-	   		for(int i=0; i<collist.size(); i++) {
-	   			HashMap hList = (HashMap)collist.get(i);
-
-				fileInfos += StringUtil.nvl(FormatUtil.formatNumToString(hList.get("SEQ_NO")),"");
-				fileInfos += "*"+ StringUtil.nvl((String)hList.get("FILE_NM"),"");
-				fileInfos += "*"+ StringUtil.nvl((String)hList.get("FILE_INFO"),"");
-				fileInfos += "*"+ StringUtil.nvl((String)hList.get("FILE_PTH"),"");
-				fileInfos += "*"+ StringUtil.nvl(FormatUtil.formatNumToString(hList.get("FILE_SIZE")),"")+"|";
-	   		}
+	public static String getFileInfosToString(ArrayList collist) {
+		// 1. Null 발생 예방 및 빈 리스트인 경우 즉시 빈 문자열 반환 (Fast-Fail 최적화)
+		if (collist == null || collist.isEmpty()) {
+			return "";
 		}
-    
-		return fileInfos;
-	  }
+
+		// 2. 루프 외부에서 단 하나의 StringBuilder를 생성하여 메모리 낭비 원천 차단
+		StringBuilder fileInfos = new StringBuilder();
+
+		for (int i = 0; i < collist.size(); i++) {
+			HashMap hList = (HashMap) collist.get(i);
+
+			// 데이터 누락을 방지하기 위해 각 맵 객체의 Null 검증을 추가해주는 것이 안전합니다.
+			if (hList == null) {
+				continue;
+			}
+
+			// 3. 임시 객체 생성 없는 연속 체이닝 버퍼 처리 수행
+			fileInfos.append(StringUtil.nvl(FormatUtil.formatNumToString(hList.get("SEQ_NO")), ""))
+					.append("*").append(StringUtil.nvl((String) hList.get("FILE_NM"), ""))
+					.append("*").append(StringUtil.nvl((String) hList.get("FILE_INFO"), ""))
+					.append("*").append(StringUtil.nvl((String) hList.get("FILE_PTH"), ""))
+					.append("*").append(StringUtil.nvl(FormatUtil.formatNumToString(hList.get("FILE_SIZE")), ""))
+					.append("|");
+		}
+
+		return fileInfos.toString();
+	}
 
 		/**
 		 * Returns the Mime Type of the file, depending on the extension of the filename

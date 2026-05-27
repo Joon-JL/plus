@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeUtility;
@@ -65,13 +66,13 @@ public class Converter
 			endindex = encoded.indexOf("?", beginindex + 1);
 			if(beginindex == -1 || endindex == -1)
 				return null;
-			charset = new String(encoded.substring(beginindex + 1, endindex));
+			charset = encoded.substring(beginindex + 1, endindex);
 
 			beginindex = endindex;
 			endindex = encoded.indexOf("?", beginindex + 1);
 			if(beginindex == -1 || endindex == -1)
 				return null;
-			enctype = new String(encoded.substring(beginindex + 1, endindex));
+			enctype = encoded.substring(beginindex + 1, endindex);
 			if(enctype.equals("b"))
 				enctype = "base64";
 
@@ -79,15 +80,15 @@ public class Converter
 			endindex = encoded.indexOf("?", beginindex + 1);
 			if(beginindex == -1 || endindex == -1)
 				return null;
-			content = new String(encoded.substring(beginindex + 1, endindex));
+			content = encoded.substring(beginindex + 1, endindex);
 		}
 
-		if(charset != null && charset.length() > 0)
+		if(charset != null && !charset.isEmpty())
 		{
 			try
 			{
 				//InputStream is = new ByteArrayInputStream(content.getBytes("iso-8859-1"));
-				InputStream is = new ByteArrayInputStream(content.getBytes("UTF-8"));
+				InputStream is = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
 				try
 				{
 					is = MimeUtility.decode(is, enctype);
@@ -118,7 +119,7 @@ public class Converter
 	
 	public static String replace(String original, String oldstr, String newstr)
 	{
-		String convert = "";
+		StringBuilder convert = new StringBuilder();
 		int pos = 0;
 		int begin = 0;
 		pos = original.indexOf(oldstr);
@@ -128,13 +129,13 @@ public class Converter
 
 		while(pos != -1)
 		{
-			convert = convert + original.substring(begin, pos) + newstr;
+			convert.append(original, begin, pos).append(newstr);
 			begin = pos + oldstr.length();
 			pos = original.indexOf(oldstr, begin);
 		}
-		convert = convert + original.substring(begin);
+		convert.append(original.substring(begin));
 
-		return convert;
+		return convert.toString();
 	}
 	
 }
