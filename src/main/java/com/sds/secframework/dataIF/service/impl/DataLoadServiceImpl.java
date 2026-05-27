@@ -3,6 +3,8 @@ package com.sds.secframework.dataIF.service.impl;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,31 +94,38 @@ public class DataLoadServiceImpl extends CommonServiceImpl implements DataLoadSe
 	private String[] getColumnInfo(String key, String separator) throws Exception {
 		return StringUtil.split(propertyService.getProperty(key), separator);
 	}
-	
+
 	private ArrayList getTempData(String srcDir, String srcFileName, int valueCnt, String dataSeparator, String encType) throws Exception {
 		ArrayList result = new ArrayList();
-		
-		String fileSeparator = System.getProperty("file.separator");
-		
-		try {
-			FileInputStream fis = new FileInputStream(srcDir	+ fileSeparator + srcFileName);
-			BufferedReader br = new BufferedReader(new InputStreamReader(fis,encType));
-			List empDatas = new ArrayList();
+
+		// 1. Path Traversal 방어 로직: 경로를 정규화(normalize)하고 실제 하위 경로인지 검증
+		Path baseDirPath = Paths.get(srcDir).normalize();
+		Path resolvedPath = baseDirPath.resolve(srcFileName).normalize();
+
+		if (!resolvedPath.startsWith(baseDirPath)) {
+			throw new SecurityException("Path traversal attack detected!");
+		}
+
+		// 2. Try-With-Resources: 파일 스트림 누수(Resource Leak) 방지
+		try (FileInputStream fis = new FileInputStream(resolvedPath.toFile());
+			 BufferedReader br = new BufferedReader(new InputStreamReader(fis, encType))) {
+
 			String lineStr;
 			while ((lineStr = br.readLine()) != null) {
 				Object[] data = new Object[valueCnt];
-				String[] strArr = StringUtil.split(lineStr,dataSeparator,false);
-				for(int i=0; i<strArr.length;i++) {
+				String[] strArr = StringUtil.split(lineStr, dataSeparator, false);
+
+				for(int i = 0; i < strArr.length; i++) {
 					data[i] = strArr[i];
 				}
-				
+
 				result.add(data);
 			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
-		}		
-		
+		}
+
 		return result;
 	}
 	
