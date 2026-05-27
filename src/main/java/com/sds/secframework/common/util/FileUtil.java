@@ -66,19 +66,21 @@ public class FileUtil {
         return b;
     }
 
-	public static String readFileString(String filePath){
-		try{
-			FileReader fr		= new FileReader(filePath);
-			BufferedReader br	= new BufferedReader(fr);
-			StringBuffer sb		= new StringBuffer();
-			String line			= "";
+	public static String readFileString(String filePath) {
+		StringBuilder sb = new StringBuilder();
 
-			while((line = br.readLine()) != null){
-				sb.append(line + "\r\n");
+		// 괄호 안에 선언하면 Java가 자동으로 스트림을 닫아줍니다 (Resource Leak 완벽 해결)
+		try (FileReader fr = new FileReader(filePath);
+			 BufferedReader br = new BufferedReader(fr)) {
+
+			String line;
+			while ((line = br.readLine()) != null) {
+				sb.append(line).append("\r\n");
 			}
 
 			return sb.toString();
-		}catch(Exception e){
+
+		} catch (Exception e) {
 			e.printStackTrace();
 			return "";
 		}

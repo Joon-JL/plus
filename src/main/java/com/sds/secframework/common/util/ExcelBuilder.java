@@ -5,6 +5,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Writer;
 import java.math.BigDecimal;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import javax.servlet.ServletOutputStream;
@@ -615,28 +617,30 @@ public class ExcelBuilder {
 	 * @throws IOException
 	 */
 	public void save(String filePath) throws IOException {
+		// 1. Path Traversal 차단: '..' 포함 여부 및 절대 경로 방지 (MUST-Fix)
+		if (filePath == null || filePath.contains("..")) {
+			throw new SecurityException("Path traversal attack detected!");
+		}
+
+		Path path = Paths.get(filePath);
+		if (path.isAbsolute()) {
+			throw new SecurityException("Absolute paths are not allowed!");
+		}
+
 		setColumnWidth();
 
-		FileOutputStream fileOut = null;
-		
-		try {
-			fileOut = new FileOutputStream(filePath);
+		// 2. Try-With-Resources 적용: finally 블록과 불필요한 빈 catch 문 제거
+		try (FileOutputStream fileOut = new FileOutputStream(path.toFile())) {
 			wb.write(fileOut);
-		} catch(FileNotFoundException e) {
-			//throw e;
-		} catch(IOException e) {
+		} catch (IOException e) {
 			throw e;
-		} finally {
-			if(fileOut != null)	fileOut.close();
 		}
 	}
-	
+
 	/**
 	 * Excel File을 Download한다.
-	 * 
-	 * @param fileName 다운로드할 파일명 (확장자 포함)
+	 * @param fileName
 	 * @param response
-	 * @param out
 	 */
 	public void download(String fileName, HttpServletResponse response) {
 		setColumnWidth();
@@ -758,109 +762,29 @@ public class ExcelBuilder {
 		return hfString+text;
 	}
 
-	/**
-	 * 첫번째 Row에 Title Row를 추가한다.
-	 * 
-	 * @param sheetIndex
-	 * @param titles (ExcelBuilder.MERGE_LEFT 일 경우 앞 Cell과 Merge, ExcelBuilder.MERGE_UP 일 경우 윗 Cell과 Merge)
-	 */
-	/*public void addTitleRow(int sheetIndex, String[] titles) {
-		HSSFSheet sheet = this.wb.getSheetAt(sheetIndex);
-		
-		setCountCell(sheetIndex, titles.length);
-
-		if(sheet.rowIterator().hasNext()) {
-			sheet.shiftRows(sheet.getFirstRowNum()-1, sheet.getLastRowNum(), 1, true, true);
+	public void addTitleRow(int sheetIndex, String[] titles) {
+		// 1. 방어 코드: 가장 먼저 Null 및 배열 크기를 검사하여 NPE 원천 차단
+		if (titles == null || titles.length == 0) {
+			return;
 		}
 
-		HSSFRow row = sheet.createRow(0);
-		setRowHeight(row);
-		
-		initCellStyle(titles.length);
-		
-		int maxLines = 1;
-
-		if(titles != null && titles.length > 0) {
-			int cellCount = titles.length;
-			HSSFCell[] cells = new HSSFCell[cellCount];
-			
-			int mergeStart = 0;
-
-			for(int i=0;i<cellCount;i++) {
-				if(titles[i] == MERGE_LEFT) {
-					if(i > 0) {
-						cells[i] = row.createCell((short)i);
-						cells[i].setCellStyle(applyCellStyle(cells[i], mergeStart));
-						sheet.addMergedRegion(new Region(0, (short)(i-1), 0, (short)i));
-					}
-				} else if(titles[i].equals(MERGE_UP)) {
-					// titleRow는 윗 Row가 없으므로 MERGE할 수 없음.
-				} else {
-					mergeStart = i;
-					
-					cells[i] = row.createCell((short)i);
-					cells[i].setCellValue(new HSSFRichTextString(titles[i]));
-					cells[i].setCellStyle(applyCellStyle(cells[i],i));
-					
-					if (titles[i].indexOf("\n") > 0) {
-						cells[i].getCellStyle().setWrapText(true);
-						
-						if (this.rowHeight == 0) {
-							String[] lines = titles[i].split("\n");
-							if (lines.length > maxLines) {
-								row.setHeight((short)(row.getHeight() * lines.length));
-								maxLines = lines.length;
-							}
-						}
-					}
-				}
-			}
-		}
-	}*/
-
-	/*
-	public void addTitleRow(int sheetIndex, String[] titles) {
-    HSSFSheet sheet = this.wb.getSheetAt(sheetIndex);
-
-    setCountCell(sheetIndex, titles.length);
-
-    // 1. 시트에 기존 데이터(Row)가 존재하는지 확인
-    if (sheet.getPhysicalNumberOfRows() > 0) {
-       int startRow = sheet.getFirstRowNum();
-       int endRow = sheet.getLastRowNum();
-
-       // 2. 안전성 검증: 시작 인덱스가 0 이상일 때만 아래로 1칸(shift=1) 이동 수행
-       if (startRow >= 0 && endRow >= startRow) {
-          sheet.shiftRows(startRow, endRow, 1, true, true);
-       }
-    }
-
-    // 2010.10.02 첫 번째 row에 Confidential 문구 삽입
-    HSSFRow confidentialRow = sheet.createRow(0);
-    // ... 후속 타이틀 처리 로직
-}
- */
-	public void addTitleRow(int sheetIndex, String[] titles) {
 		HSSFSheet sheet = this.wb.getSheetAt(sheetIndex);
-		
+
+		// 이제 titles가 절대 null이 아님이 보장되므로 안전하게 length 호출 가능
 		setCountCell(sheetIndex, titles.length);
 
-		// 1. 시트에 기존 데이터(Row)가 존재하는지 확인
 		if (sheet.getPhysicalNumberOfRows() > 0) {
 			int startRow = sheet.getFirstRowNum();
 			int endRow = sheet.getLastRowNum();
 
-			// 2. 안전성 검증: 시작 인덱스가 0 이상일 때만 아래로 1칸(shift=1) 이동 수행
 			if (startRow >= 0 && endRow >= startRow) {
 				sheet.shiftRows(startRow, endRow, 1, true, true);
 			}
 		}
 
-		// 2010.10.02 첫 번째 row에 Confidential 문구 삽입
 		HSSFRow confidentialRow = sheet.createRow(0);
-		//HSSFCell confidentialCell = confidentialRow.createCell((short)(titles.length-1));
-		HSSFCell confidentialCell = confidentialRow.createCell((int)(0),(int)(0));		
-		HSSFCellStyle confidentialStyle = this.wb.createCellStyle(); 
+		HSSFCell confidentialCell = confidentialRow.createCell(0, 0);
+		HSSFCellStyle confidentialStyle = this.wb.createCellStyle();
 		HSSFFont confidentialFont = this.wb.createFont();
 		confidentialFont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
 		confidentialFont.setColor(COLOR_RED);
@@ -870,45 +794,45 @@ public class ExcelBuilder {
 		confidentialCell.setCellStyle(confidentialStyle);
 		confidentialCell.setCellValue(new HSSFRichTextString("Confidential"));
 
-		
 		HSSFRow row = sheet.createRow(1);
 		setRowHeight(row);
-		
+
 		initCellStyle(titles.length);
-		
+
 		int maxLines = 1;
+		int cellCount = titles.length;
+		HSSFCell[] cells = new HSSFCell[cellCount];
+		int mergeStart = 0;
 
-		if(titles != null && titles.length > 0) {
-			int cellCount = titles.length;
-			HSSFCell[] cells = new HSSFCell[cellCount];
-			
-			int mergeStart = 0;
+		for (int i = 0; i < cellCount; i++) {
+			// titles[i]의 Null 검증 및 == 대신 .equals() 사용
+			if (titles[i] == null) {
+				continue;
+			}
 
-			for(int i=0;i<cellCount;i++) {
-				if(titles[i] == MERGE_LEFT) {
-					if(i > 0) {
-						cells[i] = row.createCell((short)i);
-						cells[i].setCellStyle(applyCellStyle(cells[i], mergeStart));
-						sheet.addMergedRegion(new Region(0, (short)(i-1), 0, (short)i));
-					}
-				} else if(titles[i].equals(MERGE_UP)) {
-					// titleRow는 윗 Row가 없으므로 MERGE할 수 없음.
-				} else {
-					mergeStart = i;
-					
+			if (MERGE_LEFT.equals(titles[i])) {
+				if (i > 0) {
 					cells[i] = row.createCell((short)i);
-					cells[i].setCellValue(new HSSFRichTextString(titles[i]));
-					cells[i].setCellStyle(applyCellStyle(cells[i],i));
-					
-					if (titles[i].indexOf("\n") > 0) {
-						cells[i].getCellStyle().setWrapText(true);
-						
-						if (this.rowHeight == 0) {
-							String[] lines = titles[i].split("\n");
-							if (lines.length > maxLines) {
-								row.setHeight((short)(row.getHeight() * lines.length));
-								maxLines = lines.length;
-							}
+					cells[i].setCellStyle(applyCellStyle(cells[i], mergeStart));
+					sheet.addMergedRegion(new Region(0, (short)(i-1), 0, (short)i));
+				}
+			} else if (MERGE_UP.equals(titles[i])) {
+				// titleRow는 윗 Row가 없으므로 MERGE할 수 없음.
+			} else {
+				mergeStart = i;
+
+				cells[i] = row.createCell((short)i);
+				cells[i].setCellValue(new HSSFRichTextString(titles[i]));
+				cells[i].setCellStyle(applyCellStyle(cells[i], i));
+
+				if (titles[i].indexOf("\n") > 0) {
+					cells[i].getCellStyle().setWrapText(true);
+
+					if (this.rowHeight == 0) {
+						String[] lines = titles[i].split("\n");
+						if (lines.length > maxLines) {
+							row.setHeight((short)(row.getHeight() * lines.length));
+							maxLines = lines.length;
 						}
 					}
 				}
@@ -934,66 +858,68 @@ public class ExcelBuilder {
 	 * @param isShift RowNum 이하의 Rows의 Shift여부 
 	 */
 	public void addRow(int sheetIndex, String[] cellValues, int rowNum, boolean isShift) {
+		// 1. 방어 코드: 가장 먼저 Null 및 배열 크기를 검사하여 NPE 원천 차단
+		if (cellValues == null || cellValues.length == 0) {
+			return;
+		}
+
 		HSSFSheet sheet = this.wb.getSheetAt(sheetIndex);
 
+		// 이제 cellValues가 절대 null이 아님이 보장되므로 안전하게 length 호출 가능
 		setCountCell(sheetIndex, cellValues.length);
 
-		// 1. 명시적인 행 번호가 주어졌을 때 처리 (0번 index 포함)
 		if (rowNum >= 0) {
-			// getPhysicalNumberOfRows가 0보다 크고, 마지막 행 인덱스가 삽입하려는 위치보다 클 때만 shift 수행
 			if (isShift && sheet.getPhysicalNumberOfRows() > 0 && sheet.getLastRowNum() >= rowNum) {
 				sheet.shiftRows(rowNum, sheet.getLastRowNum(), 1, true, true);
 			}
-		}
-		// 2. 행 번호가 지정되지 않은 경우 (-1 등) 하단에 순차적으로 추가(Append) 처리
-		else {
-			// 시트에 행이 하나도 없다면 0번, 있다면 마지막 행 번호 + 1을 안전하게 할당
+		} else {
 			rowNum = (sheet.getPhysicalNumberOfRows() == 0) ? 0 : sheet.getLastRowNum() + 1;
 		}
 
-		// 3. 행 생성 및 높이 지정 (기존 데이터 초기화 및 오버라이트 현상 방지 완료)
 		HSSFRow row = sheet.createRow(rowNum);
 		setRowHeight(row);
-		
+
 		initCellStyle(cellValues.length);
-		
+
 		int maxLines = 1;
+		int cellCount = cellValues.length;
+		HSSFCell[] cells = new HSSFCell[cellCount];
+		int mergeStart = 0;
 
-		if(cellValues != null && cellValues.length > 0) {
-			int cellCount = cellValues.length;
-			HSSFCell[] cells = new HSSFCell[cellCount];
-			
-			int mergeStart = 0;
+		for (int i = 0; i < cellCount; i++) {
+			// Null 검증 추가
+			if (cellValues[i] == null) {
+				continue;
+			}
 
-			for(int i=0;i<cellCount;i++) {
-				if(cellValues[i] == MERGE_LEFT) {
-					if(i > 0) {
-						cells[i] = row.createCell((short)i);
-						cells[i].setCellStyle(applyCellStyle(cells[i], mergeStart));
-						sheet.addMergedRegion(new Region(rowNum, (short)(i-1), rowNum, (short)i));
-					}
-				} else if(cellValues[i].equals(MERGE_UP)) {
-					if(rowNum > 0) {
-						cells[i] = row.createCell((short)i);
-						cells[i].setCellStyle(applyCellStyle(cells[i], i));
-						sheet.addMergedRegion(new Region(rowNum-1, (short)i, rowNum, (short)i));
-					}
-				} else {
-					mergeStart = i;
-					
+			// == 대신 .equals() 사용
+			if (MERGE_LEFT.equals(cellValues[i])) {
+				if (i > 0) {
 					cells[i] = row.createCell((short)i);
-					cells[i].setCellValue(new HSSFRichTextString(cellValues[i]));
-					cells[i].setCellStyle(applyCellStyle(cells[i],i));
-					
-					if (cellValues[i].indexOf("\n") > 0) {
-						cells[i].getCellStyle().setWrapText(true);
-						
-						if (this.rowHeight == 0) {
-							String[] lines = cellValues[i].split("\n");
-							if (lines.length > maxLines) {
-								row.setHeight((short)(row.getHeight() * lines.length));
-								maxLines = lines.length;
-							}
+					cells[i].setCellStyle(applyCellStyle(cells[i], mergeStart));
+					sheet.addMergedRegion(new Region(rowNum, (short)(i-1), rowNum, (short)i));
+				}
+			} else if (MERGE_UP.equals(cellValues[i])) {
+				if (rowNum > 0) {
+					cells[i] = row.createCell((short)i);
+					cells[i].setCellStyle(applyCellStyle(cells[i], i));
+					sheet.addMergedRegion(new Region(rowNum-1, (short)i, rowNum, (short)i));
+				}
+			} else {
+				mergeStart = i;
+
+				cells[i] = row.createCell((short)i);
+				cells[i].setCellValue(new HSSFRichTextString(cellValues[i]));
+				cells[i].setCellStyle(applyCellStyle(cells[i], i));
+
+				if (cellValues[i].indexOf("\n") > 0) {
+					cells[i].getCellStyle().setWrapText(true);
+
+					if (this.rowHeight == 0) {
+						String[] lines = cellValues[i].split("\n");
+						if (lines.length > maxLines) {
+							row.setHeight((short)(row.getHeight() * lines.length));
+							maxLines = lines.length;
 						}
 					}
 				}
@@ -1109,102 +1035,105 @@ public class ExcelBuilder {
 	 * @param 
 	 */
 	public void addRows(int sheetIndex, String[] fieldNames, List list) {
+		// 1. 방어 코드: 가장 먼저 Null 및 배열/리스트 크기를 검사하여 NPE 원천 차단
+		if (fieldNames == null || fieldNames.length == 0 || list == null || list.isEmpty()) {
+			return;
+		}
+
 		HSSFSheet sheet = this.wb.getSheetAt(sheetIndex);
-		int currentRowNum = sheet.rowIterator().hasNext() ? sheet.getLastRowNum()+1 : 0;
-		
+
+		// 2. 로우 인덱스 안전 계산 (오버라이트 방지)
+		int currentRowNum = (sheet.getPhysicalNumberOfRows() == 0) ? 0 : sheet.getLastRowNum() + 1;
+
+		// 이제 fieldNames가 절대 null이 아님이 보장되므로 안전하게 length 호출 가능
 		setCountCell(sheetIndex, fieldNames.length);
 		initCellStyle(fieldNames.length);
 
-		if(fieldNames != null && list != null && fieldNames.length > 0 && list.size() > 0) {
-			int listCount = list.size();
-			int fieldCount = fieldNames.length;
-			
-			long rowIndex = 0;
+		int listCount = list.size();
+		int fieldCount = fieldNames.length;
+		long rowIndex = 0;
 
-			for(int i=0;i<listCount;i++) {
-				
-				ListOrderedMap lom = (ListOrderedMap)list.get(i);
-				
-				HSSFRow row = sheet.createRow(currentRowNum);
-				setRowHeight(row);
-				
-				int maxLines = 1;
+		for (int i = 0; i < listCount; i++) {
+			ListOrderedMap lom = (ListOrderedMap) list.get(i);
+			if (lom == null) continue; // 데이터 누락 방지
 
-				HSSFCell[] cells = new HSSFCell[fieldCount];
-				
-				int mergeStart = 0;
-				rowIndex++;
-				
-				for(int j=0;j<fieldCount;j++) {
-					if(fieldNames[j] == MERGE_LEFT) {
-						if(j > 0) {
-							cells[j] = row.createCell((short)j);
-							cells[j].setCellStyle(applyCellStyle(cells[j], mergeStart));
-							sheet.addMergedRegion(new Region(currentRowNum, (short)(j-1), currentRowNum, (short)j));
-						}
-					} else if(fieldNames[j].equals(MERGE_UP)) {
-						if(currentRowNum > 0) {
-							cells[j] = row.createCell((short)j);
-							cells[j].setCellStyle(applyCellStyle(cells[j], j));
-							sheet.addMergedRegion(new Region(currentRowNum-1, (short)j, currentRowNum, (short)j));
-						}
-					} else if(fieldNames[j].equals(ROW_INDEX)) {
+			HSSFRow row = sheet.createRow(currentRowNum);
+			setRowHeight(row);
+
+			int maxLines = 1;
+			HSSFCell[] cells = new HSSFCell[fieldCount];
+			int mergeStart = 0;
+			rowIndex++;
+
+			for (int j = 0; j < fieldCount; j++) {
+				if (fieldNames[j] == null) continue;
+
+				// 3. == 대신 .equals() 사용
+				if (MERGE_LEFT.equals(fieldNames[j])) {
+					if (j > 0) {
 						cells[j] = row.createCell((short)j);
+						cells[j].setCellStyle(applyCellStyle(cells[j], mergeStart));
+						sheet.addMergedRegion(new Region(currentRowNum, (short)(j-1), currentRowNum, (short)j));
+					}
+				} else if (MERGE_UP.equals(fieldNames[j])) {
+					if (currentRowNum > 0) {
+						cells[j] = row.createCell((short)j);
+						cells[j].setCellStyle(applyCellStyle(cells[j], j));
+						sheet.addMergedRegion(new Region(currentRowNum-1, (short)j, currentRowNum, (short)j));
+					}
+				} else if (ROW_INDEX.equals(fieldNames[j])) {
+					cells[j] = row.createCell((short)j);
+					cells[j].setCellType(HSSFCell.CELL_TYPE_NUMERIC);
+					cells[j].setCellValue(rowIndex);
+					cells[j].setCellStyle(applyCellStyle(cells[j], j));
+				} else {
+					mergeStart = j;
+					String columnName = fieldNames[j].toLowerCase();
+					Object value = null;
+
+					try {
+						value = lom.get(columnName);
+						value = (value == null) ? "" : value;
+
+						if ("cnsdmans".equals(columnName)) {
+							// 정규식이 필요 없는 단순 문자열 교체는 replace 가 더 빠르고 안전합니다 (SonarQube 최적화)
+							value = String.valueOf(value).replace("<br/>", ", ");
+						}
+					} catch (Exception e) {
+						value = "";
+					}
+
+					if (value == null) value = "";
+
+					cells[j] = row.createCell((short)j);
+					cells[j].setCellStyle(applyCellStyle(cells[j], j));
+
+					// 4. getClass().equals() 대신 안전한 instanceof 패턴 사용
+					if (value instanceof Short || value instanceof Long || value instanceof Integer) {
 						cells[j].setCellType(HSSFCell.CELL_TYPE_NUMERIC);
-						cells[j].setCellValue(rowIndex);
-						cells[j].setCellStyle(applyCellStyle(cells[j],j));
+						cells[j].setCellValue(Long.parseLong(value.toString()));
+					} else if (value instanceof java.math.BigDecimal || value instanceof Double || value instanceof Float) {
+						cells[j].setCellType(HSSFCell.CELL_TYPE_NUMERIC);
+						cells[j].setCellValue(Double.parseDouble(value.toString()));
 					} else {
-						mergeStart = j;
-						
-						String columnName = fieldNames[j].toLowerCase();
-						
-						Object value = null;
-						try {
-							
-							value = lom.get(columnName);
-							
-							value = value == null ? "" : value;
-							
-							if(columnName.equals("cnsdmans")) {
-								value = String.valueOf(value).replaceAll("<br/>", ", ") ;
-							}
-						} catch(Exception e) {
-							value = "";
-						}
-	
-						cells[j] = row.createCell((short)j);
-						cells[j].setCellStyle(applyCellStyle(cells[j],j));
-						if(value.getClass().equals(Short.class)
-								|| value.getClass().equals(Long.class)
-								|| value.getClass().equals(Integer.class)) {
-							cells[j].setCellType(HSSFCell.CELL_TYPE_NUMERIC);
-							cells[j].setCellValue(Long.parseLong(value.toString()));
-						} else if(value.getClass().equals(BigDecimal.class) 
-								|| value.getClass().equals(Double.class)
-								|| value.getClass().equals(Float.class)) {
-							cells[j].setCellType(HSSFCell.CELL_TYPE_NUMERIC);
-							cells[j].setCellValue(Double.parseDouble(value.toString()));
-						} else {
-							String cellValue = value.toString(); 
-							cells[j].setCellValue(new HSSFRichTextString(cellValue));
-							
-							if (cellValue.indexOf("\n") > 0) {
-								cells[j].getCellStyle().setWrapText(true);
-								
-								if (this.rowHeight == 0) {
-									String[] lines = cellValue.split("\n");
-									if (lines.length > maxLines) {
-										row.setHeight((short)(row.getHeight() * lines.length));
-										maxLines = lines.length;
-									}
+						String cellValue = value.toString();
+						cells[j].setCellValue(new HSSFRichTextString(cellValue));
+
+						if (cellValue.indexOf("\n") > 0) {
+							cells[j].getCellStyle().setWrapText(true);
+
+							if (this.rowHeight == 0) {
+								String[] lines = cellValue.split("\n");
+								if (lines.length > maxLines) {
+									row.setHeight((short)(row.getHeight() * lines.length));
+									maxLines = lines.length;
 								}
 							}
 						}
 					}
 				}
-				
-				currentRowNum++;
 			}
+			currentRowNum++;
 		}
 	}
 	
