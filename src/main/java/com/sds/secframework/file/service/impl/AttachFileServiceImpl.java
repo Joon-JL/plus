@@ -116,25 +116,30 @@ public class AttachFileServiceImpl extends CommonServiceImpl implements AttachFi
 	  * @return   File Attatch 문자열(seq_no*로컬파일명*파일정보*서버파일명(경로+실제저장파일명)*크기|....)
 	  */
 	public String getFileInfosToString(List collist) throws Exception {
-		
-	  	String fileInfos = "";
 
-	    if( collist.size() > 0){
-	        Iterator it = collist.iterator();
-	   		while(it.hasNext())
-	   		{
-	   			ListOrderedMap hList = (ListOrderedMap)it.next();
-
-				fileInfos  	= fileInfos 
-				            + (String)hList.get("seq_no")+"*" 
-				            + (String)hList.get("file_nm")+"*"
-				            + (String)hList.get("file_info")+"*"
-				            + (String)hList.get("file_path")+"*"
-				            + (String)hList.get("file_size")+"|";
-	   		}
+		// 1. [NPE 방어] null 체크를 선행하여 빈 결과 반환 (MUST-Fix 안정성 확보)
+		if (collist == null || collist.isEmpty()) {
+			return "";
 		}
 
-		return fileInfos;
+		// 2. [성능 최적화] 루프 내부 문자열 더하기(+)를 지양하고 메모리 효율적인 StringBuilder 사용 (java:S1643 해결)
+		StringBuilder sb = new StringBuilder();
+
+		// 3. 루프 단순화: Iterator 대신 깔끔한 향상된 for문(for-each) 사용
+		for (Object item : collist) {
+			if (item instanceof ListOrderedMap) {
+				// [수정] 제네릭 기호 <?, ?>를 제거하여 컴파일 에러를 해결합니다.
+				ListOrderedMap hList = (ListOrderedMap) item;
+
+				sb.append((String) hList.get("seq_no")).append("*")
+						.append((String) hList.get("file_nm")).append("*")
+						.append((String) hList.get("file_info")).append("*")
+						.append((String) hList.get("file_path")).append("*")
+						.append((String) hList.get("file_size")).append("|");
+			}
+		}
+
+		return sb.toString();
 	  }
 	
 	  /**
@@ -280,11 +285,7 @@ public class AttachFileServiceImpl extends CommonServiceImpl implements AttachFi
 		/*
 		 * vo 정보와 ,구분자를 보내준다. divState 경우 delete 일경우 만 넣어주고 디폴트는 널이다. 
 		 * */
-		
-		String fileInfos = new String(StringUtil.bvl(FileInfos,""));
-		String fileRefNo = new String(StringUtil.bvl(File_ref_no,""));
-		
-		
+		String fileRefNo = StringUtil.bvl(File_ref_no, "");
 		/***************************************************
 		 * 0. 첨부삭제          	       
 		 * *************************************************/ 
@@ -294,20 +295,6 @@ public class AttachFileServiceImpl extends CommonServiceImpl implements AttachFi
 				fileRefNo!=null&&!fileRefNo.equals("null")&&!fileRefNo.equals("")
 			) 
 		{
-			/*
-			List fileList = attachFileService.getFileVOFromFileInfos(fileInfos);
-			AttachFileVO fileVO = new AttachFileVO();
-			
-			for(int i = 0; i < fileList.size(); i++) {
-	
-				fileVO = (AttachFileVO)fileList.get(i);	
-				
-				//시스템코드, 첨부파일일련번호  추가
-				fileVO.setSys_cd(propertyService.getProperty("secfw.sysCd"));
-				fileVO.setFile_ref_no(File_ref_no);
-				commonDAO.delete("secfw.file.deleteAttachFileAll", fileVO);
-			}	*/
-			
 			AttachFileVO fileVO = new AttachFileVO();
 			fileVO.setSys_cd(propertyService.getProperty("secfw.sysCd"));
 			fileVO.setFile_ref_no(File_ref_no);
@@ -324,10 +311,9 @@ public class AttachFileServiceImpl extends CommonServiceImpl implements AttachFi
 	 * @throws Exception
 	 */	
 	public String FileUpdate(String FileInfos,String File_ref_no) throws Exception{
-		String fileInfos = new String(StringUtil.bvl(FileInfos,""));
-		String fileRefNo = new String(StringUtil.bvl(File_ref_no,""));
-		
-		
+		String fileInfos = StringUtil.bvl(FileInfos, "");
+		String fileRefNo = StringUtil.bvl(File_ref_no, "");
+
 		/***************************************************
 		 * 1. 첨부추가          	       
 		 * *************************************************/ 
@@ -361,9 +347,9 @@ public class AttachFileServiceImpl extends CommonServiceImpl implements AttachFi
 	 * @throws Exception
 	 */
 		public String FileInsert(String FileInfos) throws Exception{
-			String fileInfos = new String(StringUtil.bvl(FileInfos,""));
 			String fileRefNo =null;// new String(StringUtil.bvl(File_ref_no,""));
-			
+			String fileInfos = StringUtil.bvl(FileInfos, "");
+
 				if(
 						attachFileService.isExistsFileInfos(fileInfos)
 						&&
@@ -419,15 +405,14 @@ public class AttachFileServiceImpl extends CommonServiceImpl implements AttachFi
 		 * @throws Exception
 		 */		
 		public String FileSave(String FileInfos,String File_ref_no,String div){
-			String fileRefNo = new String(StringUtil.bvl(File_ref_no,""));
-			String Div         = new String(StringUtil.bvl(div,""));
-		 	String fileInfos   = new String(StringUtil.bvl(FileInfos,""));
-		 		 	
+			String fileInfos = StringUtil.bvl(FileInfos, "");
+			String fileRefNo = StringUtil.bvl(File_ref_no, "");
+
 			try{
-				if(fileInfos.equals("")&&!fileRefNo.equals("")){
+				if(fileInfos.isEmpty() && !fileRefNo.isEmpty()){
 					FileDelete(FileInfos,File_ref_no);
 				}else{
-					if(fileRefNo==null||fileRefNo.equals("")||fileRefNo.equals("null")){
+					if(fileRefNo==null|| fileRefNo.isEmpty() ||fileRefNo.equals("null")){
 						fileRefNo=FileInsert(FileInfos);
 					}else{
 						FileDelete(FileInfos,File_ref_no);
