@@ -1,0 +1,185 @@
+package com.sds.secframework.common.util;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+
+import com.sds.secframework.common.service.PropertyService;
+
+import net.sf.json.JSONObject;
+
+/**
+ * D-KMS Edge SDK TEST 암복호화 유틸 클래스
+ *
+ * DKMS Edge SDK REAT API를 호출하여 암호화/복호화 수행
+ * SELMS 프로젝트에서 사용가능하도록 유틸 형태로 구성
+ *
+ * encrypt(평문, piiTag)
+ * decrypt(암호, piiTag)
+ *
+ * 사용 예
+ * DkmsCryptoUtil.encrypt(...)
+ * DkmsCryptoUtil.decrypt(...)
+ *
+ *
+ * */
+public class DkmsCryptoUtil {
+
+	/* 암호화 API URL */
+	private static final String ENCRYPT_PATH = "/dkms/v1/encryption";
+	/* 복호화 API URL */
+	private static final String DECRYPT_PATH = "/dkms/v1/decryption";
+
+	private static String baseUrl;
+	private static String taskId;
+
+	private PropertyService propertyService;
+
+	private DkmsCryptoUtil() {
+	}
+
+	public void setPropertyService(PropertyService propertyService) {
+		this.propertyService = propertyService;
+	}
+
+	public void init() throws Exception{
+		baseUrl = propertyService.getProperty("dkms.baseUrl");
+		taskId = propertyService.getProperty("dkms.taskId");
+	}
+
+	/*
+	 * 평문 암호화
+	 *
+	 * @param plainText		암호화할 원문
+	 * @param piiTag		개인정보 유형 태그
+	 * @return				암호화 결과 문자열
+	 * */
+	public static String encrypt(String plainText, String piiTag) {
+		validateText(plainText,"plainText");
+		validateText(piiTag,"piiTag");
+		validateText(baseUrl,"baseUrl");
+		validateText(taskId,"taskId");
+
+		String encryptUrl = baseUrl + ENCRYPT_PATH;
+		PostMethod postMethod = new PostMethod(encryptUrl);
+
+		StringBuffer sb = new StringBuffer();
+		BufferedReader br = null;
+
+		try {
+			JSONObject requestJson = new JSONObject();
+			requestJson.put("text", plainText);
+			requestJson.put("taskId", taskId);
+			requestJson.put("piiTag", piiTag);
+
+			postMethod.setRequestHeader("Content-Type", "application/json");
+			postMethod.setRequestEntity(
+				new StringRequestEntity(requestJson.toString(), "application/json", "UTF-8")
+			);
+
+			HttpClient httpClient = new HttpClient();
+			int statusCode = httpClient.executeMethod(postMethod);
+
+			String responseBody = postMethod.getResponseBodyAsString();
+//			br = new BufferedReader(new InputStreamReader(postMethod.getResponseBodyAsStream(), "UTF-8"));
+//			String line = null;
+//			while((line = br.readLine()) != null) {
+//				sb.append(line);
+//			}
+//
+//			String responseBody = sb.toString();
+
+			if(statusCode != 200) {
+				throw new RuntimeException("DKMS encrypt API 호출 실패. status=" + statusCode + ", response=" + responseBody);
+			}
+
+			return parseResult(responseBody);
+
+		} catch (Exception e) {
+			throw new RuntimeException("DKMS encrypt 처리 중 오류 발생", e);
+		} finally {
+			postMethod.releaseConnection();
+		}
+	}
+
+	/*
+	 * 평문 암호화
+	 *
+	 * @param cipherText	복호화할 암호문
+	 * @return				복호화 결과 문자열
+	 * */
+	public static String decrypt(String cipherText) {
+		validateText(cipherText,"cipherText");
+		validateText(baseUrl,"baseUrl");
+
+		String decryptUrl = baseUrl + DECRYPT_PATH;
+		PostMethod postMethod = new PostMethod(decryptUrl);
+
+		try {
+			JSONObject requestJson = new JSONObject();
+			requestJson.put("cipherText", cipherText);
+
+			postMethod.setRequestHeader("Content-Type", "application/json");
+			postMethod.setRequestEntity(
+				new StringRequestEntity(requestJson.toString(), "application/json", "UTF-8")
+			);
+
+			HttpClient httpClient = new HttpClient();
+			int statusCode = httpClient.executeMethod(postMethod);
+
+			String responseBody = postMethod.getResponseBodyAsString();
+
+			if(statusCode != 200) {
+				throw new RuntimeException("DKMS decrypt API 호출 실패. status=" + statusCode + ", response=" + responseBody);
+			}
+
+			return parseResult(responseBody);
+
+		} catch (Exception e) {
+			throw new RuntimeException("DKMS decrypt 처리 중 오류 발생", e);
+		} finally {
+			postMethod.releaseConnection();
+		}
+	}
+
+	/*
+	 * DKMS 응답 JSON에서 result 추출
+	 *
+	 * @param responseBody 응답 JSON 문자열
+	 * @return result 값
+	 * */
+	private static String parseResult(String responseBody) {
+		if(responseBody == null || "".equals(responseBody.trim())) {
+			throw new RuntimeException("DKMS 응답이 비어있습니다.");
+		}
+
+		JSONObject responseJson = JSONObject.fromObject(responseBody);
+
+		if(!responseJson.containsKey("result")) {
+			throw new RuntimeException("DKMS 응답에 result 필드가 없습니다. response=" + responseBody);
+		}
+
+		String result = responseJson.getString("result");
+
+		if(result == null || "".equals(result.trim())) {
+			throw new RuntimeException("DKMS 응답 result 값이 비어있습니다. response=" + responseBody);
+		}
+
+		return result;
+	}
+
+	/*
+	 * 입력값 null 체크
+	 *
+	 * @param text		검사할 문자열
+	 * @param fieldName	필드명
+	 * */
+	private static void validateText(String text, String fieldName) {
+		if (text == null || "".equals(text.trim())) {
+			throw new IllegalArgumentException(fieldName + " 값이 비어있습니다.");
+		}
+	}
+}
