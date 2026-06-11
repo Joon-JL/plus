@@ -11,38 +11,35 @@ import com.sds.secframework.common.service.PropertyService;
 
 import net.sf.json.JSONObject;
 
+// TODO: Ensure this import path matches your actual CommonVO location
+import your.package.path.CommonVO;
+
 /**
  * D-KMS Edge SDK TEST 암복호화 유틸 클래스
  *
  * DKMS Edge SDK REAT API를 호출하여 암호화/복호화 수행
  * SELMS 프로젝트에서 사용가능하도록 유틸 형태로 구성
- *
- * encrypt(평문, piiTag)
- * decrypt(암호, piiTag)
- *
- * 사용 예
- * DkmsCryptoUtil.encrypt(...)
- * DkmsCryptoUtil.decrypt(...)
- *
- *
- * */
+ */
 public class DkmsCryptoUtil {
 
+    /* 암호화 API URL */
     private static final String ENCRYPT_PATH = "/dkms/v1/encryption";
+    /* 복호화 API URL */
     private static final String DECRYPT_PATH = "/dkms/v1/decryption";
 
-    // The safe prefix
+    /* 안전한 복호화 및 이중 암호화 방지를 위한 접두사 */
     public static final String ENC_PREFIX = "{ENC}";
 
     private static String baseUrl;
     private static String taskId;
 
-    // The Global Kill Switch (Default to false for safety)
+    /* 전역 암호화/복호화 우회 스위치 (기본값: false) */
     private static boolean isCryptoEnabled = false;
 
     private PropertyService propertyService;
 
-    private DkmsCryptoUtil() {}
+    private DkmsCryptoUtil() {
+    }
 
     public void setPropertyService(PropertyService propertyService) {
        this.propertyService = propertyService;
@@ -50,236 +47,173 @@ public class DkmsCryptoUtil {
 
     public void init() throws Exception{
        baseUrl = propertyService.getProperty("dkms.baseUrl");
-       taskId  = propertyService.getProperty("dkms.taskId");
+       taskId = propertyService.getProperty("dkms.taskId");
 
-       // Load the bypass flag from properties
+       // properties 파일에서 전역 우회 플래그를 읽어옵니다. (없으면 false 처리)
        String enabledProp = propertyService.getProperty("dkms.crypto.enabled");
        isCryptoEnabled = "true".equalsIgnoreCase(enabledProp);
     }
 
     /**
-     * ENCRYPT: Type-safe using CommonVO
+     * 평문 암호화 (CommonVO를 통한 필터링 지원)
+     *
+     * @param plainText 암호화할 원문
+     * @param piiTag    개인정보 유형 태그
+     * @param vo        법인코드(comp_cd) 확인용 VO (CommonVO 상속 객체)
+     * @return          암호화 결과 문자열 (접두사 포함)
      */
     public static String encrypt(String plainText, String piiTag, CommonVO vo) {
-        // 1. Skip if empty
+        // 1. 빈 값 체크
         if (plainText == null || "".equals(plainText.trim())) {
             return plainText;
         }
 
-        // 2. GLOBAL BYPASS: If disabled in properties, return plain text
+        // 2. 전역 우회 스위치: 설정이 false면 원문 그대로 반환 (테스트 용이)
         if (!isCryptoEnabled) {
             return plainText;
         }
 
-        // 3. FEATURE TOGGLE: Bypass if the VO's company is not SEUK
+        // 3. 기능 토글 (Feature Toggle): 법인이 SEUK가 아니면 암호화 건너뜀
         if (vo != null && !"SEUK".equals(vo.getComp_cd())) {
             return plainText;
         }
 
-        // 4. Prevent Double Encryption
+        // 4. 이중 암호화 방지: 이미 암호화된 데이터({ENC} 포함)면 그대로 반환
         if (plainText.startsWith(ENC_PREFIX)) {
             return plainText;
         }
 
-        // 5. Perform Encryption & Add Prefix
+        // 5. 실제 암호화 수행 및 접두사 추가
         String encryptedValue = doDkmsEncrypt(plainText, piiTag);
         return ENC_PREFIX + encryptedValue;
     }
 
     /**
-     * DECRYPT: Naturally safe for testing and legacy data
+     * 암호문 복호화
+     *
+     * @param cipherText 복호화할 암호문
+     * @return           복호화 결과 원문
      */
     public static String decrypt(String cipherText) {
-        // 1. Skip if empty
+        // 1. 빈 값 체크
         if (cipherText == null || "".equals(cipherText.trim())) {
             return cipherText;
         }
 
-        // 2. The Prefix Check (Acts as a natural bypass for plain text testing)
+        // 2. 레거시 평문 처리: {ENC} 접두사가 없으면 과거의 평문 데이터이므로 그대로 반환
         if (!cipherText.startsWith(ENC_PREFIX)) {
             return cipherText;
         }
 
-        // 3. GLOBAL BYPASS: If disabled, don't call the API even if data has {ENC}
+        // 3. 전역 우회 스위치: 설정이 false면 API 호출 생략 후 암호문(접두사 포함) 그대로 반환
         if (!isCryptoEnabled) {
             return cipherText;
         }
 
-        // 4. Perform Decryption
+        // 4. 접두사 제거 후 실제 복호화 수행
         String actualCipher = cipherText.substring(ENC_PREFIX.length());
         return doDkmsDecrypt(actualCipher);
     }
 
+    // ==========================================================
+    // 내부 API 호출 로직 (Private Methods)
+    // ==========================================================
 
+    private static String doDkmsEncrypt(String plainText, String piiTag) {
+       validateText(plainText, "plainText");
+       validateText(piiTag, "piiTag");
+       validateText(baseUrl, "baseUrl");
+       validateText(taskId, "taskId");
 
-if(!"".equals(reqmanNm)) {
-					reqmanNm = DkmsCryptoUtil.decrypt(reqmanNm);
-				}
+       String encryptUrl = baseUrl + ENCRYPT_PATH;
+       PostMethod postMethod = new PostMethod(encryptUrl);
 
+       try {
+          JSONObject requestJson = new JSONObject();
+          requestJson.put("text", plainText);
+          requestJson.put("taskId", taskId);
+          requestJson.put("piiTag", piiTag);
 
-				vo.setCntrt_oppnt_telno(DkmsCryptoUtil.encrypt(vo.getCntrt_oppnt_telno(), "phone", vo));
+          postMethod.setRequestHeader("Content-Type", "application/json");
+          postMethod.setRequestEntity(
+             new StringRequestEntity(requestJson.toString(), "application/json", "UTF-8")
+          );
 
-				vo.setCntrt_oppnt_telno(DkmsCryptoUtil.decrypt(vo.getCntrt_oppnt_telno()));
+          HttpClient httpClient = new HttpClient();
+          int statusCode = httpClient.executeMethod(postMethod);
 
+          String responseBody = postMethod.getResponseBodyAsString();
 
+          if(statusCode != 200) {
+             throw new RuntimeException("DKMS encrypt API 호출 실패. status=" + statusCode + ", response=" + responseBody);
+          }
 
+          return parseResult(responseBody);
 
+       } catch (Exception e) {
+          throw new RuntimeException("DKMS encrypt 처리 중 오류 발생", e);
+       } finally {
+          postMethod.releaseConnection();
+       }
+    }
 
+    private static String doDkmsDecrypt(String cipherText) {
+       validateText(cipherText, "cipherText");
+       validateText(baseUrl, "baseUrl");
 
+       String decryptUrl = baseUrl + DECRYPT_PATH;
+       PostMethod postMethod = new PostMethod(decryptUrl);
 
+       try {
+          JSONObject requestJson = new JSONObject();
+          requestJson.put("cipherText", cipherText);
 
-	/* 암호화 API URL */
-	private static final String ENCRYPT_PATH = "/dkms/v1/encryption";
-	/* 복호화 API URL */
-	private static final String DECRYPT_PATH = "/dkms/v1/decryption";
+          postMethod.setRequestHeader("Content-Type", "application/json");
+          postMethod.setRequestEntity(
+             new StringRequestEntity(requestJson.toString(), "application/json", "UTF-8")
+          );
 
-	private static String baseUrl;
-	private static String taskId;
+          HttpClient httpClient = new HttpClient();
+          int statusCode = httpClient.executeMethod(postMethod);
 
-	private PropertyService propertyService;
+          String responseBody = postMethod.getResponseBodyAsString();
 
-	private DkmsCryptoUtil() {
-	}
+          if(statusCode != 200) {
+             throw new RuntimeException("DKMS decrypt API 호출 실패. status=" + statusCode + ", response=" + responseBody);
+          }
 
-	public void setPropertyService(PropertyService propertyService) {
-		this.propertyService = propertyService;
-	}
+          return parseResult(responseBody);
 
-	public void init() throws Exception{
-		baseUrl = propertyService.getProperty("dkms.baseUrl");
-		taskId = propertyService.getProperty("dkms.taskId");
-	}
+       } catch (Exception e) {
+          throw new RuntimeException("DKMS decrypt 처리 중 오류 발생", e);
+       } finally {
+          postMethod.releaseConnection();
+       }
+    }
 
-	/*
-	 * 평문 암호화
-	 *
-	 * @param plainText		암호화할 원문
-	 * @param piiTag		개인정보 유형 태그
-	 * @return				암호화 결과 문자열
-	 * */
-	public static String encrypt(String plainText, String piiTag) {
-		validateText(plainText,"plainText");
-		validateText(piiTag,"piiTag");
-		validateText(baseUrl,"baseUrl");
-		validateText(taskId,"taskId");
+    private static String parseResult(String responseBody) {
+       if(responseBody == null || "".equals(responseBody.trim())) {
+          throw new RuntimeException("DKMS 응답이 비어있습니다.");
+       }
 
-		String encryptUrl = baseUrl + ENCRYPT_PATH;
-		PostMethod postMethod = new PostMethod(encryptUrl);
+       JSONObject responseJson = JSONObject.fromObject(responseBody);
 
-		StringBuffer sb = new StringBuffer();
-		BufferedReader br = null;
+       if(!responseJson.containsKey("result")) {
+          throw new RuntimeException("DKMS 응답에 result 필드가 없습니다. response=" + responseBody);
+       }
 
-		try {
-			JSONObject requestJson = new JSONObject();
-			requestJson.put("text", plainText);
-			requestJson.put("taskId", taskId);
-			requestJson.put("piiTag", piiTag);
+       String result = responseJson.getString("result");
 
-			postMethod.setRequestHeader("Content-Type", "application/json");
-			postMethod.setRequestEntity(
-				new StringRequestEntity(requestJson.toString(), "application/json", "UTF-8")
-			);
+       if(result == null || "".equals(result.trim())) {
+          throw new RuntimeException("DKMS 응답 result 값이 비어있습니다. response=" + responseBody);
+       }
 
-			HttpClient httpClient = new HttpClient();
-			int statusCode = httpClient.executeMethod(postMethod);
+       return result;
+    }
 
-			String responseBody = postMethod.getResponseBodyAsString();
-//			br = new BufferedReader(new InputStreamReader(postMethod.getResponseBodyAsStream(), "UTF-8"));
-//			String line = null;
-//			while((line = br.readLine()) != null) {
-//				sb.append(line);
-//			}
-//
-//			String responseBody = sb.toString();
-
-			if(statusCode != 200) {
-				throw new RuntimeException("DKMS encrypt API 호출 실패. status=" + statusCode + ", response=" + responseBody);
-			}
-
-			return parseResult(responseBody);
-
-		} catch (Exception e) {
-			throw new RuntimeException("DKMS encrypt 처리 중 오류 발생", e);
-		} finally {
-			postMethod.releaseConnection();
-		}
-	}
-
-	/*
-	 * 평문 암호화
-	 *
-	 * @param cipherText	복호화할 암호문
-	 * @return				복호화 결과 문자열
-	 * */
-	public static String decrypt(String cipherText) {
-		validateText(cipherText,"cipherText");
-		validateText(baseUrl,"baseUrl");
-
-		String decryptUrl = baseUrl + DECRYPT_PATH;
-		PostMethod postMethod = new PostMethod(decryptUrl);
-
-		try {
-			JSONObject requestJson = new JSONObject();
-			requestJson.put("cipherText", cipherText);
-
-			postMethod.setRequestHeader("Content-Type", "application/json");
-			postMethod.setRequestEntity(
-				new StringRequestEntity(requestJson.toString(), "application/json", "UTF-8")
-			);
-
-			HttpClient httpClient = new HttpClient();
-			int statusCode = httpClient.executeMethod(postMethod);
-
-			String responseBody = postMethod.getResponseBodyAsString();
-
-			if(statusCode != 200) {
-				throw new RuntimeException("DKMS decrypt API 호출 실패. status=" + statusCode + ", response=" + responseBody);
-			}
-
-			return parseResult(responseBody);
-
-		} catch (Exception e) {
-			throw new RuntimeException("DKMS decrypt 처리 중 오류 발생", e);
-		} finally {
-			postMethod.releaseConnection();
-		}
-	}
-
-	/*
-	 * DKMS 응답 JSON에서 result 추출
-	 *
-	 * @param responseBody 응답 JSON 문자열
-	 * @return result 값
-	 * */
-	private static String parseResult(String responseBody) {
-		if(responseBody == null || "".equals(responseBody.trim())) {
-			throw new RuntimeException("DKMS 응답이 비어있습니다.");
-		}
-
-		JSONObject responseJson = JSONObject.fromObject(responseBody);
-
-		if(!responseJson.containsKey("result")) {
-			throw new RuntimeException("DKMS 응답에 result 필드가 없습니다. response=" + responseBody);
-		}
-
-		String result = responseJson.getString("result");
-
-		if(result == null || "".equals(result.trim())) {
-			throw new RuntimeException("DKMS 응답 result 값이 비어있습니다. response=" + responseBody);
-		}
-
-		return result;
-	}
-
-	/*
-	 * 입력값 null 체크
-	 *
-	 * @param text		검사할 문자열
-	 * @param fieldName	필드명
-	 * */
-	private static void validateText(String text, String fieldName) {
-		if (text == null || "".equals(text.trim())) {
-			throw new IllegalArgumentException(fieldName + " 값이 비어있습니다.");
-		}
-	}
+    private static void validateText(String text, String fieldName) {
+       if (text == null || "".equals(text.trim())) {
+          throw new IllegalArgumentException(fieldName + " 값이 비어있습니다.");
+       }
+    }
 }
