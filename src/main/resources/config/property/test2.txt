@@ -28,6 +28,106 @@ import net.sf.json.JSONObject;
  * */
 public class DkmsCryptoUtil {
 
+    private static final String ENCRYPT_PATH = "/dkms/v1/encryption";
+    private static final String DECRYPT_PATH = "/dkms/v1/decryption";
+
+    // The safe prefix
+    public static final String ENC_PREFIX = "{ENC}";
+
+    private static String baseUrl;
+    private static String taskId;
+
+    // The Global Kill Switch (Default to false for safety)
+    private static boolean isCryptoEnabled = false;
+
+    private PropertyService propertyService;
+
+    private DkmsCryptoUtil() {}
+
+    public void setPropertyService(PropertyService propertyService) {
+       this.propertyService = propertyService;
+    }
+
+    public void init() throws Exception{
+       baseUrl = propertyService.getProperty("dkms.baseUrl");
+       taskId  = propertyService.getProperty("dkms.taskId");
+
+       // Load the bypass flag from properties
+       String enabledProp = propertyService.getProperty("dkms.crypto.enabled");
+       isCryptoEnabled = "true".equalsIgnoreCase(enabledProp);
+    }
+
+    /**
+     * ENCRYPT: Type-safe using CommonVO
+     */
+    public static String encrypt(String plainText, String piiTag, CommonVO vo) {
+        // 1. Skip if empty
+        if (plainText == null || "".equals(plainText.trim())) {
+            return plainText;
+        }
+
+        // 2. GLOBAL BYPASS: If disabled in properties, return plain text
+        if (!isCryptoEnabled) {
+            return plainText;
+        }
+
+        // 3. FEATURE TOGGLE: Bypass if the VO's company is not SEUK
+        if (vo != null && !"SEUK".equals(vo.getComp_cd())) {
+            return plainText;
+        }
+
+        // 4. Prevent Double Encryption
+        if (plainText.startsWith(ENC_PREFIX)) {
+            return plainText;
+        }
+
+        // 5. Perform Encryption & Add Prefix
+        String encryptedValue = doDkmsEncrypt(plainText, piiTag);
+        return ENC_PREFIX + encryptedValue;
+    }
+
+    /**
+     * DECRYPT: Naturally safe for testing and legacy data
+     */
+    public static String decrypt(String cipherText) {
+        // 1. Skip if empty
+        if (cipherText == null || "".equals(cipherText.trim())) {
+            return cipherText;
+        }
+
+        // 2. The Prefix Check (Acts as a natural bypass for plain text testing)
+        if (!cipherText.startsWith(ENC_PREFIX)) {
+            return cipherText;
+        }
+
+        // 3. GLOBAL BYPASS: If disabled, don't call the API even if data has {ENC}
+        if (!isCryptoEnabled) {
+            return cipherText;
+        }
+
+        // 4. Perform Decryption
+        String actualCipher = cipherText.substring(ENC_PREFIX.length());
+        return doDkmsDecrypt(actualCipher);
+    }
+
+
+
+if(!"".equals(reqmanNm)) {
+					reqmanNm = DkmsCryptoUtil.decrypt(reqmanNm);
+				}
+
+
+				vo.setCntrt_oppnt_telno(DkmsCryptoUtil.encrypt(vo.getCntrt_oppnt_telno(), "phone", vo));
+
+				vo.setCntrt_oppnt_telno(DkmsCryptoUtil.decrypt(vo.getCntrt_oppnt_telno()));
+
+
+
+
+
+
+
+
 	/* 암호화 API URL */
 	private static final String ENCRYPT_PATH = "/dkms/v1/encryption";
 	/* 복호화 API URL */
