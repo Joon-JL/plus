@@ -88,27 +88,9 @@ public class BoardServiceImpl extends CommonServiceImpl implements BoardService 
 		HashMap hmEn = comUtilService.getNamoContentAndFileInfo(dcdContEn);
 		
 
-		if (hmKr.get("TYPE").equals("M")) {
-			ArrayList fileList = (ArrayList)hmKr.get("FILE_INFO");
-			
-			for (int i = 0; i < fileList.size(); i++) {
-				HashMap fileMap = (HashMap)fileList.get(i);
-				
-				Integer seq = new Integer(i);
-				String fileNm = (String)fileMap.get("FILE_NM");
-				String filePath = (String)fileMap.get("FILE_PTH");
-				String fileUrl = (String)fileMap.get("FILE_URL");
-				
-				File f = new File(filePath);
-				Long fileSize = new Long(f.length());
-			}			
-			vo.setCont((StringUtil.convertNamoCharsToHtml((String)hmKr.get("CONTENT")))); //Cross-site Scripting 방지 처리
-			vo.setCont_en((StringUtil.convertNamoCharsToHtml((String)hmEn.get("CONTENT")))); //Cross-site Scripting 방지 처리
-		}else {
-			vo.setCont((StringUtil.convertNamoCharsToHtml((String)hmKr.get("CONTENT")))); //Cross-site Scripting 방지 처리
-			vo.setCont_en((StringUtil.convertNamoCharsToHtml((String)hmEn.get("CONTENT")))); //Cross-site Scripting 방지 처리
-		}
-		
+        vo.setCont((StringUtil.convertNamoCharsToHtml((String)hmKr.get("CONTENT")))); //Cross-site Scripting 방지 처리
+        vo.setCont_en((StringUtil.convertNamoCharsToHtml((String)hmEn.get("CONTENT")))); //Cross-site Scripting 방지 처리
+
 		//데이터 저장
 		commonDAO.insert("clm.admin.insertBoard", vo);
 
@@ -191,28 +173,10 @@ public class BoardServiceImpl extends CommonServiceImpl implements BoardService 
 		
 		HashMap hmKr = comUtilService.getNamoContentAndFileInfo(dcdContKr);
 		HashMap hmEn = comUtilService.getNamoContentAndFileInfo(dcdContEn);
-		
-		if (hmKr.get("TYPE").equals("M")) {
-			ArrayList fileList = (ArrayList)hmKr.get("FILE_INFO");
-			
-			for (int i = 0; i < fileList.size(); i++) {
-				HashMap fileMap = (HashMap)fileList.get(i);
-				
-				Integer seq = new Integer(i);
-				String fileNm = (String)fileMap.get("FILE_NM");
-				String filePath = (String)fileMap.get("FILE_PTH");
-				String fileUrl = (String)fileMap.get("FILE_URL");
-				
-				File f = new File(filePath);
-				Long fileSize = new Long(f.length());
-			}			
-			vo.setCont((StringUtil.convertNamoCharsToHtml((String)hmKr.get("CONTENT")))); //Cross-site Scripting 방지 처리
-			vo.setCont_en((StringUtil.convertNamoCharsToHtml((String)hmEn.get("CONTENT")))); //Cross-site Scripting 방지 처리
-		}else {
-			vo.setCont((StringUtil.convertNamoCharsToHtml((String)hmKr.get("CONTENT")))); //Cross-site Scripting 방지 처리
-			vo.setCont_en((StringUtil.convertNamoCharsToHtml((String)hmEn.get("CONTENT")))); //Cross-site Scripting 방지 처리
-		}
-		
+
+        vo.setCont((StringUtil.convertNamoCharsToHtml((String)hmKr.get("CONTENT")))); //Cross-site Scripting 방지 처리
+        vo.setCont_en((StringUtil.convertNamoCharsToHtml((String)hmEn.get("CONTENT")))); //Cross-site Scripting 방지 처리
+
 		commonDAO.modify("clm.admin.modifyBoard", vo);
 
 		//조직저장

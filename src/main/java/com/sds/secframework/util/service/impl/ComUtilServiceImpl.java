@@ -1,13 +1,10 @@
 package com.sds.secframework.util.service.impl;
 
+import java.io.*;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Pattern;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 
@@ -93,31 +90,35 @@ public class ComUtilServiceImpl extends CommonServiceImpl implements ComUtilServ
 	    if(result){
 	    	result = false;
 	    	String ins1pidFile = "/las/logs/las1/las1.pid";
-	    	
 			File ins1File = new File(ins1pidFile);
-			if(ins1File.exists()) {
-				FileInputStream fis = new FileInputStream(ins1File);
-		    	BufferedReader dis  = new BufferedReader(new InputStreamReader(fis));
-		    	
-		    	String ins1Pid = "";
- 
-		    	if(dis.ready()) {
-		    		ins1Pid = dis.readLine();
-		    	}
-		    	
-		    	RuntimeMXBean rmb = ManagementFactory.getRuntimeMXBean();
-		        String processId = rmb.getName();
-		        
-		        if(processId.length() > ins1Pid.length()) {
-		         processId = processId.substring(0, ins1Pid.length());
-		        }
-		        
-		        // 첫번째 인스턴스이면
-		        if(processId.equals(ins1Pid)) {
-		        	result = true;
-		        }
-			}
 
+			if(ins1File.exists()) {
+
+                try (FileInputStream fis = new FileInputStream(ins1File);
+                     InputStreamReader isr = new InputStreamReader(fis, "UTF-8");
+                     BufferedReader dis = new BufferedReader(isr)) {
+
+                    String ins1Pid = "";
+
+                    if(dis.ready()) {
+                        ins1Pid = dis.readLine();
+                    }
+
+                    RuntimeMXBean rmb = ManagementFactory.getRuntimeMXBean();
+                    String processId = rmb.getName();
+
+                    if( ins1Pid != null && !ins1Pid.isEmpty() && processId.length() > ins1Pid.length() ) {
+                        processId = processId.substring(0, ins1Pid.length());
+                    }
+
+                    // 첫번째 인스턴스이면
+                    if(processId != null && processId.equals(ins1Pid)) {
+                        result = true;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+			}
 	    }
 	    
 	    return result;

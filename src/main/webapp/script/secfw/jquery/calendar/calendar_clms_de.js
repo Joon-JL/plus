@@ -504,8 +504,8 @@ function changeToday(id,target){
 		}
 	}
 		
-	$("#" + id + "_cal").html(makeDate(today[0],eval(today[1]-1),id));
-	$("#" + id + "_calMon").attr("value",eval(today[1]));
+	$("#" + id + "_cal").html(makeDate(today[0],eval(today[1]-1), id));
+    $("#" + id + "_calMon").attr("value",eval(today[1]));
 	$("#" + id + "_calYear").attr("value",today[0]);
 	addHover(id,target);
 }

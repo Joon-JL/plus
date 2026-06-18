@@ -13,7 +13,6 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.collections.map.ListOrderedMap;
-import org.jfree.util.Log;
 
 import anyframe.core.idgen.IIdGenerationService;
 
@@ -65,7 +64,7 @@ public class UserManagerServiceImpl extends CommonServiceImpl implements UserMan
 		List listUser  = null;
 		HashMap result = new HashMap();
 		
-		String srch_cntnt_type = new String(StringUtil.bvl(vo.getSrch_cntnt_type(), "user_nm"));
+		String srch_cntnt_type = StringUtil.bvl(vo.getSrch_cntnt_type(), "user_nm");
 		
 		// 사용자 역할(Role) 목록 조회
 		List RollList = commonDAO.list("secfw.usermng.list.roll", vo);
@@ -105,7 +104,7 @@ public class UserManagerServiceImpl extends CommonServiceImpl implements UserMan
 	 */	
 	public HashMap SerchUserEsbInfo(UserManagerVO vo)throws Exception{
 		HashMap result 		=	new HashMap();		
-		String popUserId 	=	new String(StringUtil.bvl( vo.getPop_user_id()  ,""));
+		String popUserId 	=	StringUtil.bvl( vo.getPop_user_id()  ,"");
 		return EsbSerchHash(vo.getSession_comp_cd(), popUserId);
 	}	
 	/**
@@ -347,9 +346,9 @@ public class UserManagerServiceImpl extends CommonServiceImpl implements UserMan
 	 */	
 	private String[] SpliteArry(String Parm,String div){
 		String[] Result;		
-		String 	 str_arry =StringUtil.bvl( new String(Parm),"");
+		String 	 str_arry =StringUtil.bvl(Parm,"");
 		if( !Parm.equals("")){
-			Result = str_arry.split(new String(div));
+			Result = str_arry.split(div);
 		}else{
 			Result =null;
 		}
@@ -610,7 +609,7 @@ public class UserManagerServiceImpl extends CommonServiceImpl implements UserMan
 		 auth_del= commonDAO.delete("secfw.usermng.auth.delete", vo);
 		 user_del= commonDAO.delete("secfw.usermng.user.delete", vo); 
 		
-		 Log.debug("DELETE INFORMATION "+vo.getUser_id()
+		 getLogger().debug("DELETE INFORMATION "+vo.getUser_id()
 			    +"\nAUTH DEL COUNT :"+auth_del
 			    +"\nUSER DEL COUNT :"+user_del);
 		 
@@ -677,7 +676,7 @@ public class UserManagerServiceImpl extends CommonServiceImpl implements UserMan
 	public HashMap listApntUserMng(UserManagerVO vo)throws Exception{
 		HashMap result = new HashMap();
 		
-		String srch_cntnt_type =new String(StringUtil.bvl( vo.getSrch_cntnt_type(),"user_nm"));
+		String srch_cntnt_type = StringUtil.bvl( vo.getSrch_cntnt_type(),"user_nm");
 		
 		vo.setSrch_auth_apnt_yn(StringUtil.bvl(vo.getSrch_auth_apnt_yn(),"%")); 
 		List listUser = null;

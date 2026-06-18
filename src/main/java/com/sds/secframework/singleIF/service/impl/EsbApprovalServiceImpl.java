@@ -335,53 +335,59 @@ public class EsbApprovalServiceImpl extends CommonServiceImpl implements EsbAppr
 				misKeyWSVO.setSystemID(esbApprId);
 				
 				processStatusWSVO = apStatusInquiryService.getStatusByMisId(esbAuthVO, misKeyWSVO);
-				RouteWSVO[] routeWSVO = processStatusWSVO.getRouteVOs();
-	
-				// 결재경로 정보를 삭제한다.
-				HashMap deleteApprovalPathMap = new HashMap();
-				deleteApprovalPathMap.put("module_id",argModuleId);
-				deleteApprovalPathMap.put("mis_id",argMisId);
-				
-				commonDAO.delete("secfw.singleIF.approval.deleteApprovalPath", deleteApprovalPathMap);
-				
-				// 결재경로 정보를 신규로 입력한다.(싱글결재 경로로 재설정작업)
-				for(int i=0; i<routeWSVO.length; i++) {
-					
-					ApprovalRouteVO vo = new ApprovalRouteVO();
-	
-					vo.setModule_id(argModuleId);
-					vo.setMis_id(argMisId);
-					vo.setAction_type(routeWSVO[i].getActionType());
-					vo.setActivity(routeWSVO[i].getActivity());
-					vo.setAlarm_type(routeWSVO[i].getAlarmType());
-					vo.setApproved(routeWSVO[i].getApproved());
-					vo.setArbitrary(routeWSVO[i].getArbitrary());
-					vo.setArrived(routeWSVO[i].getArrived());
-					vo.setBody_modify(routeWSVO[i].getBodyModify());
-					vo.setDept_code(routeWSVO[i].getDeptCode());
-					vo.setDept_name(routeWSVO[i].getDeptName());
-					vo.setDuration(routeWSVO[i].getDuration());
-					vo.setDuty(routeWSVO[i].getDuty());
-					vo.setDuty_code(routeWSVO[i].getDutyCode());
-					vo.setGroup_code(routeWSVO[i].getGroupCode());
-					vo.setGroup_name(routeWSVO[i].getGroupName());
-					vo.setMail_address(routeWSVO[i].getMailAddress());
-					vo.setOpinion(routeWSVO[i].getOpinion());
-					vo.setReserved(routeWSVO[i].getReserved());
-					vo.setRoute_modify(routeWSVO[i].getRouteModify());
-					vo.setSequence(routeWSVO[i].getSequence());
-					vo.setSocial_id(routeWSVO[i].getSocialID());
-					vo.setUser_id(routeWSVO[i].getUserID());
-					vo.setUser_name(routeWSVO[i].getUserName());
-					vo.setDelegated(routeWSVO[i].getDelegated());
-					
-					commonDAO.modify("secfw.singleIF.approval.insertApprovalPath", vo);
-					
-				}
-				
+				if (processStatusWSVO != null && processStatusWSVO.getRouteVOs() != null) {
+                    RouteWSVO[] routeWSVO = processStatusWSVO.getRouteVOs();
+                    // 결재경로 정보를 삭제한다.
+                    HashMap deleteApprovalPathMap = new HashMap();
+                    deleteApprovalPathMap.put("module_id",argModuleId);
+                    deleteApprovalPathMap.put("mis_id",argMisId);
+
+                    commonDAO.delete("secfw.singleIF.approval.deleteApprovalPath", deleteApprovalPathMap);
+
+                    // 결재경로 정보를 신규로 입력한다.(싱글결재 경로로 재설정작업)
+                    for(int i=0; i<routeWSVO.length; i++) {
+
+                        ApprovalRouteVO vo = new ApprovalRouteVO();
+
+                        vo.setModule_id(argModuleId);
+                        vo.setMis_id(argMisId);
+                        vo.setAction_type(routeWSVO[i].getActionType());
+                        vo.setActivity(routeWSVO[i].getActivity());
+                        vo.setAlarm_type(routeWSVO[i].getAlarmType());
+                        vo.setApproved(routeWSVO[i].getApproved());
+                        vo.setArbitrary(routeWSVO[i].getArbitrary());
+                        vo.setArrived(routeWSVO[i].getArrived());
+                        vo.setBody_modify(routeWSVO[i].getBodyModify());
+                        vo.setDept_code(routeWSVO[i].getDeptCode());
+                        vo.setDept_name(routeWSVO[i].getDeptName());
+                        vo.setDuration(routeWSVO[i].getDuration());
+                        vo.setDuty(routeWSVO[i].getDuty());
+                        vo.setDuty_code(routeWSVO[i].getDutyCode());
+                        vo.setGroup_code(routeWSVO[i].getGroupCode());
+                        vo.setGroup_name(routeWSVO[i].getGroupName());
+                        vo.setMail_address(routeWSVO[i].getMailAddress());
+                        vo.setOpinion(routeWSVO[i].getOpinion());
+                        vo.setReserved(routeWSVO[i].getReserved());
+                        vo.setRoute_modify(routeWSVO[i].getRouteModify());
+                        vo.setSequence(routeWSVO[i].getSequence());
+                        vo.setSocial_id(routeWSVO[i].getSocialID());
+                        vo.setUser_id(routeWSVO[i].getUserID());
+                        vo.setUser_name(routeWSVO[i].getUserName());
+                        vo.setDelegated(routeWSVO[i].getDelegated());
+
+                        commonDAO.modify("secfw.singleIF.approval.insertApprovalPath", vo);
+
+                    }
+                }
+
 				// Header 상태를 업데이트 한다.
 				HashMap modifyStatusMap = new HashMap();
-				modifyStatusMap.put("status",processStatusWSVO.getStatus());
+                if (processStatusWSVO != null) {
+                    modifyStatusMap.put("status",processStatusWSVO.getStatus());
+                } else {
+                    modifyStatusMap.put("status", "5"); // Unknown
+                }
+
 				modifyStatusMap.put("module_id",argModuleId);
 				modifyStatusMap.put("mis_id",argMisId);
 				
@@ -389,7 +395,7 @@ public class EsbApprovalServiceImpl extends CommonServiceImpl implements EsbAppr
 			}
 			
 			//결재 상태값 및 결재경로 정보를 리턴한다.			
-			result.put("status", processStatusWSVO.getStatus());
+			result.put("status", status);
 			result.put("approvalPath", getRouteWSVO(argModuleId, argMisId));
 
 		} catch(ESBFaultVO fault) {
@@ -1136,7 +1142,7 @@ public class EsbApprovalServiceImpl extends CommonServiceImpl implements EsbAppr
 				
 				
 				//detail조건에 맞는 계약인지 확인 
-				if(!loofId.equals((String)appresultMap.get("PATH_ID")) && loofId != ""){
+				if(!loofId.equals((String) appresultMap.get("PATH_ID")) && !loofId.isEmpty()){
 					
 					
 
@@ -1151,8 +1157,8 @@ public class EsbApprovalServiceImpl extends CommonServiceImpl implements EsbAppr
 					
 				
 					
-					if(((Integer)resultPath.get("ct_count")).intValue() > 0 ){
-						path_id.append(loofId+",");
+					if((Integer) resultPath.get("ct_count") > 0 ){
+						path_id.append(loofId).append(",");
 					}
 					
 

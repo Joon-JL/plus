@@ -50,8 +50,8 @@ public class ECMSToTCMSBatchJobControl extends CommonController {
   * 
   */
  private ECMSToTCMSBatchJobService ecmsToTCMSBatchJobService;
- 
- public final static String IPAAS_API_URL  = "/nerp/erp_set/erp_set_zgwmkc100200_f01_di/1.0/F01_Set";
+
+ public final static String IPAAS_API_URL  = "http://ipaas-nerp.sec.samsung.net:8400/nerp/erp_set/erp_set_zgwmkc100200_f01_di/1.0/F01_Set";
  private final static String IPAAS_API_NAME = "08ec883a-f95b-34dc-9196-b155e33fcd60";
  //Dev
  //private final static String IPAAS_API_NAME = "1dc6630a-86fa-39fe-99d1-e779261a0d37";
@@ -109,45 +109,42 @@ public class ECMSToTCMSBatchJobControl extends CommonController {
 
 
  public synchronized boolean getStatusBatch() throws Exception {
-  
-  if(comUtilService.isCronServer()) { // ?? ????? ?? ??
-   String ins1pidFile = "/las/logs/las1/las1.pid"; //las2?? ???
-         
-   File ins1File = new File(ins1pidFile);
-      
-      if(ins1File.exists()) {
-       FileInputStream fis = new FileInputStream(ins1File);
-       BufferedInputStream bis = new BufferedInputStream(fis);
-       DataInputStream dis = new DataInputStream(bis);
-       
-       String ins1Pid = "";
- 
-       if(dis.available() != 0) {
-        ins1Pid = dis.readLine();
-       }
-       
-       RuntimeMXBean rmb = ManagementFactory.getRuntimeMXBean();
-          String processId = rmb.getName();
-          
-          if(processId.length() > ins1Pid.length()) {
-           processId = processId.substring(0, ins1Pid.length());
-          }
-          
-          // ??? ??????? ??
-          if(processId.equals(ins1Pid)) {
-           return true;
-          }else{
-           return false;
-          }
-          
-      }else{
-          return false;
-         }
-  }else{
-         return false;
-        }
- }
 
+  if(!comUtilService.isCronServer()) {
+      return false;
+  }
+  String ins1pidFile = "/las/logs/las1/las1.pid"; //las2?? ???
+  File ins1File = new File(ins1pidFile);
+
+  if(!ins1File.exists()) {
+    return false;
+  }
+
+  try (FileInputStream fis = new FileInputStream(ins1File);
+       InputStreamReader isr = new InputStreamReader(fis, "UTF-8");
+       BufferedReader br = new BufferedReader(isr)) {
+
+      String ins1Pid = br.readLine();
+
+      if(ins1Pid == null || ins1Pid.isEmpty()) {
+          return false;
+      }
+
+      ins1Pid = ins1Pid.trim();
+
+      RuntimeMXBean rmb = ManagementFactory.getRuntimeMXBean();
+      String processId = rmb.getName();
+
+      if(processId != null && processId.length() > ins1Pid.length()) {
+          processId = processId.substring(0, ins1Pid.length());
+      }
+
+      return processId != null && processId.equals(ins1Pid);
+
+  } catch (IOException e) {
+      throw e;
+  }
+ }
 
 /**
  * Functions    : Send data to NERP
@@ -171,27 +168,34 @@ public class ECMSToTCMSBatchJobControl extends CommonController {
    }
   
    List copySendInfoForList = ecmsToTCMSBatchJobService.getAllContractsForTCMS();
-   JSONArray array = new JSONArray();
-   if(copySendInfoForList !=null){
-	   for(int i=0;i< copySendInfoForList.size();i++){
-		   JSONObject obj = JSONObject.fromObject(copySendInfoForList.get(i));
-		   JSONObject reqobj = new JSONObject();
-		   reqobj.put("COMP_CD", String.valueOf(obj.get("comp_cd")));
-		   reqobj.put("CNTRT_ID", String.valueOf(obj.get("cntrt_id")));
-		   reqobj.put("REQ_TITLE", String.valueOf(obj.get("req_title")));
-		   reqobj.put("PRCS_DEPTH_NM",String.valueOf(obj.get("prcs_depth_nm")));
-		   reqobj.put("DEPTH_STATUS_NM", String.valueOf(obj.get("depth_status_nm")));
-		   reqobj.put("KEY_ID", String.valueOf(obj.get("key_id")));
-		   reqobj.put("CNTRT_NO", String.valueOf(obj.get("cntrt_no")));
-		   reqobj.put("PRCS_DEPTH", String.valueOf(obj.get("prcs_depth")));
-		   reqobj.put("DEPTH_STATUS", String.valueOf(obj.get("depth_status")));
-		   array.add(reqobj);
-	   }
+
+   if (copySendInfoForList != null && copySendInfoForList.isEmpty()) {
+       getLogger().info("copySendInfoForList (startTCMSBatch) is empty");
+       return ;
    }
+
+   JSONArray array = new JSONArray();
+   if (copySendInfoForList != null && !copySendInfoForList.isEmpty()) {
+       for(int i=0;i< copySendInfoForList.size();i++){
+           JSONObject obj = JSONObject.fromObject(copySendInfoForList.get(i));
+           JSONObject reqobj = new JSONObject();
+           reqobj.put("COMP_CD", String.valueOf(obj.get("comp_cd")));
+           reqobj.put("CNTRT_ID", String.valueOf(obj.get("cntrt_id")));
+           reqobj.put("REQ_TITLE", String.valueOf(obj.get("req_title")));
+           reqobj.put("PRCS_DEPTH_NM",String.valueOf(obj.get("prcs_depth_nm")));
+           reqobj.put("DEPTH_STATUS_NM", String.valueOf(obj.get("depth_status_nm")));
+           reqobj.put("KEY_ID", String.valueOf(obj.get("key_id")));
+           reqobj.put("CNTRT_NO", String.valueOf(obj.get("cntrt_no")));
+           reqobj.put("PRCS_DEPTH", String.valueOf(obj.get("prcs_depth")));
+           reqobj.put("DEPTH_STATUS", String.valueOf(obj.get("depth_status")));
+           array.add(reqobj);
+       }
+   }
+
 
     //Dev
     //String url = "http://ipaas-nerpdev.sec.samsung.net:8400" + IPAAS_API_URL;
-     String url = "http://ipaas-nerp.sec.samsung.net:8400" + IPAAS_API_URL;
+//     String url = "http://ipaas-nerp.sec.samsung.net:8400" + IPAAS_API_URL;
     //String token = "1dc6630a-86fa-39fe-99d1-e779261a0d37"; //getAreaToken(url); //DEV
     //String token = "40bf22e6-ec06-35d5-8313-ffdb7eb503f4"; //QA
      String token = "08ec883a-f95b-34dc-9196-b155e33fcd60";
@@ -204,25 +208,25 @@ public class ECMSToTCMSBatchJobControl extends CommonController {
      d.put("F01_TO_E", new JSONObject());
      requestBody.put("d", d);
      
-     System.out.println("requestBody " + ": " + requestBody);
      getLogger().info("requestBody " + ": " + requestBody);
-     String returnObj = callAPIByPost(url, token, requestBody.toString());
+     String returnObj = callAPIByPost(token, requestBody.toString());
      String returnMsg = getReturnMsg(returnObj);
    
    ListOrderedMap lom = null;
-   
-   for (int i = 0; i < copySendInfoForList.size(); i++) {
-    lom = (ListOrderedMap)copySendInfoForList.get(i);
-    
-    if("Y".equals((String)lom.get("close_yn"))){
-     InfContCnsdreqVO vo = new InfContCnsdreqVO();
-     vo.setCntrt_id((String)lom.get("cntrt_id"));
-     vo.setKey_id((String)lom.get("key_id"));
-     ecmsToTCMSBatchJobService.updateAfterBatch(vo);
-    }
+
+   if (copySendInfoForList != null && !copySendInfoForList.isEmpty()) {
+       for (int i = 0; i < copySendInfoForList.size(); i++) {
+           lom = (ListOrderedMap)copySendInfoForList.get(i);
+
+           if(lom != null && "Y".equals(lom.get("close_yn"))){
+               InfContCnsdreqVO vo = new InfContCnsdreqVO();
+               vo.setCntrt_id((String)lom.get("cntrt_id"));
+               vo.setKey_id((String)lom.get("key_id"));
+               ecmsToTCMSBatchJobService.updateAfterBatch(vo);
+           }
+       }
    }
-   
-   
+
   } catch(Exception e) {
    e.printStackTrace();
    getLogger().info("::::::::::::::::Exception sendLAY023307");
@@ -276,17 +280,17 @@ public class ECMSToTCMSBatchJobControl extends CommonController {
   return splitedUrl[3]; 
  }
  
- public String callAPIByPost(String i_url, String i_token, String i_requestBody) throws Exception {
-  return callAPI(i_url, i_token, i_requestBody, HTTP_METHOD_POST);
+ public String callAPIByPost(String i_token, String i_requestBody) throws Exception {
+  return callAPI(i_token, i_requestBody, HTTP_METHOD_POST);
  }
 
- private String callAPI(String i_url, String i_token, String i_requestBody, String i_httpMethod) throws Exception {
-  openConnectionAndSetHttpProperties(i_url, i_httpMethod, i_token);
+ private String callAPI(String i_token, String i_requestBody, String i_httpMethod) throws Exception {
+  openConnectionAndSetHttpProperties(i_httpMethod, i_token);
 
   try {
    sendRequestBody(i_requestBody);
 
-   checkHttpResponse(i_url, i_httpMethod);
+   checkHttpResponse(i_httpMethod);
    readMessageId();
 
    return receiveResponseBody();
@@ -296,9 +300,9 @@ public class ECMSToTCMSBatchJobControl extends CommonController {
   }
  }
  
- private void openConnectionAndSetHttpProperties(String i_url, String i_httpMethod, String i_token)
+ private void openConnectionAndSetHttpProperties(String i_httpMethod, String i_token)
  throws MalformedURLException, IOException, ProtocolException {
-  m_url = new URL(i_url);
+  m_url = new URL(IPAAS_API_URL);
   m_conn = (HttpURLConnection) m_url.openConnection();
   m_conn.setDoOutput(true);
   m_conn.setRequestMethod(i_httpMethod);
@@ -323,12 +327,18 @@ public class ECMSToTCMSBatchJobControl extends CommonController {
   }
  }
  
- private void checkHttpResponse(String i_url, String i_httpMethod) throws IOException, UnsupportedEncodingException {
-  if (!isSucceeded(m_conn.getResponseCode())) {
-   throw new RuntimeException(String.format(
-     "failed to call REST API URL(%s) Method(%s)\n\tHTTP error code : %s(%s)\n\tDetail: ", i_url,
-     i_httpMethod, m_conn.getResponseCode(), m_conn.getResponseMessage(), getDetailErrorMsg()));
-  }
+ private void checkHttpResponse(String i_httpMethod) throws IOException {
+     int responseCode = m_conn.getResponseCode();
+
+     if (!isSucceeded(responseCode)) {
+         throw new RuntimeException(String.format(
+             "failed to call REST API URL(%s) Method(%s)%n\tHTTP error code : %s(%s)%n\tDetail: %s",
+             IPAAS_API_URL,
+             i_httpMethod,
+             responseCode,
+             m_conn.getResponseMessage(),
+             getDetailErrorMsg()));
+     }
  }
  
  /**
@@ -370,19 +380,22 @@ public class ECMSToTCMSBatchJobControl extends CommonController {
  }
  
  private String getDetailErrorMsg() throws UnsupportedEncodingException, IOException {
-  BufferedReader br = new BufferedReader(
-    new InputStreamReader(m_conn.getErrorStream(), ENCODING_UTF8));
+     if (m_conn == null || m_conn.getErrorStream() == null) {
+         return "";
+     }
 
-  StringBuffer sb = new StringBuffer();
+     StringBuilder sb = new StringBuilder();
 
-  String strLine = br.readLine();
-  while (strLine != null) {
-   sb.append(strLine);
+     try (InputStreamReader isr = new InputStreamReader(m_conn.getErrorStream(), ENCODING_UTF8);
+          BufferedReader br = new BufferedReader(isr)) {
 
-   strLine = br.readLine();
-  }
+         String strLine;
 
-  return sb.toString();
+         while ((strLine = br.readLine()) != null) {
+             sb.append(strLine);
+         }
+     }
+     return sb.toString();
  }
  
  private void readMessageId() {
@@ -390,15 +403,22 @@ public class ECMSToTCMSBatchJobControl extends CommonController {
  }
  
  private String receiveResponseBody() throws UnsupportedEncodingException, IOException {
-  BufferedReader br = new BufferedReader(
-    new InputStreamReader(m_conn.getInputStream(), ENCODING_UTF8));
+     if (m_conn == null || m_conn.getInputStream() == null) {
+         return "";
+     }
 
-  String lineData = null;
-  StringBuffer sb = new StringBuffer();
-  while ((lineData = br.readLine()) != null) {
-   sb.append(lineData);
-  }
-  return sb.toString();
+     StringBuilder sb = new StringBuilder();
+
+     try (InputStreamReader isr = new InputStreamReader(m_conn.getErrorStream(), ENCODING_UTF8);
+          BufferedReader br = new BufferedReader(isr)) {
+
+         String lineData;
+
+         while ((lineData = br.readLine()) != null) {
+             sb.append(lineData);
+         }
+     }
+     return sb.toString();
  }
  
  private void closeConnection() {

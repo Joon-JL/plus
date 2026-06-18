@@ -642,14 +642,14 @@ public class EsbMailServiceImpl extends CommonServiceImpl implements EsbMailServ
 
 				headerHelperCSVO.setSubject((String)result.get("subject"));
 				headerHelperCSVO.setMsgType((String)result.get("msg_type"));
-				headerHelperCSVO.setBHtmlContentCheck(new Boolean((String)result.get("bhtml_content_check")));
+				headerHelperCSVO.setBHtmlContentCheck(Boolean.valueOf((String)result.get("bhtml_content_check")));
 				headerHelperCSVO.setTimeZone((String)result.get("time_zone"));
-				headerHelperCSVO.setIsDst(new Boolean((String)result.get("is_dst")));
-				headerHelperCSVO.setIFileCount(new Integer((String)result.get("ifile_count")));
+				headerHelperCSVO.setIsDst(Boolean.valueOf((String)result.get("is_dst")));
+				headerHelperCSVO.setIFileCount(Integer.valueOf((String)result.get("ifile_count")));
 
 				fld_val = (String)result.get("sender_mail_addr");
 
-				if( fld_val.indexOf("@") == -1 ){
+				if(!fld_val.contains("@")){
 					if("DEV".equals(esbDevTF)) {
 						fld_val = (String)result.get("sender_single_id") + "@stage.samsung.com";
 					} else {
@@ -698,15 +698,15 @@ public class EsbMailServiceImpl extends CommonServiceImpl implements EsbMailServ
 
 			if(result != null) {
 
-				drmCSVO.setDrmType(new Integer((String)result.get("drm_type")));
-				drmCSVO.setDrmCanPrint(new Integer((String)result.get("drm_can_print")));
-				drmCSVO.setDrmCanSave(new Integer((String)result.get("drm_can_save")));
-				drmCSVO.setDrmUseCount(new Integer((String)result.get("drm_use_count")));
-				drmCSVO.setDrmPCCount(new Integer((String)result.get("drm_pc_count")));
-				drmCSVO.setDrmValidDays(new Integer((String)result.get("drm_valid_days")));
-				drmCSVO.setDrmConfirmMail4Int(new Integer((String)result.get("drm_confirm_mail4int")));
-				drmCSVO.setDrmConfirmMail4Ext(new Integer((String)result.get("drm_confirm_mail4ext")));
-				drmCSVO.setDrmCanViewRcpt(new Integer((String)result.get("drm_can_view_rcpt")));
+				drmCSVO.setDrmType(Integer.valueOf((String)result.get("drm_type")));
+				drmCSVO.setDrmCanPrint(Integer.valueOf((String)result.get("drm_can_print")));
+				drmCSVO.setDrmCanSave(Integer.valueOf((String)result.get("drm_can_save")));
+				drmCSVO.setDrmUseCount(Integer.valueOf((String)result.get("drm_use_count")));
+				drmCSVO.setDrmPCCount(Integer.valueOf((String)result.get("drm_pc_count")));
+				drmCSVO.setDrmValidDays(Integer.valueOf((String)result.get("drm_valid_days")));
+				drmCSVO.setDrmConfirmMail4Int(Integer.valueOf((String)result.get("drm_confirm_mail4int")));
+				drmCSVO.setDrmConfirmMail4Ext(Integer.valueOf((String)result.get("drm_confirm_mail4ext")));
+				drmCSVO.setDrmCanViewRcpt(Integer.valueOf((String)result.get("drm_can_view_rcpt")));
 
 			}
 
@@ -746,7 +746,7 @@ public class EsbMailServiceImpl extends CommonServiceImpl implements EsbMailServ
 			if(result != null) {
 				fld_val = (String)result.get("email");
 
-				if( fld_val.indexOf("@") == -1 ){
+				if(!fld_val.contains("@")){
 					if("DEV".equals(esbDevTF)) {
 						fld_val = fld_val + "@stage.samsung.com";
 					} else {
@@ -806,7 +806,7 @@ public class EsbMailServiceImpl extends CommonServiceImpl implements EsbMailServ
 
 				fld_val = (String)temp.get("rec_addr");
 
-				if( fld_val.indexOf("@") == -1 ){
+				if(!fld_val.contains("@")){
 					if("DEV".equals(esbDevTF)) {
 						fld_val = fld_val + "@stage.samsung.com";
 					} else {
@@ -821,7 +821,7 @@ public class EsbMailServiceImpl extends CommonServiceImpl implements EsbMailServ
 					recipientEtytCSVO[i].setRecAddr(fld_val);
 				}
 
-				recipientEtytCSVO[i].setISeqID(new Integer((String)temp.get("iseq_id")));
+				recipientEtytCSVO[i].setISeqID(Integer.valueOf((String)temp.get("iseq_id")));
 				recipientEtytCSVO[i].setRecType((String)temp.get("rec_type"));
 
 			}
@@ -877,7 +877,7 @@ public class EsbMailServiceImpl extends CommonServiceImpl implements EsbMailServ
 					// DataHandler 객체를 첨부 vo의 file변수에 할당
 					attachEtyCSVO[i].setFile(dh);
 					// 파일의 순번을 지정
-					attachEtyCSVO[i].setISeqID(new Integer((String)temp.get("iseq_id")));
+					attachEtyCSVO[i].setISeqID(Integer.valueOf((String)temp.get("iseq_id")));
 
 					// 원본파일명을 지정
 					attachEtyCSVO[i].setFileName((String)temp.get("file_name"));
@@ -977,7 +977,7 @@ public class EsbMailServiceImpl extends CommonServiceImpl implements EsbMailServ
 
 			fld_val = vo.getSender_mail_addr();
 
-			if( fld_val.indexOf("@") == -1 ){
+			if(!fld_val.contains("@")){
 				if("DEV".equals(esbDevTF)) {
 					fld_val = vo.getSender_single_id() + "@stage.samsung.com";
 				} else {
@@ -1031,15 +1031,13 @@ public class EsbMailServiceImpl extends CommonServiceImpl implements EsbMailServ
 
 			fld_val = vo.getSender_mail_addr();
 
-			if( fld_val.indexOf("@") == -1 ){
-				if( fld_val.indexOf("@") == -1 ){
-					if("DEV".equals(esbDevTF)) {
-						fld_val = (String)vo.getSender_single_id() + "@stage.samsung.com";
-					} else {
-						fld_val = (String)vo.getSender_single_id()  + "@samsung.com";
-					}
-				}
-			}
+            if(!fld_val.contains("@")){
+                if("DEV".equals(esbDevTF)) {
+                    fld_val = (String)vo.getSender_single_id() + "@stage.samsung.com";
+                } else {
+                    fld_val = (String)vo.getSender_single_id()  + "@samsung.com";
+                }
+            }
 
 			if("DEV".equals(esbDevTF)) {
 				vo.setSender_mail_addr(fld_val.substring(0, fld_val.indexOf("@")) + "@stage.samsung.com");
@@ -1085,7 +1083,7 @@ public class EsbMailServiceImpl extends CommonServiceImpl implements EsbMailServ
 
 			fld_val = vo.getSender_mail_addr();
 
-			if( fld_val.indexOf("@") == -1 ){
+			if(!fld_val.contains("@")){
 				if("DEV".equals(esbDevTF)) {
 					fld_val = (String)vo.getSender_single_id() + "@stage.samsung.com";
 				} else {

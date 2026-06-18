@@ -220,21 +220,13 @@
 				    IN_DEPT_CD              =   :in_dept_cd,
 				    DEPT_NM                 =   :dept_nm,
 				    DEPT_NM_ENG             =   :dept_nm_eng,
-				    CHANGE_DEPT_YMD         =   :change_dept_ymd,
 				    ORIGIN_DEPT_CD          =   :origin_dept_cd,
 				    ORIGIN_DEPT_NM          =   :origin_dept_nm,  
 				    APPOINT_CD              =   :appoint_cd,
-				    GRP_JOIN_YMD            =   :grp_join_ymd,
 				    JOIN_TERM               =   :join_term,
 				    JOIN_LEVEL              =   :join_level,
-				    JOIN_YMD                =   :join_ymd,
-				    RAISE_YMD               =   :raise_ymd,
-				    PROMOTION_YMD           =   :promotion_ymd,   
 				    NEXT_RAISE_YM           =   :next_raise_ym,
-				    NEXT_PROMOTION_YM       =   :next_promotion_ym,   
-				    RETIREMENT_YMD          =   :retirement_ymd,   
-				    SUSPENSION_YMD          =   :suspension_ymd,
-				    REINSTATMENT_YMD        =   :reinstatment_ymd,    
+				    NEXT_PROMOTION_YM       =   :next_promotion_ym,
 				    JIKGUN_CD               =   :jikgun_cd,
 				    JIKGUN_NM               =   :jikgun_nm,
 				    JIKGUN_NM_ENG           =   :jikgun_nm_eng,
@@ -266,11 +258,9 @@
 				    ABO_BLOOD               =   :abo_blood,
 				    RH_BLOOD                =   :rh_blood, 
 				    HOBBY                   =   :hobby,
-				    BIRTH_YMD               =   :birth_ymd,
 				    SOLAR_YN                =   :solar_yn,
 				    HEIGHT                  =   :height,
 				    WEIGHT                  =   :weight,
-				    MARRIAGE_YMD            =   :marriage_ymd,
 				    REGION_CD               =   :region_cd,
 				    EMAIL                   =   :email,
 				    HOME_ADDRESS            =   :home_address,
@@ -331,21 +321,13 @@
 					                ,IN_DEPT_CD
 					                ,DEPT_NM 
 					                ,DEPT_NM_ENG
-					                ,CHANGE_DEPT_YMD
 					                ,ORIGIN_DEPT_CD
 					                ,ORIGIN_DEPT_NM     
-					                ,APPOINT_CD    
-					                ,GRP_JOIN_YMD  
+					                ,APPOINT_CD
 					                ,JOIN_TERM     
-					                ,JOIN_LEVEL      
-					                ,JOIN_YMD      
-					                ,RAISE_YMD 
-					                ,PROMOTION_YMD      
+					                ,JOIN_LEVEL
 					                ,NEXT_RAISE_YM 
 					                ,NEXT_PROMOTION_YM
-					                ,RETIREMENT_YMD      
-					                ,SUSPENSION_YMD    
-					                ,REINSTATMENT_YMD     
 					                ,JIKGUN_CD     
 					                ,JIKGUN_NM         
 					                ,JIKGUN_NM_ENG     
@@ -376,12 +358,10 @@
 					                ,SEX_CD       
 					                ,ABO_BLOOD    
 					                ,RH_BLOOD    
-					                ,HOBBY      
-					                ,BIRTH_YMD        
+					                ,HOBBY
 					                ,SOLAR_YN        
 					                ,HEIGHT           
-					                ,WEIGHT         
-					                ,MARRIAGE_YMD      
+					                ,WEIGHT
 					                ,REGION_CD  
 					                ,EMAIL       
 					                ,HOME_ADDRESS        
@@ -434,21 +414,13 @@
 					   :in_dept_cd,
 					   :dept_nm,
 					   :dept_nm_eng,
-					   :change_dept_ymd,
 					   :origin_dept_cd,
 					   :origin_dept_nm ,  
 					   :appoint_cd,
-					   :grp_join_ymd,
 					   :join_term,
 					   :join_level,
-					   :join_ymd,
-					   :raise_ymd,
-					   :promotion_ymd,   
 					   :next_raise_ym,
-					   :next_promotion_ym,   
-					   :retirement_ymd,   
-					   :suspension_ymd,
-					   :reinstatment_ymd,    
+					   :next_promotion_ym,
 					   :jikgun_cd,
 					   :jikgun_nm,
 					   :jikgun_nm_eng,
@@ -480,11 +452,9 @@
 					   :abo_blood,
 					   :rh_blood ,
 					   :hobby,
-					   :birth_ymd,
 					   :solar_yn,
 					   :height,
 					   :weight,
-					   :marriage_ymd,
 					   :region_cd,
 					   :email,
 					   :home_address,
@@ -811,21 +781,13 @@
 								DEPT_CD,
 								IN_DEPT_CD,
 								DEPT_NM,
-								CHANGE_DEPT_YMD,
 								ORIGIN_DEPT_CD,
 								ORIGIN_DEPT_NM,
 								APPOINT_CD,
-								GRP_JOIN_YMD,
 								JOIN_TERM,
 								JOIN_LEVEL,
-								JOIN_YMD,
-								RAISE_YMD,
-								PROMOTION_YMD,
 								NEXT_RAISE_YM,
 								NEXT_PROMOTION_YM,
-								RETIREMENT_YMD,
-								SUSPENSION_YMD,
-								REINSTATMENT_YMD,
 								JIKGUN_CD,
 								JIKGUN_NM,
 								JIKGUN_NM_ENG,
@@ -857,11 +819,9 @@
 								ABO_BLOOD,
 								RH_BLOOD,
 								HOBBY,
-								BIRTH_YMD,
 								SOLAR_YN,
 								HEIGHT,
 								WEIGHT,
-								MARRIAGE_YMD,
 								REGION_CD,
 								EMAIL,
 								HOME_ADDRESS,
@@ -921,21 +881,13 @@
 			<result-mapping column="DEPT_CD" attribute="dept_cd"/>
 			<result-mapping column="IN_DEPT_CD" attribute="in_dept_cd"/>
 			<result-mapping column="DEPT_NM" attribute="dept_nm"/>
-			<result-mapping column="CHANGE_DEPT_YMD" attribute="change_dept_ymd"/>
 			<result-mapping column="ORIGIN_DEPT_CD" attribute="origin_dept_cd"/>
 			<result-mapping column="ORIGIN_DEPT_NM" attribute="origin_dept_nm"/>
 			<result-mapping column="APPOINT_CD" attribute="appoint_cd"/>
-			<result-mapping column="GRP_JOIN_YMD" attribute="grp_join_ymd"/>
 			<result-mapping column="JOIN_TERM" attribute="join_term"/>
 			<result-mapping column="JOIN_LEVEL" attribute="join_level"/>
-			<result-mapping column="JOIN_YMD" attribute="join_ymd"/>
-			<result-mapping column="RAISE_YMD" attribute="raise_ymd"/>
-			<result-mapping column="PROMOTION_YMD" attribute="promotion_ymd"/>
 			<result-mapping column="NEXT_RAISE_YM" attribute="next_raise_ym"/>
 			<result-mapping column="NEXT_PROMOTION_YM" attribute="next_promotion_ym"/>
-			<result-mapping column="RETIREMENT_YMD" attribute="retirement_ymd"/>
-			<result-mapping column="SUSPENSION_YMD" attribute="suspension_ymd"/>
-			<result-mapping column="REINSTATMENT_YMD" attribute="reinstatment_ymd"/>
 			<result-mapping column="JIKGUN_CD" attribute="jikgun_cd"/>
 			<result-mapping column="JIKGUN_NM" attribute="jikgun_nm"/>
 			<result-mapping column="JIKGUN_NM_ENG" attribute="jikgun_nm_eng"/>
@@ -967,11 +919,9 @@
 			<result-mapping column="ABO_BLOOD" attribute="abo_blood"/>
 			<result-mapping column="RH_BLOOD" attribute="rh_blood"/>
 			<result-mapping column="HOBBY" attribute="hobby"/>
-			<result-mapping column="BIRTH_YMD" attribute="birth_ymd"/>
 			<result-mapping column="SOLAR_YN" attribute="solar_yn"/>
 			<result-mapping column="HEIGHT" attribute="height"/>
 			<result-mapping column="WEIGHT" attribute="weight"/>
-			<result-mapping column="MARRIAGE_YMD" attribute="marriage_ymd"/>
 			<result-mapping column="REGION_CD" attribute="region_cd"/>
 			<result-mapping column="EMAIL" attribute="email"/>
 			<result-mapping column="HOME_ADDRESS" attribute="home_address"/>
@@ -1010,7 +960,7 @@
 		<!-- TB_COM_USER UPDATE -->
     <query id="secfw.user.TB_COM_USER.update" isCamelCase="false" isDynamic="true">
       <statement>
-        UPDATE  TB_COM_USER 
+        UPDATE  TB_COM_USER
         SET     
                 SINGLE_ID= :vo.single_id
                 #if (!$vo.abo_blood.equals("")) ,ABO_BLOOD= :vo.abo_blood #end
@@ -1022,12 +972,10 @@
 								#if (!$vo.bachelor_major_cd.equals("")) ,BACHELOR_MAJOR_CD= :vo.bachelor_major_cd #end
 								#if (!$vo.bachelor_major_nm.equals("")) ,BACHELOR_MAJOR_NM= :vo.bachelor_major_nm #end
 								#if (!$vo.bachelor_major_nm_eng.equals("")) ,BACHELOR_MAJOR_NM_ENG= :vo.bachelor_major_nm_eng #end
-								#if (!$vo.birth_ymd.equals("")) ,BIRTH_YMD= :vo.birth_ymd #end
 								#if (!$vo.blngt_orgnz.equals("")) ,BLNGT_ORGNZ= :vo.blngt_orgnz #end
 								#if (!$vo.business_cd.equals("")) ,BUSINESS_CD= :vo.business_cd #end
 								#if (!$vo.business_nm.equals("")) ,BUSINESS_NM= :vo.business_nm #end
 								#if (!$vo.business_nm_eng.equals("")) ,BUSINESS_NM_ENG= :vo.business_nm_eng #end
-								#if (!$vo.change_dept_ymd.equals("")) ,CHANGE_DEPT_YMD= :vo.change_dept_ymd #end
 								#if (!$vo.chinese_nm.equals("")) ,CHINESE_NM= :vo.chinese_nm #end
 								#if (!$vo.comp_address.equals("")) ,COMP_ADDRESS= :vo.comp_address #end
 								#if (!$vo.comp_cd.equals("")) ,COMP_CD= :vo.comp_cd #end
@@ -1051,7 +999,6 @@
 								#if (!$vo.grp_jikgup_cd.equals("")) ,GRP_JIKGUP_CD= :vo.grp_jikgup_cd #end
 								#if (!$vo.grp_jikgup_nm.equals("")) ,GRP_JIKGUP_NM= :vo.grp_jikgup_nm #end
 								#if (!$vo.grp_jikgup_nm_eng.equals("")) ,GRP_JIKGUP_NM_ENG= :vo.grp_jikgup_nm_eng #end
-								#if (!$vo.grp_join_ymd.equals("")) ,GRP_JOIN_YMD= :vo.grp_join_ymd #end
 								#if (!$vo.gthr_cnst_dt.equals("")) ,GTHR_CNST_DT= :vo.gthr_cnst_dt #end
 								#if (!$vo.gthr_cnst_yn.equals("")) ,GTHR_CNST_YN= :vo.gthr_cnst_yn #end
 								#if (!$vo.height.equals("")) ,HEIGHT= :vo.height #end
@@ -1071,9 +1018,7 @@
 								#if (!$vo.jikmu_nm_eng.equals("")) ,JIKMU_NM_ENG= :vo.jikmu_nm_eng #end
 								#if (!$vo.join_level.equals("")) ,JOIN_LEVEL= :vo.join_level #end
 								#if (!$vo.join_term.equals("")) ,JOIN_TERM= :vo.join_term #end
-								#if (!$vo.join_ymd.equals("")) ,JOIN_YMD= :vo.join_ymd #end
 								#if (!$vo.last_locale.equals("")) ,LAST_LOCALE= :vo.last_locale #end
-								#if (!$vo.marriage_ymd.equals("")) ,MARRIAGE_YMD= :vo.marriage_ymd #end
 								#if (!$vo.master_major_cd.equals("")) ,MASTER_MAJOR_CD= :vo.master_major_cd #end
 								#if (!$vo.master_major_nm.equals("")) ,MASTER_MAJOR_NM= :vo.master_major_nm #end
 								#if (!$vo.master_major_nm_eng.equals("")) ,MASTER_MAJOR_NM_ENG= :vo.master_major_nm_eng #end
@@ -1085,16 +1030,12 @@
 								#if (!$vo.office_tel_no.equals("")) ,OFFICE_TEL_NO= :vo.office_tel_no #end
 								#if (!$vo.origin_dept_cd.equals("")) ,ORIGIN_DEPT_CD= :vo.origin_dept_cd #end
 								#if (!$vo.origin_dept_nm.equals("")) ,ORIGIN_DEPT_NM= :vo.origin_dept_nm #end
-								#if (!$vo.promotion_ymd.equals("")) ,PROMOTION_YMD= :vo.promotion_ymd #end
-								#if (!$vo.raise_ymd.equals("")) ,RAISE_YMD= :vo.raise_ymd #end
 								#if (!$vo.region_cd.equals("")) ,REGION_CD= :vo.region_cd #end
 								#if (!$vo.region_nm.equals("")) ,REGION_NM= :vo.region_nm #end
 								#if (!$vo.region_nm_eng.equals("")) ,REGION_NM_ENG= :vo.region_nm_eng #end
 								#if (!$vo.reg_dt.equals("")) ,REG_DT= :vo.reg_dt #end
-								#if (!$vo.reinstatment_ymd.equals("")) ,REINSTATMENT_YMD= :vo.reinstatment_ymd #end
 								#if (!$vo.resp_operdiv.equals("")) ,RESP_OPERDIV= :vo.resp_operdiv #end
 								#if (!$vo.res_no.equals("")) ,RES_NO= :vo.res_no #end
-								#if (!$vo.retirement_ymd.equals("")) ,RETIREMENT_YMD= :vo.retirement_ymd #end
 								#if (!$vo.rh_blood.equals("")) ,RH_BLOOD= :vo.rh_blood #end
 								#if (!$vo.schooling_cd.equals("")) ,SCHOOLING_CD= :vo.schooling_cd #end
 								#if (!$vo.sec_reviewer_type.equals("")) ,SEC_REVIEWER_TYPE= :vo.sec_reviewer_type #end
@@ -1102,7 +1043,6 @@
 								#if (!$vo.single_epid.equals("")) ,SINGLE_EPID= :vo.single_epid #end
 								#if (!$vo.solar_yn.equals("")) ,SOLAR_YN= :vo.solar_yn #end
 								#if (!$vo.status.equals("")) ,STATUS= :vo.status #end
-								#if (!$vo.suspension_ymd.equals("")) ,SUSPENSION_YMD= :vo.suspension_ymd #end
 								#if (!$vo.sys_gbn.equals("")) ,SYS_GBN= :vo.sys_gbn #end
 								#if (!$vo.univ_cd.equals("")) ,UNIV_CD= :vo.univ_cd #end
 								#if (!$vo.univ_nm.equals("")) ,UNIV_NM= :vo.univ_nm #end

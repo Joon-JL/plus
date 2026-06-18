@@ -189,39 +189,16 @@ public class UserServiceImpl extends CommonServiceImpl implements UserService {
             String fileName = "C:/epid.txt";
             
             File file = new File(fileName);
-            
-            if(fileName.length()==0){
-                   try{
-                          FileWriter file_writer = new FileWriter(file);
-                          BufferedWriter buff_writer = new BufferedWriter(file_writer);
-                          PrintWriter print_writer = new PrintWriter(buff_writer,true);
-                          print_writer.println(content);
-                         
-                          if(print_writer.checkError()){
-                        	  
-                                
-                          }
-                         
-                          file.createNewFile();
-                         
-                   } catch (Exception e) {
-                          // TODO: handle exception
-                          e.printStackTrace();
-                   }
-            } else {  //이어쓰기
-            
-                   BufferedWriter buff_writer = new BufferedWriter(new FileWriter(file, true));
-                   PrintWriter print_writer = new PrintWriter(buff_writer,true);
-                   print_writer.println(content);
-                  
-                   if(print_writer.checkError()) {
-                	   
-                   }
-                   
-            }
-            
 
-			
+            try (FileWriter file_writer = new FileWriter(file, true);
+                BufferedWriter buff_writer = new BufferedWriter(file_writer);
+                PrintWriter print_writer = new PrintWriter(buff_writer, true)) {
+
+                print_writer.println(content);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
 		}
 		
 		
@@ -394,7 +371,7 @@ public class UserServiceImpl extends CommonServiceImpl implements UserService {
 		hm.put("user_id", user_id);
 		List userRoleList = commonDAO.list("secfw.user.getUserRoleInfo", hm);
 		
-		if(userRoleList != null && userRoleList.size() > 0){
+		if(userRoleList != null && !userRoleList.isEmpty()){
 			retValue = true;
 		}
 		
@@ -413,8 +390,9 @@ public class UserServiceImpl extends CommonServiceImpl implements UserService {
 			userInfoList = getUserInfo(hm);
 			
 			//사용자 정보가 있으면
-			if(userInfoList == null && userInfoList.size() <= 0) 
-				throw new Exception("##### getClmsUserInfo #####");
+			if(userInfoList == null || userInfoList.isEmpty()) {
+                throw new Exception("##### getClmsUserInfo #####");
+            }
 			
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -437,7 +415,7 @@ public class UserServiceImpl extends CommonServiceImpl implements UserService {
 			hm.put("user_id", epid);
 			
 			userInfoList = commonDAO.list("secfw.user.getExceptUserInfo", hm);
-			if(userInfoList != null && userInfoList.size() > 0){
+			if(userInfoList != null && !userInfoList.isEmpty()){
 				retValue = true;
 			}
 		}catch(Exception e){
@@ -456,7 +434,7 @@ public class UserServiceImpl extends CommonServiceImpl implements UserService {
 			hm.put("user_id", epid);
 			
 			userInfoList = commonDAO.list("secfw.user.getUserCompInfo", hm);
-			if(userInfoList != null && userInfoList.size() > 0){
+			if(userInfoList != null && !userInfoList.isEmpty()){
 				ListOrderedMap returnLom = (ListOrderedMap)userInfoList.get(0);			 
 				compCd = (String)returnLom.get("comp_cd");
 			}
@@ -1093,13 +1071,13 @@ public class UserServiceImpl extends CommonServiceImpl implements UserService {
 			
 			
 			userInfoList = commonDAO.list("secfw.user.getRoleCd", hm);
-			if(userInfoList != null && userInfoList.size() > 0){
+			if(userInfoList != null && !userInfoList.isEmpty()){
 				ListOrderedMap returnLom = (ListOrderedMap)userInfoList.get(0);			 
 				if("RA00".equals((String)returnLom.get("role_cd"))){
 					accessYn = "Y";
 				}else{
 					userInfoList = commonDAO.list("secfw.user.getAccessYn", hm);
-					if(userInfoList != null && userInfoList.size() > 0){
+					if(userInfoList != null && !userInfoList.isEmpty()){
 						returnLom = (ListOrderedMap)userInfoList.get(0);			 
 						accessYn = (String)returnLom.get("access_yn");
 					}
@@ -1107,7 +1085,7 @@ public class UserServiceImpl extends CommonServiceImpl implements UserService {
 				}
 			}else{
 				userInfoList = commonDAO.list("secfw.user.getAccessYn", hm);
-				if(userInfoList != null && userInfoList.size() > 0){
+				if(userInfoList != null && !userInfoList.isEmpty()){
 					ListOrderedMap returnLom = (ListOrderedMap)userInfoList.get(0);			 
 					accessYn = (String)returnLom.get("access_yn");
 				}

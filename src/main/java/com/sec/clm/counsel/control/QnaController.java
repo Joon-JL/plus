@@ -85,20 +85,14 @@ public class QnaController extends CommonController{
 			
 			ListOrderedMap lom = null;
 			String total_cnt = "";
-			
-			if(resultList.size() > 0){
+
+            if(resultList != null && !resultList.isEmpty()) {
 				lom = (ListOrderedMap)resultList.get(0);
-				
 				total_cnt = StringUtil.commaIn(String.valueOf(lom.get("rn")));
-				
 			} else {
-				
 				total_cnt = "0";
-				
 			}
-			
-			
-			
+
 			ModelAndView mav = new ModelAndView();
 			mav.setViewName(forwardURL);
 			mav.addObject("resultList", resultList);

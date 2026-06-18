@@ -563,8 +563,7 @@ function modifyCoclusionCopy(){
     frm.submit();
  }
 
-
-// To receive user search result who will be added as CC.
+ // To receive user search result who will be added as CC.
 function setListClientInfo(returnValue) {
     var arrReturn = returnValue.split("!@#$");
     var innerHtml ="";
@@ -1193,7 +1192,7 @@ function setOpnnConsideration(obj) {
 	            </tr>
 	            
 	            <tr id="deferOpnnArea" class="lineAdd">
-					<th class="borTz02"><spring:message code="clm.page.msg.manage.relPerson" />
+                    <th class="borTz02"><spring:message code="clm.page.msg.manage.relPerson" />
                         <c:if test="${command.session_user_id == contractLom.reqman_id or 'RA01' eq command.top_role }">
                             <span class="btn_all_b" onclick="javascript:openChooseClient();"><span class="add"></span><a> <spring:message code="clm.page.msg.manage.add" htmlEscape="true" /></a></span><!-- 추가 -->
                         </c:if>

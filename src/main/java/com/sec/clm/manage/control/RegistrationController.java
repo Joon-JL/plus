@@ -4352,34 +4352,29 @@ if("" != lomDetail.get("cntrt_no")){
 					  .append("     </tr>\n");
 					}
 					//특화조건시작
-					if(special1List != null && special1List.size() > 0) {
-						if(special1List.size() > 0 ) {
-							for(int k=0; k < special1List.size(); k++) {
-								ListOrderedMap s1Lom = (ListOrderedMap)special1List.get(k);
-								if(!"".equals(StringUtil.bvl(s1Lom.get("attr_value"), ""))){
-									sb.append("	<tr>\n")	
-									  .append("		<th>" +s1Lom.get("attr_nm") + "</th>\n")
-									  .append("		<td>" +  s1Lom.get("attr_value") + "</td>\n")
-									  .append("	</tr>\n");
-								}
-							}	
-						}
+					if(special1List != null && !special1List.isEmpty()) {
+                        for(int k=0; k < special1List.size(); k++) {
+                            ListOrderedMap s1Lom = (ListOrderedMap)special1List.get(k);
+                            if(!"".equals(StringUtil.bvl(s1Lom.get("attr_value"), ""))){
+                                sb.append("	<tr>\n")
+                                  .append("		<th>" +s1Lom.get("attr_nm") + "</th>\n")
+                                  .append("		<td>" +  s1Lom.get("attr_value") + "</td>\n")
+                                  .append("	</tr>\n");
+                            }
+                        }
 					}
 					
-					if(special2List != null && special2List.size() > 0) {
-						if(special2List.size() > 0 ) {
+					if(special2List != null && !special2List.isEmpty()) {
+                        for(int k=0; k < special2List.size(); k++) {
+                            ListOrderedMap s2Lom = (ListOrderedMap)special2List.get(k);
+                            if(!"".equals(StringUtil.bvl(s2Lom.get("attr_value"), ""))){
+                            sb.append("<tr>")
+                              .append("		<th>" + s2Lom.get("attr_nm") + "</th>\n")
+                              .append("		<td>" +  StringUtil.bvl(s2Lom.get("attr_value"), "") + "</td>\n")
+                              .append("</tr>\n");
+                            }
+                        }
 							
-							for(int k=0; k < special2List.size(); k++) {
-								ListOrderedMap s2Lom = (ListOrderedMap)special2List.get(k);
-								if(!"".equals(StringUtil.bvl(s2Lom.get("attr_value"), ""))){
-								sb.append("<tr>")
-								  .append("		<th>" + s2Lom.get("attr_nm") + "</th>\n")
-								  .append("		<td>" +  StringUtil.bvl(s2Lom.get("attr_value"), "") + "</td>\n")
-								  .append("</tr>\n");
-								}
-							}
-							
-						}
 					}
 					//특화정보끝
 					

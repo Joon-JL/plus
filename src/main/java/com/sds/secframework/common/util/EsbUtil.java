@@ -2,6 +2,7 @@ package com.sds.secframework.common.util;
 
 import java.io.Reader;
 import java.security.MessageDigest;
+import java.security.SecureRandom;
 import java.sql.Clob;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -28,6 +29,10 @@ public class EsbUtil {
 	public EsbUtil() {
 	}
 
+    private static final SecureRandom RANDOM = new SecureRandom();
+    private static final String RND_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    private static final int TARGET_LENGTH = 33;
+
 	/**
 	 * ESB연계시 지정된 ID, PW정보를 AUTH VO로 Wrap해주는 Utility성 메소드
 	 *
@@ -48,16 +53,18 @@ public class EsbUtil {
 	 * @return String
 	 */
 	public static String generateMisId() {
-		String RNDValue = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-		String head = EsbUtil.getTimeByLocalTimeZone("yyyyMMddHHmmss") + "_";
-		Random random = new Random(System.currentTimeMillis());
-		StringBuffer sTemp = new StringBuffer(head);
-		int nMAX_LNG = 33 - head.length();
-		for (int ii = 1; ii < nMAX_LNG; ii++) {
-			int nRnd = random.nextInt(31);
-			sTemp.append(RNDValue.substring(nRnd, nRnd + 1));
-		}
-		return sTemp.toString();
+        String head = EsbUtil.getTimeByLocalTimeZone("yyyyMMddHHmmss") + "_";
+
+        StringBuilder sb = new StringBuilder(head);
+
+        int requiredRandomChars = TARGET_LENGTH - sb.length();
+
+        for (int i = 0; i < requiredRandomChars; i++) {
+            int nRnd = RANDOM.nextInt(RND_CHARS.length());
+            sb.append(RND_CHARS.charAt(nRnd));
+        }
+
+        return sb.toString();
 	}
 
 	/**
@@ -70,18 +77,20 @@ public class EsbUtil {
 		if (gbn == null || gbn.length() < 1 || gbn.length() > 5 || !isAlphaNumeric(gbn)) {
 			return "ERROR";
 		}
-		String moduleType = gbn;
-		String RNDValue = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
 		String head = EsbUtil.getTimeByLocalTimeZone("yyyyMMddHHmmss");
-		Random random = new Random(System.currentTimeMillis());
-		StringBuffer sTemp = new StringBuffer(moduleType);
-		sTemp.append(head);
-		int nMAX_LNG = 33 - (moduleType.length() + head.length());
-		for (int ii = 1; ii < nMAX_LNG; ii++) {
-			int nRnd = random.nextInt(31);
-			sTemp.append(RNDValue.substring(nRnd, nRnd + 1));
-		}
-		return sTemp.toString();
+
+        StringBuilder sb = new StringBuilder(gbn);
+        sb.append(head);
+
+        int requiredRandomChars = TARGET_LENGTH - sb.length();
+
+        for (int i = 0; i < requiredRandomChars; i++) {
+            int nRnd = RANDOM.nextInt(RND_CHARS.length());
+            sb.append(RND_CHARS.charAt(nRnd));
+        }
+
+		return sb.toString();
 	}
 
 	/**
@@ -95,30 +104,27 @@ public class EsbUtil {
 		if (gbn == null || gbn.length() < 1 || gbn.length() > 5 || !EsbUtil.isAlphaNumeric(gbn)) {
 			return "ERROR";
 		}
-		String moduleType = gbn;
-		String RNDValue = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-		String head = EsbUtil.getTimeByLocalTimeZone("yyyyMMddHHmmss") + StringUtil.paddingZero(String.valueOf(iLoop), 4);
-		Random random = new Random(System.currentTimeMillis());
-		StringBuffer sTemp = new StringBuffer(moduleType);
-		sTemp.append(head);
-		int nMAX_LNG = 33 - (moduleType.length() + head.length());
-		for (int ii = 1; ii < nMAX_LNG; ii++) {
-			int nRnd = random.nextInt(31);
-			sTemp.append(RNDValue.substring(nRnd, nRnd + 1));
-		}
-		return sTemp.toString();
+
+        String head = EsbUtil.getTimeByLocalTimeZone("yyyyMMddHHmmss") + StringUtil.paddingZero(String.valueOf(iLoop), 4);
+
+        StringBuilder sb = new StringBuilder(gbn);
+        sb.append(head);
+
+        int requiredRandomChars = TARGET_LENGTH - sb.length();
+
+        for (int i = 0; i < requiredRandomChars; i++) {
+            int nRnd = RANDOM.nextInt(RND_CHARS.length());
+            sb.append(RND_CHARS.charAt(nRnd));
+        }
+
+        return sb.toString();
 	}
 
 	public static boolean isAlphaNumeric(String input) {
-		String sAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-		int iLen = input.length();
-
-		for (int i = 0; i < iLen; i++) {
-			if (sAlphabet.indexOf(input.substring(i, i + 1)) < 0) {
-				return false;
-			}
-		}
-		return true;
+        if (input == null || input.isEmpty()) {
+            return false;
+        }
+        return input.matches("^[a-zA-Z0-9]+$");
 	}
 
 	/**

@@ -11,104 +11,104 @@ import javax.mail.internet.MimeUtility;
 
 public class Converter
 {
-	/**
-	 * 원본 문자열을 지정한 char-set으로 인코딩합니다.
-	 */
-	static String convertString(String src, String enc)
-	{
-		String converted = null;
+    /**
+     * 원본 문자열을 지정한 char-set으로 인코딩합니다.
+     */
+    static String convertString(String src, String enc)
+    {
+        String converted = null;
 
-		try
-		{
-			converted = new String(src.getBytes(), enc);
-		}
-		catch(UnsupportedEncodingException uee)
-		{
-			return null;
-		}
+        try
+        {
+            converted = new String(src.getBytes(), enc);
+        }
+        catch(UnsupportedEncodingException uee)
+        {
+            return null;
+        }
 
-		return converted;
-	}
+        return converted;
+    }
 
-	static String convertString(byte [] src, String enc)
-	{
-		String converted = null;
-		try
-		{
-			converted = new String(src, enc);
-		}
-		catch(UnsupportedEncodingException uee)
-		{
-			return null;
-		}
+    static String convertString(byte [] src, String enc)
+    {
+        String converted = null;
+        try
+        {
+            converted = new String(src, enc);
+        }
+        catch(UnsupportedEncodingException uee)
+        {
+            return null;
+        }
 
-		return converted;
-	}
+        return converted;
+    }
 
-	/**
-	 * MIME의 name 프로퍼티에 사용되는 문자열을 시스템 인코딩에 맞게 디코딩 합니다.
-	 * @param encoded	MIME Encode가 된 문자열
-	 */
-	static String getMIMEEncodedString(String encoded)
-	{
-		String charset = null;
-		String enctype = null;
-		String content = null;
-		String converted = null;
-		byte [] convertsrc;
-		int beginindex = 0;
-		int endindex = 0;
- 
-		// is MIME Encoded word?
-		if(encoded.charAt(0) == '=' && encoded.charAt(1) == '?')
-		{
-			beginindex = encoded.indexOf("?", endindex);
-			endindex = encoded.indexOf("?", beginindex + 1);
-			if(beginindex == -1 || endindex == -1)
-				return null;
-			charset = encoded.substring(beginindex + 1, endindex);
+    /**
+     * MIME의 name 프로퍼티에 사용되는 문자열을 시스템 인코딩에 맞게 디코딩 합니다.
+     * @param encoded	MIME Encode가 된 문자열
+     */
+    static String getMIMEEncodedString(String encoded)
+    {
+        String charset = null;
+        String enctype = null;
+        String content = null;
+        String converted = null;
+        byte [] convertsrc;
+        int beginindex = 0;
+        int endindex = 0;
 
-			beginindex = endindex;
-			endindex = encoded.indexOf("?", beginindex + 1);
-			if(beginindex == -1 || endindex == -1)
-				return null;
-			enctype = encoded.substring(beginindex + 1, endindex);
-			if(enctype.equals("b"))
-				enctype = "base64";
+        // is MIME Encoded word?
+        if(encoded.charAt(0) == '=' && encoded.charAt(1) == '?')
+        {
+            beginindex = encoded.indexOf("?", endindex);
+            endindex = encoded.indexOf("?", beginindex + 1);
+            if(beginindex == -1 || endindex == -1)
+                return null;
+            charset = encoded.substring(beginindex + 1, endindex);
 
-			beginindex = endindex;
-			endindex = encoded.indexOf("?", beginindex + 1);
-			if(beginindex == -1 || endindex == -1)
-				return null;
-			content = encoded.substring(beginindex + 1, endindex);
-		}
+            beginindex = endindex;
+            endindex = encoded.indexOf("?", beginindex + 1);
+            if(beginindex == -1 || endindex == -1)
+                return null;
+            enctype = encoded.substring(beginindex + 1, endindex);
+            if(enctype.equals("b"))
+                enctype = "base64";
 
-		if(charset != null && !charset.isEmpty())
-		{
-			try
-			{
-				//InputStream is = new ByteArrayInputStream(content.getBytes("iso-8859-1"));
-				InputStream is = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
-				try
-				{
-					is = MimeUtility.decode(is, enctype);
-				}
-				catch(MessagingException moe)
-				{
-					return null;
-				}
- 				convertsrc = new byte[is.available() + 1];
-				is.read(convertsrc);
-			}
-			catch(IOException ioe)
-			{
-				return null;
-			}
-			converted = convertString(convertsrc, charset).trim();
-		}
+            beginindex = endindex;
+            endindex = encoded.indexOf("?", beginindex + 1);
+            if(beginindex == -1 || endindex == -1)
+                return null;
+            content = encoded.substring(beginindex + 1, endindex);
+        }
 
-		return converted;
-	}
+        if(charset != null && !charset.isEmpty())
+        {
+            try
+            {
+                //InputStream is = new ByteArrayInputStream(content.getBytes("iso-8859-1"));
+                InputStream is = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
+                try
+                {
+                    is = MimeUtility.decode(is, enctype);
+                }
+                catch(MessagingException moe)
+                {
+                    return null;
+                }
+                convertsrc = new byte[is.available() + 1];
+                is.read(convertsrc);
+            }
+            catch(IOException ioe)
+            {
+                return null;
+            }
+            converted = convertString(convertsrc, charset).trim();
+        }
+
+        return converted;
+    }
 
 //	static void main(String[] argv)
 //	{
@@ -116,26 +116,26 @@ public class Converter
 //		String test = new String("=?euc-kr?b?x9Gx2y5qcGc=?=");
 //		test = getMIMEEncodedString(test);
 //	}
-	
-	public static String replace(String original, String oldstr, String newstr)
-	{
-		StringBuilder convert = new StringBuilder();
-		int pos = 0;
-		int begin = 0;
-		pos = original.indexOf(oldstr);
 
-		if(pos == -1)
-			return original;
+    public static String replace(String original, String oldstr, String newstr)
+    {
+        StringBuilder convert = new StringBuilder();
+        int pos = 0;
+        int begin = 0;
+        pos = original.indexOf(oldstr);
 
-		while(pos != -1)
-		{
-			convert.append(original, begin, pos).append(newstr);
-			begin = pos + oldstr.length();
-			pos = original.indexOf(oldstr, begin);
-		}
-		convert.append(original.substring(begin));
+        if(pos == -1)
+            return original;
 
-		return convert.toString();
-	}
-	
+        while(pos != -1)
+        {
+            convert.append(original, begin, pos).append(newstr);
+            begin = pos + oldstr.length();
+            pos = original.indexOf(oldstr, begin);
+        }
+        convert.append(original.substring(begin));
+
+        return convert.toString();
+    }
+
 }

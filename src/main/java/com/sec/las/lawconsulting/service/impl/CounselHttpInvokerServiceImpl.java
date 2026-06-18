@@ -88,34 +88,53 @@ public class CounselHttpInvokerServiceImpl extends CommonServiceImpl implements 
 			*************************************************/
 			    List fileList = (ArrayList)hm.get("FILES");
 			    String file_Info = (String)hm.get("FILE_INFO");
-			   
-			    // 첨부파일 저장정보
-				String fileInfos = "";
+
 				// 파일의 확장자 정보를 소문자로 변환해서 가져온다.
-				String fileInfo = "";
+				String fileInfos = "";
 			    
-				if (fileList != null && fileList.size() > 0) {
+				if (fileList != null && !fileList.isEmpty()) {
 					// File 단위로 자른다.
 					String[] arrFileInfo = StringUtil.token(file_Info, "|");
+                    // 첨부파일 저장정보
+                    StringBuilder sb = new StringBuilder(fileInfos != null ? fileInfos : "");
 					
-					for(int j=0; j<fileList.size(); j++) {
-						HashMap fileMap = (HashMap)fileList.get(j);
-						
-						// 파일의 확장자 정보를 소문자로 변환해서 가져온다.
-    				    fileInfo = fileMap.get("FILE_NM").toString().substring(fileMap.get("FILE_NM").toString().lastIndexOf(".") + 1).toLowerCase();
-    				    String[] arrFileDetail = StringUtil.token(arrFileInfo[j], "*");
-    				    //20120813_10711774249509*20120705_10903449567612.pdf*pdf*C:\Temp\201208\20120813_10711774249509.pdf*34475181*0*add |
-						fileInfos  	= fileInfos 
-					            + arrFileDetail[0]+"*" 
-					            + fileMap.get("FILE_NM")+"*"
-					            + fileInfo+"*"        
-					            + arrFileDetail[3]+"*"
-					            + Integer.valueOf(arrFileDetail[4]).intValue()+"*"
-					            + 0+"*"
-					            + "add|";	
-					
-					}
-					vo.setSys_cd("LAS");                       
+					for (int j=0; j<fileList.size(); j++) {
+                        HashMap<?, ?> fileMap = (HashMap<?, ?>) fileList.get(j);
+                        if (fileMap == null) {
+                            continue;
+                        }
+
+                        if (j >= arrFileInfo.length) {
+                            break;
+                        }
+
+                        Object fileNmObj = fileMap.get("FILE_NM");
+                        if (fileNmObj == null) {
+                            continue;
+                        }
+                        String fileNm = fileNmObj.toString();
+
+                        int lastDotIndex = fileNm.lastIndexOf(".");
+                        String fileInfoExt = (lastDotIndex != -1 ? fileNm.substring(lastDotIndex + 1).toLowerCase() : "");
+
+                        String[] arrFileDetail = StringUtil.token(arrFileInfo[j], "*");
+
+                        if (arrFileDetail == null || arrFileDetail.length < 5) {
+                            continue;
+                        }
+
+                        sb.append(arrFileDetail[0]).append("*")
+                            .append(fileNm).append("*")
+                            .append(fileInfoExt).append("*")
+                            .append(arrFileDetail[3]).append("*")
+                            .append(arrFileDetail[4]).append("*")
+                            .append("0*")
+                            .append("add|");
+                    }
+
+                    fileInfos= sb.toString();
+
+                    vo.setSys_cd("LAS");
 					vo.setFile_bigclsfcn("F003");        
 					vo.setFile_midclsfcn("F00301");         
 					vo.setFile_smlclsfcn("");   

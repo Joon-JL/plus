@@ -124,30 +124,7 @@ public class SpeakContractServiceImpl extends CommonServiceImpl implements Speak
 		String decodeText = vo.getBody_mime();
 		HashMap hm = comUtilService.getNamoContentAndFileInfo(decodeText);
 
-		if (hm.get("TYPE").equals("M")) {
-			ArrayList fileList = (ArrayList) hm.get("FILE_INFO");
-
-			for (int i = 0; i < fileList.size(); i++) {
-				HashMap fileMap = (HashMap) fileList.get(i);
-
-				Integer seq = new Integer(i);
-				String fileNm = (String) fileMap.get("FILE_NM");
-				String filePath = (String) fileMap.get("FILE_PTH");
-				String fileUrl = (String) fileMap.get("FILE_URL");
-
-				File f = new File(filePath);
-				Long fileSize = new Long(f.length());
-			}
-			vo.setRe_cont((StringUtil.convertNamoCharsToHtml((String) hm.get("CONTENT")))); // Cross-site
-																							// Scripting
-																							// 방지
-																							// 처리
-		} else {
-			vo.setRe_cont((StringUtil.convertNamoCharsToHtml((String) hm.get("CONTENT")))); // Cross-site
-																							// Scripting
-																							// 방지
-																							// 처리
-		}
+		vo.setRe_cont((StringUtil.convertNamoCharsToHtml((String) hm.get("CONTENT")))); // Cross-site Scripting 방지 처리
 		
 		return commonDAO.insert("las.speakcontract.insert", vo);
 	}
@@ -186,31 +163,8 @@ public class SpeakContractServiceImpl extends CommonServiceImpl implements Speak
 		String decodeText = vo.getBody_mime();
 		HashMap hm = comUtilService.getNamoContentAndFileInfo(decodeText);
 
-		if (hm.get("TYPE").equals("M")) {
-			ArrayList fileList = (ArrayList) hm.get("FILE_INFO");
+        vo.setRe_cont((StringUtil.convertNamoCharsToHtml((String) hm.get("CONTENT")))); // Cross-site
 
-			for (int i = 0; i < fileList.size(); i++) {
-				HashMap fileMap = (HashMap) fileList.get(i);
-
-				Integer seq = new Integer(i);
-				String fileNm = (String) fileMap.get("FILE_NM");
-				String filePath = (String) fileMap.get("FILE_PTH");
-				String fileUrl = (String) fileMap.get("FILE_URL");
-
-				File f = new File(filePath);
-				Long fileSize = new Long(f.length());
-			}
-			vo.setRe_cont((StringUtil.convertNamoCharsToHtml((String) hm.get("CONTENT")))); // Cross-site
-																							// Scripting
-																							// 방지
-																							// 처리
-		} else {
-			vo.setRe_cont((StringUtil.convertNamoCharsToHtml((String) hm.get("CONTENT")))); // Cross-site
-																							// Scripting
-																							// 방지
-																							// 처리
-		}
-		
 		return commonDAO.modify("las.speakcontract.modify", vo);
 	}
 

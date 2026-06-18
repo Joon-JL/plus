@@ -538,28 +538,25 @@ function openHis(mis_id){
          }
          $('#id_trgtman_nm').html(innerHtml);
      }
-       
-       // 관련자 리스트 수정 여부 저장
 
+     // 관련자 리스트 수정 여부 저장
      $('#client_modify_div').val("Y");
-       
-       // 여기 부터 AJAX 로 실시간 DB 저장 처리   메소드 명 modifyRefCCAJAX
-       var options = {   
-				url: "<c:url value='/clm/review/consideration.do?method=modifyRefCCAJAX' />",
-				type: "post",
-				dataType: "json",
-				success: function(responseText, statusText) {
-					if(responseText.returnCnt != 0) {
-						var html = "";
-						$.each(responseText, function(entryIndex, entry) {
-							var return_val = entry['return_val'];
-						});						
-					}						
-				}
-		};		
-		$("#frm").ajaxSubmit(options);	
-       
-       
+
+     // 여기 부터 AJAX 로 실시간 DB 저장 처리   메소드 명 modifyRefCCAJAX
+     var options = {
+         url: "<c:url value='/clm/review/consideration.do?method=modifyRefCCAJAX' />",
+         type: "post",
+         dataType: "json",
+         success: function(responseText, statusText) {
+             if(responseText.returnCnt != 0) {
+                 var html = "";
+                 $.each(responseText, function(entryIndex, entry) {
+                     var return_val = entry['return_val'];
+                 });
+             }
+         }
+     };
+     $("#frm").ajaxSubmit(options);
  }
 </script>
 </head>

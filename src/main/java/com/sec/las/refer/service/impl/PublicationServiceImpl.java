@@ -74,7 +74,7 @@ public class PublicationServiceImpl extends CommonServiceImpl implements Publica
 	public Map detail(PublicationVO vo) throws Exception {
 		List list = commonDAO.list("shri.publication.detail", vo) ;
 		Map map = null ;
-		if(list!=null && list.size()!=0) {
+		if(list!=null && !list.isEmpty()) {
 			map = (Map)list.get(0) ;
 			
 			//첨부파일 정보 가져오기
@@ -87,7 +87,7 @@ public class PublicationServiceImpl extends CommonServiceImpl implements Publica
 				contents = WebUtil.htmlToText(contents) ;
 				map.put("contents", contents) ;
 			}
-		} else if(list.size()==0) {
+		} else {
 			map = new ListOrderedMap() ;
 		}
 		

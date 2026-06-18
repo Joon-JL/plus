@@ -383,14 +383,11 @@ public class RoleManageController extends CommonController {
 			resultListUser = roleService.detailAssignedUsers(vo);
 			
 			ListOrderedMap lom = null;
-			
-			if(resultList.size() > 0){
-				 lom = (ListOrderedMap)resultList.get(0);
-			}
-			
-			if(resultList==null)
-				throw new Exception("##### queryService is null ##### ");
-			
+
+            if (resultList != null && !resultList.isEmpty()) {
+                lom = (ListOrderedMap)resultList.get(0);
+            }
+
 			/*********************************************************
 			 * Massage
 			**********************************************************/
@@ -470,20 +467,15 @@ public class RoleManageController extends CommonController {
 			**********************************************************/
 			resultList = roleService.detailRole(vo);
 			resultListUser = roleService.detailAssignedUsers(vo);
-			
-			if(resultList==null)
-				throw new Exception("##### queryService is null ##### ");
-			
+
 			ListOrderedMap lom = null;
 			int Usersize = 0;
-			
-			if(resultList.size() > 0){
-				 lom = (ListOrderedMap)resultList.get(0);
-				 Usersize = resultListUser.size();
-			}
-			
-			
-			
+
+            if (resultList != null && !resultList.isEmpty()) {
+                lom = (ListOrderedMap)resultList.get(0);
+                Usersize = resultListUser.size();
+            }
+
 			/*********************************************************
 			 * ModelAndView
 			**********************************************************/
@@ -701,8 +693,6 @@ public class RoleManageController extends CommonController {
 
 			resultList = roleService.reviewAutolist(vo) ;
 						
-			ListOrderedMap lom = null;
-			
 			JSONObject jo = new JSONObject();
 		
 			
@@ -714,19 +704,21 @@ public class RoleManageController extends CommonController {
 			String jikgun_nm_eng = "";
 			
 			String ser ="";
-			for(int i=0; i < resultList.size(); i++) {
-				if(resultList.size()-1 != i){
-					ser = ",";
-				}else{
-					ser ="";
-				}
-				resultListMap = (ListOrderedMap)resultList.get(i);
-				user_id += (String)resultListMap.get("USER_ID")+ser;
-				user_nm += StringUtil.bvl((String)resultListMap.get("USER_NM"),"")+ser;
-				dept_nm += StringUtil.bvl((String)resultListMap.get("DEPT_NM"),"")+ser;
-				jikgun_nm_eng += StringUtil.bvl((String)resultListMap.get("JIKGUN_NM_ENG"),"")+ser;
-			}
-			
+            if (resultList != null && !resultList.isEmpty()) {
+                for(int i=0; i < resultList.size(); i++) {
+                    if(resultList.size()-1 != i){
+                        ser = ",";
+                    }else{
+                        ser ="";
+                    }
+                    resultListMap = (ListOrderedMap)resultList.get(i);
+                    user_id += (String)resultListMap.get("USER_ID")+ser;
+                    user_nm += StringUtil.bvl((String)resultListMap.get("USER_NM"),"")+ser;
+                    dept_nm += StringUtil.bvl((String)resultListMap.get("DEPT_NM"),"")+ser;
+                    jikgun_nm_eng += StringUtil.bvl((String)resultListMap.get("JIKGUN_NM_ENG"),"")+ser;
+                }
+            }
+
 			jo.put("user_id", user_id);
 			jo.put("user_nm", user_nm);
 			jo.put("dept_nm", dept_nm);
@@ -790,8 +782,6 @@ public class RoleManageController extends CommonController {
 
 			resultList = roleService.checkApprovalYn(vo) ;
 						
-			ListOrderedMap lom = null;
-			
 			JSONObject jo = new JSONObject();
 						
 			

@@ -1205,7 +1205,7 @@ var chk_flag = false;
 			
 			if("" != reason){
 				$("#expl").val(reason);
-				$("#parent_cntrt_id").val("20141010414540080");
+				//$("#parent_cntrt_id").val("20141010414540080");
 				
 				//$("#rel_type").html("<option value='C03202' >Master-Sub Relations</option>");
 				$("#rel_type").val("C03202");

@@ -371,10 +371,10 @@
 		<property name="approvalPathService" ref="clm.ApprovalPathService"/>
 	</bean>
 
-	<!-- Admin Contract Manage Control -->
-	<bean id="clm.contractManageControl"
-		  class="com.sec.clm.admin.control.ContractManageController" parent="secfw.commonControl">
-		<property name="contractManageService" ref="clm.ContractManageService"/>
-	</bean>
+    <!-- Admin Contract Manage Control -->
+    <bean id="clm.contractManageControl"
+          class="com.sec.clm.admin.control.ContractManageController" parent="secfw.commonControl">
+        <property name="contractManageService" ref="clm.ContractManageService"/>
+    </bean>
 	
 </beans>

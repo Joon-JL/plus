@@ -382,11 +382,11 @@ public class DimensionController extends CommonController {
 			**********************************************************/
 			resultList = dimensionService.detailDimension(vo);
 
-			ListOrderedMap lom = (ListOrderedMap)resultList.get(0);
-			
-			if(resultList==null)
-				throw new Exception("##### queryService is null ##### ");
-			
+            ListOrderedMap lom = null;
+            if (resultList != null && !resultList.isEmpty()) {
+                lom = (ListOrderedMap)resultList.get(0);
+            }
+
 			/*********************************************************
 			 * Massage
 			**********************************************************/
@@ -969,7 +969,7 @@ public class DimensionController extends CommonController {
 			List ruleListODepth = dimensionService.listODepthDimesionWord(vo);//1단계 조회
 			List resultList = dimensionService.listDimesionWordAdmin(vo);
 
-			if (resultList != null && resultList.size() > 0) {
+			if (resultList != null && !resultList.isEmpty()) {
 				ListOrderedMap lom = (ListOrderedMap)resultList.get(0);
 
 				pageUtil.setTotalRow(Integer.parseInt(String.valueOf(lom.get("total_cnt"))));

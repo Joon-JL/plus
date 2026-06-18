@@ -118,137 +118,13 @@ public class UserManagerController extends CommonController {
         mav.addObject("orgnzList", (List)Srh.get("orgnzList"));
 		mav.setViewName(forwardURL);
         
-		form.setReturn_message(new String(StringUtil.bvl( this.returnMessage,"")));
+		form.setReturn_message(StringUtil.bvl( this.returnMessage,""));
 		mav.addObject("command", form);
 		this.returnMessage = null;
 		
 		return mav;
 	}
 
-	/**
-	 * 사용자 정보 저장 김정곤 2011/03/21
-	 * <P>
-	 * 1. 저장 서비스 호출
-	 * 2. 페이징 처리
-	 * </P>
-	 * @param form UserManageForm
-	 * @param vo   UserManageVO
-	 * @return
-	 * @throws Exception
-	 */	
-//	public ModelAndView SaveUserMng(HttpServletRequest request, HttpServletResponse response) throws Exception {
-//		//-----------RETURN URL:리턴경로 -------------- 
-//		ModelAndView mav 		= new ModelAndView();
-//		String forwardURL 		= "/WEB-INF/jsp/secfw/user/UserMngList.jsp";
-//		//-----------BIND:바인드설정 -------------------- 		
-//		UserManagerForm form 	= new UserManagerForm();
-//		UserManagerVO   vo   	= new UserManagerVO();	
-//		 
-//		bind(request, form);
-//		bind(request, vo);
-//		//-----------SET VEL:필수값 설정 ----------------- 		
-//        HttpSession session 	= request.getSession(false);
-//        String sysCd			= (String)session.getAttribute("secfw.session.sys_cd");
-//        String userId 			= (String)session.getAttribute("secfw.session.user_id");
-//        String authCompCd		= (String)session.getAttribute("secfw.session.auth_comp_cd");
-//        String compCd = (String)session.getAttribute("secfw.session.comp_cd");
-//        vo.setSys_cd(sysCd);
-//        vo.setLogin_id(userId);
-//        vo.setSession_auth_comp_cd(authCompCd);
-//        vo.setSession_comp_cd(compCd);
-//        
-//        Locale locale = new RequestContext(request).getLocale() ;
-//        
-//		//-----------SAVE:정보 저장 ---------------        
-//        String result_msg 		=  userManagerService.SaveUserMng(vo, locale);     
-//        this.returnMessage = result_msg;
-//        
-//        return  listUserMng(request,response);
-     // !@# ESB인터페이스 변경 (authCompCd 추가) 2013.04.25
-// 		zzEmployee employee[] = esbOrgService.userSearchByEpid(userId);
-// 		
-// 		if(employee==null){
-// 			
-// 		}else{
-//			Employee userInfo = employee[0];
-//			
-//			//사용자 정보
-//			HashMap userInfoMap = new HashMap();
-//			
-//			userInfoMap.put("user_id", StringUtil.bvl(userInfo.getEpid(), ""));                     //사용자아이디
-//			//userInfoMap.put("res_no", StringUtil.bvl(userInfo.getEpregisternumber(), ""));          //주민번호
-//			userInfoMap.put("res_no", "");          //주민번호
-//			userInfoMap.put("emp_no", StringUtil.bvl(userInfo.getEmployeenumber(), ""));            //사번
-//			userInfoMap.put("user_nm", StringUtil.bvl(userInfo.getCn(), ""));                       //성명
-//			userInfoMap.put("user_real_nm", StringUtil.bvl(userInfo.getCn(), ""));                  //실제성명
-//			userInfoMap.put("user_nm_eng", StringUtil.bvl(userInfo.getEpengivenname(), ""));        //영문성명
-//			userInfoMap.put("user_real_nm_eng", StringUtil.bvl(userInfo.getEpengivenname(), ""));   //실제영문성명
-//			userInfoMap.put("single_id", StringUtil.bvl(userInfo.getUserid(), ""));                 //싱글아이디
-//			userInfoMap.put("single_epid", StringUtil.bvl(userInfo.getEpid(), ""));                 //싱글EPID
-//			userInfoMap.put("comp_cd", StringUtil.bvl(userInfo.getEporganizationnumber(), ""));     //회사코드
-//			//userInfoMap.put("comp_nm", StringUtil.bvl(userInfo.getO(), ""));                        //회사명
-//			//userInfoMap.put("comp_nm_eng", StringUtil.bvl(userInfo.getEpenorganizationname(), "")); //회사영문명
-//			userInfoMap.put("business_cd", StringUtil.bvl(userInfo.getEpsuborgcode(), ""));         //총괄코드
-//			userInfoMap.put("business_nm", StringUtil.bvl(userInfo.getEpsuborgname(), ""));         //총괄명
-//			userInfoMap.put("business_nm_eng", StringUtil.bvl(userInfo.getEpensuborgname(), ""));   //총괄영문명
-//			userInfoMap.put("division_cd", StringUtil.bvl(userInfo.getEpbusicode(), ""));           //사업장코드
-//			userInfoMap.put("division_nm", StringUtil.bvl(userInfo.getEpbusiname(), ""));           //사업장명
-//			userInfoMap.put("dept_cd", StringUtil.bvl(userInfo.getDepartmentnumber(), ""));         //부서코드
-//			userInfoMap.put("in_dept_cd", StringUtil.bvl(userInfo.getEpindeptcode(), ""));          //내부부서코드
-//			userInfoMap.put("dept_nm", StringUtil.bvl(userInfo.getDepartment(), ""));               //부서명
-//			userInfoMap.put("dept_nm_eng", StringUtil.bvl(userInfo.getEpendepartment(), ""));       //부서영문명
-//			userInfoMap.put("jikgup_cd", StringUtil.bvl(userInfo.getEptitlenumber(), ""));          //직급코드
-//			userInfoMap.put("jikgup_nm", StringUtil.bvl(userInfo.getTitle(), ""));                  //직급명
-//			userInfoMap.put("jikgup_nm_eng", StringUtil.bvl(userInfo.getEpentitle(), ""));          //직급영문명
-//			userInfoMap.put("jikmu_cd", StringUtil.bvl(userInfo.getEpjob(), ""));                   //직무코드
-//			userInfoMap.put("jikmu_nm", StringUtil.bvl(userInfo.getEpjobname(), ""));               //직무명
-//			userInfoMap.put("region_cd", StringUtil.bvl(userInfo.getEpregioncode(), ""));           //지역코드
-//			userInfoMap.put("region_nm", StringUtil.bvl(userInfo.getEpregionname(), ""));           //지역명
-//			userInfoMap.put("region_nm_eng", StringUtil.bvl(userInfo.getEpenregionname(), ""));     //영문지역명
-//			userInfoMap.put("email", StringUtil.bvl(userInfo.getMail(), ""));                       //이메일
-//			userInfoMap.put("office_tel_no", StringUtil.bvl(userInfo.getTelephonenumber(), ""));    //회사전화번호 //2012-02-01 법무팀 이효은 대리 유청으로 수집함
-//			//userInfoMap.put("home_tel_no", StringUtil.bvl(userInfo.getHomephone(), ""));            //집전화번호
-//			//userInfoMap.put("mobile_no", StringUtil.bvl(userInfo.getMobile(), ""));                 //핸드폰번호
-//			userInfoMap.put("home_tel_no", "");      //집전화번호
-//			userInfoMap.put("mobile_no", "");        //핸드폰번호
-//			userInfoMap.put("status", StringUtil.bvl(userInfo.getEpuserstatus(), "B"));              //재직상태
-//			userInfoMap.put("employee_type", StringUtil.bvl(userInfo.getEmployeetype(), ""));       //사용자타입
-//			userInfoMap.put("user_level", StringUtil.bvl(userInfo.getEpsecuritylevel(), ""));       //보안레벨  
-//			
-//			userInfoMap.put("email_rcv_yn", vo.getEmail_rcv_yn());			
-//			userInfoMap.put("blngt_orgnz", vo.getBlngt_orgnz());
-//			userInfoMap.put("resp_operdiv", vo.getResp_operdiv());
-//			userInfoMap.put("auto_rnew_yn", vo.getAuto_rnew_yn());
-//			userInfoMap.put("approval_yn", vo.getApproval_yn());
-//			userInfoMap.put("access_yn", vo.getAccess_yn());
-//			
-//			//선택된 지법인으로 comp_cd 재설정
-//			userInfoMap.put("comp_cd", vo.getLoc_gbn());
-//			userInfoMap.put("comp_nm", vo.getComp_nm());
-//		        
-//		    
-//		    int update = userManagerService.updateUser(userInfoMap);
-//		    int role = 0;
-//				
-//			if(update<1){
-//				//등록된 사용자가 아닐경우 사용자로 등록, 의로자 Role 기본 등록
-//				int insert = userManagerService.insertUserInfo(userInfoMap);
-//				if(insert>1){
-//					String rolls[] = SpliteArry(vo.getRole_cd(),",");        
-//					role = userManagerService.InsertRolls(vo,rolls);
-//				}
-//			}else{
-//				if(vo.getRole_cd()==null){
-//					vo.setRole_cd("RZ00");
-//				}
-//				String rolls[] = SpliteArry(vo.getRole_cd(),",");        
-//				role = userManagerService.InsertRolls(vo,rolls);
-//			}
-// 		}
-        
-//	}	
-	
-	
 	/**
 	 * 사용자 정보 저장 2013/10/30
 	 * <P>
@@ -446,7 +322,7 @@ public class UserManagerController extends CommonController {
 		HashMap Srh =  userManagerService.SerchUserEsbInfo(vo);        
         mav.addObject("UserInfo", Srh);
 		
-		form.setReturn_message(new String(StringUtil.bvl( this.returnMessage,"")));
+		form.setReturn_message(StringUtil.bvl( this.returnMessage,""));
 		mav.addObject("command", form);
 		this.returnMessage = null;
 		return mav;
@@ -491,7 +367,7 @@ public class UserManagerController extends CommonController {
 		//-----------RETURN INFO:리턴 정보 --------------- 		
 		mav.setViewName(forwardURL);
         		
-		form.setReturn_message(new String(StringUtil.bvl( this.returnMessage,"")));
+		form.setReturn_message(StringUtil.bvl( this.returnMessage,""));
 		mav.addObject("command", form);
 		this.returnMessage = null;
 		return mav;
@@ -570,7 +446,7 @@ public class UserManagerController extends CommonController {
 		//-----------RETURN INFO:리턴 정보 --------------- 		
 		mav.setViewName(forwardURL);
         		
-		form.setReturn_message(new String(StringUtil.bvl( this.returnMessage,"")));
+		form.setReturn_message(StringUtil.bvl( this.returnMessage,""));
 		mav.addObject("command", form);
 		this.returnMessage = null;
 		return mav;
@@ -615,7 +491,7 @@ public class UserManagerController extends CommonController {
 		//-----------RETURN INFO:리턴 정보 --------------- 		
 		mav.setViewName(forwardURL);
         		
-		form.setReturn_message(new String(StringUtil.bvl( this.returnMessage,"")));
+		form.setReturn_message(StringUtil.bvl( this.returnMessage,""));
 		mav.addObject("command", form);
 		this.returnMessage = null;
 		return mav;
@@ -726,7 +602,7 @@ public class UserManagerController extends CommonController {
 		//-----------RETURN INFO:리턴 정보 --------------- 		
 		mav.setViewName(forwardURL);
         		
-		form.setReturn_message(new String(StringUtil.bvl( this.returnMessage,"")));
+		form.setReturn_message(StringUtil.bvl( this.returnMessage,""));
 		mav.addObject("command", form);
 		this.returnMessage = null;
 		return mav;
@@ -781,9 +657,9 @@ public class UserManagerController extends CommonController {
 	
 	public String[] SpliteArry(String Parm,String div){
 		String[] Result;		
-		String 	 str_arry =StringUtil.bvl( new String(Parm),"");
+		String 	 str_arry =StringUtil.bvl(Parm,"");
 		if( !Parm.equals("")){
-			Result = str_arry.split(new String(div));
+			Result = str_arry.split(div);
 		}else{
 			Result =null;
 		}

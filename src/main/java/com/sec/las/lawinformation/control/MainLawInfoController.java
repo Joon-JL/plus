@@ -429,12 +429,11 @@ public class MainLawInfoController extends CommonController {
 			 * Service
 			**********************************************************/
 			resultList = mainLawInfoService.detailMainLawInfo(vo);
-			
-			ListOrderedMap lom = (ListOrderedMap)resultList.get(0);
+            ListOrderedMap lom = null;
+            if(resultList != null && !resultList.isEmpty()) {
+                lom = (ListOrderedMap)resultList.get(0);
+            }
 
-			if(resultList==null)
-				throw new Exception("##### queryService is null ##### ");
-			
 			/*********************************************************
              * 권한 처리
             **********************************************************/         
@@ -448,7 +447,7 @@ public class MainLawInfoController extends CommonController {
 			}
 			
 			// 본인 글이 아닐 경우 조회수 증가			
-			if(!vo.getSession_user_id().equals(lom.get("reg_id"))) {
+			if(lom !=null && !vo.getSession_user_id().equals(lom.get("reg_id"))) {
 				mainLawInfoService.increseRdcnt(vo) ;  	  			
 			}    
 			/*********************************************************
@@ -812,14 +811,14 @@ public class MainLawInfoController extends CommonController {
 			 * Service
 			**********************************************************/
 			resultList = mainLawInfoService.detailMainLawInfo(vo);
-			
-			ListOrderedMap lom = (ListOrderedMap)resultList.get(0);
 
-			if(resultList==null)
-				throw new Exception("##### queryService is null ##### ");
-			
+            ListOrderedMap lom = null;
+            if(resultList != null && !resultList.isEmpty()) {
+                lom = (ListOrderedMap)resultList.get(0);
+            }
+
 			// 본인 글이 아닐 경우 조회수 증가			
-			if(!vo.getSession_user_id().equals(lom.get("reg_id"))) {
+			if(lom !=null && !vo.getSession_user_id().equals(lom.get("reg_id"))) {
 				mainLawInfoService.increseRdcnt(vo) ;  	  			
 			}    
 			

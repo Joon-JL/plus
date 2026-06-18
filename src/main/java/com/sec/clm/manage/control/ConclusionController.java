@@ -473,7 +473,7 @@ public class ConclusionController extends CommonController {
 			ModelAndView mav = new ModelAndView();
 		
 			resultList = consultationService.listConsultationSpecial(specialVo);
-			if(resultList.size() >0 && resultList != null) {
+			if(resultList !=null && !resultList.isEmpty()) {
 				 lom	= (ListOrderedMap)resultList.get(0);
 				 td_cnt = (Integer)lom.get("td_cnt");
 			 }	
@@ -899,7 +899,7 @@ public class ConclusionController extends CommonController {
 			ArrayList special1List = new ArrayList();
 			ArrayList special2List = new ArrayList();
 			 
-			if(resultList.size() >0 && resultList != null) {
+			if(resultList != null && !resultList.isEmpty()) {
 				for(int i=0; i < resultList.size(); i++) {
 					ListOrderedMap lom = (ListOrderedMap)resultList.get(i);
 					if("C04002".equals(lom.get("crtn_depth"))) {
@@ -915,7 +915,7 @@ public class ConclusionController extends CommonController {
 			resultList = consultationService.listConsultationRealtion(consultationVo);
 			
 			int relationListSize = 0;
-			if(resultList.size() >0 && resultList != null) {
+            if(resultList != null && !resultList.isEmpty()) {
 				for(int i=0; i < resultList.size(); i++) {
 					ListOrderedMap lom = (ListOrderedMap)resultList.get(i);
 					relationList.add(resultList.get(i));

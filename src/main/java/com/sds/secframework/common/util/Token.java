@@ -13,7 +13,7 @@ public class Token {
 	public static String set(HttpServletRequest req, String key){
 		HttpSession session = req.getSession();
 		long systime = System.currentTimeMillis();
-		byte[] time = new Long(systime).toString().getBytes();
+		byte[] time = Long.toString(systime).getBytes();
 		byte[] id = session.getId().getBytes();
 		String token = "";
 		

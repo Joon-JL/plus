@@ -241,7 +241,7 @@ public class LawConsultServiceImpl extends CommonServiceImpl implements LawConsu
 					iseq_ids[i] = "1";
 					rec_types[i] = "t";
 					String emailTo = (String) ((Map) legalAdmins.get(i)).get("email");
-					rec_addrs[i] = (emailTo == null || emailTo == "") ? propertyService.getProperty("clms.admin.testEmail") : (String) ((Map) legalAdmins.get(i)).get("email");
+					rec_addrs[i] = (emailTo == null || emailTo.isEmpty()) ? propertyService.getProperty("clms.admin.testEmail") : (String) ((Map) legalAdmins.get(i)).get("email");
 
 					
 				}
@@ -454,7 +454,7 @@ public class LawConsultServiceImpl extends CommonServiceImpl implements LawConsu
 						iseq_ids[i] = "1";
 						rec_types[i] = "t";
 						String emailTo = (String) ((Map) emailTos.get(i)).get("email");
-						rec_addrs[i] = (emailTo == null || emailTo == "") ? propertyService.getProperty("clms.admin.testEmail") : (String) ((Map) emailTos.get(i)).get("email");
+						rec_addrs[i] = (emailTo == null || emailTo.isEmpty()) ? propertyService.getProperty("clms.admin.testEmail") : (String) ((Map) emailTos.get(i)).get("email");
 						
 						
 					}
@@ -610,13 +610,13 @@ public class LawConsultServiceImpl extends CommonServiceImpl implements LawConsu
 				int j = 0;
 				iseq_ids[j] = "1";
 				rec_types[j] = "t";				
-				rec_addrs[j] = (requesterEmail == null || requesterEmail == "") ? propertyService.getProperty("clms.admin.testEmail") : requesterEmail;					
+				rec_addrs[j] = (requesterEmail == null || requesterEmail.isEmpty()) ? propertyService.getProperty("clms.admin.testEmail") : requesterEmail;
 
 				// add assignedAdviserEmail
 				j=j+1;
 				iseq_ids[j] = "1";
 				rec_types[j] = "t";				
-				rec_addrs[j] = (assignedAdviserEmail == null || assignedAdviserEmail == "") ? propertyService.getProperty("clms.admin.testEmail") : assignedAdviserEmail;					
+				rec_addrs[j] = (assignedAdviserEmail == null || assignedAdviserEmail.isEmpty()) ? propertyService.getProperty("clms.admin.testEmail") : assignedAdviserEmail;
 				
 				String contentHtml = mailSendService.getLawConsultMailContent(hmap);
 				mailVo.setStatus("0");

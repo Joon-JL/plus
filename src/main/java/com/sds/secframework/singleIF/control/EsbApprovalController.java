@@ -2,12 +2,7 @@ package com.sds.secframework.singleIF.control;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Locale;
-import java.util.Vector;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -167,10 +162,10 @@ public class EsbApprovalController extends CommonController {
 			String[] approvalRoutes      = request.getParameterValues("receivers");
 			String[] approvalRouteRights = request.getParameterValues("receiversRight");
 
-			getLogger().debug("approvalRoutes : " + approvalRoutes);
-			getLogger().debug("approvalRouteRights : " + approvalRouteRights);
-			ClmsDataUtil.debug("##Route : " + approvalRoutes);
-			ClmsDataUtil.debug("##Right : " + approvalRouteRights);
+			getLogger().debug("approvalRoutes : " + Arrays.toString(approvalRoutes));
+			getLogger().debug("approvalRouteRights : " + Arrays.toString(approvalRouteRights));
+			ClmsDataUtil.debug("##Route : " + Arrays.toString(approvalRoutes));
+			ClmsDataUtil.debug("##Right : " + Arrays.toString(approvalRouteRights));
 
 			String[] activitys    = null; // 설정구분
 			String[] actionTypes  = null; // 처리구분
@@ -189,6 +184,10 @@ public class EsbApprovalController extends CommonController {
 			String[] routeModifys = null; // 경로변경 권한
 			String[] bodyModifys  = null; // 본문수정 권한
 			String[] arbitrarys   = null; // 전결 권한
+
+            if (approvalRoutes == null || approvalRoutes.length == 0) {
+                return;
+            }
 			int approvalRoutesLength = approvalRoutes.length;
 
 			//받는 사람 이메일 수신자 리스트 추가 신성우
@@ -341,264 +340,6 @@ public class EsbApprovalController extends CommonController {
 			out.flush();
 			out.close();
 		}
-	}
-
-	/**
-	 * ESB 결재 상신 (DB저장만 하고 실제 ESB상신은 하지 않음)
-	 * 2013.05.22 현재 사용되지 않고 있음
-	 * <p>
-	 * @param request
-	 * @param response
-	 * @throws Exception
-	 */
-	public void preSubmit(HttpServletRequest request, HttpServletResponse response) throws Exception{
-		try {
-			/*********************************************************
-			 * 시스템  코드 및 사용자아이디
-			**********************************************************/
-	        HttpSession session = request.getSession(false);
-	        String sysCd  = (String)session.getAttribute("secfw.session.sys_cd");
-	        String userId = (String)session.getAttribute("secfw.session.user_id");
-
-	       /*********************************************************
-			 * Form 및 VO Binding
-			**********************************************************/
-			ApprovalVO vo = new ApprovalVO();
-			bind(request, vo);
-			COMUtil.getUserAuditInfo(request, vo);
-
-			/*********************************************************
-			 * 파라미터세팅
-			**********************************************************/
-
-			/** 1. 결재내역 정보 **/
-	        //모듈아이디 및 misId 세팅 -> (각 시스템/업무별로 개별 Key값을 입력)
-			String moduleId = "";
-			String misId    = "";
-
-			if("".equals(StringUtil.bvl((String)request.getParameter("module_id"), ""))) {
-				moduleId = sysCd;
-			} else {
-				moduleId = StringUtil.bvl((String)request.getParameter("module_id"), "");
-			}
-
-			if("".equals(StringUtil.bvl((String)request.getParameter("mis_id"), ""))) {
-				misId = EsbUtil.generateMisId("APPR");
-			} else {
-				misId    = StringUtil.bvl((String)request.getParameter("mis_id"), "");
-			}
-
-			vo.setModule_id(moduleId);
-			vo.setMis_id(misId);
-
-			//로케일, 인코딩 설정, TIME_ZONE
-			String sessionLocale = StringUtil.bvl((String)session.getAttribute("EP_LOCALE"),"en_US.UTF-8");
-			String setEncoding   = vo.getEncoding();
-			String locale_info   = sessionLocale.substring(0, sessionLocale.indexOf(".")) + "." + setEncoding;
-
-			vo.setLocale_info(locale_info);
-			vo.setTime_zone(StringUtil.bvl((String)session.getAttribute("EP_TIMEZONE"),"GMT+0"));
-
-			//STATUS 값 설정 - Default "0"
-			vo.setStatus("0");
-
-			//BODY Type
-			String bodyType = vo.getBody_type();
-
-			//Approval Post Method
-			vo.setMethod(StringUtil.bvl((String)request.getParameter("approvalPostProcess"),""));
-
-			if("1".equals(bodyType)) { //본문형식이 HTML이면
-				// 나모 Text & 첨부파일 처리
-				String decodeText = vo.getBody_mime();
-
-		        HashMap hm = comUtilService.getNamoContentAndFileInfo(decodeText);
-		        String contentHtml = (String)hm.get("CONTENT");
-
-		        //contentHtml.
-
-		        contentHtml = StringUtil.replace(contentHtml, "<html>", "<html xmlns='http://www.w3.org/1999/xhtml'>");
-		        contentHtml = StringUtil.replace(contentHtml, "<HTML>", "<html xmlns='http://www.w3.org/1999/xhtml'>");
-		        contentHtml = StringUtil.replace(contentHtml, "</HTML>", "</html>");
-
-		        // Multipart Form (첨부파일이 있으면)
-		        if(hm.get("TYPE").equals("M")) {
-
-		            ArrayList fileList = (ArrayList)hm.get("FILE_INFO");
-		        	for(int i=0; i<fileList.size();i++) {
-		            	HashMap fileMap = (HashMap)fileList.get(i);
-
-		            	Integer seqNo  = new Integer(i);
-		            	String fileNm  = (String)fileMap.get("FILE_NM");
-		            	String filePth = (String)fileMap.get("FILE_PTH");
-		            	String fileUrl = (String)fileMap.get("FILE_URL");
-
-		            	File f = new File(filePth);
-		            	Long fileSize = new Long(f.length());
-
-		        	}
-		           // vo.setBody(StringUtil.convertHtmlTochars((String)hm.get("CONTENT")));
-		           vo.setBody(contentHtml);
-		        } else {
-		          // vo.setBody(StringUtil.convertHtmlTochars((String)hm.get("CONTENT")));
-		          vo.setBody(contentHtml);
-		        }
-
-			}
-
-			//결재상신 의견
-	        String opinion = StringUtil.bvl(vo.getOpinion(),"");
-	        //예약 상신 시간
-	        String reserved = StringUtil.bvl(vo.getReserved(),"");
-
-			/** 2. 결재경로 정보 **/
-	        String[] approvalRoutes       = request.getParameterValues("receivers");
-	        String[] approvalRouteRights  = request.getParameterValues("receiversRight");
-
-	        ClmsDataUtil.debug("## : " + approvalRoutes);
-	        ClmsDataUtil.debug("## : " + approvalRouteRights);
-
-	        String[] activitys    	= null; // 설정구분
-			String[] actionTypes  	= null; // 처리구분
-			//String[] mailAddresss = null; // 메일주소
-			String[] userIds      	= null; // EPID
-			String[] userNms	  	= null;
-			String[] jikgupCds	  	= null;
-			String[] jikgupNms	  	= null;
-			String[] deptCds		= null;
-			String[] deptNms	  	= null;
-			String[] compCds		= null;
-			String[] compNms		= null;
-			String[] grpCds			= null;
-			String[] grpNms			= null;
-			String[] mailAddress 	= null;
-			String[] arbitrarys   	= null; // 전결권한
-			String[] bodyModifys  	= null; // 본문수정권한
-			String[] routeModifys 	= null; // 경로변경 권한
-
-			int approvalRoutesLength = approvalRoutes.length;
-
-			if(approvalRoutes != null && approvalRoutesLength > 0) {
-
-				activitys    		= new String[approvalRoutesLength];
-				actionTypes  		= new String[approvalRoutesLength];
-				//mailAddresss = new String[approvalRoutesLength];
-				userIds      		= new String[approvalRoutesLength];
-				userNms      		= new String[approvalRoutesLength];
-				jikgupCds	 		= new String[approvalRoutesLength];
-				jikgupNms	  		= new String[approvalRoutesLength];
-				deptCds				= new String[approvalRoutesLength];
-				deptNms	  			= new String[approvalRoutesLength];
-				compCds				= new String[approvalRoutesLength];
-				compNms				= new String[approvalRoutesLength];
-				grpCds				= new String[approvalRoutesLength];
-				grpNms				= new String[approvalRoutesLength];
-				mailAddress			= new String[approvalRoutesLength];
-				arbitrarys   		= new String[approvalRoutesLength];
-				bodyModifys  		= new String[approvalRoutesLength];
-				routeModifys 		= new String[approvalRoutesLength];
-
-				for(int i = 0; i < approvalRoutesLength; i++){
-
-					String[] approvalRoute      = StringUtil.token(approvalRoutes[i], "|");
-					String[] approvalRouteRight = StringUtil.token(approvalRouteRights[i], "|");
-
-
-					activitys[i]    		= approvalRoute[0];
-					actionTypes[i]  		= "0";
-					userIds[i]      		= approvalRoute[1];
-					userNms[i]      		= approvalRoute[2];
-					jikgupCds[i]	 		= approvalRoute[3];
-					jikgupNms[i]	  		= approvalRoute[4];
-					deptCds[i]				= approvalRoute[5];
-					deptNms[i]	  			= approvalRoute[6];
-					compCds[i]				= approvalRoute[7];
-					compNms[i]				= approvalRoute[8];
-					grpCds[i]				= approvalRoute[9];
-					grpNms[i]				= approvalRoute[10];
-					mailAddress[i]			= approvalRoute[11];
-
-					routeModifys[i] 		= approvalRouteRight[1];
-					bodyModifys[i]  		= approvalRouteRight[2];
-					arbitrarys[i]   		= approvalRouteRight[3];
-
-				}
-			}
-
-		    vo.setActivitys(activitys);
-		    vo.setAction_types(actionTypes);
-
-		    vo.setUser_ids(userIds);
-		    vo.setUser_names(userNms);
-		    vo.setDuty_codes(jikgupCds);
-			vo.setDutys(jikgupNms);
-			vo.setDept_codes(deptCds);
-			vo.setDept_names(deptNms);
-			vo.setComp_codes(compCds);
-			vo.setComp_names(compNms);
-			vo.setGroup_codes(grpCds);
-			vo.setGroup_names(grpNms);
-			vo.setMail_addresss(mailAddress);
-		    vo.setRoute_modifys(routeModifys);
-		    vo.setBody_modifys(bodyModifys);
-		    vo.setArbitrarys(arbitrarys);
-
-		  //결재상신 의견
-		    if(!"".equals(opinion)) {
-		    	String[] opinions = new String[approvalRoutesLength];
-		    	for(int i = 0; i < approvalRoutesLength; i++) {
-		    		opinions[i] = "";
-		    	}
-		    	opinions[0] = opinion;
-		    	vo.setOpinions(opinions);
-		    }
-		  //예약 상신 시간
-		    if(!"".equals(reserved)) {
-		    	String[] reserveds = new String[approvalRoutesLength];
-		    	for(int i=0; i<approvalRoutesLength; i++) {
-		    		reserveds[i] = "";
-		    	}
-		    	reserveds[0] = reserved;
-		    	vo.setReserveds(reserveds);
-		    }
-
-		    /*********************************************************
-			 * 결재상신
-			**********************************************************/
-	        esbApprovalService.preSubmit(vo);
-
-    		JSONObject jo = new JSONObject();
-    		jo.put("returnMessage", messageSource.getMessage("secfw.msg.succ.submit",  null, new RequestContext(request).getLocale()));
-    		jo.put("returnValue", "Y");
-    		response.setContentType("application/json; charset=UTF-8");
-    		PrintWriter out = response.getWriter();
-    		out.print(jo);
-    		out.flush();
-    		out.close();
-
-		} catch (Exception e) {
-
-			e.printStackTrace();
-
-			JSONObject jo = new JSONObject();
-    		jo.put("returnMessage", messageSource.getMessage("secfw.msg.error.error",  null, new RequestContext(request).getLocale()));
-    		jo.put("returnValue", "N");
-			response.setContentType("application/json; charset=UTF-8");
-    		PrintWriter out = response.getWriter();
-    		out.print(jo);
-    		out.flush();
-    		out.close();
-		} catch (Throwable t) {
-			JSONObject jo = new JSONObject();
-    		jo.put("returnMessage", messageSource.getMessage("secfw.msg.error.error",  null, new RequestContext(request).getLocale()));
-    		jo.put("returnValue", "N");
-    		response.setContentType("application/json; charset=UTF-8");
-    		PrintWriter out = response.getWriter();
-    		out.print(jo);
-    		out.flush();
-    		out.close();
-		}
-
 	}
 
 	/**

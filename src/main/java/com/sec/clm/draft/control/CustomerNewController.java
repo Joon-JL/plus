@@ -19,7 +19,6 @@ import org.springframework.web.servlet.support.RequestContext;
 import org.apache.commons.collections.map.ListOrderedMap;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.ibm.db2.jcc.t4.v;
 import com.sds.secframework.common.control.CommonController;
 import com.sds.secframework.common.util.COMUtil;
 import com.sds.secframework.common.util.StringUtil;

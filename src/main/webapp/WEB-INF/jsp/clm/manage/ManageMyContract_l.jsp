@@ -63,14 +63,20 @@
 	boolean l_isPartner = false;
 	String userEmail = "" + session.getAttribute("secfw.session.email");
 	if (userEmail.toUpperCase().contains("PARTNER")) {
+
 		l_isPartner = true;
 	}
-	if (userEmail.toLowerCase().startsWith("p.dudar") || 
-		userEmail.toLowerCase().startsWith("p.dudar") || 
-		userEmail.toLowerCase().startsWith("fernando.c")) {
+	if (
+        userEmail.toLowerCase().startsWith("rita.maia") ||
+        userEmail.toLowerCase().startsWith("g.plakoutsi") ||
+        userEmail.toLowerCase().startsWith("s.wadler") ||
+        userEmail.toLowerCase().startsWith("z.hasanovic") ||
+        userEmail.toLowerCase().startsWith("schiva.an") ||
+        userEmail.toLowerCase().startsWith("p.brejtrova") ||
+        userEmail.toLowerCase().startsWith("m.kosmidou")
+    ) {
 		l_isPartner = false;
 	}
-	/// Fernando 16-07-2024 (end) ///
 	
 %>
 

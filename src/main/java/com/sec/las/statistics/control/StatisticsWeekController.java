@@ -625,9 +625,9 @@ public class StatisticsWeekController extends CommonController {
 			String[] bb = DateUtil.getBothDayOfWeek(sDate, -1);
 			start_dt = DateUtil.addDays(bb[0], 2);
 			if(aa.getMonth() == 0){
-				String cc = aa.getYear()+1900+"";	
-				if(cc != start_dt.substring(0, 4)){
-					start_dt = aa.getYear()+1900+"0101";
+				String cc = String.valueOf(aa.getYear() + 1900);
+                if (start_dt != null && start_dt.length() == 4 && !cc.equals(start_dt.substring(0, 4))) {
+					start_dt = (aa.getYear() + 1900) + "0101";
 				}
 			}
 			end_dt = sDate;					

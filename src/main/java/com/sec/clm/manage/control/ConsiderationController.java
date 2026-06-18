@@ -1,13 +1,7 @@
 package com.sec.clm.manage.control;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -1467,7 +1461,7 @@ public class ConsiderationController extends CommonController {
 				lomRq.put("defer_btn", "defer");
 			}
 
-			ClmsDataUtil.debug("arr_cntrt_idarr_cntrt_idarr_cntrt_id: " + arr_cntrt_id);
+			ClmsDataUtil.debug("arr_cntrt_idarr_cntrt_idarr_cntrt_id: " + Arrays.toString(arr_cntrt_id));
 
 			vo.setStatus("consider");
 			List<?> listCa = considerationService.listContractAuthreq(vo);// 권한요청자
@@ -1543,7 +1537,7 @@ public class ConsiderationController extends CommonController {
 			 **********************************************************/
 			ClmsDataUtil.debug("opnnConsideration   vo.getCnsdreq_id() >>>  " + vo.getCnsdreq_id());
 			ClmsDataUtil.debug("opnnConsideration   vo.getCntrt_id() >>>  " + vo.getCntrt_id());
-			ClmsDataUtil.debug("opnnConsideration   vo.getArr_cntrt_id() >>>  " + vo.getArr_cntrt_id());
+			ClmsDataUtil.debug("opnnConsideration   vo.getArr_cntrt_id() >>>  " + Arrays.toString(vo.getArr_cntrt_id()));
 
 			// 체결에서 넘어온 건임
 			if ("C02502".equals(prcsDepth)) {
@@ -3792,28 +3786,24 @@ public class ConsiderationController extends CommonController {
 								.append("	        <td> " + StringUtil.bvl(lomDetail.get("secret_keepperiod"), "") + "</td>\n").append("     </tr>\n");
 					}
 					// 특화조건시작
-					if (special1List != null && special1List.size() > 0) {
-						if (special1List.size() > 0) {
-							for (int k = 0; k < special1List.size(); k++) {
-								ListOrderedMap s1Lom = (ListOrderedMap) special1List.get(k);
-								if (!"".equals(StringUtil.bvl(s1Lom.get("attr_value"), ""))) {
-									sb.append("	<tr>\n").append("		<th>" + s1Lom.get("attr_nm") + "</th>\n").append("		<td>" + s1Lom.get("attr_value") + "</td>\n").append("	</tr>\n");
-								}
-							}
-						}
+					if (special1List != null && !special1List.isEmpty()) {
+                        for (int k = 0; k < special1List.size(); k++) {
+                            ListOrderedMap s1Lom = (ListOrderedMap) special1List.get(k);
+                            if (!"".equals(StringUtil.bvl(s1Lom.get("attr_value"), ""))) {
+                                sb.append("	<tr>\n").append("		<th>" + s1Lom.get("attr_nm") + "</th>\n").append("		<td>" + s1Lom.get("attr_value") + "</td>\n").append("	</tr>\n");
+                            }
+                        }
 					}
 
-					if (special2List != null && special2List.size() > 0) {
-						if (special2List.size() > 0) {
+					if (special2List != null && !special2List.isEmpty()) {
 
-							for (int k = 0; k < special2List.size(); k++) {
-								ListOrderedMap s2Lom = (ListOrderedMap) special2List.get(k);
-								if (!"".equals(StringUtil.bvl(s2Lom.get("attr_value"), ""))) {
-									sb.append("<tr>").append("		<th>" + s2Lom.get("attr_nm") + "</th>\n").append("		<td>" + StringUtil.bvl(s2Lom.get("attr_value"), "") + "</td>\n").append("</tr>\n");
-								}
-							}
+                        for (int k = 0; k < special2List.size(); k++) {
+                            ListOrderedMap s2Lom = (ListOrderedMap) special2List.get(k);
+                            if (!"".equals(StringUtil.bvl(s2Lom.get("attr_value"), ""))) {
+                                sb.append("<tr>").append("		<th>" + s2Lom.get("attr_nm") + "</th>\n").append("		<td>" + StringUtil.bvl(s2Lom.get("attr_value"), "") + "</td>\n").append("</tr>\n");
+                            }
+                        }
 
-						}
 					}
 					// 특화정보끝
 
@@ -5273,10 +5263,10 @@ public class ConsiderationController extends CommonController {
 				lomRq.put("defer_btn", "defer");
 			}
 
-			ClmsDataUtil.debug("arr_cntrt_idarr_cntrt_idarr_cntrt_id: " + arr_cntrt_id);
+			ClmsDataUtil.debug("arr_cntrt_idarr_cntrt_idarr_cntrt_id: " + Arrays.toString(arr_cntrt_id));
 
 			vo.setStatus("consider");
-			List listCh = considerationService.listCnsdreqHold(vo); // 보류사유
+//			List listCh = considerationService.listCnsdreqHold(vo); // 보류사유
 
 			// 변경사항
 			lomRq.put("plndbn_chge_cont", StringUtil.convertEnterToBR(StringUtil.nvl((String) lomRq.get("plndbn_chge_cont"), "")));
@@ -5594,7 +5584,7 @@ public class ConsiderationController extends CommonController {
 
 		try {
 
-			Map result = result = considerationService.getConsiderationInfoPrint(vo); // 의뢰/계약/승인
+			Map result = considerationService.getConsiderationInfoPrint(vo); // 의뢰/계약/승인
 																						// 정보
 			String reqAuthInfo = considerationService.getReqAuthPrint(vo); // 관련자
 			List etcAttachList = considerationService.getEtcAttachList(vo); // 그외

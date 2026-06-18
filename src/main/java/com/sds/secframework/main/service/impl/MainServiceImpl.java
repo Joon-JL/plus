@@ -162,7 +162,7 @@ public class MainServiceImpl extends CommonServiceImpl implements MainService {
 							// 결과 값 배열 맨 마지막에 저장하고
 							prcs_depth_cnt_arr[prcs_depth_cnt_arr.length-1] = strClosedCnt;
 							// 조회 된 리뷰 계약 건수에서 - Closed 된 계약 건수를 뺀 후 = 다시 결과 값에 저장.
-							prcs_depth_cnt_arr[i] = String.valueOf(Integer.valueOf(lom.get("cnt").toString()) - Integer.valueOf(strClosedCnt));
+							prcs_depth_cnt_arr[i] = String.valueOf(Integer.parseInt(lom.get("cnt").toString()) - Integer.parseInt(strClosedCnt));
 						}
 						break;
 					}

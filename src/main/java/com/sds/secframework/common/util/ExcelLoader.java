@@ -74,18 +74,6 @@ public class ExcelLoader {
 	Sheet[] sheets;
 	
 	/**
-	 * Constructor : FileSystem에서 Excel 파일을 읽는다.
-	 * 
-	 * @param filePath
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 */
-	public ExcelLoader(String filePath) throws FileNotFoundException, IOException {
-		POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(filePath));
-		init(fs);
-	}
-	
-	/**
 	 * Constructor : InputStream으로부터 Excel Data를 읽는다.
 	 * 
 	 * @param inStream
@@ -227,7 +215,7 @@ public class ExcelLoader {
 		return this.sheets[sheetIndex].getSheetData();
 	}
 
-	private class Sheet {
+	private static class Sheet {
 		private String sheetName;
 		private ArrayList sheetData;
 		private int colsCount = 0;

@@ -1735,7 +1735,10 @@ public class MailSendServiceImpl extends CommonServiceImpl implements MailSendSe
 	 * @throws Exception
 	 */
 	public void sendMailAfterApproval(HashMap map) throws Exception {
-		try {
+		if (map == null) {
+            return;
+        }
+        try {
 			ListOrderedMap mailLom = null;
 			String cnsdreq_id = StringUtil.bvl((String) map.get("cnsdreq_id"), "");
 			String cntrt_id = StringUtil.bvl((String) map.get("cntrt_id"), "");
@@ -1944,7 +1947,7 @@ public class MailSendServiceImpl extends CommonServiceImpl implements MailSendSe
 				
 				String subject=(String) messageSource.getMessage("clm.page.field.mailsend.subjectTitle", null, locale1);
 				
-				if(map.get("email.subject")!=null && map.get("email.subject").toString()!=""){
+				if(map.get("email.subject")!=null && !map.get("email.subject").toString().isEmpty()){
 					mailVo.setSubject(map.get("email.subject").toString());
 				}else{
 					mailVo.setSubject(subject);
@@ -1966,7 +1969,7 @@ public class MailSendServiceImpl extends CommonServiceImpl implements MailSendSe
 					cntrtRespId = (String) receiverListLom.get("USER_ID");
 
 					// 상신자 정보 조회
-					if (cntrtRespId != null && !"".equals(cntrtRespId)) {
+					if (cntrtRespId != null && !cntrtRespId.isEmpty()) {
 						cntrtRespMailAddr = esbOrgService.getUserEpMailAddr(cntrtRespId);
 					}
 
@@ -1983,7 +1986,7 @@ public class MailSendServiceImpl extends CommonServiceImpl implements MailSendSe
 				if (rec_addrs != null && rec_addrs.length>0) {
 					
 					hm.put("mail_type", "24");
-					hm.put("main_title", (map.get("main_title")!=null && map.get("main_title").toString()!="") ? map.get("main_title").toString() : (String) messageSource.getMessage("clm.page.field.mailsend.requiredTitle", null, locale1));
+					hm.put("main_title", (map.get("main_title")!=null && !map.get("main_title").toString().isEmpty()) ? map.get("main_title").toString() : (String) messageSource.getMessage("clm.page.field.mailsend.requiredTitle", null, locale1));
 					hm.put("main_link", propertyService.getProperty("secfw.url.domain") + "/login.do");
 					hm.put("cntrt_no", cntrt_no);
 					hm.put("param1", req_title);
@@ -2940,168 +2943,5 @@ public class MailSendServiceImpl extends CommonServiceImpl implements MailSendSe
 	public Log getLogger() {
 		return LogFactory.getLog(this.getClass());
 	}
-	
-	/* FERNANDO (MFA project) Jan/2024 - start */
-	public void sendSimpleEmail_Esb(Map params) throws Exception
-	{
-		//String email_destination = params.getOrDefault("destination", propertyService.getProperty("clms.admin.email")).toString();
-		//String email_subject 	 = params.getOrDefault("subject", "SELMS+ notification").toString();
-		//String email_body        = params.getOrDefault("body", "").toString();
-		
-		String email_destination = "";
-		if (params.get("destination") != null) {
-			email_destination = params.get("destination").toString();
-		} else {
-			if (propertyService.getProperty("clms.admin.email") != null) {
-				email_destination = propertyService.getProperty("clms.admin.email").toString();
-			} else {
-				email_destination = "fernando.c@partner.samsung.com";
-			}
-		}
-		
-		String email_subject = "";
-		if (params.get("subject") != null) {
-			email_subject = params.get("subject").toString();
-		} else {
-			email_subject = "SELMS+ notification";
-		}
-		
-		String email_body = "";
-		if (params.get("body") != null) {
-			email_body = params.get("body").toString();
-		} else {
-			email_body = "SELMS+ notification";
-		}
-		
-		String locale = "en";
-		String moduleId = "LAS";
-		String misId = EsbUtil.generateMisId("MAIL");
-
-		MailVO mailVo = new MailVO();
-
-		mailVo.setModule_id(moduleId);
-		mailVo.setMis_id(misId);
-		mailVo.setMsg_key("11");
-
-		mailVo.setLocale(locale);
-		mailVo.setEncoding("utf-8");
-		mailVo.setTime_zone("GMT+0");
-		mailVo.setIs_dst("false");
-		/*String summerTimeYn = (String) session.getAttribute("EP_SUMMERTIMEYN");
-		if ("Y".equals(summerTimeYn)) {
-			mailVo.setIs_dst("true");
-		} else {
-			mailVo.setIs_dst("false");
-		}*/
-
-		// 보내는 사람
-		mailVo.setSender_single_id(propertyService.getProperty("clms.admin.id"));
-		mailVo.setSender_mail_addr(propertyService.getProperty("clms.admin.email"));
-
-		// 받는 사람
-		String[] iseq_ids = new String[1];
-		String[] rec_types = new String[1];
-		String[] rec_addrs = new String[1];
-
-		mailVo.setSubject(email_subject);
-		mailVo.setStatus("0");
-
-		iseq_ids[0] = "1";
-		rec_types[0] = "t";
-		rec_addrs[0] = email_destination;
-		
-		mailVo.setBhtml_content_check("true");
-		mailVo.setIseq_ids(iseq_ids);
-		mailVo.setRec_types(rec_types);
-		mailVo.setRec_addrs(rec_addrs);
-		mailVo.setBody(email_body);
-
-		mailVo.setFileInfos("otp_check");
-		
-		esbMailService.insertMail(mailVo);
-
-		try {
-			esbMailService.sendMail(moduleId, misId);
-		} catch (Exception e) {
-			e.printStackTrace();
-			//throw e;
-		}
-	}
-	
-	public void sendSimpleEmail(Map params) throws Exception
-	{
-		String  host = "smtp.w1.samsung.net";
-		Integer port = 25;
-		String  mail_user = "fernando.c@partner.samsung.com"; // "C10ML0766";
-		String  mail_pwd_1 = "bandit#600"; // "C10ML0766289635";
-		String  mail_pwd_2 = "bandit#1200"; // "C10ML0766289635";
-		
-		String from = "selmsplus@samsung.com"; // propertyService.getProperty("clms.admin.email")
-		
-		//String email_destination = params.getOrDefault("destination", propertyService.getProperty("clms.admin.email")).toString();
-		//String email_subject = params.getOrDefault("subject", "SELMS+ notification").toString();
-		//String email_body = params.getOrDefault("body", "").toString();
-		
-		String email_destination = "";
-		if (params.get("destination") != null) {
-			email_destination = params.get("destination").toString();
-		} else {
-			if (propertyService.getProperty("clms.admin.email") != null) {
-				email_destination = propertyService.getProperty("clms.admin.email").toString();
-			} else {
-				email_destination = "fernando.c@partner.samsung.com";
-			}
-		}
-		
-		String email_subject = "";
-		if (params.get("subject") != null) {
-			email_subject = params.get("subject").toString();
-		} else {
-			email_subject = "SELMS+ notification";
-		}
-		
-		String email_body = "";
-		if (params.get("body") != null) {
-			email_body = params.get("body").toString();
-		} else {
-			email_body = "SELMS+ notification";
-		}
-		
-		Properties properties = System.getProperties();
-		properties.setProperty("mail.smtp.host", host);
-		properties.setProperty("mail.smtp.port", port.toString());
-		properties.put("mail.smtp.auth", "true");
-		properties.put("mail.smtp.starttls.enable", true);
-		//Authenticator auth = new SMTPAuthenticator();
-		Session session = Session.getDefaultInstance(properties);
-	    
-		MimeMessage message = new MimeMessage(session);
-		message.setFrom(new InternetAddress(from));
-		message.addRecipient(Message.RecipientType.TO, new InternetAddress(email_destination));
-		message.setSubject(email_subject);
-		message.setText(email_body);
-		
-        Transport transport = session.getTransport("smtp");
-        
-		try {
-			//Transport.send(message);
-	        transport.connect(host, port.intValue(), mail_user, mail_pwd_1);
-			//transport.send(message);
-	        transport.sendMessage(message, message.getAllRecipients());
-		} catch (Exception e1) {
-			try {
-				//Transport.send(message);
-		        transport.connect(host, port.intValue(), mail_user, mail_pwd_2);
-				//transport.send(message);
-		        transport.sendMessage(message, message.getAllRecipients());
-			} catch (Exception e2) {
-				e2.printStackTrace();
-				//throw e;
-			}		
-		}		
-        
-        transport.close();
-	}
-	/* FERNANDO (MFA project) Jan/2024 - end */
 
 }

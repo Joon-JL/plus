@@ -1,10 +1,7 @@
 package com.sec.clm.manage.control;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -254,9 +251,11 @@ public class MyApprovalController extends CommonController {
 					cntrtLom = (ListOrderedMap) result_dcList.get(0);
 				}
 			}
-			
-			form.setCntrt_id((String)cntrtLom.get("cntrt_id"));
-			
+
+            if (cntrtLom != null) {
+                form.setCntrt_id((String)cntrtLom.get("cntrt_id"));
+            }
+
 			ListOrderedMap lomReq 	= new ListOrderedMap();
 			String submitInfo 		= "";
 			String approvalInfo 	= "";
@@ -302,9 +301,11 @@ public class MyApprovalController extends CommonController {
 			lomReq.put("approvalinfo", approvalInfo);
 			lomReq.put("agreeinfo",agreeInfo);
 			lomReq.put("etcinfo", etcInfo.toString());
-			
-			consultationVo.setCntrt_id((String)cntrtLom.get("cntrt_id"));
-			
+
+            if (cntrtLom != null) {
+                consultationVo.setCntrt_id((String)cntrtLom.get("cntrt_id"));
+            }
+
 			authReqList = considerationService.listContractAuthreq(consultationVo);//권한요청자 -관련자
 			StringBuffer reqAuthInfo	= new StringBuffer();
 			
@@ -392,8 +393,8 @@ public class MyApprovalController extends CommonController {
 			ListOrderedMap contractCnclsndlayLom = null;
 			ListOrderedMap orgMngLom	= null;
 			ListOrderedMap relationLom = null;
-			  
-			if(resultList != null && resultList.size() > 0 ) {
+
+            if(resultList != null && !resultList.isEmpty()) {
 				contractList = (ArrayList)resultList.get(0);
 				contractCnclsndlayList = (ArrayList)resultList.get(1);
 				contractReqList = (ArrayList)resultList.get(2);
@@ -428,7 +429,7 @@ public class MyApprovalController extends CommonController {
 			
 
 			//특화정보
-			if (specialList.size() > 0 && specialList != null) {
+            if(specialList != null && !specialList.isEmpty()) {
 				for (int i = 0; i < specialList.size(); i++) {
 					ListOrderedMap lom = (ListOrderedMap) specialList.get(i);
 					if ("C04002".equals(lom.get("crtn_depth"))) {
@@ -440,7 +441,7 @@ public class MyApprovalController extends CommonController {
 			}
 
 			//연관계약정보
-			if (relationList.size() > 0 && relationList != null) {
+            if(relationList != null && !relationList.isEmpty()) {
 				relationLom = (ListOrderedMap) relationList.get(0);
 			}
 
@@ -516,7 +517,7 @@ public class MyApprovalController extends CommonController {
 			resultList = consultationService.listConsultationSpecial(specialVO);
 			ArrayList special1List = new ArrayList();
 			ArrayList special2List = new ArrayList();
-			if(resultList.size() >0 && resultList != null) {
+			if(resultList != null && !resultList.isEmpty()) {
 				for(int i=0; i < resultList.size(); i++) {
 					ListOrderedMap lom = (ListOrderedMap)resultList.get(i);
 					if("C04002".equals(lom.get("crtn_depth"))) {
@@ -686,7 +687,7 @@ public class MyApprovalController extends CommonController {
 			**********************************************************/
 			resultList = consultationService.listConsultationRealtion(specialVO);
 			ListOrderedMap lom = null;
-			if(resultList.size() > 0 && resultList != null) {
+            if(resultList != null && !resultList.isEmpty()) {
 				lom = (ListOrderedMap)resultList.get(0);
 			}
 			
@@ -698,7 +699,7 @@ public class MyApprovalController extends CommonController {
 			
 			mav.addObject("command", form);
 			mav.addObject("relationList", resultList);
-			mav.addObject("relationListSize", resultList.size());
+			mav.addObject("relationListSize", (resultList != null) ? resultList.size() : 0);
 			mav.addObject("relationLom", lom);
 			mav.addObject("returnMessage", returnMessage);
 			
@@ -765,15 +766,15 @@ public class MyApprovalController extends CommonController {
 				orgMngList = (ArrayList)resultList.get(3);
 			}
 			
-			if(contractList != null & contractList.size() > 0){
+			if(contractList != null && contractList.size() > 0){
 				contractLom = (ListOrderedMap) contractList.get(0);
 			}
 			
-			if(contractCnclsndlayList != null & contractCnclsndlayList.size() > 0){
+			if(contractCnclsndlayList != null && contractCnclsndlayList.size() > 0){
 				contractCnclsndlayLom = (ListOrderedMap) contractCnclsndlayList.get(0);
 			}
 			
-			if(orgMngList != null & orgMngList.size() > 0){
+			if(orgMngList != null && orgMngList.size() > 0){
 				orgMngLom = (ListOrderedMap) orgMngList.get(0);
 			}
 			
@@ -898,7 +899,7 @@ public class MyApprovalController extends CommonController {
 				lomRq.put("defer_btn","defer");
 			}
 			
-			ClmsDataUtil.debug("arr_cntrt_idarr_cntrt_idarr_cntrt_id: "+arr_cntrt_id);
+			ClmsDataUtil.debug("arr_cntrt_idarr_cntrt_idarr_cntrt_id: "+ Arrays.toString(arr_cntrt_id));
 			
 			vo.setStatus("consider");
 			List listCa = considerationService.listContractAuthreq(vo);//권한요청자 -관련자 

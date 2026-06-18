@@ -80,15 +80,12 @@ public class ClassMethodRoleServiceImpl extends CommonServiceImpl implements Cla
 	 * 사용자가 클릭한 메소드에 대한 세부정보(권한)를 보여준다
 	 */
 	public Map detail(ClassMethodRoleVO vo) throws Exception {
-		List list = commonDAO.list("secfw.classmethodrole.detail", vo) ;
-		Map map = null ;
-		if(list!=null && list.size()!=0){
-			map = (Map)list.get(0) ;
-		}
-		else if(list.size()==0){
-			map = new ListOrderedMap() ;
-		}
-		return map;
+		List<?> list = commonDAO.list("secfw.classmethodrole.detail", vo) ;
+
+		if(list != null && !list.isEmpty()) {
+            return (Map<?, ?>) list.get(0);
+        }
+		return new ListOrderedMap();
 	}
 
 	/**

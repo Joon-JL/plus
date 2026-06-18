@@ -742,7 +742,6 @@ function showMessage(msg) {
     frm.submit();
  }
 
-
 // To receive user search result who will be added as CC.
 function setListClientInfo(returnValue) {
     var arrReturn = returnValue.split("!@#$");
@@ -1332,7 +1331,7 @@ function setListClientInfo(returnValue) {
 							</td>
 						</tr>
 					</table>
-                    <!-- //Conclusion Information -->
+					<!-- //Conclusion Information -->
 									
 					<!-- Termination Information -->
 					<div class="title_basic" style='width:100%; margin:10px 0 0 0'> 

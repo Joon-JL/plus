@@ -539,7 +539,7 @@ public class ConsultationController extends CommonController {
 			 resultList = consultationService.listConsultationRealtion(vo);
 			
 			 int relationListSize = 0;
-			 if(resultList.size() >0 && resultList != null) {
+             if(resultList != null && !resultList.isEmpty()) {
 				for(int i=0; i < resultList.size(); i++) {
 					ListOrderedMap lom = (ListOrderedMap)resultList.get(i);
 					relationList.add(resultList.get(i));
@@ -626,7 +626,7 @@ public class ConsultationController extends CommonController {
 			ArrayList special1List = new ArrayList();
 			ArrayList special2List = new ArrayList();
 			
-			if(resultList.size() >0 && resultList != null) {
+			if(resultList != null && !resultList.isEmpty()) {
 				for(int i=0; i < resultList.size(); i++) {
 					ListOrderedMap lom = (ListOrderedMap)resultList.get(i);
 					if("C04002".equals(lom.get("crtn_depth"))) {
@@ -1229,34 +1229,30 @@ if("" != lomDetail.get("cntrt_no") && null != lomDetail.get("cntrt_no")){
 					  .append("	        <td> " + StringUtil.bvl(lomDetail.get("secret_keepperiod"), "") + "</td>\n")
 					  .append("     </tr>\n");
 					//특화조건시작
-					if(special1List != null && special1List.size() > 0) {
-						if(special1List.size() > 0 ) {
-							for(int k=0; k < special1List.size(); k++) {
-								ListOrderedMap s1Lom = (ListOrderedMap)special1List.get(k);
-								if(!"".equals(StringUtil.bvl(s1Lom.get("attr_value"), ""))){
-									sb.append("	<tr>\n")	
-									  .append("		<th>" +s1Lom.get("attr_nm") + "</th>\n")
-									  .append("		<td>" +  s1Lom.get("attr_value") + "</td>\n")
-									  .append("	</tr>\n");
-								}
-							}	
-						}
+					if(special1List != null && !special1List.isEmpty()) {
+                        for(int k=0; k < special1List.size(); k++) {
+                            ListOrderedMap s1Lom = (ListOrderedMap)special1List.get(k);
+                            if(!"".equals(StringUtil.bvl(s1Lom.get("attr_value"), ""))){
+                                sb.append("	<tr>\n")
+                                  .append("		<th>" +s1Lom.get("attr_nm") + "</th>\n")
+                                  .append("		<td>" +  s1Lom.get("attr_value") + "</td>\n")
+                                  .append("	</tr>\n");
+                            }
+                        }
 					}
 					
-					if(special2List != null && special2List.size() > 0) {
-						if(special2List.size() > 0 ) {
+					if(special2List != null && !special2List.isEmpty()) {
+
+                        for(int k=0; k < special2List.size(); k++) {
+                            ListOrderedMap s2Lom = (ListOrderedMap)special2List.get(k);
+                            if(!"".equals(StringUtil.bvl(s2Lom.get("attr_value"), ""))){
+                            sb.append("<tr>")
+                              .append("		<th>" + s2Lom.get("attr_nm") + "</th>\n")
+                              .append("		<td>" +  StringUtil.bvl(s2Lom.get("attr_value"), "") + "</td>\n")
+                              .append("</tr>\n");
+                            }
+                        }
 							
-							for(int k=0; k < special2List.size(); k++) {
-								ListOrderedMap s2Lom = (ListOrderedMap)special2List.get(k);
-								if(!"".equals(StringUtil.bvl(s2Lom.get("attr_value"), ""))){
-								sb.append("<tr>")
-								  .append("		<th>" + s2Lom.get("attr_nm") + "</th>\n")
-								  .append("		<td>" +  StringUtil.bvl(s2Lom.get("attr_value"), "") + "</td>\n")
-								  .append("</tr>\n");
-								}
-							}
-							
-						}
 					}
 					//특화정보끝
 					if(!"".equals(StringUtil.bvl(lomDetail.get("auto_rnew_yn"), ""))){
@@ -2498,7 +2494,7 @@ if("".equals(buGubn)){   // 하단의 각 단계 별로 눌렀을 경우
 			resultList = consultationService.listConsultationRealtion(vo);
 			
 			int relationListSize = 0;
-			if(resultList.size() >0 && resultList != null) {
+			if(resultList != null && !resultList.isEmpty()) {
 				for(int i=0; i < resultList.size(); i++) {
 					ListOrderedMap lom = (ListOrderedMap)resultList.get(i);
 					relationList.add(resultList.get(i));
@@ -3192,34 +3188,30 @@ if("".equals(buGubn)){   // 하단의 각 단계 별로 눌렀을 경우
 					}
 					
 					//특화조건시작
-					if(special1List != null && special1List.size() > 0) {
-						if(special1List.size() > 0 ) {
-							for(int k=0; k < special1List.size(); k++) {
-								ListOrderedMap s1Lom = (ListOrderedMap)special1List.get(k);
-								if(!"".equals(StringUtil.bvl(s1Lom.get("attr_value"), ""))){
-									sb.append("	<tr>\n")	
-									  .append("		<th>" +s1Lom.get("attr_nm") + "</th>\n")
-									  .append("		<td colspan='5'>" +  StringUtil.convertEnterToBR(StringUtil.convertNamoCharsToHtml((String)s1Lom.get("attr_value"))) + "</td>\n")
-									  .append("	</tr>\n");
-								}
-							}	
-						}
+					if(special1List != null && !special1List.isEmpty()) {
+                        for(int k=0; k < special1List.size(); k++) {
+                            ListOrderedMap s1Lom = (ListOrderedMap)special1List.get(k);
+                            if(!"".equals(StringUtil.bvl(s1Lom.get("attr_value"), ""))){
+                                sb.append("	<tr>\n")
+                                  .append("		<th>" +s1Lom.get("attr_nm") + "</th>\n")
+                                  .append("		<td colspan='5'>" +  StringUtil.convertEnterToBR(StringUtil.convertNamoCharsToHtml((String)s1Lom.get("attr_value"))) + "</td>\n")
+                                  .append("	</tr>\n");
+                            }
+                        }
 					}
 					
-					if(special2List != null && special2List.size() > 0) {
-						if(special2List.size() > 0 ) {
+					if(special2List != null && !special2List.isEmpty()) {
+
+                        for(int k=0; k < special2List.size(); k++) {
+                            ListOrderedMap s2Lom = (ListOrderedMap)special2List.get(k);
+                            if(!"".equals(StringUtil.bvl(s2Lom.get("attr_value"), ""))){
+                            sb.append("<tr>")
+                              .append("		<th>" + s2Lom.get("attr_nm") + "</th>\n")
+                              .append("		<td colspan='5'>" +  StringUtil.bvl(StringUtil.convertEnterToBR(StringUtil.convertNamoCharsToHtml((String)s2Lom.get("attr_value"))), "") + "</td>\n")
+                              .append("</tr>\n");
+                            }
+                        }
 							
-							for(int k=0; k < special2List.size(); k++) {
-								ListOrderedMap s2Lom = (ListOrderedMap)special2List.get(k);
-								if(!"".equals(StringUtil.bvl(s2Lom.get("attr_value"), ""))){
-								sb.append("<tr>")
-								  .append("		<th>" + s2Lom.get("attr_nm") + "</th>\n")
-								  .append("		<td colspan='5'>" +  StringUtil.bvl(StringUtil.convertEnterToBR(StringUtil.convertNamoCharsToHtml((String)s2Lom.get("attr_value"))), "") + "</td>\n")
-								  .append("</tr>\n");
-								}
-							}
-							
-						}
 					}
 					//특화정보끝
 					

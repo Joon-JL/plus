@@ -250,7 +250,7 @@ public class ClmsFileServiceImpl extends CommonServiceImpl implements ClmsFileSe
                                 fileMetaInfo.put("org_file_nm", orgFileNm);
                                 fileMetaInfo.put("file_info", fileInfo);
                                 fileMetaInfo.put("file_path", uploadedFile.getAbsolutePath());
-                                fileMetaInfo.put("file_sz", Integer.valueOf(new Long(file.getSize()).toString()));
+                                fileMetaInfo.put("file_sz", file.getSize());
                                 fileMetaInfo.put("dn_cnt", 0);
 
                 				fileInfoList.add(fileMetaInfo);
@@ -538,7 +538,6 @@ public class ClmsFileServiceImpl extends CommonServiceImpl implements ClmsFileSe
 						
 					}else if("old".equals(file.getFile_gbn()) && "reAttach".equals(vo.getView_gbn())){	//Sungwoo added 2014-09-25 파일 reAttach를 위한 분기처리 추가
 
-						Random r = new Random();
 						String fileId = "";
 						file.setFile_bigclsfcn(vo.getFile_bigclsfcn());
 						file.setFile_midclsfcn(vo.getFile_midclsfcn());
@@ -948,13 +947,8 @@ public class ClmsFileServiceImpl extends CommonServiceImpl implements ClmsFileSe
 			}			
 			
 			//getLogger().error(">>>>>>>> 이전 버전"+tempVersion);
-			int org_ver = Integer.valueOf(tempVersion).intValue();
-			org_ver = org_ver + 1;
-			if(org_ver < 10){
-				version = "V0"+Integer.toString(org_ver);
-			}else{
-				version = "V"+ Integer.toString(org_ver);
-			}
+			int org_ver = Integer.parseInt(tempVersion) + 1;
+            version = String.format("V%02d", org_ver);
 		}else{
 			version = "V01";
 		}
@@ -1304,7 +1298,7 @@ public class ClmsFileServiceImpl extends CommonServiceImpl implements ClmsFileSe
 			vo.setOrg_file_nm(arrFileDetail[1]);
 			vo.setFile_info(arrFileDetail[2]);
 			vo.setFile_path(arrFileDetail[3]);
-			vo.setFile_sz(Integer.valueOf(arrFileDetail[4]).intValue());
+			vo.setFile_sz(Integer.parseInt(arrFileDetail[4]));
 			vo.setFile_gbn(arrFileDetail[6]);
 
 			resultList.add(vo);	
@@ -1607,7 +1601,6 @@ public class ClmsFileServiceImpl extends CommonServiceImpl implements ClmsFileSe
 								
 								// 2014-07-22 Kevin changed.
 								// To avoid file key duplication, the way to generate the file id changed. 
-            					Random r = new Random();
             					//fileId = String.valueOf(System.nanoTime())+"_"+String.valueOf(r.nextInt(Integer.MAX_VALUE));
             					fileId = getUUID();
 
@@ -1635,7 +1628,7 @@ public class ClmsFileServiceImpl extends CommonServiceImpl implements ClmsFileSe
 								fileMetaInfo.put("sequence", " ");
 								fileMetaInfo.put("file_name", orgFileNm);
 								fileMetaInfo.put("file_path", uploadedFile.getAbsolutePath());
-								fileMetaInfo.put("file_size", Integer.valueOf(new Long(file.getSize()).toString()));
+								fileMetaInfo.put("file_size", file.getSize());
 
 								fileInfoList.add(fileMetaInfo);
 							} else {
@@ -2192,28 +2185,6 @@ public class ClmsFileServiceImpl extends CommonServiceImpl implements ClmsFileSe
 		
 		return result;
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-
-
-
-
-	
-
-	
-	
-
-	
-
 
 	  /**
 	  * String 으로 넘어온 File Info를 ESB 첨부파일VO 타입으로 변환하여 넘겨준다.
@@ -2441,7 +2412,7 @@ public class ClmsFileServiceImpl extends CommonServiceImpl implements ClmsFileSe
 	                                fileMetaInfo.put("org_file_nm", orgFileNm);
 	                                fileMetaInfo.put("file_info", fileInfo);
 	                                fileMetaInfo.put("file_path", uploadedFile.getAbsolutePath());
-	                                fileMetaInfo.put("file_sz", Integer.valueOf(new Long(fileItem.getSize()).toString()));
+	                                fileMetaInfo.put("file_sz", fileItem.getSize());
 	                                fileMetaInfo.put("dn_cnt", 0);
 
 	                				fileInfoList.add(fileMetaInfo);
@@ -2467,7 +2438,7 @@ public class ClmsFileServiceImpl extends CommonServiceImpl implements ClmsFileSe
 		* @param    화면에서 넘어온 FileInfo Stringseq_no*로컬파일명*파일정보*서버파일명(경로+실제저장파일명)*크기|....)
 		* @return   List
 		*/
-		public List getFileInfoToCpmsFileList(String fileInfos) throws Exception {
+		public List getFileInfoToCpmsFileList(String fileInfos) {
 			ArrayList resultList = new ArrayList();
 			
 			ClmsFileVO vo = null;
@@ -2483,7 +2454,7 @@ public class ClmsFileServiceImpl extends CommonServiceImpl implements ClmsFileSe
 				vo.setOrg_file_nm(arrFileDetail[1]);
 				vo.setFile_info(arrFileDetail[2]);
 				vo.setFile_path(arrFileDetail[3]);
-				vo.setFile_sz(Integer.valueOf(arrFileDetail[4]).intValue());
+				vo.setFile_sz(Integer.parseInt(arrFileDetail[4]));
 				vo.setFile_gbn(arrFileDetail[6]);
 
 				resultList.add(vo);	
@@ -2646,7 +2617,7 @@ public class ClmsFileServiceImpl extends CommonServiceImpl implements ClmsFileSe
 	                            fileMetaInfo.put("org_file_nm", (String)fileLom.get("org_file_nm"));
 	                            fileMetaInfo.put("file_info", fileInfo);
 	                            fileMetaInfo.put("file_path", uploadedFile.getAbsolutePath());
-	                            fileMetaInfo.put("file_sz", Integer.parseInt(String.valueOf(fileLom.get("file_sz"))));
+	                            fileMetaInfo.put("file_sz", fileLom.get("file_sz"));
 	                            fileMetaInfo.put("dn_cnt", 0);
 
 	            				fileInfoList.add(fileMetaInfo);

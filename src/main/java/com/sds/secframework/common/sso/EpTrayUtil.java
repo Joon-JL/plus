@@ -9,57 +9,62 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class EpTrayUtil {
 	public static String DecryptDataList(String pubkey,String seckey, String encdata){
-		try{    
-			Security.addProvider(new BouncyCastleProvider());
+		try{
+            if (Security.getProvider("BC") == null) {
+                Security.addProvider(new BouncyCastleProvider());
+            }
+
 			byte[] baNewDataList = com.sds.secframework.common.sso.Utils.base64Decode(encdata.getBytes("US-ASCII"));
 			byte[] baMD5SecureKey = com.sds.secframework.common.sso.Utils.base64Decode(seckey.getBytes("US-ASCII"));
 			byte[] baPublicKey = com.sds.secframework.common.sso.Utils.base64Decode(pubkey.getBytes("US-ASCII"));
-	
+
 			X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(baPublicKey);
 			KeyFactory factory = KeyFactory.getInstance("RSA", "BC");
 			PublicKey publicKey = factory.generatePublic(publicKeySpec);
-			
+
 			// Cipher desCipher, rsaCipher;
-			Cipher desCipher = Cipher.getInstance("DES", "BC");
+//			Cipher desCipher = Cipher.getInstance("DES", "BC");
+            Cipher desCipher = Cipher.getInstance("DES/ECB/NoPadding", "BC");
 			Cipher rsaCipher = Cipher.getInstance("RSA/ECB/PKCS1Padding", "BC");
-	
-			// Decrypt secrete key using public key (RSA)		
+
+			// Decrypt secrete key using public key (RSA)
 			rsaCipher.init(Cipher.DECRYPT_MODE, publicKey);
 			byte[] baDecryptedMD5SecretKey = rsaCipher.doFinal(baMD5SecureKey);
-	
+
 			String md5SecureKey = new String(baDecryptedMD5SecretKey, "UTF-8");
-		
+
 			java.util.StringTokenizer token2 = new java.util.StringTokenizer(md5SecureKey , ";");
 			String strMD5 = token2.nextToken();
-	
+
 			byte[] baDecryptedSecretKey = com.sds.secframework.common.sso.Utils.base64Decode(token2.nextToken().getBytes("US-ASCII"));
-	
+
 			SecretKeySpec secretKeySpec = new SecretKeySpec(baDecryptedSecretKey, "DES");
 			SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("DES", "BC");
 			SecretKey secretKey = secretKeyFactory.generateSecret(secretKeySpec);
-	
+
 			//	Decrypt user info (DES)
 			desCipher.init(Cipher.DECRYPT_MODE, secretKey);
 			byte[] baDecryptedUserInfo = desCipher.doFinal(baNewDataList);
 			String userInfo = new String(baDecryptedUserInfo, "UTF-8");
-	
+
 			/***********************************/
 			/**		check MD5				   **/
 			/***********************************/
-	
-			if(strMD5.equals(getMD5String(baDecryptedUserInfo))){
+
+            if (java.security.MessageDigest.isEqual(strMD5.getBytes("UTF-8"), getMD5String(baDecryptedUserInfo).getBytes("UTF-8"))) {
+//			if(strMD5.equals(getMD5String(baDecryptedUserInfo))){
 				userInfo = "EP_RETURNCODE=1;" + userInfo;
 			}
 			else{
 				userInfo="EP_RETURNCODE=0;EP_ERRORMSG=DIGETST_CHECK_FAIL;";
 			}
-	  		
+
 	  		return userInfo;
 	  	}catch(Exception ex){
 	  	  String userInfo = "EP_RETURNCODE=0;EP_ERRORMSG=Login Error!!;";
 	  	  return userInfo;
-	  	}		
-	}    
+	  	}
+	}
 	/**
 	 * Gets the MD5 hash of the given byte array.
 	 *

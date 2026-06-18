@@ -106,7 +106,7 @@ public class CustomerTestController extends CommonController {
 			vo.setSrch_nation(srch_nation);
 			// 2014-09-23 Kevin added.
 			vo.setSrch_vendor_type("");
-			if(request.getParameter("srch_vendor_type") != null && request.getParameter("srch_vendor_type") != ""){
+			if(request.getParameter("srch_vendor_type") != null && !request.getParameter("srch_vendor_type").isEmpty()){
 				vo.setSrch_vendor_type(request.getParameter("srch_vendor_type"));
 			}
 			
@@ -235,7 +235,7 @@ public class CustomerTestController extends CommonController {
 			
 			List customerList = null;
 			
-			if( srch_customer != null && srch_customer != ""){//null이 아닐 경우만.
+			if( srch_customer != null && !srch_customer.isEmpty()){//null이 아닐 경우만.
 				customerList = customerTestService.listCustomerTest(vo);
 			} else {
 				

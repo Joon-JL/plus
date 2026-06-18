@@ -74,7 +74,7 @@ public class ConsiderationServiceImpl extends CommonServiceImpl implements Consi
         int mod_cnt = 0;
 
         if (commonDAO.modify("las.contractmanager.rtn_cnsd", vo) > 0
-                && commonDAO.modify("las.contractmanager.rtn_cnsd_req", vo) > 0) { // 계약마스터
+            && commonDAO.modify("las.contractmanager.rtn_cnsd_req", vo) > 0) { // 계약마스터
             // /
             // 의뢰
             // 마스터
@@ -563,46 +563,46 @@ public class ConsiderationServiceImpl extends CommonServiceImpl implements Consi
          * 등록자_ID REG_ID TN_CLM_RELATION_CONTRACT 등록자_명 REG_NM
          */
 
-		if (list != null && !list.isEmpty()) {
+        if (list != null && !list.isEmpty()) {
 
-			for (int i = 0; i < list.size(); i++) {
-				ListOrderedMap lom = (ListOrderedMap) list.get(i);
+            for (int i = 0; i < list.size(); i++) {
+                ListOrderedMap lom = (ListOrderedMap) list.get(i);
 
-				resultSb.append("<tr id=\"trRelationContractCont\">");
+                resultSb.append("<tr id=\"trRelationContractCont\">");
 
-				// real_type_nm (Single-line escaped)
-				resultSb.append(" <td> ").append(StringUtil.bvlEscaped((String) lom.get("real_type_nm"), "")).append("</td>");
+                // real_type_nm (Single-line escaped)
+                resultSb.append(" <td> ").append(StringUtil.bvlEscaped((String) lom.get("real_type_nm"), "")).append("</td>");
 
-				// cnsdreq_id & req_title (Single-line escaped inside attribute and element text)
-				resultSb.append(" <td> <a href=\"javascript:goDetail('")
-						.append(StringUtil.bvlEscaped((String) lom.get("cnsdreq_id"), "")).append("');\">")
-						.append(StringUtil.bvlEscaped((String) lom.get("req_title"), "")).append("</a></td>");
+                // cnsdreq_id & req_title (Single-line escaped inside attribute and element text)
+                resultSb.append(" <td> <a href=\"javascript:goDetail('")
+                    .append(StringUtil.bvlEscaped((String) lom.get("cnsdreq_id"), "")).append("');\">")
+                    .append(StringUtil.bvlEscaped((String) lom.get("req_title"), "")).append("</a></td>");
 
-				// rel_defn (Single-line escaped)
-				resultSb.append(" <td> ").append(StringUtil.bvlEscaped((String) lom.get("rel_defn"), "")).append("</td>");
+                // rel_defn (Single-line escaped)
+                resultSb.append(" <td> ").append(StringUtil.bvlEscaped((String) lom.get("rel_defn"), "")).append("</td>");
 
-				// expl (Multi-line layout field - processed securely)
-				resultSb.append(" <td> ").append(StringUtil.bvlEscapeWithBR((String) lom.get("expl"), "")).append("</td>");
+                // expl (Multi-line layout field - processed securely)
+                resultSb.append(" <td> ").append(StringUtil.bvlEscapeWithBR((String) lom.get("expl"), "")).append("</td>");
 
-				if (!"".equals(vo.getSubmit_status())) {
-					// parent_cntrt_id (Single-line attribute value escaped)
-					resultSb.append(" <td><span id=\"id_relCImg\"><a href=\"javascript:actionRelationContract('delete','")
-							.append(StringUtil.bvlEscaped((String) lom.get("parent_cntrt_id"), "")).append("');\"><img src=\"/script/secfw/jquery/uploadify/cancel_new_en.gif\"></a></span></td>");
-				} else {
-					resultSb.append("<td></td>");
-				}
-				resultSb.append("</tr>");
-			} // end for
-		} else {
-			Locale locale1 = new Locale((String) vo.getSession_user_locale());
+                if (!"".equals(vo.getSubmit_status())) {
+                    // parent_cntrt_id (Single-line attribute value escaped)
+                    resultSb.append(" <td><span id=\"id_relCImg\"><a href=\"javascript:actionRelationContract('delete','")
+                        .append(StringUtil.bvlEscaped((String) lom.get("parent_cntrt_id"), "")).append("');\"><img src=\"/script/secfw/jquery/uploadify/cancel_new_en.gif\"></a></span></td>");
+                } else {
+                    resultSb.append("<td></td>");
+                }
+                resultSb.append("</tr>");
+            } // end for
+        } else {
+            Locale locale1 = new Locale((String) vo.getSession_user_locale());
 
-			// 등록된 연관계약이 없습니다. (하드코딩 메시지 리소스이므로 안전함)
-			resultSb.append("<tr id=\"trRelationContractCont\"><td colspan=\"5\">")
-					.append((String) messageSource.getMessage("las.page.field.considerationImpl.listRelationContract01", null, locale1))
-					.append("</td></tr>");
-		} // end if(list != null)
+            // 등록된 연관계약이 없습니다. (하드코딩 메시지 리소스이므로 안전함)
+            resultSb.append("<tr id=\"trRelationContractCont\"><td colspan=\"5\">")
+                .append((String) messageSource.getMessage("las.page.field.considerationImpl.listRelationContract01", null, locale1))
+                .append("</td></tr>");
+        } // end if(list != null)
 
-        resultMap.put("cntRc", list.size());
+        resultMap.put("cntRc", (list != null) ? list.size() : 0);
         resultMap.put("contRc", resultSb.toString());
         return resultMap;
     }
@@ -730,7 +730,7 @@ public class ConsiderationServiceImpl extends CommonServiceImpl implements Consi
             // 1. 계약관리_계약_검토의뢰_이관(TN_CLM_CONT_CNSDREQ_TRANSFER) 테이블 UPDATE -->
             // 이관 요청중일 때만 업데이트
             if (vo.getPrgrs_status() == "C04206"
-                    && (vo.getMn_cnsd_dept().equals("A00000001") || vo.getMn_cnsd_dept().equals("A00000002"))) {
+                && (vo.getMn_cnsd_dept().equals("A00000001") || vo.getMn_cnsd_dept().equals("A00000002"))) {
                 commonDAO.modify("las.contractmanager.transLawDeptTransfer", vo); // 계약관리_계약_검토의뢰_이관(TN_CLM_CONT_CNSDREQ_TRANSFER)
                 // 테이블
                 // UPDATE
@@ -1179,7 +1179,7 @@ public class ConsiderationServiceImpl extends CommonServiceImpl implements Consi
                 hisReqVo = new ConsultationVO();
             hisReqVo.setCnsdreq_id(vo.getCnsdreq_id());
             if (vo.getChg_prgrs_status().equals("C04205") || vo.getChg_prgrs_status().equals("C04206")
-                    || vo.getChg_prgrs_status().equals("C04207")) {
+                || vo.getChg_prgrs_status().equals("C04207")) {
                 hisReqVo.setPrgrs_status(vo.getChg_prgrs_status());
             } else {
                 hisReqVo.setPrgrs_status("C04204");
@@ -1343,7 +1343,7 @@ public class ConsiderationServiceImpl extends CommonServiceImpl implements Consi
                 hisReqVo = new ConsultationVO();
             hisReqVo.setCnsdreq_id(vo.getCnsdreq_id());
             if (vo.getChg_prgrs_status().equals("C04205") || vo.getChg_prgrs_status().equals("C04206")
-                    || vo.getChg_prgrs_status().equals("C04207")) {
+                || vo.getChg_prgrs_status().equals("C04207")) {
                 hisReqVo.setPrgrs_status(vo.getChg_prgrs_status());
             } else {
                 hisReqVo.setPrgrs_status("C04204");
@@ -1764,7 +1764,7 @@ public class ConsiderationServiceImpl extends CommonServiceImpl implements Consi
         // 마스터 테이블 상태값 변경
         if (!"".equals(vo.getDepth_status())) {
             if (("A00000003".equals(vo.getMn_cnsd_dept()) && "A00000003".equals(vo.getBlngt_orgnz())
-                    && "Y".equals(vo.getPlndbn_req_yn())) || "Y".equals(vo.getAuto_apbt_yn())) { // 아이피센터
+                && "Y".equals(vo.getPlndbn_req_yn())) || "Y".equals(vo.getAuto_apbt_yn())) { // 아이피센터
                 rtVal = commonDAO.modify("las.returnDepthStatus.modify", vo); // 상태값
                 // 완료
                 // 검토의견없뎃
@@ -1781,7 +1781,7 @@ public class ConsiderationServiceImpl extends CommonServiceImpl implements Consi
 
         // 정상적으로 처리 되지 않았습니다. 시스템 관리자에게 문의 바랍니다.
         mapRt.put("returnMsg", (String) messageSource
-                .getMessage("las.page.field.considerationImpl.returnTabConsideration01", null, locale1));
+            .getMessage("las.page.field.considerationImpl.returnTabConsideration01", null, locale1));
         mapRt.put("depthStatus", vo.getDepth_status());
         mapRt.put("prgrsStatus", vo.getPrgrs_status());
         mapRt.put("cnsdStatus", vo.getCnsd_status());
@@ -1867,12 +1867,12 @@ public class ConsiderationServiceImpl extends CommonServiceImpl implements Consi
 
         // 거래 상대방 내역
         vo.setCntrt_oppnt_rprsntman(
-                StringUtil.convertHtmlTochars(StringUtil.bvl((String) vo.getCntrt_oppnt_rprsntman(), "")));
+            StringUtil.convertHtmlTochars(StringUtil.bvl((String) vo.getCntrt_oppnt_rprsntman(), "")));
         vo.setCntrt_oppnt_cd(StringUtil.convertHtmlTochars(StringUtil.bvl((String) vo.getCntrt_oppnt_cd(), "")));
         vo.setCntrt_oppnt_email(StringUtil.convertHtmlTochars(StringUtil.bvl((String) vo.getCntrt_oppnt_email(), "")));
         vo.setCntrt_oppnt_telno(StringUtil.convertHtmlTochars(StringUtil.bvl((String) vo.getCntrt_oppnt_telno(), "")));
         vo.setCntrt_oppnt_respman(
-                StringUtil.convertHtmlTochars(StringUtil.bvl((String) vo.getCntrt_oppnt_respman(), "")));
+            StringUtil.convertHtmlTochars(StringUtil.bvl((String) vo.getCntrt_oppnt_respman(), "")));
 
         // 기대효과 <BR>ANTCPTNEFCT
         vo.setAntcptnefct(StringUtil.convertHtmlTochars(StringUtil.bvl((String) vo.getAntcptnefct(), "")));
@@ -1991,7 +1991,7 @@ public class ConsiderationServiceImpl extends CommonServiceImpl implements Consi
             mapRt.put("returnVal", rtVal);
             // 정상적으로 처리 되었습니다.
             mapRt.put("returnMsg", (String) messageSource
-                    .getMessage("las.page.field.considerationImpl.modifyContractMaster01", null, locale1));
+                .getMessage("las.page.field.considerationImpl.modifyContractMaster01", null, locale1));
             mapRt.put("depthStatus", vo.getDepth_status());
             mapRt.put("prgrsStatus", vo.getPrgrs_status());
             mapRt.put("cnsdStatus", vo.getCnsd_status());
@@ -2001,7 +2001,7 @@ public class ConsiderationServiceImpl extends CommonServiceImpl implements Consi
             mapRt.put("returnVal", rtVal);
             // 정상적으로 처리 되지 않았습니다. 시스템 관리자에게 문의 바랍니다.
             mapRt.put("returnMsg", (String) messageSource
-                    .getMessage("las.page.field.considerationImpl.modifyContractMaster02", null, locale1));
+                .getMessage("las.page.field.considerationImpl.modifyContractMaster02", null, locale1));
             mapRt.put("depthStatus", vo.getDepth_status());
             mapRt.put("prgrsStatus", vo.getPrgrs_status());
             mapRt.put("cnsdStatus", vo.getCnsd_status());
@@ -2227,7 +2227,7 @@ public class ConsiderationServiceImpl extends CommonServiceImpl implements Consi
 
         if (vo.getPlndbn_req_yn().equals("Y")) {
             if (vo.getMn_cnsd_dept().equals(vo.getBlngt_orgnz())
-                    && ("RA02".equals(vo.getTop_role()) || "RB01".equals(vo.getTop_role()))) { // 정검토부서
+                && ("RA02".equals(vo.getTop_role()) || "RB01".equals(vo.getTop_role()))) { // 정검토부서
                 // 담당자
                 // 인경우
                 // 만
@@ -2332,7 +2332,7 @@ public class ConsiderationServiceImpl extends CommonServiceImpl implements Consi
 
                 // 부그룹장이 의견전달시 그룹장확인 내용 부 그룹장 의견전달
                 if ("RA01".equals(vo.getTop_role()) || "RESP".equals(vo.getPage_div())
-                        || "Y".equals(vo.getAuto_apbt_yn())) {
+                    || "Y".equals(vo.getAuto_apbt_yn())) {
 
                     vo.setDeptcnsd_apbtman_id(vo.getSession_user_id());
                     vo.setDeptcnsd_apbtman_nm(vo.getSession_user_nm());
@@ -2392,7 +2392,7 @@ public class ConsiderationServiceImpl extends CommonServiceImpl implements Consi
         // INSERT[의견전달, 발신] modified by hanjihoon
         if (!"".equals(vo.getDeptcnsd_cnsd_status())) {
             if ("RA01".equals(vo.getTop_role())
-                    && ("DELIVERY".equals(vo.getStat_flag()) || "DISPATCH".equals(vo.getStat_flag()))) {
+                && ("DELIVERY".equals(vo.getStat_flag()) || "DISPATCH".equals(vo.getStat_flag()))) {
                 // 저장
                 rtVal = commonDAO.modify("las.returnDeptCnsdApbt.modifyAll", vo);
                 // 담당자 인경우
@@ -2533,7 +2533,7 @@ public class ConsiderationServiceImpl extends CommonServiceImpl implements Consi
         mapRt.put("returnVal", rtVal);
         // 정상적으로 처리 되지 않았습니다. 시스템 관리자에게 문의 바랍니다.
         mapRt.put("returnMsg", (String) messageSource
-                .getMessage("las.page.field.considerationImpl.returnConsideration01", null, locale1));
+            .getMessage("las.page.field.considerationImpl.returnConsideration01", null, locale1));
         mapRt.put("depthStatus", vo.getDepth_status());
         mapRt.put("prgrsStatus", vo.getPrgrs_status());
         mapRt.put("cnsdStatus", vo.getCnsd_status());
@@ -2546,7 +2546,7 @@ public class ConsiderationServiceImpl extends CommonServiceImpl implements Consi
     @SuppressWarnings("rawtypes")
     public int getDeptCnsdCnt(ConsultationVO vo) throws Exception {
 
-        Integer init_valut = new Integer(-1);
+        Integer init_valut = -1;
 
         int returnVal = -1;
         List resultList = null;
@@ -2661,17 +2661,20 @@ public class ConsiderationServiceImpl extends CommonServiceImpl implements Consi
     @SuppressWarnings("rawtypes")
     public String[] getButtonControl(ConsiderationVO vo) throws Exception {
 
-        String strTest = null;
         ListOrderedMap lom_btControl = null;
 
         List resultList = commonDAO.list("clm.manage.getButtonControl", vo);
-        if (resultList != null && resultList.size() > 0) {
+
+        if (resultList != null && !resultList.isEmpty()) {
             lom_btControl = (ListOrderedMap) resultList.get(0);
         }
-        strTest = (String) lom_btControl.toString();
-        String return_str[] = strTest.replace("{", "").replace("}", "").split(",");
 
-        return return_str;
+        if (lom_btControl != null) {
+            String strTest = (String) lom_btControl.toString();
+            return strTest.replace("{", "").replace("}", "").split(",");
+        }
+
+        return new String[0];
     }
 
     /**
@@ -3182,7 +3185,7 @@ public class ConsiderationServiceImpl extends CommonServiceImpl implements Consi
 
             key = commonDAO.list("las.contractmanager.selectCnsdReqId", vo);
 
-            if (0 < key.size() && key != null) {
+            if ( key != null && !key.isEmpty()) {
                 ListOrderedMap keyMap = (ListOrderedMap) key.get(0);
                 db_cnsdreq_id = (String) keyMap.get("cnsdreq_id");
             } else {
@@ -3194,7 +3197,7 @@ public class ConsiderationServiceImpl extends CommonServiceImpl implements Consi
         // 생성 규칙은 원 의뢰 아이디에서 H --> HQ로 변경 처리 함.
         // 또는 원 의뢰 아이디가 변경 되었을 경우에는 키를 새로 만들어 준다.
         // 변경에 대한 내용을 알기 위해서 DB 조회 후 화면에서 넘어온 값과 비교를 한다.
-        if ("".equals(sKey_yn) || create_Key2 != db_cnsdreq_id) {
+        if ("".equals(sKey_yn) || (db_cnsdreq_id !=null && !db_cnsdreq_id.equals(create_Key2))) {
             create_Key = create_Key.replaceAll("H", "HQ");
 
         } else {
@@ -3216,7 +3219,7 @@ public class ConsiderationServiceImpl extends CommonServiceImpl implements Consi
         // 원 의뢰를 다시 하게 될 경우엔 아래와 같이 HQ 의뢰 값이 존재 하지 않고, DB의 값고 화면에서 넘어온 값이 틀릴 경우
         // 판단 함.
         // admin reply일 경우 자동 배정이 되면 안된다.
-        if (create_Key2 != db_cnsdreq_id) {
+        if (!create_Key2.equals(db_cnsdreq_id)) {
 
             vo.setDb_cnsdreq_id(db_cnsdreq_id.replaceAll("H", "HQ"));
             vo.setResp_key(create_Key);

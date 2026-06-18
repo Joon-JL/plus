@@ -533,7 +533,7 @@ public class NoticeController extends CommonController {
 			**********************************************************/
 			resultList = noticeService.listNotice(vo);
 
-			if (resultList != null && resultList.size() > 0) {
+			if (resultList != null && !resultList.isEmpty()) {
 				ListOrderedMap tmp = (ListOrderedMap)resultList.get(0);
 
 				pageUtil.setTotalRow(Integer.parseInt(String.valueOf(tmp.get("total_cnt"))));
@@ -785,7 +785,38 @@ public class NoticeController extends CommonController {
 			throw new Exception("NoticeController.insertNotice() Throwable !!");
 		}
 	}
-	
+
+    private ModelAndView processNoticeDetail(HttpServletRequest request, NoticeForm form, NoticeVO vo, String forwardURL) throws Exception {
+        try {
+            List resultList = noticeService.detailNotice(vo);
+            if (resultList == null || resultList.isEmpty()) {
+                throw new Exception("Result empth");
+            }
+
+            ListOrderedMap lom = (ListOrderedMap) resultList.get(0);
+            lom.put("cont", StringUtil.convertCharsToHtml((String) lom.get("cont")));
+
+            if (!vo.getSession_user_id().equals(lom.get("reg_id"))) {
+                getLogger().debug("Increase read count");
+                noticeService.increaseRdCnt(vo);
+            }
+
+            String returnMessage = StringUtil.bvl((String) request.getAttribute("returnMessage"), "");
+
+            ModelAndView mav = new ModelAndView();
+            mav.setViewName(forwardURL);
+            mav.addObject("lom", lom);
+            mav.addObject("command", form);
+            mav.addObject("returnMessage", returnMessage);
+
+            return mav;
+
+        } catch (Throwable t) {
+            t.printStackTrace();
+            throw new Exception("NoticeController.detailNotice() Exception !!");
+        }
+    }
+
 	/**
 	 * Notice 상세정보 조회
 	 * @param request
@@ -795,102 +826,52 @@ public class NoticeController extends CommonController {
 	 */
 	private ModelAndView detailNotice(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		try {
-			
+            /*********************************************************
+             * Session Check
+             **********************************************************/
+            HttpSession session = request.getSession(false);
+
+            if(session==null) {
+                throw new Exception("##### Session is null #####");
+            }
+
 			NoticeForm cmd = (NoticeForm)request.getAttribute("command");
-			
+            NoticeForm form = new NoticeForm();
+            NoticeVO   vo   = new NoticeVO();
+
+            bind(request, form);
+            bind(request, vo);
+
+            if(cmd != null){
+                form = cmd;
+                vo.setAnnce_knd(form.getAnnce_knd());
+                vo.setSeqno(form.getSeqno());
+            }
+
+            COMUtil.getUserAuditInfo(request, form);
+            COMUtil.getUserAuditInfo(request, vo);
+
+            /*********************************************************
+             * 권한 처리
+             **********************************************************/
+            boolean modifyAuth = noticeService.authNotice(MODIFY, vo);
+            boolean deleteAuth = noticeService.authNotice(DELETE, vo);
+            String accessLevel = noticeService.checkAuthByRole(vo);
+
+            if ("A".equals(accessLevel)){
+                form.setAuth_modify(modifyAuth);
+                form.setAuth_delete(deleteAuth);
+            }
+
 			/*********************************************************
 			 * Parameter 
 			**********************************************************/
-			String forwardURL    = "";
-			String returnMessage = "";
-			
-			List resultList = null;
-			
-			/*********************************************************
-			 * Session Check
-			**********************************************************/	
-			HttpSession session = request.getSession(false);
-			
-			if(session==null)
-				throw new Exception("##### Session is null #####");
-			
-			/*********************************************************
-			 * Parameter setting
-			**********************************************************/
-			forwardURL = "/WEB-INF/jsp/las/board/Notice_d.jsp";
-
-			/*********************************************************
-			 * Form 및 VO Binding
-			**********************************************************/
-			NoticeForm form = new NoticeForm();
-			NoticeVO   vo   = new NoticeVO();
-
-			bind(request, form);
-			bind(request, vo);
-
-			if(cmd != null){
-				form = cmd;
-				vo.setAnnce_knd(form.getAnnce_knd());
-				vo.setSeqno(form.getSeqno());
-			}
-			
-			COMUtil.getUserAuditInfo(request, form);
-			COMUtil.getUserAuditInfo(request, vo);
-
-			/*********************************************************
-			 * Service
-			**********************************************************/
-			resultList = noticeService.detailNotice(vo);
-
-			ListOrderedMap lom = (ListOrderedMap)resultList.get(0);
-			lom.put("cont", StringUtil.convertCharsToHtml((String)lom.get("cont")));
-			if(resultList==null)
-				throw new Exception("##### queryService is null ##### ");
-			
-			/*********************************************************
-             * 권한 처리
-            **********************************************************/ 
-            boolean modifyAuth = noticeService.authNotice(MODIFY, vo);
-            boolean deleteAuth = noticeService.authNotice(DELETE, vo);
-			String accessLevel = noticeService.checkAuthByRole(vo);
-			
-			if ("A".equals(accessLevel)){
-	            form.setAuth_modify(modifyAuth);
-	            form.setAuth_delete(deleteAuth);
-			}
-
-			/*********************************************************
-			 * 본인 글이 아닐 경우 조회수 증가
-			**********************************************************/
-			if(!vo.getSession_user_id().equals(lom.get("reg_id"))) {
-				getLogger().debug("###### Increase Rdcnt #####");
-				noticeService.increaseRdCnt(vo) ;				
-			}
-			
-			/*********************************************************
-			 * Massage
-			**********************************************************/
-			returnMessage = StringUtil.bvl((String)request.getAttribute("returnMessage"), "");
-
-			/*********************************************************
-			 * ModelAndView
-			**********************************************************/
-			ModelAndView mav = new ModelAndView();
-
-			mav.setViewName(forwardURL);
-			mav.addObject("resultList", resultList);
-			mav.addObject("lom", lom);
-			mav.addObject("command", form);
-			mav.addObject("returnMessage", returnMessage);
-
-			return mav;
+			String forwardURL = "/WEB-INF/jsp/las/board/Notice_d.jsp";
+			return processNoticeDetail(request, form, vo, forwardURL);
 			
 		}catch (Exception e) {
 			e.printStackTrace();
 			throw new Exception("NoticeController.detailNotice() Exception !!");
-		}catch (Throwable t) {
-			t.printStackTrace();
-			throw new Exception("NoticeController.detailNotice() Throwable !!");
 		}
 	}
 
@@ -945,13 +926,18 @@ public class NoticeController extends CommonController {
 			// 팝업공지 게시물 존재유무 조회
 			String isExistPopupYn = "N";
 			List latestSeqnoList = noticeService.listNoticeLatestSeqno(vo);
-			
-			if(latestSeqnoList.size()>0)
-				isExistPopupYn = "Y";
+
+            if(latestSeqnoList != null && !latestSeqnoList.isEmpty()) {
+                isExistPopupYn = "Y";
+            }
 			
 			// 상세조회
 			resultList = noticeService.detailNotice(vo);
-			ListOrderedMap lom = (ListOrderedMap)resultList.get(0);
+
+            ListOrderedMap lom = null;
+            if(resultList != null && !resultList.isEmpty()) {
+                lom = (ListOrderedMap)resultList.get(0);
+            }
 
 			ModelAndView mav = new ModelAndView();
 			
@@ -1243,78 +1229,26 @@ public class NoticeController extends CommonController {
 	 */
 	public ModelAndView detailNoticeByMain(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		try {
-			
-			/*********************************************************
-			 * Parameter 
-			**********************************************************/
-			String forwardURL    = "";
-			String returnMessage = "";
-			
-			List resultList = null;
-			
-			/*********************************************************
-			 * Parameter setting
-			**********************************************************/
-			forwardURL = "/WEB-INF/jsp/las/board/Notice_p.jsp";
+            /*********************************************************
+             * Form 및 VO Binding
+             **********************************************************/
+            NoticeForm form = new NoticeForm();
+            NoticeVO   vo   = new NoticeVO();
+            bind(request, form);
+            bind(request, vo);
 
-			/*********************************************************
-			 * Form 및 VO Binding
-			**********************************************************/
-			NoticeForm form = new NoticeForm();
-			NoticeVO   vo   = new NoticeVO();
+            COMUtil.getUserAuditInfo(request, form);
+            COMUtil.getUserAuditInfo(request, vo);
 
-			bind(request, form);
-			bind(request, vo);
+            // MEMEO = 공지사항
+            vo.setAnnce_knd("MEMO");
 
-			COMUtil.getUserAuditInfo(request, form);
-			COMUtil.getUserAuditInfo(request, vo);
-			
-			// MEMEO = 공지사항
-			vo.setAnnce_knd("MEMO");
-			
-			
-			/*********************************************************
-			 * Service
-			**********************************************************/
-			resultList = noticeService.detailNotice(vo);
-			
-			ListOrderedMap lom = (ListOrderedMap)resultList.get(0);
-			lom.put("cont", StringUtil.convertCharsToHtml((String)lom.get("cont")));
-			if(resultList==null)
-				throw new Exception("##### queryService is null ##### ");
-			
-			/*********************************************************
-			 * 본인 글이 아닐 경우 조회수 증가
-			**********************************************************/
-			if(!vo.getSession_user_id().equals(lom.get("reg_id"))) {
-				getLogger().debug("###### Increase Rdcnt #####");
-				noticeService.increaseRdCnt(vo) ;				
-			}
-			
-			/*********************************************************
-			 * Massage
-			**********************************************************/
-			returnMessage = StringUtil.bvl((String)request.getAttribute("returnMessage"), "");
-
-			/*********************************************************
-			 * ModelAndView
-			**********************************************************/
-			ModelAndView mav = new ModelAndView();
-
-			mav.setViewName(forwardURL);
-			mav.addObject("resultList", resultList);
-			mav.addObject("lom", lom);
-			mav.addObject("command", form);
-			mav.addObject("returnMessage", returnMessage);
-
-			return mav;
+			String forwardURL = "/WEB-INF/jsp/las/board/Notice_p.jsp";
+			return processNoticeDetail(request, form, vo, forwardURL);
 			
 		}catch (Exception e) {
 			e.printStackTrace();
 			throw new Exception("NoticeController.detailNotice() Exception !!");
-		}catch (Throwable t) {
-			t.printStackTrace();
-			throw new Exception("NoticeController.detailNotice() Throwable !!");
 		}
 	}	
 	
@@ -1372,10 +1306,14 @@ public class NoticeController extends CommonController {
 			**********************************************************/
 			// 해당 회사의 전결규정이 존재하는지 seqno 조회를 통해 구분
 			List maxSeqno = noticeService.getMaxSeqNoByCompCd(vo);
-			ListOrderedMap lomTmp = (ListOrderedMap)maxSeqno.get(0);
+
+            ListOrderedMap lomTmp = null;
+            if(maxSeqno != null && !maxSeqno.isEmpty()) {
+                lomTmp = (ListOrderedMap)maxSeqno.get(0);
+            }
 							
 			// SEQNO가 0이면 INSERT
-			if(Integer.parseInt(lomTmp.get("maxSeqno").toString()) > 0){
+			if((lomTmp != null) && (Integer.parseInt(lomTmp.get("maxSeqno").toString()) > 0)){
 				vo.setSeqno(Integer.parseInt(lomTmp.get("maxSeqno").toString()));
 				form.setSeqno(Integer.parseInt(lomTmp.get("maxSeqno").toString()));
 			}
@@ -1385,9 +1323,10 @@ public class NoticeController extends CommonController {
 			
 			ListOrderedMap 	lom 	= new ListOrderedMap(); 
 			ModelAndView 	mav 	= new ModelAndView();
-			
-			if(resultList.size() > 0)
-				lom = (ListOrderedMap)resultList.get(0);
+
+            if(resultList != null && !resultList.isEmpty()) {
+                lom = (ListOrderedMap)resultList.get(0);
+            }
 						
 			if(lom != null){
 				
@@ -1510,25 +1449,20 @@ public class NoticeController extends CommonController {
 				/*********************************************************
 				 * Service
 				**********************************************************/
-				int result;
-				
+
 				// 해당 회사의 전결규정이 존재하는지 seqno 조회를 통해 구분
 				List resultList = noticeService.getMaxSeqNoByCompCd(vo);
 				ListOrderedMap lom = (ListOrderedMap)resultList.get(0);
 								
 				// 해당 회사의 전결규정이 존재하면 UPDATE 
 				// SEQNO가 0이면 INSERT
-				if(Integer.parseInt(lom.get("maxSeqno").toString()) > 0){
+				if((lom != null) && (Integer.parseInt(lom.get("maxSeqno").toString()) > 0)){
 					vo.setSeqno(Integer.parseInt(lom.get("maxSeqno").toString()));
-					
-					
-					
-					result = noticeService.modifyNotice(vo);
+					noticeService.modifyNotice(vo);
 				}else{
 					insertNotice(request, response, "detailDecideArbitrarilyRe");
 				}
-				
-			
+
 				/*********************************************************
 				 * Massage
 				**********************************************************/
@@ -1618,9 +1552,13 @@ public class NoticeController extends CommonController {
 			// 해당회사 전결규정의 SEQNO를 가져옴
 			ListOrderedMap lom = new ListOrderedMap();
 			List maxSeqno = noticeService.getMaxSeqNoByCompCd(vo);
-			ListOrderedMap lomTmp = (ListOrderedMap)maxSeqno.get(0);
-			
-			if(Integer.parseInt(lomTmp.get("maxSeqno").toString()) > 0){
+
+            ListOrderedMap lomTmp = null;
+            if(maxSeqno != null && !maxSeqno.isEmpty()) {
+                lomTmp = (ListOrderedMap)maxSeqno.get(0);
+            }
+
+			if((lomTmp != null) && (Integer.parseInt(lomTmp.get("maxSeqno").toString()) > 0)){
 				vo.setSeqno(Integer.parseInt(lomTmp.get("maxSeqno").toString()));
 				form.setSeqno(Integer.parseInt(lomTmp.get("maxSeqno").toString()));
 			}
@@ -1628,9 +1566,11 @@ public class NoticeController extends CommonController {
 			// 상세내역 조회
 			resultList = noticeService.detailNotice(vo);
 
-			if(resultList.size()>0){
+            if(resultList != null && !resultList.isEmpty()) {
 				lom = (ListOrderedMap)resultList.get(0);
-				lom.put("cont", StringUtil.convertCharsToHtml((String)lom.get("cont")));
+                if (lom != null) {
+                    lom.put("cont", StringUtil.convertCharsToHtml((String)lom.get("cont")));
+                }
 			}
 			
 			/*********************************************************

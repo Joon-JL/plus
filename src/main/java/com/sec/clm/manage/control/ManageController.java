@@ -353,7 +353,7 @@ public class ManageController extends CommonController {
 				// EHQ, SEUK 디테일이 동일하게 나타나기 때문에 Request로 넘어온 Comp 값을 사용해서 comp 파라미터를 설정해 줘야 한다.
 				String requestedComp = request.getParameter("sElCompe");
 				String sessionCompCd = null;
-				if(vo.getSElComp() == "" && (requestedComp != null && requestedComp != "")){
+				if(vo.getSElComp().isEmpty() && (requestedComp != null && !requestedComp.isEmpty())){
 					// 기존 세션 comp 코드 저장
 					sessionCompCd = vo.getSession_auth_comp_cd();
 					// session comp code를 request querystring으로 전달된 코드로 변경
@@ -370,7 +370,7 @@ public class ManageController extends CommonController {
 				resultList = manageService.listMyContract(vo);
 			}
 			
-			if (resultList != null && resultList.size() > 0) {
+			if (resultList != null && !resultList.isEmpty()) {
 				ListOrderedMap lom = (ListOrderedMap)resultList.get(0);
 
 				pageUtil.setTotalRow(((BigDecimal)lom.get("total_cnt")).intValue());
@@ -566,7 +566,7 @@ public class ManageController extends CommonController {
 			 * 검색처리
 			**********************************************************/
 			List resultList = null;
-			
+
 			if("renewApproval".equals(form.getStatus_mode())){				
 				resultList = manageService.listAutoRenewApproval(vo);
 			}else if("registApproval".equals(form.getStatus_mode())){	
@@ -634,25 +634,29 @@ public class ManageController extends CommonController {
 			String re_demndday = messageSource.getMessage("las.page.field.contractManager.reqRtDate", null, new RequestContext(request).getLocale());
 			//메시지 처리 - closed_YN
 			String closed_yn = messageSource.getMessage("clm.page.field.qna.pubYnN", null, new RequestContext(request).getLocale());
-			
+            String knox_id = "knox_id";
+            String knox_type = "knox_type";
+
 			if("cnsdreq".equals(vo.getList_mode())){
 				//메시지 처리 - 의뢰별목록_
 				fileNm			= (String)messageSource.getMessage("clm.page.field.manage.listManageExcel01", null, new RequestContext(request).getLocale()) + DateUtil.today() + ".xls";
 				sheetNmAry[0]	= (String)messageSource.getMessage("clm.page.field.manage.listManageExcel01", null, new RequestContext(request).getLocale()) + DateUtil.today();
 				//메시지 처리 - 의뢰별 목록
 				titleInfo[0]	= (String)messageSource.getMessage("clm.page.field.manage.listManageExcel02", null, new RequestContext(request).getLocale());
-				subTitleInfo	= new String[]{req_title,cntrt_nm, reqman_nm, req_dt, org_acptday, cntrt_respman_nm, cntrt_resp_dept_nm, cntrt_oppnt_nm, cnsdmans, cntrt_no, prcs_depth_nm, depth_status_nm, hq_cnsd_status, mod_dt,closed_yn,re_demndday,firstr_dt,finalr_dt,"cntrtperiod_startday","cntrtperiod_endday","cntrt_cnclsnday"};
-				columnInfo		= new String[]{"req_title", "cntrt_nm", "reqman_nm", "req_dt", "org_acptday", "cntrt_respman_nm", "cntrt_resp_dept_nm", "cntrt_oppnt_nm", "cnsdmans", "cntrt_no", "prcs_depth_nm", "depth_status_nm", "hq_cnsd_status_nm", "mod_dt","close_yn", "re_demndday","firstr_dt","finalr_dt","cntrtperiod_startday","cntrtperiod_endday","cntrt_cnclsnday"};
-				columnAlign		= new short[]{ExcelBuilder.ALIGN_LEFT,ExcelBuilder.ALIGN_LEFT, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER};
+				subTitleInfo	= new String[]{req_title,cntrt_nm, reqman_nm, req_dt, org_acptday, cntrt_respman_nm, cntrt_resp_dept_nm, cntrt_oppnt_nm, cnsdmans, cntrt_no, prcs_depth_nm, depth_status_nm, hq_cnsd_status, mod_dt,closed_yn,re_demndday,firstr_dt,finalr_dt,"cntrtperiod_startday","cntrtperiod_endday","cntrt_cnclsnday", "DP Agreement"};
+//				subTitleInfo	= new String[]{req_title,cntrt_nm, reqman_nm, req_dt, knox_id, knox_type, org_acptday, cntrt_respman_nm, cntrt_resp_dept_nm, cntrt_oppnt_nm, cnsdmans, cntrt_no, prcs_depth_nm, depth_status_nm, hq_cnsd_status, mod_dt,closed_yn,re_demndday,firstr_dt,finalr_dt,"cntrtperiod_startday","cntrtperiod_endday","cntrt_cnclsnday", "DP Agreement"};
+				columnInfo		= new String[]{"req_title", "cntrt_nm", "reqman_nm", "req_dt", "org_acptday", "cntrt_respman_nm", "cntrt_resp_dept_nm", "cntrt_oppnt_nm", "cnsdmans", "cntrt_no", "prcs_depth_nm", "depth_status_nm", "hq_cnsd_status_nm", "mod_dt","close_yn", "re_demndday","firstr_dt","finalr_dt","cntrtperiod_startday","cntrtperiod_endday","cntrt_cnclsnday", "dp_agreement"};
+//				columnInfo		= new String[]{"req_title", "cntrt_nm", "reqman_nm", "req_dt", "knox_id", "knox_type", "org_acptday", "cntrt_respman_nm", "cntrt_resp_dept_nm", "cntrt_oppnt_nm", "cnsdmans", "cntrt_no", "prcs_depth_nm", "depth_status_nm", "hq_cnsd_status_nm", "mod_dt","close_yn", "re_demndday","firstr_dt","finalr_dt","cntrtperiod_startday","cntrtperiod_endday","cntrt_cnclsnday", "dp_agreement"};
+				columnAlign		= new short[]{ExcelBuilder.ALIGN_LEFT,ExcelBuilder.ALIGN_LEFT, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER};
 			} else {
 				//메시지 처리 - 계약별목록_
 				fileNm			= (String)messageSource.getMessage("clm.page.field.manage.listManageExcel16", null, new RequestContext(request).getLocale()) + DateUtil.today() + ".xls";
 				sheetNmAry[0]	= (String)messageSource.getMessage("clm.page.field.manage.listManageExcel16", null, new RequestContext(request).getLocale()) + DateUtil.today();
 				//메시지 처리 - 계약별 목록
 				titleInfo[0]	= (String)messageSource.getMessage("clm.page.field.manage.listManageExcel17", null, new RequestContext(request).getLocale());
-				subTitleInfo	= new String[]{cntrt_nm, cntrt_respman_nm, cntrt_resp_dept_nm, req_day, cnsdmans, cntrt_cnclsnday, prcs_depth_nm, depth_status_nm, mod_dt,closed_yn,re_demndday,firstr_dt,finalr_dt,"cntrtperiod_startday","cntrtperiod_endday","cntrt_cnclsnday"};
-				columnInfo		= new String[]{"cntrt_nm", "cntrt_respman_nm", "cntrt_resp_dept_nm", "req_dt", "cnsdmans", "cntrt_cnclsnday", "prcs_depth_nm", "depth_status_nm", "mod_dt","close_yn", "re_demndday","firstr_dt","finalr_dt","cntrtperiod_startday","cntrtperiod_endday","cntrt_cnclsnday"};
-				columnAlign		= new short[]{ExcelBuilder.ALIGN_LEFT, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER};
+				subTitleInfo	= new String[]{cntrt_nm, cntrt_respman_nm, cntrt_resp_dept_nm, req_day, cnsdmans, cntrt_cnclsnday, prcs_depth_nm, depth_status_nm, mod_dt,closed_yn,re_demndday,firstr_dt,finalr_dt,"cntrtperiod_startday","cntrtperiod_endday","cntrt_cnclsnday", "DP Agreement"};
+				columnInfo		= new String[]{"cntrt_nm", "cntrt_respman_nm", "cntrt_resp_dept_nm", "req_dt", "cnsdmans", "cntrt_cnclsnday", "prcs_depth_nm", "depth_status_nm", "mod_dt","close_yn", "re_demndday","firstr_dt","finalr_dt","cntrtperiod_startday","cntrtperiod_endday","cntrt_cnclsnday", "dp_agreement"};
+				columnAlign		= new short[]{ExcelBuilder.ALIGN_LEFT, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_CENTER};
 			}
 	        
 	        ExcelBuilder excel = new ExcelBuilder(sheetNmAry);
@@ -1767,7 +1771,7 @@ public class ManageController extends CommonController {
 		{
 			int result = 0;
 			String cnsdReqID = req.getParameter("cnsdreqid");
-			if(cnsdReqID == null || cnsdReqID == ""){
+			if(cnsdReqID == null || cnsdReqID.isEmpty()){
 				result = -1;
 			}
 			

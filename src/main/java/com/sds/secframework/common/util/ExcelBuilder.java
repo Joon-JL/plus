@@ -1,10 +1,8 @@
 package com.sds.secframework.common.util;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.math.BigDecimal;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -27,14 +25,14 @@ import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.hssf.util.Region;
 
 /**
-<PRE>
-* ExcelBuilder class
+ <PRE>
+ * ExcelBuilder class
 
-* Constructor
+ * Constructor
  ExcelBuilder(String sheetName)
  ExcelBuilder(String[] sheetNames)
 
-* Provide Method List
+ * Provide Method List
  int  getSheetsCount()
  void setLandscape(int, boolean)
  void setSheetProtect(int, boolean)
@@ -75,1232 +73,1233 @@ import org.apache.poi.hssf.util.Region;
  void addRow(int, String[], int, boolean)
  void addRow(int, String[], Object)
  void addRows(int, String[], Object[])
- 
+
  Ex2. Style을 사용하여 작성할 경우
-     ExcelBuilder excel = new ExcelBuilder(new String[] {"Sheet1", "Sheet2"});    
-                                                                            // 두개의 Sheet를 생성한다.
-     int sheetsCount = excel.getSheetsCount();                              // Sheet의 갯수를 얻어온다.
+ ExcelBuilder excel = new ExcelBuilder(new String[] {"Sheet1", "Sheet2"});
+ // 두개의 Sheet를 생성한다.
+ int sheetsCount = excel.getSheetsCount();                              // Sheet의 갯수를 얻어온다.
 
-     for(int i=0;i<sheetsCount;i++) {                                       // Sheet의 수 만큼 Loop
-       excel.setHeader(i, "왼쪽 머릿글", "중앙 머릿글", null);              // i번째 Sheet의 머릿글을 설정한다. 
-       String rightFooter = ExcelBuilder.buildHFString("굴림", ExcelBuilder.FONTSTYLE_BOLD, 10, "오른쪽 바닥글");
-                                                                            // 바닥글로 사용할 문자열을 스타일을 적용해 생성한다.
-       excel.setFooter(i, null, null, rightFooter);                         // i번째 Sheet의 바닥글을 설정한다. 
-       excel.setAlign(ExcelBuilder.ALIGN_CENTER);                           // 추가될 Row의 모든 Cell을 Center 정렬한다.
-       excel.setBold(true);                                                 // 추가될 Row의 모든 Cell을 Bold로 설정한다.
-       excel.setItalic(true);                                               // 추가될 Row의 모든 Cell을 Italic으로 설정한다.
-       excel.setStrikeout(true);                                            // 추가될 Row의 모든 Cell에 취소선을 설정한다.
-       excel.setUnderline(2);                                               // 추가될 Row의 모든 Cell에 밑줄을 설정한다. (2줄)
-       excel.setFontColor(ExcelBuilder.COLOR_WHITE);                        // 추가될 Row의 모든 Cell의 글자색을 White로 설정한다.
-       excel.setFontName("굴림체");                                         // 추가될 Row의 모든 Cell의 Font명을 굴림체로 설정한다.
-       excel.setFontSize((short)11);                                        // 추가될 Row의 모든 Cell의 Font크기를 11pt로 설정한다.
-       excel.setBgColor(ExcelBuilder.COLOR_BLUE);                           // 추가될 Row의 모든 Cell의 배경색을 Blue로 설정한다.
-       excel.setBorder(true);                                               // 추가될 Row의 모든 Cell의 테두리를 설정한다.
-       excel.addTitleRow(i, new String[] {"순번", "첫번째", "두번째", ExcelBuilder.MERGE_LEFT});
-                                                                            // i번째 Sheet에 제목을 설정한다. ExcelBuilder.MERGE_LEFT 가 들어가면 앞 Cell과 Merge된다.
-       
-       excel.setDefaultStyle();                                             // 추가될 Row의 모든 Style을 기본값으로 복원한다.
-       excel.setAlign(new short[] {ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_RIGHT});
-                                                                            // 추가될 Row의 Cell 순서대로 Center, Right 정렬한다. 이후 Cell은 기본값
-       excel.setVAlign(ExcelBuilder.VALIGN_CENTER);                         // 추가될 Row의 모든 Cell을 Vertical Center 정렬한다.
-       excel.setFontColor(new short[] {0, ExcelBuilder.COLOR_RED, 0});      // 추가될 Row의 Cell 순서대로 Font색을 기본값, Red, 기본값으로 설정한다.
-       excel.setFontSize(new short[] {8,0,10});                             // 추가될 Row의 Cell 순서대로 Font크기를 8pt, 기본값, 10pt로 설정한다.
-       excel.setBorder(new boolean[] {true});                               // 추가될 Row의 모든 Cell의 테두리를 설정한다. (cause. 배열의 크기가 1)
-       excel.addRows(i, new String[] {ExcelBuilder.ROW_INDEX, "first", "second", "third"}, vos);
-                                                                            // VO배열(vos)의 first, second, third Field값을 각 Row로 추가한다.
-                                                                            // (ROW_INDEX는 Field와 무관하게 vo배열 수 만큼 일련번호를 지정한다. Base : 1) 
-       
-       excel.setDefaultStyle();                                             // 추가될 Row의 모든 Style을 기본값으로 복원한다.
-       excel.addRow(i, new String[] {"시작", ExcelBuilder.MERGE_LEFT, ExcelBuilder.MERGE_LEFT, ExcelBuilder.MERGE_LEFT}, 1, true);
-                                                                            // 두번째 Row(RowNum=1)에 Row를 추가하고 이후 Row를 아래로 Shift한다. (3개의 Cell이 Merge됨)
-       excel.addRow(i, new String[] {ExcelBuilder.MERGE_UP, "", "", "끝"}); // 마지막 Row에 Row를 추가한다. (ExcelBuilder.MERGE_UP 가 들어간 Cell이 윗 Cell과 Merge됨)
-       
-       if(i%2 == 1) {
-         excel.setLandscape(i, true);                                       // 짝수번째 Sheet는 가로방향 출력으로 설정
-         excel.setSheetProtect(i, true);                                    // 짝수번째 Sheet를 보호설정한다. (Password 없음)
-       } else {
-         excel.setSheetProtect(i, "lock");                                  // 홀수번째 Sheet를 보호설정한다. (Password : lock)
-       }
-     }
-     
-     excel.download("usage.xls", response);                            // usage.xls 파일로 다운로드한다.
+ for(int i=0;i<sheetsCount;i++) {                                       // Sheet의 수 만큼 Loop
+ excel.setHeader(i, "왼쪽 머릿글", "중앙 머릿글", null);              // i번째 Sheet의 머릿글을 설정한다.
+ String rightFooter = ExcelBuilder.buildHFString("굴림", ExcelBuilder.FONTSTYLE_BOLD, 10, "오른쪽 바닥글");
+ // 바닥글로 사용할 문자열을 스타일을 적용해 생성한다.
+ excel.setFooter(i, null, null, rightFooter);                         // i번째 Sheet의 바닥글을 설정한다.
+ excel.setAlign(ExcelBuilder.ALIGN_CENTER);                           // 추가될 Row의 모든 Cell을 Center 정렬한다.
+ excel.setBold(true);                                                 // 추가될 Row의 모든 Cell을 Bold로 설정한다.
+ excel.setItalic(true);                                               // 추가될 Row의 모든 Cell을 Italic으로 설정한다.
+ excel.setStrikeout(true);                                            // 추가될 Row의 모든 Cell에 취소선을 설정한다.
+ excel.setUnderline(2);                                               // 추가될 Row의 모든 Cell에 밑줄을 설정한다. (2줄)
+ excel.setFontColor(ExcelBuilder.COLOR_WHITE);                        // 추가될 Row의 모든 Cell의 글자색을 White로 설정한다.
+ excel.setFontName("굴림체");                                         // 추가될 Row의 모든 Cell의 Font명을 굴림체로 설정한다.
+ excel.setFontSize((short)11);                                        // 추가될 Row의 모든 Cell의 Font크기를 11pt로 설정한다.
+ excel.setBgColor(ExcelBuilder.COLOR_BLUE);                           // 추가될 Row의 모든 Cell의 배경색을 Blue로 설정한다.
+ excel.setBorder(true);                                               // 추가될 Row의 모든 Cell의 테두리를 설정한다.
+ excel.addTitleRow(i, new String[] {"순번", "첫번째", "두번째", ExcelBuilder.MERGE_LEFT});
+ // i번째 Sheet에 제목을 설정한다. ExcelBuilder.MERGE_LEFT 가 들어가면 앞 Cell과 Merge된다.
 
-* Required Method List
+ excel.setDefaultStyle();                                             // 추가될 Row의 모든 Style을 기본값으로 복원한다.
+ excel.setAlign(new short[] {ExcelBuilder.ALIGN_CENTER, ExcelBuilder.ALIGN_RIGHT});
+ // 추가될 Row의 Cell 순서대로 Center, Right 정렬한다. 이후 Cell은 기본값
+ excel.setVAlign(ExcelBuilder.VALIGN_CENTER);                         // 추가될 Row의 모든 Cell을 Vertical Center 정렬한다.
+ excel.setFontColor(new short[] {0, ExcelBuilder.COLOR_RED, 0});      // 추가될 Row의 Cell 순서대로 Font색을 기본값, Red, 기본값으로 설정한다.
+ excel.setFontSize(new short[] {8,0,10});                             // 추가될 Row의 Cell 순서대로 Font크기를 8pt, 기본값, 10pt로 설정한다.
+ excel.setBorder(new boolean[] {true});                               // 추가될 Row의 모든 Cell의 테두리를 설정한다. (cause. 배열의 크기가 1)
+ excel.addRows(i, new String[] {ExcelBuilder.ROW_INDEX, "first", "second", "third"}, vos);
+ // VO배열(vos)의 first, second, third Field값을 각 Row로 추가한다.
+ // (ROW_INDEX는 Field와 무관하게 vo배열 수 만큼 일련번호를 지정한다. Base : 1)
+
+ excel.setDefaultStyle();                                             // 추가될 Row의 모든 Style을 기본값으로 복원한다.
+ excel.addRow(i, new String[] {"시작", ExcelBuilder.MERGE_LEFT, ExcelBuilder.MERGE_LEFT, ExcelBuilder.MERGE_LEFT}, 1, true);
+ // 두번째 Row(RowNum=1)에 Row를 추가하고 이후 Row를 아래로 Shift한다. (3개의 Cell이 Merge됨)
+ excel.addRow(i, new String[] {ExcelBuilder.MERGE_UP, "", "", "끝"}); // 마지막 Row에 Row를 추가한다. (ExcelBuilder.MERGE_UP 가 들어간 Cell이 윗 Cell과 Merge됨)
+
+ if(i%2 == 1) {
+ excel.setLandscape(i, true);                                       // 짝수번째 Sheet는 가로방향 출력으로 설정
+ excel.setSheetProtect(i, true);                                    // 짝수번째 Sheet를 보호설정한다. (Password 없음)
+ } else {
+ excel.setSheetProtect(i, "lock");                                  // 홀수번째 Sheet를 보호설정한다. (Password : lock)
+ }
+ }
+
+ excel.download("usage.xls", response);                            // usage.xls 파일로 다운로드한다.
+
+ * Required Method List
  N/A
 
-* Dependency 3rd-party Library List
+ * Dependency 3rd-party Library List
  poi-3.0.2-CUSTOM-20080402.jar (Modified from poi-3.0.2-FINAL-20080204.jar)
  poi-contrib-3.0.2-FINAL-20080204.jar
  poi-scratchpad-3.0.2-FINAL-20080204.jar
 
-* AWT Troubleshooting
- 내부적으로 awt 클래스를 사용하므로 unix 등과 같이 window api를 사용하지 않는 환경에서는 
- WAS 실행시에 -Djava.awt.headless=true 설정을 해주어야 한다. 
-</PRE>
+ * AWT Troubleshooting
+ 내부적으로 awt 클래스를 사용하므로 unix 등과 같이 window api를 사용하지 않는 환경에서는
+ WAS 실행시에 -Djava.awt.headless=true 설정을 해주어야 한다.
+ </PRE>
 
-* @author 김판기
+ * @author 김판기
 
-* @since
+ * @since
 <PRE>
 2008.01.30 created
 2008.04.08 lastest updated
 </PRE>
-*/
+ */
 public class ExcelBuilder {
 
-	HSSFWorkbook wb;
-	
-	HSSFCellStyle style[];
-	short[] styleAlign;
-	short[] styleVAlign;
-	boolean[] styleBold;
-	boolean[] styleItalic;
-	boolean[] styleStrikeout;
-	int[] styleUnderline;
-	short[] styleFontColor;
-	String[] styleFontName = new String[] {"돋움"};
-	short[] styleFontSize;
-	short[] styleBgColor;
-	boolean[] styleBorder;
-	
-	boolean styleModified = true;
-	
-	float rowHeight;
-	short[][] columnWidth;
-	
-	int[] countCell;
-	
-	public final static String MERGE_LEFT = "MERGE_LEFT";
-	public final static String MERGE_UP = "MERGE_UP";
+    HSSFWorkbook wb;
 
-	public final static String ROW_INDEX = "ROW_INDEX";
+    HSSFCellStyle style[];
+    short[] styleAlign;
+    short[] styleVAlign;
+    boolean[] styleBold;
+    boolean[] styleItalic;
+    boolean[] styleStrikeout;
+    int[] styleUnderline;
+    short[] styleFontColor;
+    String[] styleFontName = new String[] {"돋움"};
+    short[] styleFontSize;
+    short[] styleBgColor;
+    boolean[] styleBorder;
 
-	public final static short ALIGN_LEFT = HSSFCellStyle.ALIGN_LEFT;
-	public final static short ALIGN_CENTER = HSSFCellStyle.ALIGN_CENTER;
-	public final static short ALIGN_RIGHT = HSSFCellStyle.ALIGN_RIGHT;
-	public final static short ALIGN_JUSTIFY = HSSFCellStyle.ALIGN_JUSTIFY;
-	
-	public final static short VALIGN_TOP = HSSFCellStyle.VERTICAL_TOP;
-	public final static short VALIGN_CENTER = HSSFCellStyle.VERTICAL_CENTER;
-	public final static short VALIGN_BOTTOM = HSSFCellStyle.VERTICAL_BOTTOM;
-	public final static short VALIGN_JUSTIFY = HSSFCellStyle.VERTICAL_JUSTIFY;
+    boolean styleModified = true;
 
-	public final static short COLOR_AQUA = HSSFColor.AQUA.index;
-	public final static short COLOR_AUTOMATIC = HSSFColor.AUTOMATIC.index;
-	public final static short COLOR_BLACK = HSSFColor.BLACK.index;
-	public final static short COLOR_BLUE = HSSFColor.BLUE.index;
-	public final static short COLOR_BLUE_GREY = HSSFColor.BLUE_GREY.index;
-	public final static short COLOR_BRIGHT_GREEN = HSSFColor.BRIGHT_GREEN.index;
-	public final static short COLOR_BROWN = HSSFColor.BROWN.index;
-	public final static short COLOR_CORAL = HSSFColor.CORAL.index;
-	public final static short COLOR_CORNFLOWER_BLUE = HSSFColor.CORNFLOWER_BLUE.index;
-	public final static short COLOR_DARK_BLUE = HSSFColor.DARK_BLUE.index;
-	public final static short COLOR_DARK_GREEN = HSSFColor.DARK_GREEN.index;
-	public final static short COLOR_DARK_RED = HSSFColor.DARK_RED.index;
-	public final static short COLOR_DARK_TEAL = HSSFColor.DARK_TEAL.index;
-	public final static short COLOR_DARK_YELLOW = HSSFColor.DARK_YELLOW.index;
-	public final static short COLOR_GOLD = HSSFColor.GOLD.index;
-	public final static short COLOR_GREEN = HSSFColor.GREEN.index;
-	public final static short COLOR_GREY_25_PERCENT = HSSFColor.GREY_25_PERCENT.index;
-	public final static short COLOR_GREY_40_PERCENT = HSSFColor.GREY_40_PERCENT.index;
-	public final static short COLOR_GREY_50_PERCENT = HSSFColor.GREY_50_PERCENT.index;
-	public final static short COLOR_GREY_80_PERCENT = HSSFColor.GREY_80_PERCENT.index;
-	public final static short COLOR_INDIGO = HSSFColor.INDIGO.index;
-	public final static short COLOR_LAVENDER = HSSFColor.LAVENDER.index;
-	public final static short COLOR_LEMON_CHIFFON = HSSFColor.LEMON_CHIFFON.index;
-	public final static short COLOR_LIGHT_BLUE = HSSFColor.LIGHT_BLUE.index;
-	public final static short COLOR_LIGHT_CORNFLOWER_BLUE = HSSFColor.LIGHT_CORNFLOWER_BLUE.index;
-	public final static short COLOR_LIGHT_GREEN = HSSFColor.LIGHT_GREEN.index;
-	public final static short COLOR_LIGHT_ORANGE = HSSFColor.LIGHT_ORANGE.index;
-	public final static short COLOR_LIGHT_TURQUOISE = HSSFColor.LIGHT_TURQUOISE.index;
-	public final static short COLOR_LIGHT_YELLOW = HSSFColor.LIGHT_YELLOW.index;
-	public final static short COLOR_LIME = HSSFColor.LIME.index;
-	public final static short COLOR_MAROON = HSSFColor.MAROON.index;
-	public final static short COLOR_OLIVE_GREEN = HSSFColor.OLIVE_GREEN.index;
-	public final static short COLOR_ORANGE = HSSFColor.ORANGE.index;
-	public final static short COLOR_ORCHID = HSSFColor.ORCHID.index;
-	public final static short COLOR_PALE_BLUE = HSSFColor.PALE_BLUE.index;
-	public final static short COLOR_PINK = HSSFColor.PINK.index;
-	public final static short COLOR_PLUM = HSSFColor.PLUM.index;
-	public final static short COLOR_RED = HSSFColor.RED.index;
-	public final static short COLOR_ROSE = HSSFColor.ROSE.index;
-	public final static short COLOR_ROYAL_BLUE = HSSFColor.ROYAL_BLUE.index;
-	public final static short COLOR_SEA_GREEN = HSSFColor.SEA_GREEN.index;
-	public final static short COLOR_SKY_BLUE = HSSFColor.SKY_BLUE.index;
-	public final static short COLOR_TAN = HSSFColor.TAN.index;
-	public final static short COLOR_TEAL = HSSFColor.TEAL.index;
-	public final static short COLOR_TURQUOISE = HSSFColor.TURQUOISE.index;
-	public final static short COLOR_VIOLET = HSSFColor.VIOLET.index;
-	public final static short COLOR_WHITE = HSSFColor.WHITE.index;
-	public final static short COLOR_YELLOW = HSSFColor.YELLOW.index;
-	
-	public final static short FONTSTYLE_NONE = (short)0;
-	public final static short FONTSTYLE_BOLD = (short)1;
-	public final static short FONTSTYLE_ITALIC = (short)2;
-	public final static short FONTSTYLE_BOLD_ITALIC = (short)3;
-	
-	/**
-	 * Constructor : 한개의 Sheet를 생성한다.
-	 * 
-	 * @param sheetName Sheet명
-	 */
-	public ExcelBuilder(String sheetName) {
-		if(sheetName != null) {
-			wb = new HSSFWorkbook();
-			HSSFSheet[] sheets = new HSSFSheet[1];
-			sheets[0] = wb.createSheet(sheetName);
-			this.columnWidth = new short[1][];
-			this.countCell = new int[] {0};
-		}
-	}
-	
-	/**
-	 * Constructor : 여러개의 Sheet를 생성한다.
-	 * 
-	 * @param sheetNames Sheet명
-	 */
-	public ExcelBuilder(String[] sheetNames) {
-		if(sheetNames != null && sheetNames.length > 0) {
-			wb = new HSSFWorkbook();
-			int sheetsCount = sheetNames.length;
-			HSSFSheet[] sheets = new HSSFSheet[sheetsCount];
-			this.columnWidth = new short[sheetsCount][];
-			this.countCell = new int[sheetsCount];
-			
-			for(int i=0;i<sheetsCount;i++) {
-				sheets[i] = wb.createSheet(sheetNames[i]);
-				this.countCell[i] = 0;
-			}
-		}
-	}
-	
-	/**
-	 * Sheet의 갯수를 반환한다.
-	 * 
-	 * @return Sheet의 갯수
-	 */
-	public int getSheetsCount() {
-		return this.wb.getNumberOfSheets();
-	}
-	
-	/**
-	 * 프린트 방향을 설정한다.
-	 * 
-	 * @param sheetIndex Sheet 번호 (Base: 0)
-	 * @param isLandscape 가로방향출력여부 (Default: false)
-	 */
-	public void setLandscape(int sheetIndex, boolean isLandscape) {
-		HSSFSheet sheet = this.wb.getSheetAt(sheetIndex);
-		
-		HSSFPrintSetup ps = sheet.getPrintSetup();
-		ps.setLandscape(isLandscape);
-	}
-	
-	/**
-	 * Sheet 보호여부를 설정한다. (password 미지정)
-	 * 
-	 * @param sheetIndex Sheet 번호 (Base: 0)
-	 * @param isProtect Sheet 보호여부 (Default: false)
-	 */
+    float rowHeight;
+    short[][] columnWidth;
+
+    int[] countCell;
+
+    public final static String MERGE_LEFT = "MERGE_LEFT";
+    public final static String MERGE_UP = "MERGE_UP";
+
+    public final static String ROW_INDEX = "ROW_INDEX";
+
+    public final static short ALIGN_LEFT = HSSFCellStyle.ALIGN_LEFT;
+    public final static short ALIGN_CENTER = HSSFCellStyle.ALIGN_CENTER;
+    public final static short ALIGN_RIGHT = HSSFCellStyle.ALIGN_RIGHT;
+    public final static short ALIGN_JUSTIFY = HSSFCellStyle.ALIGN_JUSTIFY;
+
+    public final static short VALIGN_TOP = HSSFCellStyle.VERTICAL_TOP;
+    public final static short VALIGN_CENTER = HSSFCellStyle.VERTICAL_CENTER;
+    public final static short VALIGN_BOTTOM = HSSFCellStyle.VERTICAL_BOTTOM;
+    public final static short VALIGN_JUSTIFY = HSSFCellStyle.VERTICAL_JUSTIFY;
+
+    public final static short COLOR_AQUA = HSSFColor.AQUA.index;
+    public final static short COLOR_AUTOMATIC = HSSFColor.AUTOMATIC.index;
+    public final static short COLOR_BLACK = HSSFColor.BLACK.index;
+    public final static short COLOR_BLUE = HSSFColor.BLUE.index;
+    public final static short COLOR_BLUE_GREY = HSSFColor.BLUE_GREY.index;
+    public final static short COLOR_BRIGHT_GREEN = HSSFColor.BRIGHT_GREEN.index;
+    public final static short COLOR_BROWN = HSSFColor.BROWN.index;
+    public final static short COLOR_CORAL = HSSFColor.CORAL.index;
+    public final static short COLOR_CORNFLOWER_BLUE = HSSFColor.CORNFLOWER_BLUE.index;
+    public final static short COLOR_DARK_BLUE = HSSFColor.DARK_BLUE.index;
+    public final static short COLOR_DARK_GREEN = HSSFColor.DARK_GREEN.index;
+    public final static short COLOR_DARK_RED = HSSFColor.DARK_RED.index;
+    public final static short COLOR_DARK_TEAL = HSSFColor.DARK_TEAL.index;
+    public final static short COLOR_DARK_YELLOW = HSSFColor.DARK_YELLOW.index;
+    public final static short COLOR_GOLD = HSSFColor.GOLD.index;
+    public final static short COLOR_GREEN = HSSFColor.GREEN.index;
+    public final static short COLOR_GREY_25_PERCENT = HSSFColor.GREY_25_PERCENT.index;
+    public final static short COLOR_GREY_40_PERCENT = HSSFColor.GREY_40_PERCENT.index;
+    public final static short COLOR_GREY_50_PERCENT = HSSFColor.GREY_50_PERCENT.index;
+    public final static short COLOR_GREY_80_PERCENT = HSSFColor.GREY_80_PERCENT.index;
+    public final static short COLOR_INDIGO = HSSFColor.INDIGO.index;
+    public final static short COLOR_LAVENDER = HSSFColor.LAVENDER.index;
+    public final static short COLOR_LEMON_CHIFFON = HSSFColor.LEMON_CHIFFON.index;
+    public final static short COLOR_LIGHT_BLUE = HSSFColor.LIGHT_BLUE.index;
+    public final static short COLOR_LIGHT_CORNFLOWER_BLUE = HSSFColor.LIGHT_CORNFLOWER_BLUE.index;
+    public final static short COLOR_LIGHT_GREEN = HSSFColor.LIGHT_GREEN.index;
+    public final static short COLOR_LIGHT_ORANGE = HSSFColor.LIGHT_ORANGE.index;
+    public final static short COLOR_LIGHT_TURQUOISE = HSSFColor.LIGHT_TURQUOISE.index;
+    public final static short COLOR_LIGHT_YELLOW = HSSFColor.LIGHT_YELLOW.index;
+    public final static short COLOR_LIME = HSSFColor.LIME.index;
+    public final static short COLOR_MAROON = HSSFColor.MAROON.index;
+    public final static short COLOR_OLIVE_GREEN = HSSFColor.OLIVE_GREEN.index;
+    public final static short COLOR_ORANGE = HSSFColor.ORANGE.index;
+    public final static short COLOR_ORCHID = HSSFColor.ORCHID.index;
+    public final static short COLOR_PALE_BLUE = HSSFColor.PALE_BLUE.index;
+    public final static short COLOR_PINK = HSSFColor.PINK.index;
+    public final static short COLOR_PLUM = HSSFColor.PLUM.index;
+    public final static short COLOR_RED = HSSFColor.RED.index;
+    public final static short COLOR_ROSE = HSSFColor.ROSE.index;
+    public final static short COLOR_ROYAL_BLUE = HSSFColor.ROYAL_BLUE.index;
+    public final static short COLOR_SEA_GREEN = HSSFColor.SEA_GREEN.index;
+    public final static short COLOR_SKY_BLUE = HSSFColor.SKY_BLUE.index;
+    public final static short COLOR_TAN = HSSFColor.TAN.index;
+    public final static short COLOR_TEAL = HSSFColor.TEAL.index;
+    public final static short COLOR_TURQUOISE = HSSFColor.TURQUOISE.index;
+    public final static short COLOR_VIOLET = HSSFColor.VIOLET.index;
+    public final static short COLOR_WHITE = HSSFColor.WHITE.index;
+    public final static short COLOR_YELLOW = HSSFColor.YELLOW.index;
+
+    public final static short FONTSTYLE_NONE = (short)0;
+    public final static short FONTSTYLE_BOLD = (short)1;
+    public final static short FONTSTYLE_ITALIC = (short)2;
+    public final static short FONTSTYLE_BOLD_ITALIC = (short)3;
+
+    /**
+     * Constructor : 한개의 Sheet를 생성한다.
+     *
+     * @param sheetName Sheet명
+     */
+    public ExcelBuilder(String sheetName) {
+        if(sheetName != null) {
+            wb = new HSSFWorkbook();
+            HSSFSheet[] sheets = new HSSFSheet[1];
+            sheets[0] = wb.createSheet(sheetName);
+            this.columnWidth = new short[1][];
+            this.countCell = new int[] {0};
+        }
+    }
+
+    /**
+     * Constructor : 여러개의 Sheet를 생성한다.
+     *
+     * @param sheetNames Sheet명
+     */
+    public ExcelBuilder(String[] sheetNames) {
+        if(sheetNames != null && sheetNames.length > 0) {
+            wb = new HSSFWorkbook();
+            int sheetsCount = sheetNames.length;
+            HSSFSheet[] sheets = new HSSFSheet[sheetsCount];
+            this.columnWidth = new short[sheetsCount][];
+            this.countCell = new int[sheetsCount];
+
+            for(int i=0;i<sheetsCount;i++) {
+                sheets[i] = wb.createSheet(sheetNames[i]);
+                this.countCell[i] = 0;
+            }
+        }
+    }
+
+    /**
+     * Sheet의 갯수를 반환한다.
+     *
+     * @return Sheet의 갯수
+     */
+    public int getSheetsCount() {
+        return this.wb.getNumberOfSheets();
+    }
+
+    /**
+     * 프린트 방향을 설정한다.
+     *
+     * @param sheetIndex Sheet 번호 (Base: 0)
+     * @param isLandscape 가로방향출력여부 (Default: false)
+     */
+    public void setLandscape(int sheetIndex, boolean isLandscape) {
+        HSSFSheet sheet = this.wb.getSheetAt(sheetIndex);
+
+        HSSFPrintSetup ps = sheet.getPrintSetup();
+        ps.setLandscape(isLandscape);
+    }
+
+    /**
+     * Sheet 보호여부를 설정한다. (password 미지정)
+     *
+     * @param sheetIndex Sheet 번호 (Base: 0)
+     * @param isProtect Sheet 보호여부 (Default: false)
+     */
 //	public void setSheetProtect(int sheetIndex, boolean isProtect) {
 //		HSSFSheet sheet = this.wb.getSheetAt(sheetIndex);
-//		
+//
 //		sheet.setProtect(isProtect);
 //	}
-	
-	/**
-	 * Sheet 보호를 설정한다. (password 포함)
-	 * 
-	 * @param sheetIndex Sheet 번호 (Base: 0)
-	 * @param password 보호 비밀번호
-	 */
-	public void setSheetProtect(int sheetIndex, String password) {
-		HSSFSheet sheet = this.wb.getSheetAt(sheetIndex);
-		
-		sheet.protectSheet(password);
-	}
-
-	/**
-	 * 셀스타일을 기본값으로 복원한다.
-	 */
-	public void setDefaultStyle() {
-		style = null;
-		styleAlign = null;
-		styleVAlign = null;
-		styleBold = null;
-		styleItalic = null;
-		styleStrikeout = null;
-		styleUnderline = null;
-		styleFontColor = null;
-		styleFontName = new String[] {"돋움"};
-		styleFontSize = null;
-		styleBgColor = null;
-		styleBorder = null;
-		rowHeight = 0;
-		
-		styleModified = true;
-	}
-	
-	/**
-	 * Cell의 Align을 설정한다. (Row의 모든 Cell에 적용)
-	 * 
-	 * @param align
-	 */
-	public void setAlign(short align) {
-		setAlign(new short[] {align});
-	}
-	/**
-	 * Cell의 Align을 설정한다. (배열의 크기가 1이면 Row의 모든 Cell에 적용)
-	 * 
-	 * @param align
-	 */
-	public void setAlign(short[] align) {
-		this.styleAlign = align;
-		styleModified = true;
-	}
-	
-	/**
-	 * Cell의 Vertical Align을 설정한다. (Row의 모든 Cell에 적용)
-	 * 
-	 * @param vAlign
-	 */
-	public void setVAlign(short vAlign) {
-		setVAlign(new short[] {vAlign});
-	}
-	/**
-	 * Cell의 Vertical Align을 설정한다. (배열의 크기가 1이면 Row의 모든 Cell에 적용)
-	 * 
-	 * @param vAlign
-	 */
-	public void setVAlign(short[] vAlign) {
-		this.styleVAlign = vAlign;
-		styleModified = true;
-	}
-	
-	/**
-	 * Cell의 Bold값을 설정한다. (Row의 모든 Cell에 적용)
-	 * 
-	 * @param bold
-	 */
-	public void setBold(boolean bold) {
-		setBold(new boolean[] {bold});
-	}
-	/**
-	 * Cell의 Bold값을 설정한다. (배열의 크기가 1이면 Row의 모든 Cell에 적용)
-	 * 
-	 * @param bold
-	 */
-	public void setBold(boolean[] bold) {
-		this.styleBold = bold;
-		styleModified = true;
-	}
-
-	/**
-	 * Cell의 Italic값을 설정한다. (Row의 모든 Cell에 적용)
-	 * 
-	 * @param italic
-	 */
-	public void setItalic(boolean italic) {
-		setItalic(new boolean[] {italic});
-	}
-	/**
-	 * Cell의 Italic값을 설정한다. (배열의 크기가 1이면 Row의 모든 Cell에 적용)
-	 * 
-	 * @param italic
-	 */
-	public void setItalic(boolean[] italic) {
-		this.styleItalic = italic;
-		styleModified = true;
-	}
-
-	/**
-	 * Cell의 Strikeout(취소선)값을 설정한다. (Row의 모든 Cell에 적용)
-	 * 
-	 * @param strikeout
-	 */
-	public void setStrikeout(boolean strikeout) {
-		setStrikeout(new boolean[] {strikeout});
-	}
-	/**
-	 * Cell의 Strikeout(취소선)값을 설정한다. (배열의 크기가 1이면 Row의 모든 Cell에 적용)
-	 * 
-	 * @param strikeout
-	 */
-	public void setStrikeout(boolean[] strikeout) {
-		this.styleStrikeout = strikeout;
-		styleModified = true;
-	}
-
-	/**
-	 * Cell의 Underline값을 설정한다. (Row의 모든 Cell에 적용)
-	 * 
-	 * @param underline (0: 없음, 1: 한줄, 2: 두줄)
-	 */
-	public void setUnderline(int underline) {
-		setUnderline(new int[] {underline});
-	}
-	/**
-	 * Cell의 Underline값을 설정한다. (배열의 크기가 1이면 Row의 모든 Cell에 적용)
-	 * 
-	 * @param underline (0: 없음, 1: 한줄, 2: 두줄)
-	 */
-	public void setUnderline(int[] underline) {
-		this.styleUnderline = underline;
-		styleModified = true;
-	}
-
-	/**
-	 * Cell의 Font색을 설정한다. (Row의 모든 Cell에 적용)
-	 * 
-	 * @param color
-	 */
-	public void setFontColor(short color) {
-		setFontColor(new short[] {color});
-	}
-	/**
-	 * Cell의 Font색을 설정한다. (배열의 크기가 1이면 Row의 모든 Cell에 적용)
-	 * 
-	 * @param color
-	 */
-	public void setFontColor(short[] color) {
-		this.styleFontColor = color;
-		styleModified = true;
-	}
-
-	/**
-	 * Cell의 Font명을 설정한다. (배열의 크기가 1이면 Row의 모든 Cell에 적용)
-	 * 
-	 * @param fontName
-	 */
-	public void setFontName(String fontName) {
-		setFontName(new String[] {fontName});
-	}
-	/**
-	 * Cell의 Font명을 설정한다. (배열의 크기가 1이면 Row의 모든 Cell에 적용)
-	 * 
-	 * @param fontName
-	 */
-	public void setFontName(String[] fontName) {
-		this.styleFontName = fontName;
-		styleModified = true;
-	}
-
-	/**
-	 * Cell의 Font크기(pt)를 설정한다. (Row의 모든 Cell에 적용)
-	 * 
-	 * @param size
-	 */
-	public void setFontSize(short size) {
-		setFontSize(new short[] {size});
-	}
-	/**
-	 * Cell의 Font크기(pt)를 설정한다. (배열의 크기가 1이면 Row의 모든 Cell에 적용)
-	 * 
-	 * @param size
-	 */
-	public void setFontSize(short[] size) {
-		this.styleFontSize = size;
-		styleModified = true;
-	}
-
-	/**
-	 * Cell의 배경색을 설정한다. (Row의 모든 Cell에 적용)
-	 * 
-	 * @param color
-	 */
-	public void setBgColor(short color) {
-		setBgColor(new short[] {color});
-	}
-	/**
-	 * Cell의 배경색을 설정한다. (배열의 크기가 1이면 Row의 모든 Cell에 적용)
-	 * 
-	 * @param color
-	 */
-	public void setBgColor(short[] color) {
-		this.styleBgColor = color;
-		styleModified = true;
-	}
-	
-	/**
-	 * Cell의 테두리여부를 설정한다. (Row의 모든 Cell에 적용)
-	 * 
-	 * @param border
-	 */
-	public void setBorder(boolean border) {
-		setBorder(new boolean[] {border});
-	}
-	/**
-	 * Cell의 테두리여부를 설정한다. (배열의 크기가 1이면 Row의 모든 Cell에 적용)
-	 * 
-	 * @param border
-	 */
-	public void setBorder(boolean[] border) {
-		this.styleBorder = border;
-		styleModified = true;
-	}
-
-	/**
-	 * 첫번째 Sheet의 각 Cell별 너비를 지정한다. (0 이하 이면 기본값)
-	 * 
-	 * @param width
-	 */
-	public void setColumnWidth(double[] width) {
-		setColumnWidth(0, width);
-	}
-	/**
-	 * sheetIndex번째 Sheet의 각 Cell별 너비를 지정한다. (0 이하 이면 기본값)
-	 * 
-	 * @param sheetIndex
-	 * @param width
-	 */
-	public void setColumnWidth(int sheetIndex, double[] width) {
-		int columnCount = width.length;
-		this.columnWidth[sheetIndex] = new short[columnCount];
-		
-		for (int i=0;i<columnCount;i++) {
-			double w = 256 * width[i];
-			this.columnWidth[sheetIndex][i] = (short)w;
-		}
-	}
-
-	/**
-	 * Row의 높이를 지정한다. (setDefaultStyle() 호출 전이나 높이 재지정 전까지 유지)
-	 * 
-	 * @param height
-	 */
-	public void setRowHeight(double height) {
-		this.rowHeight = (float)height;
-	}
-
-	private void setCountCell(int sheetIndex, int count) {
-		// Array대비 안전성 검증을 위해 크기 체크(Boundary Check)를 선행하는 것이 좋습니다.
-		if (sheetIndex >= 0 && sheetIndex < countCell.length) {
-			if (countCell[sheetIndex] < count) {
-				countCell[sheetIndex] = count;
-			}
-		}
-	}
-	
-	private void setColumnWidth() {
-		int sheetCount = this.wb.getNumberOfSheets();
-		
-		for (int i=0;i<sheetCount;i++) {
-			HSSFSheet sheet = this.wb.getSheetAt(i);
-			
-			int cellCount = countCell[i];
-			
-			for (int j=0;j<cellCount;j++) {
-				if (this.columnWidth[i] == null)
-					sheet.autoSizeColumn((short)j);
-				else if (this.columnWidth[i].length == 1)
-					sheet.setColumnWidth((short)j, this.columnWidth[i][0]);
-				else if (this.columnWidth[i].length > j && this.columnWidth[i][j] > 0)
-					sheet.setColumnWidth((short)j, this.columnWidth[i][j]);
-				else
-					sheet.autoSizeColumn((short)j);
-			}
-		}
-	}
-	
-	private void setRowHeight(HSSFRow row) {
-		if (this.rowHeight <= 0)
-			return;
-		
-		row.setHeightInPoints(this.rowHeight);
-	}
-
-	/**
-	 * Excel File을 FileSystem에 저장한다.
-	 * 
-	 * @param filePath 저장할 파일의 Full Path (확장자 포함)
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 */
-	public void save(String filePath) throws IOException {
-		// 1. Path Traversal 차단: '..' 포함 여부 및 절대 경로 방지 (MUST-Fix)
-		if (filePath == null || filePath.contains("..")) {
-			throw new SecurityException("Path traversal attack detected!");
-		}
-
-		Path path = Paths.get(filePath);
-		if (path.isAbsolute()) {
-			throw new SecurityException("Absolute paths are not allowed!");
-		}
-
-		setColumnWidth();
-
-		// 2. Try-With-Resources 적용: finally 블록과 불필요한 빈 catch 문 제거
-		try (FileOutputStream fileOut = new FileOutputStream(path.toFile())) {
-			wb.write(fileOut);
-		} catch (IOException e) {
-			throw e;
-		}
-	}
-
-	/**
-	 * Excel File을 Download한다.
-	 * @param fileName
-	 * @param response
-	 */
-	public void download(String fileName, HttpServletResponse response) {
-		setColumnWidth();
-
-		try {
-			fileName = new String(fileName.getBytes("EUC-KR"), "8859_1");
-		} catch(Exception e) {
-			
-		}
-
-		response.setHeader("Content-Disposition", "attachment; filename="+fileName);
-		response.setHeader("Content-Description", "JSP Generated Data");
-		response.setHeader("Content-Transfer-Encoding", "binary;");
-		response.setContentType("application/vnd.ms-excel"); 
-
-		ServletOutputStream outStream = null;
-
-		try {
-			outStream = response.getOutputStream();
-			wb.write(outStream);
-		} catch(IOException e) {
-			//throw e;
-		} finally {
-			try {
-				if(outStream != null)	outStream.close();
-			} catch(IOException e) {
-				//throw e;
-			}
-		}
-	}
-	
-	/**
-	 * Sheet의 머릿글을 설정한다.
-	 * 
-	 * @param sheetIndex
-	 * @param leftHeader 왼쪽 머릿글 (null 이면 설정하지 않음)
-	 * @param centerHeader 중앙 머릿글 (null 이면 설정하지 않음)
-	 * @param rightHeader 오른쪽 머릿글 (null 이면 설정하지 않음)
-	 */
-	public void setHeader(int sheetIndex, String leftHeader, String centerHeader, String rightHeader) {
-		HSSFSheet sheet = this.wb.getSheetAt(sheetIndex);
-		HSSFHeader header = sheet.getHeader();
-		
-		if(leftHeader != null) {
-			header.setLeft(leftHeader);
-		}
-		
-		if(centerHeader != null) {
-			header.setCenter(centerHeader);
-		}
-		
-		if(rightHeader != null) {
-			header.setRight(rightHeader);
-		}
-	}
-	
-	
-	/**
-	 * Sheet의 바닥글을 설정한다.
-	 * 
-	 * @param sheetIndex
-	 * @param leftFooter 왼쪽 바닥글 (null 이면 설정하지 않음)
-	 * @param centerFooter 중앙 바닥글 (null 이면 설정하지 않음)
-	 * @param rightFooter 오른쪽 바닥글 (null 이면 설정하지 않음)
-	 */
-	public void setFooter(int sheetIndex, String leftFooter, String centerFooter, String rightFooter) {
-		HSSFSheet sheet = this.wb.getSheetAt(sheetIndex);
-		HSSFFooter footer = sheet.getFooter();
-		
-		if(leftFooter != null) {
-			footer.setLeft(leftFooter);
-		}
-		
-		if(centerFooter != null) {
-			footer.setCenter(centerFooter);
-		}
-		
-		if(rightFooter != null) {
-			footer.setRight(rightFooter);
-		}
-	}
-	
-	/**
-	 * 머릿글/바닥글에 사용할 문자열을 스타일을 적용해 만든다.
-	 * 
-	 * @param fontName 폰트명
-	 * @param fontStyle 폰트스타일
-	 * @param fontSize 폰트사이즈(pt)
-	 * @return 스타일이 적용된 문자열
-	 */
-	public static String buildHFString(String fontName, short fontStyle, int fontSize, String text) {
-		String hfString = "&";
-		
-		if(fontName != null) {
-			hfString += "\"" + fontName.replaceAll(",", "") + ",";
-		} else {
-			hfString += "\",";
-		}
-		
-		switch(fontStyle) {
-			case FONTSTYLE_BOLD :
-				hfString += "Bold\"";
-				break;
-			case FONTSTYLE_ITALIC :
-				hfString += "Italic\"";
-				break;
-			case FONTSTYLE_BOLD_ITALIC :
-				hfString += "Bold Italic\"";
-				break;
-			default :
-				hfString += "\"";
-				break;
-		}
-		
-		if(fontSize > 0) {
-			hfString += "&" + fontSize;
-		}
-		
-		return hfString+text;
-	}
-
-	public void addTitleRow(int sheetIndex, String[] titles) {
-		// 1. 방어 코드: 가장 먼저 Null 및 배열 크기를 검사하여 NPE 원천 차단
-		if (titles == null || titles.length == 0) {
-			return;
-		}
-
-		HSSFSheet sheet = this.wb.getSheetAt(sheetIndex);
-
-		// 이제 titles가 절대 null이 아님이 보장되므로 안전하게 length 호출 가능
-		setCountCell(sheetIndex, titles.length);
-
-		if (sheet.getPhysicalNumberOfRows() > 0) {
-			int startRow = sheet.getFirstRowNum();
-			int endRow = sheet.getLastRowNum();
-
-			if (startRow >= 0 && endRow >= startRow) {
-				sheet.shiftRows(startRow, endRow, 1, true, true);
-			}
-		}
-
-		HSSFRow confidentialRow = sheet.createRow(0);
-		HSSFCell confidentialCell = confidentialRow.createCell(0, 0);
-		HSSFCellStyle confidentialStyle = this.wb.createCellStyle();
-		HSSFFont confidentialFont = this.wb.createFont();
-		confidentialFont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
-		confidentialFont.setColor(COLOR_RED);
-		confidentialStyle.setFont(confidentialFont);
-		confidentialStyle.setFillForegroundColor(HSSFColor.WHITE.index);
-		confidentialStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
-		confidentialCell.setCellStyle(confidentialStyle);
-		confidentialCell.setCellValue(new HSSFRichTextString("Confidential"));
-
-		HSSFRow row = sheet.createRow(1);
-		setRowHeight(row);
-
-		initCellStyle(titles.length);
-
-		int maxLines = 1;
-		int cellCount = titles.length;
-		HSSFCell[] cells = new HSSFCell[cellCount];
-		int mergeStart = 0;
-
-		for (int i = 0; i < cellCount; i++) {
-			// titles[i]의 Null 검증 및 == 대신 .equals() 사용
-			if (titles[i] == null) {
-				continue;
-			}
-
-			if (MERGE_LEFT.equals(titles[i])) {
-				if (i > 0) {
-					cells[i] = row.createCell((short)i);
-					cells[i].setCellStyle(applyCellStyle(cells[i], mergeStart));
-					sheet.addMergedRegion(new Region(0, (short)(i-1), 0, (short)i));
-				}
-			} else if (MERGE_UP.equals(titles[i])) {
-				// titleRow는 윗 Row가 없으므로 MERGE할 수 없음.
-			} else {
-				mergeStart = i;
-
-				cells[i] = row.createCell((short)i);
-				cells[i].setCellValue(new HSSFRichTextString(titles[i]));
-				cells[i].setCellStyle(applyCellStyle(cells[i], i));
-
-				if (titles[i].indexOf("\n") > 0) {
-					cells[i].getCellStyle().setWrapText(true);
-
-					if (this.rowHeight == 0) {
-						String[] lines = titles[i].split("\n");
-						if (lines.length > maxLines) {
-							row.setHeight((short)(row.getHeight() * lines.length));
-							maxLines = lines.length;
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	/**
-	 * 마지막 Row에 Row 추가
-	 * 
-	 * @param sheetIndex
-	 * @param cellValues (null일 경우 앞 Cell과 Merge)
-	 */
-	public void addRow(int sheetIndex, String[] cellValues) {
-		addRow(sheetIndex, cellValues, -1, false);
-	}
-	/**
-	 * 원하는 Row에 Row 추가
-	 * 
-	 * @param sheetIndex
-	 * @param cellValues (ExcelBuilder.MERGE_LEFT 일 경우 앞 Cell과 Merge, ExcelBuilder.MERGE_UP 일 경우 윗 Cell과 Merge)
-	 * @param rowNum 추가할 RowNum (Base: 0)
-	 * @param isShift RowNum 이하의 Rows의 Shift여부 
-	 */
-	public void addRow(int sheetIndex, String[] cellValues, int rowNum, boolean isShift) {
-		// 1. 방어 코드: 가장 먼저 Null 및 배열 크기를 검사하여 NPE 원천 차단
-		if (cellValues == null || cellValues.length == 0) {
-			return;
-		}
-
-		HSSFSheet sheet = this.wb.getSheetAt(sheetIndex);
-
-		// 이제 cellValues가 절대 null이 아님이 보장되므로 안전하게 length 호출 가능
-		setCountCell(sheetIndex, cellValues.length);
-
-		if (rowNum >= 0) {
-			if (isShift && sheet.getPhysicalNumberOfRows() > 0 && sheet.getLastRowNum() >= rowNum) {
-				sheet.shiftRows(rowNum, sheet.getLastRowNum(), 1, true, true);
-			}
-		} else {
-			rowNum = (sheet.getPhysicalNumberOfRows() == 0) ? 0 : sheet.getLastRowNum() + 1;
-		}
-
-		HSSFRow row = sheet.createRow(rowNum);
-		setRowHeight(row);
-
-		initCellStyle(cellValues.length);
-
-		int maxLines = 1;
-		int cellCount = cellValues.length;
-		HSSFCell[] cells = new HSSFCell[cellCount];
-		int mergeStart = 0;
-
-		for (int i = 0; i < cellCount; i++) {
-			// Null 검증 추가
-			if (cellValues[i] == null) {
-				continue;
-			}
-
-			// == 대신 .equals() 사용
-			if (MERGE_LEFT.equals(cellValues[i])) {
-				if (i > 0) {
-					cells[i] = row.createCell((short)i);
-					cells[i].setCellStyle(applyCellStyle(cells[i], mergeStart));
-					sheet.addMergedRegion(new Region(rowNum, (short)(i-1), rowNum, (short)i));
-				}
-			} else if (MERGE_UP.equals(cellValues[i])) {
-				if (rowNum > 0) {
-					cells[i] = row.createCell((short)i);
-					cells[i].setCellStyle(applyCellStyle(cells[i], i));
-					sheet.addMergedRegion(new Region(rowNum-1, (short)i, rowNum, (short)i));
-				}
-			} else {
-				mergeStart = i;
-
-				cells[i] = row.createCell((short)i);
-				cells[i].setCellValue(new HSSFRichTextString(cellValues[i]));
-				cells[i].setCellStyle(applyCellStyle(cells[i], i));
-
-				if (cellValues[i].indexOf("\n") > 0) {
-					cells[i].getCellStyle().setWrapText(true);
-
-					if (this.rowHeight == 0) {
-						String[] lines = cellValues[i].split("\n");
-						if (lines.length > maxLines) {
-							row.setHeight((short)(row.getHeight() * lines.length));
-							maxLines = lines.length;
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	/**
-	 * 마지막 Row에 VO로 부터 읽은 값을 추가
-	 * 
-	 * @param sheetIndex
-	 * @param fieldNames 출력할 VO의 Field명 (ExcelBuilder.MERGE_LEFT 일 경우 앞 Cell과 Merge, ExcelBuilder.MERGE_UP 일 경우 윗 Cell과 Merge)
-	 * @param vo
-	 */
-	public void addRow(int sheetIndex, String[] fieldNames, Object vo) {
-		// 1. 방어 코드: 인자값이 유효하지 않으면 즉시 종료 (NullPointerException 및 리플렉션 취약점 원천 차단)
-		if (fieldNames == null || vo == null || fieldNames.length == 0) {
-			return;
-		}
-
-		HSSFSheet sheet = this.wb.getSheetAt(sheetIndex);
-
-		// 2. 로우 인덱스 안전 계산: 시트가 비어있으면 0, 아니면 마지막 행 + 1 (기존 행 초기화/오버라이트 방지)
-		int currentRowNum = (sheet.getPhysicalNumberOfRows() == 0) ? 0 : sheet.getLastRowNum() + 1;
-
-		// 3. 배열 크기 바운더리 체크가 내장된 안전한 메서드 호출
-		setCountCell(sheetIndex, fieldNames.length);
-
-		int fieldCount = fieldNames.length;
-
-		HSSFRow row = sheet.createRow(currentRowNum);
-		setRowHeight(row);
-
-		initCellStyle(fieldCount);
-
-		int maxLines = 1;
-		HSSFCell[] cells = new HSSFCell[fieldCount];
-		int mergeStart = 0;
-
-		for (int i = 0; i < fieldCount; i++) {
-			// 데이터가 없거나 요소가 null인 경우 방어 처리
-			if (fieldNames[i] == null) {
-				continue;
-			}
-
-			// 4. 문자열 주소 비교(==) 오류를 값 비교(.equals)로 수정 (Merge_Left 누락 버그 해결)
-			if (MERGE_LEFT.equals(fieldNames[i])) {
-				if (i > 0) {
-					cells[i] = row.createCell((short)i);
-					cells[i].setCellStyle(applyCellStyle(cells[i], mergeStart));
-					sheet.addMergedRegion(new Region(currentRowNum, (short)(i-1), currentRowNum, (short)i));
-				}
-			} else if (fieldNames[i].equals(MERGE_UP)) {
-				if (currentRowNum > 0) {
-					cells[i] = row.createCell((short)i);
-					cells[i].setCellStyle(applyCellStyle(cells[i], i));
-					sheet.addMergedRegion(new Region(currentRowNum-1, (short)i, currentRowNum, (short)i));
-				}
-			} else {
-				mergeStart = i;
-
-				// 리플렉션을 위한 Getter 메서드명 생성 규칙 최적화
-				String firstChar = fieldNames[i].substring(0, 1).toUpperCase();
-				String remainingChars = fieldNames[i].length() > 1 ? fieldNames[i].substring(1) : "";
-				String methodName = "get" + firstChar + remainingChars;
-
-				Object value = null;
-				try {
-					value = vo.getClass().getMethod(methodName, new Class<?>[] {}).invoke(vo, new Object[] {});
-				} catch(Exception e) {
-					value = "";
-				}
-
-				if (value == null) {
-					value = "";
-				}
-
-				cells[i] = row.createCell((short)i);
-				cells[i].setCellStyle(applyCellStyle(cells[i], i));
-
-				// 5. getClass().equals() 방식을 안전하고 직관적인 'instanceof' 패턴으로 전면 수정
-				if (value instanceof Short || value instanceof Long || value instanceof Integer || value instanceof java.math.BigDecimal) {
-					cells[i].setCellType(HSSFCell.CELL_TYPE_NUMERIC);
-					cells[i].setCellValue(Long.parseLong(value.toString()));
-				} else if (value instanceof Double || value instanceof Float) {
-					cells[i].setCellType(HSSFCell.CELL_TYPE_NUMERIC);
-					cells[i].setCellValue(Double.parseDouble(value.toString()));
-				} else {
-					String cellValue = value.toString();
-					cells[i].setCellValue(new HSSFRichTextString(cellValue));
-
-					if (cellValue.indexOf("\n") > 0) {
-						cells[i].getCellStyle().setWrapText(true);
-
-						if (this.rowHeight == 0) {
-							String[] lines = cellValue.split("\n");
-							if (lines.length > maxLines) {
-								row.setHeight((short)(row.getHeight() * lines.length));
-								maxLines = lines.length;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	/**
-	 * 마지막 Row에 VO배열로부터 읽은 값들을 추가
-	 * 
-	 * @param sheetIndex
-	 * @param fieldNames 출력할 VO의 Field명 (ExcelBuilder.MERGE_LEFT 일 경우 앞 Cell과 Merge, ExcelBuilder.MERGE_UP 일 경우 윗 Cell과 Merge, ExcelBuilder.ROW_INDEX 일 경우 rowIndex 표시 Base : 1)
-	 * @param 
-	 */
-	public void addRows(int sheetIndex, String[] fieldNames, List list) {
-		// 1. 방어 코드: 가장 먼저 Null 및 배열/리스트 크기를 검사하여 NPE 원천 차단
-		if (fieldNames == null || fieldNames.length == 0 || list == null || list.isEmpty()) {
-			return;
-		}
-
-		HSSFSheet sheet = this.wb.getSheetAt(sheetIndex);
-
-		// 2. 로우 인덱스 안전 계산 (오버라이트 방지)
-		int currentRowNum = (sheet.getPhysicalNumberOfRows() == 0) ? 0 : sheet.getLastRowNum() + 1;
-
-		// 이제 fieldNames가 절대 null이 아님이 보장되므로 안전하게 length 호출 가능
-		setCountCell(sheetIndex, fieldNames.length);
-		initCellStyle(fieldNames.length);
-
-		int listCount = list.size();
-		int fieldCount = fieldNames.length;
-		long rowIndex = 0;
-
-		for (int i = 0; i < listCount; i++) {
-			ListOrderedMap lom = (ListOrderedMap) list.get(i);
-			if (lom == null) continue; // 데이터 누락 방지
-
-			HSSFRow row = sheet.createRow(currentRowNum);
-			setRowHeight(row);
-
-			int maxLines = 1;
-			HSSFCell[] cells = new HSSFCell[fieldCount];
-			int mergeStart = 0;
-			rowIndex++;
-
-			for (int j = 0; j < fieldCount; j++) {
-				if (fieldNames[j] == null) continue;
-
-				// 3. == 대신 .equals() 사용
-				if (MERGE_LEFT.equals(fieldNames[j])) {
-					if (j > 0) {
-						cells[j] = row.createCell((short)j);
-						cells[j].setCellStyle(applyCellStyle(cells[j], mergeStart));
-						sheet.addMergedRegion(new Region(currentRowNum, (short)(j-1), currentRowNum, (short)j));
-					}
-				} else if (MERGE_UP.equals(fieldNames[j])) {
-					if (currentRowNum > 0) {
-						cells[j] = row.createCell((short)j);
-						cells[j].setCellStyle(applyCellStyle(cells[j], j));
-						sheet.addMergedRegion(new Region(currentRowNum-1, (short)j, currentRowNum, (short)j));
-					}
-				} else if (ROW_INDEX.equals(fieldNames[j])) {
-					cells[j] = row.createCell((short)j);
-					cells[j].setCellType(HSSFCell.CELL_TYPE_NUMERIC);
-					cells[j].setCellValue(rowIndex);
-					cells[j].setCellStyle(applyCellStyle(cells[j], j));
-				} else {
-					mergeStart = j;
-					String columnName = fieldNames[j].toLowerCase();
-					Object value = null;
-
-					try {
-						value = lom.get(columnName);
-						value = (value == null) ? "" : value;
-
-						if ("cnsdmans".equals(columnName)) {
-							// 정규식이 필요 없는 단순 문자열 교체는 replace 가 더 빠르고 안전합니다 (SonarQube 최적화)
-							value = String.valueOf(value).replace("<br/>", ", ");
-						}
-					} catch (Exception e) {
-						value = "";
-					}
-
-					if (value == null) value = "";
-
-					cells[j] = row.createCell((short)j);
-					cells[j].setCellStyle(applyCellStyle(cells[j], j));
-
-					// 4. getClass().equals() 대신 안전한 instanceof 패턴 사용
-					if (value instanceof Short || value instanceof Long || value instanceof Integer) {
-						cells[j].setCellType(HSSFCell.CELL_TYPE_NUMERIC);
-						cells[j].setCellValue(Long.parseLong(value.toString()));
-					} else if (value instanceof java.math.BigDecimal || value instanceof Double || value instanceof Float) {
-						cells[j].setCellType(HSSFCell.CELL_TYPE_NUMERIC);
-						cells[j].setCellValue(Double.parseDouble(value.toString()));
-					} else {
-						String cellValue = value.toString();
-						cells[j].setCellValue(new HSSFRichTextString(cellValue));
-
-						if (cellValue.indexOf("\n") > 0) {
-							cells[j].getCellStyle().setWrapText(true);
-
-							if (this.rowHeight == 0) {
-								String[] lines = cellValue.split("\n");
-								if (lines.length > maxLines) {
-									row.setHeight((short)(row.getHeight() * lines.length));
-									maxLines = lines.length;
-								}
-							}
-						}
-					}
-				}
-			}
-			currentRowNum++;
-		}
-	}
-	
-	private HSSFCellStyle applyCellStyle(HSSFCell cell, int index) {
-		return style[index];
-	}
-	
-	private void initCellStyle(int length) {
-		if (!styleModified)
-			return;
-		
-		this.style = null;
-		this.style = new HSSFCellStyle[length];
-		
-		for (int index=0;index<length;index++) {
-			HSSFCellStyle style = this.wb.createCellStyle();
-			HSSFFont font = this.wb.createFont();
-			
-			if(styleAlign != null && styleAlign.length > 0) {
-				if(styleAlign.length == 1)
-					style.setAlignment(styleAlign[0]);
-				else if(styleAlign.length > index)
-					style.setAlignment(styleAlign[index]);
-			}
-			
-			if(styleVAlign != null && styleVAlign.length > 0) {
-				if(styleVAlign.length == 1)
-					style.setVerticalAlignment(styleVAlign[0]);
-				else if(styleVAlign.length > index)
-					style.setVerticalAlignment(styleVAlign[index]);
-			}
-			
-			if(styleBold != null && styleBold.length > 0) {
-				if(styleBold.length == 1) {
-					if(styleBold[0])
-						font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
-					else
-						font.setBoldweight(HSSFFont.BOLDWEIGHT_NORMAL);
-					style.setFont(font);
-				} else if(styleBold.length > index) {
-					if(styleBold[index])
-						font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
-					else
-						font.setBoldweight(HSSFFont.BOLDWEIGHT_NORMAL);
-					style.setFont(font);
-				}
-			}
-			
-			if(styleItalic != null && styleItalic.length > 0) {
-				if(styleItalic.length == 1) {
-					font.setItalic(styleItalic[0]);
-					style.setFont(font);
-				} else if(styleItalic.length > index) {
-					font.setItalic(styleItalic[index]);
-					style.setFont(font);
-				}
-			}
-			
-			if(styleStrikeout != null && styleStrikeout.length > 0) {
-				if(styleStrikeout.length == 1) {
-					font.setStrikeout(styleStrikeout[0]);
-					style.setFont(font);
-				} else if(styleStrikeout.length > index) {
-					font.setStrikeout(styleStrikeout[index]);
-					style.setFont(font);
-				}
-			}
-			
-			if(styleUnderline != null && styleUnderline.length > 0) {
-				if(styleUnderline.length == 1) {
-					if(styleUnderline[0] == 1)
-						font.setUnderline(HSSFFont.U_SINGLE);
-					else if(styleUnderline[0] == 2)
-						font.setUnderline(HSSFFont.U_DOUBLE);
-					else
-						font.setUnderline(HSSFFont.U_NONE);
-					style.setFont(font);
-				} else if(styleUnderline.length > index) {
-					if(styleUnderline[index] == 1)
-						font.setUnderline(HSSFFont.U_SINGLE);
-					else if(styleUnderline[index] == 2)
-						font.setUnderline(HSSFFont.U_DOUBLE);
-					else
-						font.setUnderline(HSSFFont.U_NONE);
-					style.setFont(font);
-				}
-			}
-			
-			if(styleFontColor != null && styleFontColor.length > 0) {
-				if(styleFontColor.length == 1) {
-					if(styleFontColor[0] > 0) {
-						font.setColor(styleFontColor[0]);
-						style.setFont(font);
-					}
-				} else if(styleFontColor.length > index) {
-					if(styleFontColor[index] > 0) {
-						font.setColor(styleFontColor[index]);
-						style.setFont(font);
-					}
-				}
-			}
-
-			if(styleFontName != null && styleFontName.length > 0) {
-				if(styleFontName.length == 1) {
-					if(styleFontName[0] != null) {
-						font.setFontName(styleFontName[0]);
-						style.setFont(font);
-					}
-				} else if(styleFontName.length > index) {
-					if(styleFontName[index] != null) {
-						font.setFontName(styleFontName[index]);
-						style.setFont(font);
-					}
-				}
-			}
-
-			if(styleFontSize != null && styleFontSize.length > 0) {
-				if(styleFontSize.length == 1) {
-					if(styleFontSize[0] > 0) {
-						font.setFontHeightInPoints(styleFontSize[0]);
-						style.setFont(font);
-					}
-				} else if(styleFontSize.length > index) {
-					if(styleFontSize[index] > 0) {
-						font.setFontHeightInPoints(styleFontSize[index]);
-						style.setFont(font);
-					}
-				}
-			}
-
-			if(styleBgColor != null && styleBgColor.length > 0) {
-				if(styleBgColor.length == 1) {
-					style.setFillForegroundColor(styleBgColor[0]);
-					if(styleBgColor[0] > 0)
-						style.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
-					else
-						style.setFillPattern(HSSFCellStyle.NO_FILL);
-				} else if(styleBgColor.length > index) {
-					style.setFillForegroundColor(styleBgColor[index]);
-					if(styleBgColor[index] > 0)
-						style.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
-					else
-						style.setFillPattern(HSSFCellStyle.NO_FILL);
-				}
-			}
-			
-			if(styleBorder != null && styleBorder.length > 0) {
-				if(styleBorder.length == 1) {
-					if(styleBorder[0]) {
-						style.setBorderTop(HSSFCellStyle.BORDER_THIN);
-						style.setBorderBottom(HSSFCellStyle.BORDER_THIN);
-						style.setBorderLeft(HSSFCellStyle.BORDER_THIN);
-						style.setBorderRight(HSSFCellStyle.BORDER_THIN);
-					}
-				} else if(styleBorder.length > index) {
-					if(styleBorder[index]) {
-						style.setBorderTop(HSSFCellStyle.BORDER_THIN);
-						style.setBorderBottom(HSSFCellStyle.BORDER_THIN);
-						style.setBorderLeft(HSSFCellStyle.BORDER_THIN);
-						style.setBorderRight(HSSFCellStyle.BORDER_THIN);
-					}
-				}
-			}
-			
-			this.style[index] = style;
-		}
-		
-		styleModified = false;
-	}
+
+    /**
+     * Sheet 보호를 설정한다. (password 포함)
+     *
+     * @param sheetIndex Sheet 번호 (Base: 0)
+     * @param password 보호 비밀번호
+     */
+    public void setSheetProtect(int sheetIndex, String password) {
+        HSSFSheet sheet = this.wb.getSheetAt(sheetIndex);
+
+        sheet.protectSheet(password);
+    }
+
+    /**
+     * 셀스타일을 기본값으로 복원한다.
+     */
+    public void setDefaultStyle() {
+        style = null;
+        styleAlign = null;
+        styleVAlign = null;
+        styleBold = null;
+        styleItalic = null;
+        styleStrikeout = null;
+        styleUnderline = null;
+        styleFontColor = null;
+        styleFontName = new String[] {"돋움"};
+        styleFontSize = null;
+        styleBgColor = null;
+        styleBorder = null;
+        rowHeight = 0;
+
+        styleModified = true;
+    }
+
+    /**
+     * Cell의 Align을 설정한다. (Row의 모든 Cell에 적용)
+     *
+     * @param align
+     */
+    public void setAlign(short align) {
+        setAlign(new short[] {align});
+    }
+    /**
+     * Cell의 Align을 설정한다. (배열의 크기가 1이면 Row의 모든 Cell에 적용)
+     *
+     * @param align
+     */
+    public void setAlign(short[] align) {
+        this.styleAlign = align;
+        styleModified = true;
+    }
+
+    /**
+     * Cell의 Vertical Align을 설정한다. (Row의 모든 Cell에 적용)
+     *
+     * @param vAlign
+     */
+    public void setVAlign(short vAlign) {
+        setVAlign(new short[] {vAlign});
+    }
+    /**
+     * Cell의 Vertical Align을 설정한다. (배열의 크기가 1이면 Row의 모든 Cell에 적용)
+     *
+     * @param vAlign
+     */
+    public void setVAlign(short[] vAlign) {
+        this.styleVAlign = vAlign;
+        styleModified = true;
+    }
+
+    /**
+     * Cell의 Bold값을 설정한다. (Row의 모든 Cell에 적용)
+     *
+     * @param bold
+     */
+    public void setBold(boolean bold) {
+        setBold(new boolean[] {bold});
+    }
+    /**
+     * Cell의 Bold값을 설정한다. (배열의 크기가 1이면 Row의 모든 Cell에 적용)
+     *
+     * @param bold
+     */
+    public void setBold(boolean[] bold) {
+        this.styleBold = bold;
+        styleModified = true;
+    }
+
+    /**
+     * Cell의 Italic값을 설정한다. (Row의 모든 Cell에 적용)
+     *
+     * @param italic
+     */
+    public void setItalic(boolean italic) {
+        setItalic(new boolean[] {italic});
+    }
+    /**
+     * Cell의 Italic값을 설정한다. (배열의 크기가 1이면 Row의 모든 Cell에 적용)
+     *
+     * @param italic
+     */
+    public void setItalic(boolean[] italic) {
+        this.styleItalic = italic;
+        styleModified = true;
+    }
+
+    /**
+     * Cell의 Strikeout(취소선)값을 설정한다. (Row의 모든 Cell에 적용)
+     *
+     * @param strikeout
+     */
+    public void setStrikeout(boolean strikeout) {
+        setStrikeout(new boolean[] {strikeout});
+    }
+    /**
+     * Cell의 Strikeout(취소선)값을 설정한다. (배열의 크기가 1이면 Row의 모든 Cell에 적용)
+     *
+     * @param strikeout
+     */
+    public void setStrikeout(boolean[] strikeout) {
+        this.styleStrikeout = strikeout;
+        styleModified = true;
+    }
+
+    /**
+     * Cell의 Underline값을 설정한다. (Row의 모든 Cell에 적용)
+     *
+     * @param underline (0: 없음, 1: 한줄, 2: 두줄)
+     */
+    public void setUnderline(int underline) {
+        setUnderline(new int[] {underline});
+    }
+    /**
+     * Cell의 Underline값을 설정한다. (배열의 크기가 1이면 Row의 모든 Cell에 적용)
+     *
+     * @param underline (0: 없음, 1: 한줄, 2: 두줄)
+     */
+    public void setUnderline(int[] underline) {
+        this.styleUnderline = underline;
+        styleModified = true;
+    }
+
+    /**
+     * Cell의 Font색을 설정한다. (Row의 모든 Cell에 적용)
+     *
+     * @param color
+     */
+    public void setFontColor(short color) {
+        setFontColor(new short[] {color});
+    }
+    /**
+     * Cell의 Font색을 설정한다. (배열의 크기가 1이면 Row의 모든 Cell에 적용)
+     *
+     * @param color
+     */
+    public void setFontColor(short[] color) {
+        this.styleFontColor = color;
+        styleModified = true;
+    }
+
+    /**
+     * Cell의 Font명을 설정한다. (배열의 크기가 1이면 Row의 모든 Cell에 적용)
+     *
+     * @param fontName
+     */
+    public void setFontName(String fontName) {
+        setFontName(new String[] {fontName});
+    }
+    /**
+     * Cell의 Font명을 설정한다. (배열의 크기가 1이면 Row의 모든 Cell에 적용)
+     *
+     * @param fontName
+     */
+    public void setFontName(String[] fontName) {
+        this.styleFontName = fontName;
+        styleModified = true;
+    }
+
+    /**
+     * Cell의 Font크기(pt)를 설정한다. (Row의 모든 Cell에 적용)
+     *
+     * @param size
+     */
+    public void setFontSize(short size) {
+        setFontSize(new short[] {size});
+    }
+    /**
+     * Cell의 Font크기(pt)를 설정한다. (배열의 크기가 1이면 Row의 모든 Cell에 적용)
+     *
+     * @param size
+     */
+    public void setFontSize(short[] size) {
+        this.styleFontSize = size;
+        styleModified = true;
+    }
+
+    /**
+     * Cell의 배경색을 설정한다. (Row의 모든 Cell에 적용)
+     *
+     * @param color
+     */
+    public void setBgColor(short color) {
+        setBgColor(new short[] {color});
+    }
+    /**
+     * Cell의 배경색을 설정한다. (배열의 크기가 1이면 Row의 모든 Cell에 적용)
+     *
+     * @param color
+     */
+    public void setBgColor(short[] color) {
+        this.styleBgColor = color;
+        styleModified = true;
+    }
+
+    /**
+     * Cell의 테두리여부를 설정한다. (Row의 모든 Cell에 적용)
+     *
+     * @param border
+     */
+    public void setBorder(boolean border) {
+        setBorder(new boolean[] {border});
+    }
+    /**
+     * Cell의 테두리여부를 설정한다. (배열의 크기가 1이면 Row의 모든 Cell에 적용)
+     *
+     * @param border
+     */
+    public void setBorder(boolean[] border) {
+        this.styleBorder = border;
+        styleModified = true;
+    }
+
+    /**
+     * 첫번째 Sheet의 각 Cell별 너비를 지정한다. (0 이하 이면 기본값)
+     *
+     * @param width
+     */
+    public void setColumnWidth(double[] width) {
+        setColumnWidth(0, width);
+    }
+    /**
+     * sheetIndex번째 Sheet의 각 Cell별 너비를 지정한다. (0 이하 이면 기본값)
+     *
+     * @param sheetIndex
+     * @param width
+     */
+    public void setColumnWidth(int sheetIndex, double[] width) {
+        int columnCount = width.length;
+        this.columnWidth[sheetIndex] = new short[columnCount];
+
+        for (int i=0;i<columnCount;i++) {
+            double w = 256 * width[i];
+            this.columnWidth[sheetIndex][i] = (short)w;
+        }
+    }
+
+    /**
+     * Row의 높이를 지정한다. (setDefaultStyle() 호출 전이나 높이 재지정 전까지 유지)
+     *
+     * @param height
+     */
+    public void setRowHeight(double height) {
+        this.rowHeight = (float)height;
+    }
+
+    private void setCountCell(int sheetIndex, int count) {
+        // Array대비 안전성 검증을 위해 크기 체크(Boundary Check)를 선행하는 것이 좋습니다.
+        if (sheetIndex >= 0 && sheetIndex < countCell.length) {
+            if (countCell[sheetIndex] < count) {
+                countCell[sheetIndex] = count;
+            }
+        }
+    }
+
+    private void setColumnWidth() {
+        int sheetCount = this.wb.getNumberOfSheets();
+
+        for (int i=0;i<sheetCount;i++) {
+            HSSFSheet sheet = this.wb.getSheetAt(i);
+
+            int cellCount = countCell[i];
+
+            for (int j=0;j<cellCount;j++) {
+                if (this.columnWidth[i] == null)
+                    sheet.autoSizeColumn((short)j);
+                else if (this.columnWidth[i].length == 1)
+                    sheet.setColumnWidth((short)j, this.columnWidth[i][0]);
+                else if (this.columnWidth[i].length > j && this.columnWidth[i][j] > 0)
+                    sheet.setColumnWidth((short)j, this.columnWidth[i][j]);
+                else
+                    sheet.autoSizeColumn((short)j);
+            }
+        }
+    }
+
+    private void setRowHeight(HSSFRow row) {
+        if (this.rowHeight <= 0)
+            return;
+
+        row.setHeightInPoints(this.rowHeight);
+    }
+
+    /**
+     * Excel File을 FileSystem에 저장한다.
+     *
+     * @param filePath 저장할 파일의 Full Path (확장자 포함)
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    public void save(String filePath) throws IOException {
+        // 1. Path Traversal 차단: '..' 포함 여부 및 절대 경로 방지 (MUST-Fix)
+        if (filePath == null || filePath.contains("..")) {
+            throw new SecurityException("Path traversal attack detected!");
+        }
+
+        Path path = Paths.get(filePath);
+        if (path.isAbsolute()) {
+            throw new SecurityException("Absolute paths are not allowed!");
+        }
+
+        setColumnWidth();
+
+        // 2. Try-With-Resources 적용: finally 블록과 불필요한 빈 catch 문 제거
+        try (OutputStream fileOut = Files.newOutputStream(path)) {
+//        try (FileOutputStream fileOut = new FileOutputStream(path.toFile())) {
+            wb.write(fileOut);
+        } catch (IOException e) {
+            throw e;
+        }
+    }
+
+    /**
+     * Excel File을 Download한다.
+     * @param fileName
+     * @param response
+     */
+    public void download(String fileName, HttpServletResponse response) {
+        setColumnWidth();
+
+        try {
+            fileName = new String(fileName.getBytes("EUC-KR"), "8859_1");
+        } catch(Exception e) {
+
+        }
+
+        response.setHeader("Content-Disposition", "attachment; filename="+fileName);
+        response.setHeader("Content-Description", "JSP Generated Data");
+        response.setHeader("Content-Transfer-Encoding", "binary;");
+        response.setContentType("application/vnd.ms-excel");
+
+        ServletOutputStream outStream = null;
+
+        try {
+            outStream = response.getOutputStream();
+            wb.write(outStream);
+        } catch(IOException e) {
+            //throw e;
+        } finally {
+            try {
+                if(outStream != null)	outStream.close();
+            } catch(IOException e) {
+                //throw e;
+            }
+        }
+    }
+
+    /**
+     * Sheet의 머릿글을 설정한다.
+     *
+     * @param sheetIndex
+     * @param leftHeader 왼쪽 머릿글 (null 이면 설정하지 않음)
+     * @param centerHeader 중앙 머릿글 (null 이면 설정하지 않음)
+     * @param rightHeader 오른쪽 머릿글 (null 이면 설정하지 않음)
+     */
+    public void setHeader(int sheetIndex, String leftHeader, String centerHeader, String rightHeader) {
+        HSSFSheet sheet = this.wb.getSheetAt(sheetIndex);
+        HSSFHeader header = sheet.getHeader();
+
+        if(leftHeader != null) {
+            header.setLeft(leftHeader);
+        }
+
+        if(centerHeader != null) {
+            header.setCenter(centerHeader);
+        }
+
+        if(rightHeader != null) {
+            header.setRight(rightHeader);
+        }
+    }
+
+
+    /**
+     * Sheet의 바닥글을 설정한다.
+     *
+     * @param sheetIndex
+     * @param leftFooter 왼쪽 바닥글 (null 이면 설정하지 않음)
+     * @param centerFooter 중앙 바닥글 (null 이면 설정하지 않음)
+     * @param rightFooter 오른쪽 바닥글 (null 이면 설정하지 않음)
+     */
+    public void setFooter(int sheetIndex, String leftFooter, String centerFooter, String rightFooter) {
+        HSSFSheet sheet = this.wb.getSheetAt(sheetIndex);
+        HSSFFooter footer = sheet.getFooter();
+
+        if(leftFooter != null) {
+            footer.setLeft(leftFooter);
+        }
+
+        if(centerFooter != null) {
+            footer.setCenter(centerFooter);
+        }
+
+        if(rightFooter != null) {
+            footer.setRight(rightFooter);
+        }
+    }
+
+    /**
+     * 머릿글/바닥글에 사용할 문자열을 스타일을 적용해 만든다.
+     *
+     * @param fontName 폰트명
+     * @param fontStyle 폰트스타일
+     * @param fontSize 폰트사이즈(pt)
+     * @return 스타일이 적용된 문자열
+     */
+    public static String buildHFString(String fontName, short fontStyle, int fontSize, String text) {
+        String hfString = "&";
+
+        if(fontName != null) {
+            hfString += "\"" + fontName.replaceAll(",", "") + ",";
+        } else {
+            hfString += "\",";
+        }
+
+        switch(fontStyle) {
+            case FONTSTYLE_BOLD :
+                hfString += "Bold\"";
+                break;
+            case FONTSTYLE_ITALIC :
+                hfString += "Italic\"";
+                break;
+            case FONTSTYLE_BOLD_ITALIC :
+                hfString += "Bold Italic\"";
+                break;
+            default :
+                hfString += "\"";
+                break;
+        }
+
+        if(fontSize > 0) {
+            hfString += "&" + fontSize;
+        }
+
+        return hfString+text;
+    }
+
+    public void addTitleRow(int sheetIndex, String[] titles) {
+        // 1. 방어 코드: 가장 먼저 Null 및 배열 크기를 검사하여 NPE 원천 차단
+        if (titles == null || titles.length == 0) {
+            return;
+        }
+
+        HSSFSheet sheet = this.wb.getSheetAt(sheetIndex);
+
+        // 이제 titles가 절대 null이 아님이 보장되므로 안전하게 length 호출 가능
+        setCountCell(sheetIndex, titles.length);
+
+        if (sheet.getPhysicalNumberOfRows() > 0) {
+            int startRow = sheet.getFirstRowNum();
+            int endRow = sheet.getLastRowNum();
+
+            if (startRow >= 0 && endRow >= startRow) {
+                sheet.shiftRows(startRow, endRow, 1, true, true);
+            }
+        }
+
+        HSSFRow confidentialRow = sheet.createRow(0);
+        HSSFCell confidentialCell = confidentialRow.createCell(0, 0);
+        HSSFCellStyle confidentialStyle = this.wb.createCellStyle();
+        HSSFFont confidentialFont = this.wb.createFont();
+        confidentialFont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+        confidentialFont.setColor(COLOR_RED);
+        confidentialStyle.setFont(confidentialFont);
+        confidentialStyle.setFillForegroundColor(HSSFColor.WHITE.index);
+        confidentialStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+        confidentialCell.setCellStyle(confidentialStyle);
+        confidentialCell.setCellValue(new HSSFRichTextString("Confidential"));
+
+        HSSFRow row = sheet.createRow(1);
+        setRowHeight(row);
+
+        initCellStyle(titles.length);
+
+        int maxLines = 1;
+        int cellCount = titles.length;
+        HSSFCell[] cells = new HSSFCell[cellCount];
+        int mergeStart = 0;
+
+        for (int i = 0; i < cellCount; i++) {
+            // titles[i]의 Null 검증 및 == 대신 .equals() 사용
+            if (titles[i] == null) {
+                continue;
+            }
+
+            if (MERGE_LEFT.equals(titles[i])) {
+                if (i > 0) {
+                    cells[i] = row.createCell((short)i);
+                    cells[i].setCellStyle(applyCellStyle(cells[i], mergeStart));
+                    sheet.addMergedRegion(new Region(0, (short)(i-1), 0, (short)i));
+                }
+            } else if (MERGE_UP.equals(titles[i])) {
+                // titleRow는 윗 Row가 없으므로 MERGE할 수 없음.
+            } else {
+                mergeStart = i;
+
+                cells[i] = row.createCell((short)i);
+                cells[i].setCellValue(new HSSFRichTextString(titles[i]));
+                cells[i].setCellStyle(applyCellStyle(cells[i], i));
+
+                if (titles[i].indexOf("\n") > 0) {
+                    cells[i].getCellStyle().setWrapText(true);
+
+                    if (this.rowHeight == 0) {
+                        String[] lines = titles[i].split("\n");
+                        if (lines.length > maxLines) {
+                            row.setHeight((short)(row.getHeight() * lines.length));
+                            maxLines = lines.length;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 마지막 Row에 Row 추가
+     *
+     * @param sheetIndex
+     * @param cellValues (null일 경우 앞 Cell과 Merge)
+     */
+    public void addRow(int sheetIndex, String[] cellValues) {
+        addRow(sheetIndex, cellValues, -1, false);
+    }
+    /**
+     * 원하는 Row에 Row 추가
+     *
+     * @param sheetIndex
+     * @param cellValues (ExcelBuilder.MERGE_LEFT 일 경우 앞 Cell과 Merge, ExcelBuilder.MERGE_UP 일 경우 윗 Cell과 Merge)
+     * @param rowNum 추가할 RowNum (Base: 0)
+     * @param isShift RowNum 이하의 Rows의 Shift여부
+     */
+    public void addRow(int sheetIndex, String[] cellValues, int rowNum, boolean isShift) {
+        // 1. 방어 코드: 가장 먼저 Null 및 배열 크기를 검사하여 NPE 원천 차단
+        if (cellValues == null || cellValues.length == 0) {
+            return;
+        }
+
+        HSSFSheet sheet = this.wb.getSheetAt(sheetIndex);
+
+        // 이제 cellValues가 절대 null이 아님이 보장되므로 안전하게 length 호출 가능
+        setCountCell(sheetIndex, cellValues.length);
+
+        if (rowNum >= 0) {
+            if (isShift && sheet.getPhysicalNumberOfRows() > 0 && sheet.getLastRowNum() >= rowNum) {
+                sheet.shiftRows(rowNum, sheet.getLastRowNum(), 1, true, true);
+            }
+        } else {
+            rowNum = (sheet.getPhysicalNumberOfRows() == 0) ? 0 : sheet.getLastRowNum() + 1;
+        }
+
+        HSSFRow row = sheet.createRow(rowNum);
+        setRowHeight(row);
+
+        initCellStyle(cellValues.length);
+
+        int maxLines = 1;
+        int cellCount = cellValues.length;
+        HSSFCell[] cells = new HSSFCell[cellCount];
+        int mergeStart = 0;
+
+        for (int i = 0; i < cellCount; i++) {
+            // Null 검증 추가
+            if (cellValues[i] == null) {
+                continue;
+            }
+
+            // == 대신 .equals() 사용
+            if (MERGE_LEFT.equals(cellValues[i])) {
+                if (i > 0) {
+                    cells[i] = row.createCell((short)i);
+                    cells[i].setCellStyle(applyCellStyle(cells[i], mergeStart));
+                    sheet.addMergedRegion(new Region(rowNum, (short)(i-1), rowNum, (short)i));
+                }
+            } else if (MERGE_UP.equals(cellValues[i])) {
+                if (rowNum > 0) {
+                    cells[i] = row.createCell((short)i);
+                    cells[i].setCellStyle(applyCellStyle(cells[i], i));
+                    sheet.addMergedRegion(new Region(rowNum-1, (short)i, rowNum, (short)i));
+                }
+            } else {
+                mergeStart = i;
+
+                cells[i] = row.createCell((short)i);
+                cells[i].setCellValue(new HSSFRichTextString(cellValues[i]));
+                cells[i].setCellStyle(applyCellStyle(cells[i], i));
+
+                if (cellValues[i].indexOf("\n") > 0) {
+                    cells[i].getCellStyle().setWrapText(true);
+
+                    if (this.rowHeight == 0) {
+                        String[] lines = cellValues[i].split("\n");
+                        if (lines.length > maxLines) {
+                            row.setHeight((short)(row.getHeight() * lines.length));
+                            maxLines = lines.length;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 마지막 Row에 VO로 부터 읽은 값을 추가
+     *
+     * @param sheetIndex
+     * @param fieldNames 출력할 VO의 Field명 (ExcelBuilder.MERGE_LEFT 일 경우 앞 Cell과 Merge, ExcelBuilder.MERGE_UP 일 경우 윗 Cell과 Merge)
+     * @param vo
+     */
+    public void addRow(int sheetIndex, String[] fieldNames, Object vo) {
+        // 1. 방어 코드: 인자값이 유효하지 않으면 즉시 종료 (NullPointerException 및 리플렉션 취약점 원천 차단)
+        if (fieldNames == null || vo == null || fieldNames.length == 0) {
+            return;
+        }
+
+        HSSFSheet sheet = this.wb.getSheetAt(sheetIndex);
+
+        // 2. 로우 인덱스 안전 계산: 시트가 비어있으면 0, 아니면 마지막 행 + 1 (기존 행 초기화/오버라이트 방지)
+        int currentRowNum = (sheet.getPhysicalNumberOfRows() == 0) ? 0 : sheet.getLastRowNum() + 1;
+
+        // 3. 배열 크기 바운더리 체크가 내장된 안전한 메서드 호출
+        setCountCell(sheetIndex, fieldNames.length);
+
+        int fieldCount = fieldNames.length;
+
+        HSSFRow row = sheet.createRow(currentRowNum);
+        setRowHeight(row);
+
+        initCellStyle(fieldCount);
+
+        int maxLines = 1;
+        HSSFCell[] cells = new HSSFCell[fieldCount];
+        int mergeStart = 0;
+
+        for (int i = 0; i < fieldCount; i++) {
+            // 데이터가 없거나 요소가 null인 경우 방어 처리
+            if (fieldNames[i] == null) {
+                continue;
+            }
+
+            // 4. 문자열 주소 비교(==) 오류를 값 비교(.equals)로 수정 (Merge_Left 누락 버그 해결)
+            if (MERGE_LEFT.equals(fieldNames[i])) {
+                if (i > 0) {
+                    cells[i] = row.createCell((short)i);
+                    cells[i].setCellStyle(applyCellStyle(cells[i], mergeStart));
+                    sheet.addMergedRegion(new Region(currentRowNum, (short)(i-1), currentRowNum, (short)i));
+                }
+            } else if (fieldNames[i].equals(MERGE_UP)) {
+                if (currentRowNum > 0) {
+                    cells[i] = row.createCell((short)i);
+                    cells[i].setCellStyle(applyCellStyle(cells[i], i));
+                    sheet.addMergedRegion(new Region(currentRowNum-1, (short)i, currentRowNum, (short)i));
+                }
+            } else {
+                mergeStart = i;
+
+                // 리플렉션을 위한 Getter 메서드명 생성 규칙 최적화
+                String firstChar = fieldNames[i].substring(0, 1).toUpperCase();
+                String remainingChars = fieldNames[i].length() > 1 ? fieldNames[i].substring(1) : "";
+                String methodName = "get" + firstChar + remainingChars;
+
+                Object value = null;
+                try {
+                    value = vo.getClass().getMethod(methodName, new Class<?>[] {}).invoke(vo, new Object[] {});
+                } catch(Exception e) {
+                    value = "";
+                }
+
+                if (value == null) {
+                    value = "";
+                }
+
+                cells[i] = row.createCell((short)i);
+                cells[i].setCellStyle(applyCellStyle(cells[i], i));
+
+                // 5. getClass().equals() 방식을 안전하고 직관적인 'instanceof' 패턴으로 전면 수정
+                if (value instanceof Short || value instanceof Long || value instanceof Integer || value instanceof java.math.BigDecimal) {
+                    cells[i].setCellType(HSSFCell.CELL_TYPE_NUMERIC);
+                    cells[i].setCellValue(Long.parseLong(value.toString()));
+                } else if (value instanceof Double || value instanceof Float) {
+                    cells[i].setCellType(HSSFCell.CELL_TYPE_NUMERIC);
+                    cells[i].setCellValue(Double.parseDouble(value.toString()));
+                } else {
+                    String cellValue = value.toString();
+                    cells[i].setCellValue(new HSSFRichTextString(cellValue));
+
+                    if (cellValue.indexOf("\n") > 0) {
+                        cells[i].getCellStyle().setWrapText(true);
+
+                        if (this.rowHeight == 0) {
+                            String[] lines = cellValue.split("\n");
+                            if (lines.length > maxLines) {
+                                row.setHeight((short)(row.getHeight() * lines.length));
+                                maxLines = lines.length;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 마지막 Row에 VO배열로부터 읽은 값들을 추가
+     *
+     * @param sheetIndex
+     * @param fieldNames 출력할 VO의 Field명 (ExcelBuilder.MERGE_LEFT 일 경우 앞 Cell과 Merge, ExcelBuilder.MERGE_UP 일 경우 윗 Cell과 Merge, ExcelBuilder.ROW_INDEX 일 경우 rowIndex 표시 Base : 1)
+     * @param
+     */
+    public void addRows(int sheetIndex, String[] fieldNames, List list) {
+        // 1. 방어 코드: 가장 먼저 Null 및 배열/리스트 크기를 검사하여 NPE 원천 차단
+        if (fieldNames == null || fieldNames.length == 0 || list == null || list.isEmpty()) {
+            return;
+        }
+
+        HSSFSheet sheet = this.wb.getSheetAt(sheetIndex);
+
+        // 2. 로우 인덱스 안전 계산 (오버라이트 방지)
+        int currentRowNum = (sheet.getPhysicalNumberOfRows() == 0) ? 0 : sheet.getLastRowNum() + 1;
+
+        // 이제 fieldNames가 절대 null이 아님이 보장되므로 안전하게 length 호출 가능
+        setCountCell(sheetIndex, fieldNames.length);
+        initCellStyle(fieldNames.length);
+
+        int listCount = list.size();
+        int fieldCount = fieldNames.length;
+        long rowIndex = 0;
+
+        for (int i = 0; i < listCount; i++) {
+            ListOrderedMap lom = (ListOrderedMap) list.get(i);
+            if (lom == null) continue; // 데이터 누락 방지
+
+            HSSFRow row = sheet.createRow(currentRowNum);
+            setRowHeight(row);
+
+            int maxLines = 1;
+            HSSFCell[] cells = new HSSFCell[fieldCount];
+            int mergeStart = 0;
+            rowIndex++;
+
+            for (int j = 0; j < fieldCount; j++) {
+                if (fieldNames[j] == null) continue;
+
+                // 3. == 대신 .equals() 사용
+                if (MERGE_LEFT.equals(fieldNames[j])) {
+                    if (j > 0) {
+                        cells[j] = row.createCell((short)j);
+                        cells[j].setCellStyle(applyCellStyle(cells[j], mergeStart));
+                        sheet.addMergedRegion(new Region(currentRowNum, (short)(j-1), currentRowNum, (short)j));
+                    }
+                } else if (MERGE_UP.equals(fieldNames[j])) {
+                    if (currentRowNum > 0) {
+                        cells[j] = row.createCell((short)j);
+                        cells[j].setCellStyle(applyCellStyle(cells[j], j));
+                        sheet.addMergedRegion(new Region(currentRowNum-1, (short)j, currentRowNum, (short)j));
+                    }
+                } else if (ROW_INDEX.equals(fieldNames[j])) {
+                    cells[j] = row.createCell((short)j);
+                    cells[j].setCellType(HSSFCell.CELL_TYPE_NUMERIC);
+                    cells[j].setCellValue(rowIndex);
+                    cells[j].setCellStyle(applyCellStyle(cells[j], j));
+                } else {
+                    mergeStart = j;
+                    String columnName = fieldNames[j].toLowerCase();
+                    Object value = null;
+
+                    try {
+                        value = lom.get(columnName);
+                        value = (value == null) ? "" : value;
+
+                        if ("cnsdmans".equals(columnName)) {
+                            // 정규식이 필요 없는 단순 문자열 교체는 replace 가 더 빠르고 안전합니다 (SonarQube 최적화)
+                            value = String.valueOf(value).replace("<br/>", ", ");
+                        }
+                    } catch (Exception e) {
+                        value = "";
+                    }
+
+                    if (value == null) value = "";
+
+                    cells[j] = row.createCell((short)j);
+                    cells[j].setCellStyle(applyCellStyle(cells[j], j));
+
+                    // 4. getClass().equals() 대신 안전한 instanceof 패턴 사용
+                    if (value instanceof Short || value instanceof Long || value instanceof Integer) {
+                        cells[j].setCellType(HSSFCell.CELL_TYPE_NUMERIC);
+                        cells[j].setCellValue(Long.parseLong(value.toString()));
+                    } else if (value instanceof java.math.BigDecimal || value instanceof Double || value instanceof Float) {
+                        cells[j].setCellType(HSSFCell.CELL_TYPE_NUMERIC);
+                        cells[j].setCellValue(Double.parseDouble(value.toString()));
+                    } else {
+                        String cellValue = value.toString();
+                        cells[j].setCellValue(new HSSFRichTextString(cellValue));
+
+                        if (cellValue.indexOf("\n") > 0) {
+                            cells[j].getCellStyle().setWrapText(true);
+
+                            if (this.rowHeight == 0) {
+                                String[] lines = cellValue.split("\n");
+                                if (lines.length > maxLines) {
+                                    row.setHeight((short)(row.getHeight() * lines.length));
+                                    maxLines = lines.length;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            currentRowNum++;
+        }
+    }
+
+    private HSSFCellStyle applyCellStyle(HSSFCell cell, int index) {
+        return style[index];
+    }
+
+    private void initCellStyle(int length) {
+        if (!styleModified)
+            return;
+
+        this.style = null;
+        this.style = new HSSFCellStyle[length];
+
+        for (int index=0;index<length;index++) {
+            HSSFCellStyle style = this.wb.createCellStyle();
+            HSSFFont font = this.wb.createFont();
+
+            if(styleAlign != null && styleAlign.length > 0) {
+                if(styleAlign.length == 1)
+                    style.setAlignment(styleAlign[0]);
+                else if(styleAlign.length > index)
+                    style.setAlignment(styleAlign[index]);
+            }
+
+            if(styleVAlign != null && styleVAlign.length > 0) {
+                if(styleVAlign.length == 1)
+                    style.setVerticalAlignment(styleVAlign[0]);
+                else if(styleVAlign.length > index)
+                    style.setVerticalAlignment(styleVAlign[index]);
+            }
+
+            if(styleBold != null && styleBold.length > 0) {
+                if(styleBold.length == 1) {
+                    if(styleBold[0])
+                        font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+                    else
+                        font.setBoldweight(HSSFFont.BOLDWEIGHT_NORMAL);
+                    style.setFont(font);
+                } else if(styleBold.length > index) {
+                    if(styleBold[index])
+                        font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+                    else
+                        font.setBoldweight(HSSFFont.BOLDWEIGHT_NORMAL);
+                    style.setFont(font);
+                }
+            }
+
+            if(styleItalic != null && styleItalic.length > 0) {
+                if(styleItalic.length == 1) {
+                    font.setItalic(styleItalic[0]);
+                    style.setFont(font);
+                } else if(styleItalic.length > index) {
+                    font.setItalic(styleItalic[index]);
+                    style.setFont(font);
+                }
+            }
+
+            if(styleStrikeout != null && styleStrikeout.length > 0) {
+                if(styleStrikeout.length == 1) {
+                    font.setStrikeout(styleStrikeout[0]);
+                    style.setFont(font);
+                } else if(styleStrikeout.length > index) {
+                    font.setStrikeout(styleStrikeout[index]);
+                    style.setFont(font);
+                }
+            }
+
+            if(styleUnderline != null && styleUnderline.length > 0) {
+                if(styleUnderline.length == 1) {
+                    if(styleUnderline[0] == 1)
+                        font.setUnderline(HSSFFont.U_SINGLE);
+                    else if(styleUnderline[0] == 2)
+                        font.setUnderline(HSSFFont.U_DOUBLE);
+                    else
+                        font.setUnderline(HSSFFont.U_NONE);
+                    style.setFont(font);
+                } else if(styleUnderline.length > index) {
+                    if(styleUnderline[index] == 1)
+                        font.setUnderline(HSSFFont.U_SINGLE);
+                    else if(styleUnderline[index] == 2)
+                        font.setUnderline(HSSFFont.U_DOUBLE);
+                    else
+                        font.setUnderline(HSSFFont.U_NONE);
+                    style.setFont(font);
+                }
+            }
+
+            if(styleFontColor != null && styleFontColor.length > 0) {
+                if(styleFontColor.length == 1) {
+                    if(styleFontColor[0] > 0) {
+                        font.setColor(styleFontColor[0]);
+                        style.setFont(font);
+                    }
+                } else if(styleFontColor.length > index) {
+                    if(styleFontColor[index] > 0) {
+                        font.setColor(styleFontColor[index]);
+                        style.setFont(font);
+                    }
+                }
+            }
+
+            if(styleFontName != null && styleFontName.length > 0) {
+                if(styleFontName.length == 1) {
+                    if(styleFontName[0] != null) {
+                        font.setFontName(styleFontName[0]);
+                        style.setFont(font);
+                    }
+                } else if(styleFontName.length > index) {
+                    if(styleFontName[index] != null) {
+                        font.setFontName(styleFontName[index]);
+                        style.setFont(font);
+                    }
+                }
+            }
+
+            if(styleFontSize != null && styleFontSize.length > 0) {
+                if(styleFontSize.length == 1) {
+                    if(styleFontSize[0] > 0) {
+                        font.setFontHeightInPoints(styleFontSize[0]);
+                        style.setFont(font);
+                    }
+                } else if(styleFontSize.length > index) {
+                    if(styleFontSize[index] > 0) {
+                        font.setFontHeightInPoints(styleFontSize[index]);
+                        style.setFont(font);
+                    }
+                }
+            }
+
+            if(styleBgColor != null && styleBgColor.length > 0) {
+                if(styleBgColor.length == 1) {
+                    style.setFillForegroundColor(styleBgColor[0]);
+                    if(styleBgColor[0] > 0)
+                        style.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+                    else
+                        style.setFillPattern(HSSFCellStyle.NO_FILL);
+                } else if(styleBgColor.length > index) {
+                    style.setFillForegroundColor(styleBgColor[index]);
+                    if(styleBgColor[index] > 0)
+                        style.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+                    else
+                        style.setFillPattern(HSSFCellStyle.NO_FILL);
+                }
+            }
+
+            if(styleBorder != null && styleBorder.length > 0) {
+                if(styleBorder.length == 1) {
+                    if(styleBorder[0]) {
+                        style.setBorderTop(HSSFCellStyle.BORDER_THIN);
+                        style.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+                        style.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+                        style.setBorderRight(HSSFCellStyle.BORDER_THIN);
+                    }
+                } else if(styleBorder.length > index) {
+                    if(styleBorder[index]) {
+                        style.setBorderTop(HSSFCellStyle.BORDER_THIN);
+                        style.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+                        style.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+                        style.setBorderRight(HSSFCellStyle.BORDER_THIN);
+                    }
+                }
+            }
+
+            this.style[index] = style;
+        }
+
+        styleModified = false;
+    }
 }

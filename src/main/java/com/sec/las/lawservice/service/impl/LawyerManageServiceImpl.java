@@ -108,24 +108,7 @@ public class LawyerManageServiceImpl extends CommonServiceImpl implements Lawyer
 		String decodeText = vo.getBody_mime();
 		HashMap hm = comUtilService.getNamoContentAndFileInfo(decodeText);
 
-		if (hm.get("TYPE").equals("M")) {
-			ArrayList fileList = (ArrayList)hm.get("FILE_INFO");
-			
-			for (int i = 0; i < fileList.size(); i++) {
-				HashMap fileMap = (HashMap)fileList.get(i);
-				
-				Integer seq = new Integer(i);
-				String fileNm = (String)fileMap.get("FILE_NM");
-				String filePath = (String)fileMap.get("FILE_PTH");
-				String fileUrl = (String)fileMap.get("FILE_URL");
-				
-				File f = new File(filePath);
-				Long fileSize = new Long(f.length());
-			}			
-			vo.setCareer_cont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
-		}else {
-			vo.setCareer_cont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
-		}		
+		vo.setCareer_cont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
 
 		return commonDAO.insert("las.lawservice.insertLawyerManage", vo);
 	}
@@ -205,26 +188,8 @@ public class LawyerManageServiceImpl extends CommonServiceImpl implements Lawyer
 		String decodeText = vo.getBody_mime();
 		HashMap hm = comUtilService.getNamoContentAndFileInfo(decodeText);
 
-		if (hm.get("TYPE").equals("M")) {
-			ArrayList fileList = (ArrayList)hm.get("FILE_INFO");
-			
-			for (int i = 0; i < fileList.size(); i++) {
-				HashMap fileMap = (HashMap)fileList.get(i);
-				
-				Integer seq = new Integer(i);
-				String fileNm = (String)fileMap.get("FILE_NM");
-				String filePath = (String)fileMap.get("FILE_PTH");
-				String fileUrl = (String)fileMap.get("FILE_URL");
-				
-				File f = new File(filePath);
-				Long fileSize = new Long(f.length());
-			}			
-			vo.setCareer_cont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
-		}else {
-			vo.setCareer_cont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
-		}
+		vo.setCareer_cont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
 
-		
 		return commonDAO.modify("las.lawservice.modifyLawyerManage", vo);
 	}
 	

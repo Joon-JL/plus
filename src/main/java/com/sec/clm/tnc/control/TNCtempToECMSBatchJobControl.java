@@ -1,9 +1,6 @@
 package com.sec.clm.tnc.control;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.util.ArrayList;
@@ -127,44 +124,37 @@ public class TNCtempToECMSBatchJobControl extends CommonController {
 
 
 	public synchronized boolean getStatusBatch() throws Exception {
-		
-		if(comUtilService.isCronServer()) { // 운영 서버에서만 데몬 실행
-			String ins1pidFile = "/las/logs/las1/las1.pid"; //las2에서 돌아감
-//        	getLogger().info("pidFile: "+ins1pidFile);
-        	
-			File ins1File = new File(ins1pidFile);
-		    
-		    if(ins1File.exists()) {
-		    	FileInputStream fis = new FileInputStream(ins1File);
-		    	BufferedInputStream bis = new BufferedInputStream(fis);
-		    	DataInputStream dis = new DataInputStream(bis);
-		     
-		    	String ins1Pid = "";
-	
-		    	if(dis.available() != 0) {
-		    		ins1Pid = dis.readLine();
-		    	}
-		    	
-		    	RuntimeMXBean rmb = ManagementFactory.getRuntimeMXBean();
-		        String processId = rmb.getName();
-		        
-		        if(processId.length() > ins1Pid.length()) {
-		         processId = processId.substring(0, ins1Pid.length());
-		        }
-		        
-		        // 첫번째 인스턴스에서만 실행
-		        if(processId.equals(ins1Pid)) {
-		        	return true;
-		        }else{
-		        	return false;
-		        }
-		        
-		    }else{
-	        	return false;
-	        }
-		}else{
-        	return false;
+
+        if(!comUtilService.isCronServer()) {
+            return false;
         }
+
+        String ins1pidFile = "/las/logs/las1/las1.pid"; //las2에서 돌아감
+        File ins1File = new File(ins1pidFile);
+
+        if (!ins1File.exists()) {
+            return false;
+        }
+
+        try (FileInputStream fis = new FileInputStream(ins1File);
+             InputStreamReader isr = new InputStreamReader(fis, "UTF-8");
+             BufferedReader br = new BufferedReader(isr)) {
+
+            String ins1Pid = br.readLine();
+
+            RuntimeMXBean rmb = ManagementFactory.getRuntimeMXBean();
+            String processId = rmb.getName();
+
+            if(processId != null && processId.length() > ins1Pid.length()) {
+                processId = processId.substring(0, ins1Pid.length());
+            }
+
+            return processId != null && processId.equals(ins1Pid);
+
+        } catch (IOException e) {
+            throw e;
+        }
+
 	}
 
 	

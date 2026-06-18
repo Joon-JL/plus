@@ -14,7 +14,6 @@ import javax.servlet.http.HttpSession;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.collections.map.ListOrderedMap;
-import org.jfree.util.Log;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.RequestContext;
@@ -275,7 +274,7 @@ public class MainController extends CommonController {
 
 					if ("1".equals(StringUtil.bvl(lom.get("menu_level"), ""))) {
 						compMenuId = (String)lom.get("menu_id");
-						map.put(compMenuId, new Integer(0));
+						map.put(compMenuId, 0);
 						Level_One++;
 					} 
 				}
@@ -540,12 +539,12 @@ public class MainController extends CommonController {
 				sysCd = (String)session.getAttribute("secfw.session.sys_cd");
 
 				if(user_id.equals("")){
-					Log.debug("Need Session Information.! ");
+                    getLogger().debug("Need Session Information.! ");
 					mav.setViewName("/secfw/ssoCheck.do?method=clmsLogin&secfw.forwardURL=/secfw/main.do?method=forwardMainFrame");
 					return mav;
 				}
 			}catch(Exception e){
-				Log.debug("Not Found User Session   :"+e.toString());
+				getLogger().debug("Not Found User Session   :"+e.toString());
 				e.printStackTrace() ;
 			}
 
@@ -733,7 +732,7 @@ public class MainController extends CommonController {
 
 					if ("1".equals(StringUtil.bvl(lom.get("menu_level"), ""))) {
 						compMenuId = (String) lom.get("menu_id");
-						map.put(compMenuId, new Integer(0));
+						map.put(compMenuId, 0);
 						Level_One++;
 					}
 				}
@@ -2020,7 +2019,7 @@ public class MainController extends CommonController {
 
 					if ("1".equals(StringUtil.bvl(lom.get("menu_level"), ""))) {
 						compMenuId = (String) lom.get("menu_id");
-						map.put(compMenuId, new Integer(0));
+						map.put(compMenuId, 0);
 						Level_One++;
 					}
 				}

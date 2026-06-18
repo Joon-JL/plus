@@ -177,10 +177,10 @@ public class AuthMappingServiceImpl extends CommonServiceImpl implements AuthMap
 				jo.put("key"      , treeKey);
 				jo.put("treeUpKey", treeUpKey);
 				
-				if("Y".equals(treeSelect)) jo.put("select", new Boolean(true));
+				if("Y".equals(treeSelect)) jo.put("select", true);
 				if("N".equals(treeIsLeaf)) {
-					jo.put("isFolder", new Boolean(true));
-					jo.put("expand", new Boolean(true));
+					jo.put("isFolder", true);
+					jo.put("expand", true);
 					ja = new JSONArray();
 					jo.put("children", ja);
 				}
@@ -340,10 +340,10 @@ public class AuthMappingServiceImpl extends CommonServiceImpl implements AuthMap
 				jo.put("key"      , treeKey);
 				jo.put("treeUpKey", treeUpKey);
 				
-				if("Y".equals(treeSelect)) jo.put("select", new Boolean(true));
+				if("Y".equals(treeSelect)) jo.put("select", true);
 				if("N".equals(treeIsLeaf)) {
-					jo.put("isFolder", new Boolean(true));
-					jo.put("expand", new Boolean(true));
+					jo.put("isFolder", true);
+					jo.put("expand", true);
 					ja = new JSONArray();
 					jo.put("children", ja);
 				}
@@ -576,10 +576,10 @@ public class AuthMappingServiceImpl extends CommonServiceImpl implements AuthMap
 				jo.put("key"      , treeKey);
 				jo.put("treeUpKey", treeUpKey);
 				
-				if("Y".equals(treeSelect)) jo.put("select", new Boolean(true));
+				if("Y".equals(treeSelect)) jo.put("select", true);
 				if("N".equals(treeIsLeaf)) {
-					jo.put("isFolder", new Boolean(true));
-					jo.put("expand", new Boolean(true));
+					jo.put("isFolder", true);
+					jo.put("expand", true);
 					ja = new JSONArray();
 					jo.put("children", ja);
 				}

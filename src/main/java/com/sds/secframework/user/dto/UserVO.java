@@ -182,17 +182,7 @@ public class UserVO extends CommonVO {
 	String dept_nm_eng;
 	/* 접속 허가 여부 */
 	String access_yn;
-	/* userID*/
-	String user_id;
-	
-	
-	
-	public String getUser_id() {
-		return user_id;
-	}
-	public void setUser_id(String user_id) {
-		this.user_id = user_id;
-	}
+
 	public String getUser_nm_eng() {
 		return user_nm_eng;
 	}

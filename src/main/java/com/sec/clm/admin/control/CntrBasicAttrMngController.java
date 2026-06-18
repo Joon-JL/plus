@@ -200,13 +200,12 @@ public class CntrBasicAttrMngController extends CommonController{
 			 * 상세조회                                                                                                                     
 			**********************************************************/
 			resultList = cntrBasicAttrMngService.detailCntrBasicAttrMng(vo);
-			
-			
-			ListOrderedMap lom = (ListOrderedMap)resultList.get(0);
-			
-			if(resultList==null)
-				throw new Exception("##### queryService is null ##### ");
-			
+
+            ListOrderedMap lom = null;
+            if (resultList != null && !resultList.isEmpty()) {
+                lom = (ListOrderedMap)resultList.get(0);
+            }
+
 			/*********************************************************
 			 * ModelAndView
 			**********************************************************/

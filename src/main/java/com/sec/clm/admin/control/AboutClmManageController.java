@@ -244,7 +244,7 @@ public class AboutClmManageController extends CommonController {
 			COMUtil.getUserAuditInfo(request, form);
 			COMUtil.getUserAuditInfo(request, vo);
 			
-			if(seqno != ""){
+			if(seqno != null && !seqno.isEmpty()){
 				form.setSeqNoHtml(seqno);
 				vo.setSeqNoHtml(seqno);
 				vo.setComp_cd(compCd);

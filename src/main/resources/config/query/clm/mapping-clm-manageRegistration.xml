@@ -811,7 +811,7 @@
 						,DEPTH_CLSFCN 				= :vo.depth_clsfcn
 						,CNCLSNPURPS_BIGCLSFCN 		= :vo.cnclsnpurps_bigclsfcn
 						,CNCLSNPURPS_MIDCLSFCN 		= :vo.cnclsnpurps_midclsfcn
-						,CNCLSNPURPS_MIDCLSFCN_ETC 	= :vo.cnclsnpurps_midclsfcn_etc
+						/*,CNCLSNPURPS_MIDCLSFCN_ETC 	= :vo.cnclsnpurps_midclsfcn_etc*/
 						,CNTRT_TRGT 				= :vo.cntrt_trgt
 						,CNTRT_TRGT_DET 			= :vo.cntrt_trgt_det
 						,PSHDBKGRND_PURPS 			= :vo.pshdbkgrnd_purps

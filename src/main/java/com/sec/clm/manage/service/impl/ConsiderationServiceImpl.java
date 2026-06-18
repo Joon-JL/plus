@@ -1944,7 +1944,7 @@ public class ConsiderationServiceImpl extends CommonServiceImpl implements Consi
 			resultSb.append("<tr id=\"trRelationContractCont\"><td colspan=\"4\">"+ (String)messageSource.getMessage("clm.page.field.consideration.listRelationContract01", null, locale1) + "</td></tr>" );
 		}// end if(list !=  null)
 		
-		resultMap.put("cntRc", list.size());
+		resultMap.put("cntRc", (list != null) ? list.size() : 0);
 		resultMap.put("contRc", resultSb.toString());
 		return resultMap;
 	}
@@ -2056,7 +2056,7 @@ public class ConsiderationServiceImpl extends CommonServiceImpl implements Consi
 						resultSb.append("<input type='hidden' name='arr_attr_seqno' id='arr_attr_seqno' value='"+attrSeqno+"'> \n");
 						resultSb.append("<input type='hidden' name='arr_attr_cd' id='arr_attr_cd' value='"+crtnDeth+"'> \n");
 						resultSb.append("<input type='text' name='arr_attr_cont' " + dpMndtry + " id='arr_attr_cont' value='' class='text_full' style='margin-top:4px;' /></td> \n");					
-					}else if(i%2 == 1){
+					}else{
 						resultSb.append("<th><span>"+attrNm+"</span></th> \n");
 						resultSb.append("<td valign='top' colspan='3'> \n");
 						resultSb.append("<input type='hidden' name='arr_attr_seqno' id='arr_attr_seqno' value='"+attrSeqno+"'> \n");

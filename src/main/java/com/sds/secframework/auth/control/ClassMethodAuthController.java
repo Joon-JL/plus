@@ -410,6 +410,8 @@ public class ClassMethodAuthController extends CommonController{
 		try{
 			if(Token.isValid(request)){
 
+                boolean allDeletionsSuccessful = true;
+
 				//sys_cd : class_nm : method_nm 형식의 값으로 넘겨진 checkbox 값을
 				//':'를 구분자로 하는 tokenizer를 이용해 vo에 각각의 값을 세팅한다. 
 				for(int i = 0 ; i < checkbox.length ; i++){
@@ -418,10 +420,16 @@ public class ClassMethodAuthController extends CommonController{
 						switch(j){
 						case 0:
 							vo.setSys_cd(token.nextToken());
+                            break;
 						case 1:
 							vo.setClass_nm(token.nextToken());
+                            break;
 						case 2:
 							vo.setMethod_nm(token.nextToken());
+                            break;
+                        default:
+                            token.nextToken();
+                            break;
 						}
 					}
 
@@ -429,7 +437,8 @@ public class ClassMethodAuthController extends CommonController{
 					map = ClassMethodAuthService.detail(vo);
 
 					//삭제할 데이터가 존재하지 않으면
-					if(map.size() == 0){
+					if(map == null || map.size() == 0){
+                        allDeletionsSuccessful = false;
 						returnMessage = messageSource.getMessage("secfw.msg.error.delete", null, new RequestContext(request).getLocale());
 						mav = listPage(request, form, vo);
 					}
@@ -443,20 +452,21 @@ public class ClassMethodAuthController extends CommonController{
 						}
 						//삭제 실패시
 						else{
+                            allDeletionsSuccessful = false;
 							throw new Exception();
 						}
 					}
 				}
+
+                if (allDeletionsSuccessful && result == 1) {
+                    setInitFormVO(request, form, vo);
+                    Token.resetToken(request, "TOKEN");
+                }
 			}
 			//중복 작업이면 listPage로 이동한다.
 			else{
 				setInitFormVO(request, form, vo);
 				mav = listPage(request, form, vo);
-			}
-			
-			if(result == 1){
-				setInitFormVO(request, form, vo);
-				Token.resetToken(request, "TOKEN") ;
 			}
 		
 		} catch (Exception e){

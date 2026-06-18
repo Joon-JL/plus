@@ -84,26 +84,8 @@ public class LibraryServiceImpl extends CommonServiceImpl implements LibraryServ
 		String decodeText = vo.getBody_mime();
 		HashMap hm = comUtilService.getNamoContentAndFileInfo(decodeText);
 
-		if (hm.get("TYPE").equals("M")) {
-			ArrayList fileList = (ArrayList)hm.get("FILE_INFO");
-			
-			for (int i = 0; i < fileList.size(); i++) {
-				HashMap fileMap = (HashMap)fileList.get(i);
-				
-				Integer seq = new Integer(i);
-				String fileNm = (String)fileMap.get("FILE_NM");
-				String filePath = (String)fileMap.get("FILE_PTH");
-				String fileUrl = (String)fileMap.get("FILE_URL");
-				
-				File f = new File(filePath);
-				Long fileSize = new Long(f.length());
-			}			
-			vo.setCont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
-		}else {
-			vo.setCont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
-		}
-		
-		
+		vo.setCont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
+
 		commonDAO.insert("las.contract.insertLibrary", vo);
 				
 		return seqno;
@@ -138,27 +120,8 @@ public class LibraryServiceImpl extends CommonServiceImpl implements LibraryServ
 		String decodeText = vo.getBody_mime();
 		HashMap hm = comUtilService.getNamoContentAndFileInfo(decodeText);
 		
-		if (hm.get("TYPE").equals("M")) {
-			ArrayList fileList = (ArrayList)hm.get("FILE_INFO");
-			
-			for (int i = 0; i < fileList.size(); i++) {
-				HashMap fileMap = (HashMap)fileList.get(i);
-				
-				Integer seq = new Integer(i);
-				String fileNm = (String)fileMap.get("FILE_NM");
-				String filePath = (String)fileMap.get("FILE_PTH");
-				String fileUrl = (String)fileMap.get("FILE_URL");
-				
-				File f = new File(filePath);
-				Long fileSize = new Long(f.length());
-			}
-			
-			vo.setCont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT"))));
-		}else {
-			vo.setCont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT"))));
-		}
-		
-		
+		vo.setCont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT"))));
+
 		return commonDAO.modify("las.contract.modifyLibrary", vo);
 	}
 

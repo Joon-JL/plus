@@ -601,57 +601,6 @@ public class Utils
 	return len;
 	}
 
-
-    /// Make a URL with no ref part and no query string.  Also, if it's
-    // a directory then make sure there's a trailing slash.
-    public static URL plainUrl( URL context, String urlStr ) throws MalformedURLException
-	{
-	URL url = new URL( context, urlStr );
-	String fileStr = url.getFile();
-	int i = fileStr.indexOf( '?' );
-	if ( i != -1 )
-	    fileStr = fileStr.substring( 0, i );
-	url = new URL(
-	    url.getProtocol(), url.getHost(), url.getPort(), fileStr );
-	if ( ( ! fileStr.endsWith( "/" ) ) &&
-	     urlStrIsDir( url.toExternalForm() ) )
-	    {
-	    fileStr = fileStr + "/";
-	    url = new URL(
-		url.getProtocol(), url.getHost(), url.getPort(), fileStr );
-	    }
-	return url;
-	}
-
-    /// Make a URL with no ref part and no query string.  Also, if it's
-    // a directory then make sure there's a trailing slash.
-    public static URL plainUrl( String urlStr ) throws MalformedURLException
-	{
-        return plainUrl( null, urlStr );
-        }
-
-    /// Figure out the base URL for a given URL.  What this means is
-    // if the URL points to a directory, you get that directory; if the
-    // URL points to a file, you get the directory the file is in.
-    public static String baseUrlStr( String urlStr )
-	{
-	if ( urlStr.endsWith( "/" ) )
-	    return urlStr;
-	if ( urlStrIsDir( urlStr ) )
-	    return urlStr + "/";
-	return urlStr.substring( 0, urlStr.lastIndexOf( '/' ) + 1 );
-	}
-
-    /// Makes sure if a URL is a directory, it ends with a slash.
-    public static String fixDirUrlStr( String urlStr )
-	{
-	if ( urlStr.endsWith( "/" ) )
-	    return urlStr;
-	if ( urlStrIsDir( urlStr ) )
-	    return urlStr + "/";
-	return urlStr;
-	}
-
     /// Figures out whether a URL points to a directory or not.
     // Web servers are lenient and accept directory-URLs without
     // the trailing slash.  What they actually do is return a
@@ -1022,35 +971,5 @@ public class Utils
     	}
     	return outbuf;
     }
-
-	// get Public key Value
-	public static byte[] getPublicKey(String keyPath)
-	{
-
-	byte[] b = null;
-
-		try {
-		
-		int n;
-		FileInputStream fis1 = new FileInputStream(keyPath); 
-
-		n = fis1.available();
-		b = new byte[n];
-
-        while (n > 0) {
-				int result = fis1.read(b);
-				if (result == -1) break;
-			}
-
-		}
-		catch (IOException e) {
-              System.err.println(e); 
-		}
-		catch (Exception e) {
-				e.printStackTrace();
-		}
-	return b;
-
-	}
 
 }

@@ -220,6 +220,6 @@ public interface StatisticsService {
 	 */
 	public Map listStatisticsLap_time_Excel(StatisticsVO vo) throws Exception ;
 
-	List listContracts(StatisticsVO vo) throws Exception ;
-	
+    public List listContracts(StatisticsVO vo) throws Exception ;
+
 }

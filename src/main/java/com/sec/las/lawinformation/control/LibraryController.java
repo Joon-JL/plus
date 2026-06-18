@@ -415,12 +415,10 @@ public class LibraryController extends CommonController {
 			 * Service
 			**********************************************************/
 			resultList = libraryService.getLibrary(vo);
-
-			ListOrderedMap lom = (ListOrderedMap)resultList.get(0);
-			
-			if(resultList==null)
-				throw new Exception("##### queryService is null ##### ");
-			
+            ListOrderedMap lom = null;
+            if(resultList != null && !resultList.isEmpty()) {
+                lom = (ListOrderedMap)resultList.get(0);
+            }
 			/*********************************************************
              * 권한 처리
             **********************************************************/         
@@ -434,7 +432,7 @@ public class LibraryController extends CommonController {
 			} 
 
 			// 본인 글이 아닐 경우 조회수 증가			
-			if(!vo.getSession_user_id().equals(lom.get("reg_id"))) {
+			if(lom != null && !vo.getSession_user_id().equals(lom.get("reg_id"))) {
 				libraryService.increseRdcnt(vo) ;				
 			}
 			

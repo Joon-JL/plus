@@ -348,7 +348,7 @@ public class NamoMime
 			part = (MimePart)decodePart.elementAt(i);
 			if(part.getContentID() != null)
 			{
-				if(saveURL == null && saveURL.length() <= 0)
+				if(saveURL == null || saveURL.length() <= 0)
 					convert = replace(convert, "cid:" + part.getContentID(), part.getName());
 				else
 					convert = replace(convert, "cid:" + part.getContentID(), saveURL + "/" + part.getName());

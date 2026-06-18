@@ -191,27 +191,8 @@ public class EsbMailController extends CommonController {
 		        contentHtml = StringUtil.replace(contentHtml, "<HTML>", "<html xmlns='http://www.w3.org/1999/xhtml'>");
 		        contentHtml = StringUtil.replace(contentHtml, "</HTML>", "</html>");
 		        
-		        // Multipart Form (첨부파일이 있으면)
-		        if(hm.get("TYPE").equals("M")) {
+		        vo.setBody(contentHtml);
 
-		            ArrayList fileList = (ArrayList)hm.get("FILE_INFO");
-		        	for(int i=0; i<fileList.size();i++) {
-		            	HashMap fileMap = (HashMap)fileList.get(i);
-		            	
-		            	Integer seqNo  = new Integer(i);
-		            	String fileNm  = (String)fileMap.get("FILE_NM");
-		            	String filePth = (String)fileMap.get("FILE_PTH");
-		            	String fileUrl = (String)fileMap.get("FILE_URL");
-		        	    
-		            	File f = new File(filePth);
-		            	Long fileSize = new Long(f.length());
-		            	
-		        	}        	
-		           vo.setBody(contentHtml);
-		        } else {
-		          vo.setBody(contentHtml);
-		        }	
-		        
 			} else { //본문형식이  TEXT
 				//BODY TYPE 세팅
 				vo.setBhtml_content_check("false");

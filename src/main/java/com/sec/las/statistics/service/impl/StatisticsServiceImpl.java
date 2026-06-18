@@ -10,7 +10,12 @@ package com.sec.las.statistics.service.impl;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Calendar;
 
 import org.apache.commons.collections.map.ListOrderedMap;
 import org.springframework.web.servlet.ModelAndView;
@@ -1074,33 +1079,33 @@ public class StatisticsServiceImpl extends CommonServiceImpl implements Statisti
 		}else if("W".equals(vo.getSrch_div())){// 주별
 			if("C".equals(vo.getSrch_type())){
 				resultList = commonDAO.list("las.statistics.listStatisticsConsultationW", vo);
-			}
-			
-			//년주차로 몇월의 몇주째인지 구하기 ex) 26 -> 7월 1주
-			Calendar c = Calendar.getInstance();
+                //년주차로 몇월의 몇주째인지 구하기 ex) 26 -> 7월 1주
+                Calendar c = Calendar.getInstance();
 
-			String datew ="";
-			Map rlist = new HashMap();
-			for(int i=0; i<resultList.size();i++){
-				rlist = (Map)resultList.get(i);
-				rlist.get("gubun");
-				if("계".equals((String)rlist.get("gubun"))){
-					if(vo.getSession_user_locale().equals("ko")){
-						datew = "계";
-					}else if(vo.getSession_user_locale().equals("en")){
-						datew = "Total";
-					}
-				}else if(!"계".equals((String)rlist.get("gubun"))){
-					c.set( Calendar.WEEK_OF_YEAR, Integer.parseInt((String)rlist.get("gubun")) );
-					if(vo.getSession_user_locale().equals("ko")){
-						datew =(c.get(Calendar.MONTH)+1) +"월"+c.get(Calendar.DAY_OF_WEEK_IN_MONTH)+"주"+"("+c.get(Calendar.WEEK_OF_YEAR)+"w)" ;
-					}else if(vo.getSession_user_locale().equals("en")){
-						datew =(c.get(Calendar.MONTH)+1) +"m"+c.get(Calendar.DAY_OF_WEEK_IN_MONTH)+"w"+"("+c.get(Calendar.WEEK_OF_YEAR)+"w)" ;
-					}
-					
-				}
-				rlist.put("gubun",datew);
-			}
+                String datew ="";
+                Map rlist = new HashMap();
+                for(int i=0; i<resultList.size();i++){
+                    rlist = (Map)resultList.get(i);
+                    rlist.get("gubun");
+                    if("계".equals((String)rlist.get("gubun"))){
+                        if(vo.getSession_user_locale().equals("ko")){
+                            datew = "계";
+                        }else if(vo.getSession_user_locale().equals("en")){
+                            datew = "Total";
+                        }
+                    }else if(!"계".equals((String)rlist.get("gubun"))){
+                        c.set( Calendar.WEEK_OF_YEAR, Integer.parseInt((String)rlist.get("gubun")) );
+                        if(vo.getSession_user_locale().equals("ko")){
+                            datew =(c.get(Calendar.MONTH)+1) +"월"+c.get(Calendar.DAY_OF_WEEK_IN_MONTH)+"주"+"("+c.get(Calendar.WEEK_OF_YEAR)+"w)" ;
+                        }else if(vo.getSession_user_locale().equals("en")){
+                            datew =(c.get(Calendar.MONTH)+1) +"m"+c.get(Calendar.DAY_OF_WEEK_IN_MONTH)+"w"+"("+c.get(Calendar.WEEK_OF_YEAR)+"w)" ;
+                        }
+
+                    }
+                    rlist.put("gubun",datew);
+                }
+            }
+
 		}
 		
 		return resultList;
@@ -1140,28 +1145,31 @@ public class StatisticsServiceImpl extends CommonServiceImpl implements Statisti
 
 			String datew ="";
 			Map rlist = new HashMap();
-			for(int i=0; i<resultList.size();i++){
-				rlist = (Map)resultList.get(i);
-				rlist.get("gubun");
-				
-				if("계".equals((String)rlist.get("gubun"))){
-					if(vo.getSession_user_locale().equals("ko")){
-						datew = "계";
-					}else if(vo.getSession_user_locale().equals("en")){
-						datew = "Total";
-					}
-				}else if(!"계".equals((String)rlist.get("gubun"))){
-					c.set( Calendar.WEEK_OF_YEAR, Integer.parseInt((String)rlist.get("gubun")) );
-					
-					if(vo.getSession_user_locale().equals("ko")){
-						datew =(c.get(Calendar.MONTH)+1) +"월"+c.get(Calendar.DAY_OF_WEEK_IN_MONTH)+"주"+"("+c.get(Calendar.WEEK_OF_YEAR)+"w)" ;
-					}else if(vo.getSession_user_locale().equals("en")){
-						datew =(c.get(Calendar.MONTH)+1) +"m"+c.get(Calendar.DAY_OF_WEEK_IN_MONTH)+"w"+"("+c.get(Calendar.WEEK_OF_YEAR)+"w)" ;
-					}
-					
-				}
-				rlist.put("gubun",datew);
-			}
+            if (resultList != null && !resultList.isEmpty()) {
+                for(int i=0; i<resultList.size();i++){
+                    rlist = (Map)resultList.get(i);
+                    rlist.get("gubun");
+
+                    if("계".equals((String)rlist.get("gubun"))){
+                        if(vo.getSession_user_locale().equals("ko")){
+                            datew = "계";
+                        }else if(vo.getSession_user_locale().equals("en")){
+                            datew = "Total";
+                        }
+                    }else if(!"계".equals((String)rlist.get("gubun"))){
+                        c.set( Calendar.WEEK_OF_YEAR, Integer.parseInt((String)rlist.get("gubun")) );
+
+                        if(vo.getSession_user_locale().equals("ko")){
+                            datew =(c.get(Calendar.MONTH)+1) +"월"+c.get(Calendar.DAY_OF_WEEK_IN_MONTH)+"주"+"("+c.get(Calendar.WEEK_OF_YEAR)+"w)" ;
+                        }else if(vo.getSession_user_locale().equals("en")){
+                            datew =(c.get(Calendar.MONTH)+1) +"m"+c.get(Calendar.DAY_OF_WEEK_IN_MONTH)+"w"+"("+c.get(Calendar.WEEK_OF_YEAR)+"w)" ;
+                        }
+
+                    }
+                    rlist.put("gubun",datew);
+                }
+            }
+
 		}
 		
 		return resultList;
@@ -1458,30 +1466,29 @@ public class StatisticsServiceImpl extends CommonServiceImpl implements Statisti
 		return result ;
 	}
 
-	@Override
-	public List listContracts(StatisticsVO vo) throws Exception {
-		List resultList = null ;
+    public List listContracts(StatisticsVO vo) throws Exception {
+        List resultList = null ;
 
 
-		switch (vo.getQueryCode()) {
-			case "basic":
-				resultList = commonDAO.list("las.statistics.listContracts", vo);
-				break;
-			case "sesk":
-				resultList = commonDAO.list("las.statistics.listSESKContracts", vo);
-				break;
-			case "l1":
-				resultList = commonDAO.list("las.statistics.listContractsEHQLayout1", vo);
-				break;
-			case "l2":
-				resultList = commonDAO.list("las.statistics.listContractsEHQLayout2", vo);
-				break;
-			default:
-				resultList = commonDAO.list("las.statistics.listContracts", vo);
-				break;
-		}
+        switch (vo.getQueryCode()) {
+            case "basic":
+                resultList = commonDAO.list("las.statistics.listContracts", vo);
+                break;
+            case "sesk":
+                resultList = commonDAO.list("las.statistics.listSESKContracts", vo);
+                break;
+            case "l1":
+                resultList = commonDAO.list("las.statistics.listContractsEHQLayout1", vo);
+                break;
+            case "l2":
+                resultList = commonDAO.list("las.statistics.listContractsEHQLayout2", vo);
+                break;
+            default:
+                resultList = commonDAO.list("las.statistics.listContracts", vo);
+                break;
+        }
 
 //		return commonDAO.list("las.statistics.listContract", vo);
-		return resultList;
-	}
+        return resultList;
+    }
 }

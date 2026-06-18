@@ -618,11 +618,11 @@ public class GuideneduController extends CommonController {
 			 * Service
 			**********************************************************/
 			resultList = guideneduService.getGuidenedu(vo);
-			lom = (ListOrderedMap)resultList.get(0);
-			
-			if(resultList==null)
-				throw new Exception("##### queryService is null ##### ");
-			
+
+            if(resultList != null && !resultList.isEmpty()) {
+                lom = (ListOrderedMap)resultList.get(0);
+            }
+
 			/*********************************************************
              * 권한 처리
             **********************************************************/         
@@ -632,7 +632,7 @@ public class GuideneduController extends CommonController {
             form.setAuth_delete(deleteAuth);
 				
 			// 본인 글이 아닐 경우 조회수 증가			
-			if(!vo.getSession_user_id().equals(lom.get("reg_id"))) {
+			if(lom != null && !vo.getSession_user_id().equals(lom.get("reg_id"))) {
 				guideneduService.increseRdcnt(vo) ;				
 			}
 				

@@ -489,7 +489,7 @@ public class LawyerManageController extends CommonController {
 			mav.setViewName(forwardURL);
 			mav.addObject("eventList", eventList);
 			mav.addObject("eventList2", eventList2);
-			mav.addObject("event2_list_cnt", new Integer(event2_list_cnt));
+			mav.addObject("event2_list_cnt", event2_list_cnt);
 			mav.addObject("lawfirmList", lawfirmList);
 			mav.addObject("expertAreaList", expertAreaList);
 			mav.addObject("estimateList", estimateList);

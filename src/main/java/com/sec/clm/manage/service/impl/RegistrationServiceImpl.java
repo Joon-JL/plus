@@ -311,24 +311,8 @@ public class RegistrationServiceImpl extends CommonServiceImpl implements Regist
 		String decodeText = vo.getBody_mime1();		
 		HashMap hm = comUtilService.getNamoContentAndFileInfo(decodeText);
 		
-		if (hm.get("TYPE").equals("M")) {
-			ArrayList fileList = (ArrayList)hm.get("FILE_INFO");
-			
-			for (int i = 0; i < fileList.size(); i++) {
-				HashMap fileMap = (HashMap)fileList.get(i);
-				
-				Integer seq = new Integer(i);
-				String fileNm = (String)fileMap.get("FILE_NM");
-				String filePath = (String)fileMap.get("FILE_PTH");
-				String fileUrl = (String)fileMap.get("FILE_URL");
-				
-				File f = new File(filePath);
-				Long fileSize = new Long(f.length());
-			}			
-			vo.setPshdbkgrnd_purps((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
-		}else {
-			vo.setPshdbkgrnd_purps((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
-		}
+		vo.setPshdbkgrnd_purps((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
+
 		}
 		
 		/*******************************************************************
@@ -599,27 +583,12 @@ public class RegistrationServiceImpl extends CommonServiceImpl implements Regist
 		 * 나모 웹 에디터 처리
 		 *************************************************/
 		
-		if(null != vo.getBody_mime() && "" != vo.getBody_mime()){
+		if(null != vo.getBody_mime() && !vo.getBody_mime().isEmpty()){
 			String decodeText = vo.getBody_mime();		
 			HashMap hm = comUtilService.getNamoContentAndFileInfo(decodeText);				
 	
-			if (hm.get("TYPE").equals("M")) {
-				ArrayList fileList = (ArrayList)hm.get("FILE_INFO");			
-				for (int i = 0; i < fileList.size(); i++) {
-					HashMap fileMap = (HashMap)fileList.get(i);
-					
-					Integer seq = new Integer(i);
-					String fileNm = (String)fileMap.get("FILE_NM");
-					String filePath = (String)fileMap.get("FILE_PTH");
-					String fileUrl = (String)fileMap.get("FILE_URL");
-					
-					File f = new File(filePath);
-					Long fileSize = new Long(f.length());
-				}			
-				vo.setCnsd_demnd_cont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
-			}else {
-				vo.setCnsd_demnd_cont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
-			}
+			vo.setCnsd_demnd_cont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
+
 		}
 		
 		/*********************************************************** 
@@ -751,23 +720,7 @@ public class RegistrationServiceImpl extends CommonServiceImpl implements Regist
 			String decodeText = vo.getBody_mime();		
 			HashMap hm = comUtilService.getNamoContentAndFileInfo(decodeText);				
 
-			if (hm.get("TYPE").equals("M")) {
-				ArrayList fileList = (ArrayList)hm.get("FILE_INFO");			
-				for (int i = 0; i < fileList.size(); i++) {
-					HashMap fileMap = (HashMap)fileList.get(i);
-					
-					Integer seq = new Integer(i);
-					String fileNm = (String)fileMap.get("FILE_NM");
-					String filePath = (String)fileMap.get("FILE_PTH");
-					String fileUrl = (String)fileMap.get("FILE_URL");
-					
-					File f = new File(filePath);
-					Long fileSize = new Long(f.length());
-				}			
-				vo.setCnsd_demnd_cont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
-			}else {
-				vo.setCnsd_demnd_cont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
-			}
+			vo.setCnsd_demnd_cont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
 		}
 		
 		if("save".equals(vo.getSubmit_status()) || "tab_save".equals(vo.getSubmit_status())){
@@ -1041,7 +994,7 @@ public HashMap listRelationContract(ConsultationVO vo) throws Exception {
 		
 		Locale locale1 = new Locale((String)vo.getSession_user_locale() );
 		
-		if (list != null && list.size() > 0) {
+		if (list != null && !list.isEmpty()) {
 			
 			for (int i = 0; i < list.size(); i++) {
 				ListOrderedMap lom = (ListOrderedMap)list.get(i);
@@ -1058,13 +1011,13 @@ public HashMap listRelationContract(ConsultationVO vo) throws Exception {
 					resultSb.append("</td>");
 				}
 				resultSb.append("</tr>");
-			}//end for			
+			}//end for
+            resultMap.put("cntRc", list.size());
 		}else{
 			//등록된 연관계약이 없습니다.
 			resultSb.append("<tr id=\"trRelationContractCont\"><td  class=\"tC\" colspan=\"4\">"+(String)messageSource.getMessage("las.msg.succ.noResult", null, locale1)+" </td></tr>" );
 		}// end if(list !=  null)
-		
-		resultMap.put("cntRc", list.size());
+
 		resultMap.put("contRc", resultSb.toString());
 		return resultMap;
 	}
@@ -1080,10 +1033,10 @@ public HashMap listRelationContract(ConsultationVO vo) throws Exception {
 				
 		if("insert".equals(vo.getSubmit_status())){
 			HashMap map = listRelationContract(vo);
-			
-			if((Integer)map.get("cntRc") > 0){	//0 보다 크면 이미 입력된 데이타 있음
+
+			if(map != null && map.get("cnRc") != null && (Integer)map.get("cntRc") > 0){	//0 보다 크면 이미 입력된 데이타 있음
 				returnVal = 2;
-			}else{				
+			}else{
 				returnVal = commonDAO.insert("clm.manage.insertRelationContract", vo);
 			}
 		}else if("delete".equals(vo.getSubmit_status())){
@@ -1167,7 +1120,7 @@ public HashMap listRelationContract(ConsultationVO vo) throws Exception {
 						resultSb.append("<input type='hidden' name='arr_attr_seqno' id='arr_attr_seqno' value='"+attrSeqno+"'> \n");
 						resultSb.append("<input type='hidden' name='arr_attr_cd' id='arr_attr_cd' value='"+crtnDeth+"'> \n");
 						resultSb.append("<input type='text' name='arr_attr_cont' " + dpMndtry + " id='arr_attr_cont' value='' class='text_full' style='margin-top:4px;' /></td> \n");					
-					}else if(i%2 == 1){
+					}else{
 						resultSb.append("<th><span>"+attrNm+"</span></th> \n");
 						resultSb.append("<td valign='top' colspan='3'> \n");
 						resultSb.append("<input type='hidden' name='arr_attr_seqno' id='arr_attr_seqno' value='"+attrSeqno+"'> \n");
@@ -1307,10 +1260,15 @@ public HashMap listRelationContract(ConsultationVO vo) throws Exception {
 		ListOrderedMap lom = null;
 		int result = 0;
 		
-		if(listAgree != null && listAgree.size() > 0){
+		if(listAgree != null && !listAgree.isEmpty()){
 			lom = (ListOrderedMap) listAgree.get(0);
 		}
-		vo.setAgree_seqno(Integer.parseInt(String.valueOf(lom.get("max_seq"))));
+        if (lom != null && lom.get("max_seqno") != null) {
+            String maxSeqStr = String.valueOf(lom.get("max_seq"));
+            vo.setAgree_seqno(Integer.parseInt(maxSeqStr));
+        } else {
+            vo.setAgree_seqno(0);
+        }
 
 		//TN_CLM_CNCLSN_AGREE에 이력 삽입
 		result = commonDAO.modify("clm.manage.insertMyApprovalAgree", vo);

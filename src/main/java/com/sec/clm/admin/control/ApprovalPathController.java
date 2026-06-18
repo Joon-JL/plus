@@ -411,20 +411,20 @@ public class ApprovalPathController extends CommonController {
 			resultListDETAIL = approvalPathService.detailApprovalPathDetail(vo);
 			//TN_CLM_APPROVAL_PATH LIST
 			resultListUser = approvalPathService.detailApprovalUsers(vo);
-			
-			ListOrderedMap lom = (ListOrderedMap)resultList.get(0);
+
+            ListOrderedMap lom = null;
+            if (resultList != null && !resultList.isEmpty()) {
+                lom = (ListOrderedMap)resultList.get(0);
+            }
 			
 			ListOrderedMap lom2 = null;
 			
 			int resultdetailsize = 0;
-			if(resultListDETAIL.size() > 0){
-				resultdetailsize = resultListDETAIL.size();
-				lom2 = (ListOrderedMap)resultListDETAIL.get(0);
-			}
-			
-			if(resultList==null)
-				throw new Exception("##### queryService is null ##### ");
-			
+            if (resultListDETAIL != null && !resultListDETAIL.isEmpty()) {
+                resultdetailsize = resultListDETAIL.size();
+                lom2 = (ListOrderedMap)resultListDETAIL.get(0);
+            }
+
 			/*********************************************************
 			 * Massage
 			**********************************************************/

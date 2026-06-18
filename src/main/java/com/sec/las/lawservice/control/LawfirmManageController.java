@@ -421,16 +421,20 @@ public class LawfirmManageController extends CommonController {
 			LawfirmEstimateVO esvo = new LawfirmEstimateVO();
 			esvo.setLawfirm_id(vo.getLawfirm_id());
 			estimateList = LawfirmManageService.listLawfirmEstimate(esvo);
-			
-		    for(int i=0; i<estimateList.size(); i++){
-		    	String file_path = "";
-				lom = (ListOrderedMap)estimateList.get(i);
-				file_path = strAttachUrl + (String)lom.get("file_id");
-				lom.put("file_path_temp", file_path);
-		    }
-			
-			al_estimate = (ArrayList)estimateList;
-			
+
+            if (estimateList != null && !estimateList.isEmpty()) {
+                for(int i=0; i<estimateList.size(); i++){
+                    String file_path = "";
+                    lom = (ListOrderedMap)estimateList.get(i);
+                    if (lom != null) {
+                        file_path = strAttachUrl + (String)lom.get("file_id");
+                        lom.put("file_path_temp", file_path);
+                    }
+                }
+            }
+
+			al_estimate = (estimateList != null) ? (ArrayList)estimateList : new ArrayList();
+
 			int estimate_list_cnt = 0;
 
 			// 로펌 평가 seq

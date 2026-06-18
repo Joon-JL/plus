@@ -4,6 +4,7 @@ import com.sds.secframework.common.control.CommonController;
 import com.sec.clm.admin.dto.CntrBasicAttrMngVO;
 import com.sec.clm.admin.dto.ContractManageVO;
 import com.sec.clm.admin.service.ContractManageService;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -82,7 +83,9 @@ public class ContractManageController extends CommonController {
         } catch (Exception e) {
             e.printStackTrace();
             // Return error details to the UI success handler for troubleshooting
-            response.getWriter().write("ERROR: " + e.getMessage());
+//            response.getWriter().write("ERROR: " + e.getMessage()
+            String safeMessage = StringEscapeUtils.escapeHtml(e.getMessage());
+            response.getWriter().write("Error: " + safeMessage);
         }
     }
 }

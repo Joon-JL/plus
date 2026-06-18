@@ -101,25 +101,8 @@ public class QnaServiceImpl extends CommonServiceImpl implements QnaService {
 		String decodeText = vo.getCont();
 		HashMap hm = comUtilService.getNamoContentAndFileInfo(decodeText);
 
-		if (hm.get("TYPE").equals("M")) {
-			ArrayList fileList = (ArrayList)hm.get("FILE_INFO");
-			
-			for (int i = 0; i < fileList.size(); i++) {
-				HashMap fileMap = (HashMap)fileList.get(i);
-				
-				Integer seq = new Integer(i);
-				String fileNm = (String)fileMap.get("FILE_NM");
-				String filePath = (String)fileMap.get("FILE_PTH");
-				String fileUrl = (String)fileMap.get("FILE_URL");
-				
-				File f = new File(filePath);
-				Long fileSize = new Long(f.length());
-			}			
-			vo.setCont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
-		}else {
-			vo.setCont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
-		}
-		
+		vo.setCont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
+
 		int iret = 9999;
 		if(StringUtil.checkScript(vo.getTitle()) && StringUtil.checkScript(vo.getCont())){
 			iret = commonDAO.modify("clm.counsel.modifyQna", vo);
@@ -215,24 +198,7 @@ public class QnaServiceImpl extends CommonServiceImpl implements QnaService {
 			return iret;
 		}
 
-		if (hm.get("TYPE").equals("M")) {
-			ArrayList fileList = (ArrayList)hm.get("FILE_INFO");
-			
-			for (int i = 0; i < fileList.size(); i++) {
-				HashMap fileMap = (HashMap)fileList.get(i);
-				
-				Integer seq = new Integer(i);
-				String fileNm = (String)fileMap.get("FILE_NM");
-				String filePath = (String)fileMap.get("FILE_PTH");
-				String fileUrl = (String)fileMap.get("FILE_URL");
-				
-				File f = new File(filePath);
-				Long fileSize = new Long(f.length());
-			}			
-			vo.setCont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
-		}else {
-			vo.setCont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
-		}
+		vo.setCont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
 		//데이터 저장
 		commonDAO.insert("clm.counsel.insertQna", vo);
 		

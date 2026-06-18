@@ -411,10 +411,16 @@ public class ClassMethodRoleController extends CommonController{
 						switch(j){
 						case 0:
 							vo.setSys_cd(token.nextToken());
+                            break;
 						case 1:
 							vo.setClass_nm(token.nextToken());
+                            break;
 						case 2:
 							vo.setMethod_nm(token.nextToken());
+                            break;
+                        default:
+                            token.nextToken();
+                            break;
 						}
 					}
 

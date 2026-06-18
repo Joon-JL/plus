@@ -65,14 +65,11 @@ public class ConsiderationController extends CommonController {
 	 * Consideration 서비스
 	 */
 	private ConsiderationService considerationService;
-	
-	/**
-	 * Consideration 서비스 세팅
-	 * 
-	 * @param ConsiderationService
-	 * @return void
-	 * @throws
-	 */
+
+    /**
+     * Consideration 서비스 세팅
+     * @param considerationService
+     */
 	public void setConsiderationService(ConsiderationService considerationService) {
 		this.considerationService = considerationService;
 	}
@@ -738,15 +735,14 @@ public class ConsiderationController extends CommonController {
 			if(listDc != null && listDc.size() > 0){
 				String[] relMan = new String[listDc.size()];
 				String cntrtInfoGbn = "";
-
 				
 				for(int i=0; i<listDc.size(); i++) {
 					mapRm = (ListOrderedMap)listDc.get(i);
 					relMan[i] = (String)mapRm.get("cntrt_id");
 					cntrtInfoGbn = (String)mapRm.get("cntrt_info_gbn");
-					relDPACntrt_no = (String)mapRm.get("CNCLSNAFT_CSTN_CAUSE");
+                    relDPACntrt_no = (String)mapRm.get("CNCLSNAFT_CSTN_CAUSE");
 				}
-
+				
 				vo.setMaster_cntrt_ids(relMan);
 				lomRm = listRelationman(vo);													// 관련자 List
 				
@@ -756,7 +752,7 @@ public class ConsiderationController extends CommonController {
 			}
 			this.getLogger().debug("relDPACntrt_no: " + relDPACntrt_no);
 			lomRq.put("rel_dpa_cntrt_no", relDPACntrt_no);
-
+			
 			//====================================
 			//검토의견
 			//====================================
@@ -783,10 +779,6 @@ public class ConsiderationController extends CommonController {
 			// 준거법 초기값 설정
 			lomRq.put("loac", StringUtil.convertEnterToBR(StringUtil.bvl((String)lomRq.get("loac"),"")));
 
-			// DPA Related CNTRT_NO
-			lomRq.put("CNCLSNAFT_CSTN_CAUSE", StringUtil.convertEnterToBR(StringUtil.bvl((String)lomRq.get("loac"),"")));
-
-			
 			vo.setCnclsnpurps_bigclsfcn((String)lomRq.get("cnclsnpurps_bigclsfcn"));
 			vo.setCnclsnpurps_midclsfcn((String)lomRq.get("cnclsnpurps_midclsfcn"));
 			vo.setCnsdreq_id((String)lomRq.get("cnsdreq_id"));
@@ -1251,7 +1243,7 @@ public class ConsiderationController extends CommonController {
 			lomRq.put("res_hndl_cause_dp", StringUtil.convertEnterToBR(StringUtil.bvl((String)lomRq.get("res_hndl_cause"),"")));
 			
 			// 관련회사 조회건수가 없으면 팝업 없음
-			if(StringUtil.bvl((String)lomRq.get("cntrt_oppnt_cd"),"") != ""){
+			if(!StringUtil.bvl((String)lomRq.get("cntrt_oppnt_cd"),"").isEmpty()){
 				vo.setCntrt_oppnt_cd(StringUtil.bvl((String)lomRq.get("cntrt_oppnt_cd"),""));
 				vo.setCntrt_oppnt_nm(StringUtil.bvl((String)lomRq.get("cntrt_oppnt_nm"),""));
 				resultList = considerationService.listConsiderationPop(vo);
@@ -2969,6 +2961,7 @@ public class ConsiderationController extends CommonController {
 			 * 접근 권한 설정 
 			 * 임시저장([B01]), 의견전달([B02]), 발신([B03]), 회신([B04]) 버튼, 유관부서검토요청[B06], 기타버튼[B99]	
 			**********************************************************/
+			
 			if("SAVE".equals(vo.getStat_flag())){
 				vo.setEvent_but("[B01]");
 			}else if("TABSAVE".equals(vo.getStat_flag())){

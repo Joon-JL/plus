@@ -20,74 +20,74 @@
 </head>
 <body>
 
-<div class="search-area">
-    <form id="searchForm" name="searchForm" onsubmit="return false;">
-        <input type="hidden" name="isAjax" value="true">
+    <div class="search-area">
+        <form id="searchForm" name="searchForm" onsubmit="return false;">
+            <input type="hidden" name="isAjax" value="true">
 
-        <div class="input-item">
-            <label>Search by Contract ID</label> SESK250102_0001
-            <input type="text" name="srch_cntrt_no" id="srch_cntrt_no" placeholder="e.g. SESK250101_0001">
-        </div>
+            <div class="input-item">
+                <label>Search by Contract ID</label> SESK250102_0001
+                <input type="text" name="srch_cntrt_no" id="srch_cntrt_no" placeholder="e.g. SESK250101_0001">
+            </div>
 
-        <button type="button" class="btn btn-search" onclick="ajaxSearch()">Find Contract</button>
-    </form>
-</div>
+            <button type="button" class="btn btn-search" onclick="ajaxSearch()">Find Contract</button>
+        </form>
+    </div>
 
-<div id="table-wrapper">
-    <div class="loading-msg">Enter a Contract ID to retrieve current status and management options.</div>
-</div>
+    <div id="table-wrapper">
+        <div class="loading-msg">Enter a Contract ID to retrieve current status and management options.</div>
+    </div>
 
-<script type="text/javascript">
-    /**
-     * Retrieves contract details without page refresh.
-     */
-    function ajaxSearch() {
-        var id = $('#srch_cntrt_no').val();
-        if(!id) { alert("Please enter a Contract ID."); return; }
+    <script type="text/javascript">
+        /**
+         * Retrieves contract details without page refresh.
+         */
+        function ajaxSearch() {
+            var id = $('#srch_cntrt_no').val();
+            if(!id) { alert("Please enter a Contract ID."); return; }
 
-        $('#table-wrapper').html('<div class="loading-msg">Accessing secure records...</div>');
+            $('#table-wrapper').html('<div class="loading-msg">Accessing secure records...</div>');
 
-        $.ajax({
-            type: "POST",
-            url: "/clm/admin/contract.do?method=listContracts",
-            data: $('#searchForm').serialize(),
-            success: function(html) {
-                $('#table-wrapper').html(html);
-            },
-            error: function() {
-                alert("Search failed. Verify your session or server status.");
-            }
-        });
-    }
-
-    /**
-     * Triggers the background status update.
-     */
-    function updateContractStatus(cntrtNo, targetStatus) {
-        if(!confirm("Change status of " + cntrtNo + " to " + targetStatus + "?")) return;
-
-        $.ajax({
-            type: "POST",
-            url: "/clm/admin/contract.do?method=changeStatusAjax",
-            data: {
-                srch_cntrt_no: cntrtNo,
-                newStatus: targetStatus
-            },
-            success: function(response) {
-                if (response.trim() === "1") {
-                    alert("Success: Status updated to " + status);
-                    // Reload to reflect changes
-                    window.location.reload();
-                } else {
-                    alert("Procedure Message: " + response);
+            $.ajax({
+                type: "POST",
+                url: "/clm/admin/contract.do?method=listContracts",
+                data: $('#searchForm').serialize(),
+                success: function(html) {
+                    $('#table-wrapper').html(html);
+                },
+                error: function() {
+                    alert("Search failed. Verify your session or server status.");
                 }
-            },
-            error: function() {
-                alert("Communication error during status update.");
-            }
-        });
-    }
-</script>
+            });
+        }
+
+        /**
+         * Triggers the background status update.
+         */
+        function updateContractStatus(cntrtNo, targetStatus) {
+            if(!confirm("Change status of " + cntrtNo + " to " + targetStatus + "?")) return;
+
+            $.ajax({
+                type: "POST",
+                url: "/clm/admin/contract.do?method=changeStatusAjax",
+                data: {
+                    srch_cntrt_no: cntrtNo,
+                    newStatus: targetStatus
+                },
+                success: function(response) {
+                    if (response.trim() === "1") {
+                        alert("Success: Status updated to " + status);
+                        // Reload to reflect changes
+                        window.location.reload();
+                    } else {
+                        alert("Procedure Message: " + response);
+                    }
+                },
+                error: function() {
+                    alert("Communication error during status update.");
+                }
+            });
+        }
+    </script>
 
 </body>
 </html>

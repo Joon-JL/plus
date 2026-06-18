@@ -3187,7 +3187,7 @@ public class CompletionController extends CommonController {
 				}
 
 			} else {
-				mav.addObject("contractMstLomSize", detailList.size());
+				mav.addObject("contractMstLomSize", (detailList != null) ? detailList.size() : 0);
 			}
 
 			List tmpSessionRoleList = (List) session.getAttribute("secfw.session.role");

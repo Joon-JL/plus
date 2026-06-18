@@ -75,12 +75,12 @@ public class MenuMngServiceImpl extends CommonServiceImpl implements MenuMngServ
 				jo.put("treeUpKey", treeUpKey);
 				
 				String selectMenuId = StringUtil.bvl(vo.getSelect_menu_id(), "");
-				if(selectMenuId.equals(treeKey)) jo.put("activate", new Boolean(true));
+				if(selectMenuId.equals(treeKey)) jo.put("activate", true);
 				
-				if("Y".equals(treeSelect)) jo.put("select", new Boolean(true));
+				if("Y".equals(treeSelect)) jo.put("select", true);
 				if("N".equals(treeIsLeaf)) {
-					jo.put("isFolder", new Boolean(true));
-					jo.put("expand", new Boolean(true));
+					jo.put("isFolder", true);
+					jo.put("expand", true);
 					ja = new JSONArray();
 					jo.put("children", ja);
 				}

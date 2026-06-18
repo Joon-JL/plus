@@ -1276,11 +1276,11 @@ public class LogController extends CommonController {
 		ModelAndView mav 		= new ModelAndView();
 		String forwardURL 		= "/WEB-INF/jsp/secfw/log/Excelpop.jsp";
 		//-----------BIND:파라미터 설정 -------------------- 				
-		String Excel_nm  =StringUtil.bvl( new String(request.getParameter("exel_nm_pop")),"");
-		String Excel_vel =StringUtil.bvl( new String(request.getParameter("exel_vel_pop")),""); 
+		String Excel_nm  =StringUtil.bvl( request.getParameter("exel_nm_pop"),"");
+		String Excel_vel =StringUtil.bvl( request.getParameter("exel_vel_pop"),"");
 		
-		String[] ExcelNams = Excel_nm .split(new String(","));
-		String[] ExcelVels = Excel_vel.split(new String(","));
+		String[] ExcelNams = Excel_nm.split(",");
+		String[] ExcelVels = Excel_vel.split(",");
 		
 		mav.setViewName(forwardURL);
 		mav.addObject("command", form);

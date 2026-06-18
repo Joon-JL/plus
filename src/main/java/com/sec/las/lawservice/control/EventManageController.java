@@ -354,11 +354,10 @@ public class EventManageController extends CommonController {
 
 			if(resultList!=null){				
 				lom = (ListOrderedMap)resultList.get(0);
+                // 나모 에디터 데이타 처리
+                lom.put("evnet_cont", StringUtil.convertCharsToHtml((String)lom.get("evnet_cont")));
 			} 
-			
-			// 나모 에디터 데이타 처리 
-			lom.put("evnet_cont", StringUtil.convertCharsToHtml((String)lom.get("evnet_cont")));
-			
+
 			//  비용귀속 부서 취득
 			EventRefDeptVO edvo = new EventRefDeptVO();
 			edvo.setEvent_no(vo.getEvent_no());
@@ -396,7 +395,7 @@ public class EventManageController extends CommonController {
 				
 				ArrayList invoice_list = (ArrayList)re_invoice_list;
 				mav.addObject("invoice_list", invoice_list);
-				mav.addObject("invoice_list_cnt", new Integer(invoice_list_cnt));		
+				mav.addObject("invoice_list_cnt", invoice_list_cnt);
 			} else {
 				//  등록 사건 목록 취득
 				int event_accept_list_cnt = 0;
@@ -409,7 +408,7 @@ public class EventManageController extends CommonController {
 				
 				ArrayList event_accept_list = (ArrayList)event_accept_resultList;
 				mav.addObject("event_accept_list", event_accept_list);
-				mav.addObject("event_accept_list_cnt", new Integer(event_accept_list_cnt));
+				mav.addObject("event_accept_list_cnt", event_accept_list_cnt);
 			}
 			
 			//권한 처리

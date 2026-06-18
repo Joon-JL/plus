@@ -260,7 +260,7 @@ public class MyApprovalServiceImpl extends CommonServiceImpl implements MyApprov
 		
 		// Termination step
 		if(prcs_depth.equals("C02505")){
-			if(vo.getCntrtperiod_startday() != null && vo.getCntrtperiod_startday() != "" && vo.getCntrtperiod_endday() != null && vo.getCntrtperiod_endday() != ""){
+			if(vo.getCntrtperiod_startday() != null && !vo.getCntrtperiod_startday().isEmpty() && vo.getCntrtperiod_endday() != null && !vo.getCntrtperiod_endday().isEmpty()){
 				
 				DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 				Calendar toDay = Calendar.getInstance();
@@ -280,7 +280,7 @@ public class MyApprovalServiceImpl extends CommonServiceImpl implements MyApprov
 					fileVO.setFile_midclsfcn("F01203");
 					fileVO.setFile_smlclsfcn("");
 					List originCopyList = commonDAO.list("clms.common.getCntrtFileInfo", fileVO);
-					if(originCopyList != null && originCopyList.size() > 0){
+					if(originCopyList != null && !originCopyList.isEmpty()){
 						vo.setPrcs_depth("C02504");
 						vo.setDepth_status("C02662");
 					} else {

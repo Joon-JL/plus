@@ -580,7 +580,7 @@ public class ConsultationVO extends ConsiderationVO {
 
 	private String view_gbn;	//Sungwoo added 2014-09-25 reAttch 처리위해 추가
 
-	private String cnclsnaft_cstn_cause;
+    private String cnclsnaft_cstn_cause;
 
 	public String getCnclsnaft_cstn_cause() {
 		return cnclsnaft_cstn_cause;
@@ -589,8 +589,6 @@ public class ConsultationVO extends ConsiderationVO {
 	public void setCnclsnaft_cstn_cause(String cnclsnaft_cstn_cause) {
 		this.cnclsnaft_cstn_cause = cnclsnaft_cstn_cause;
 	}
-
-
 	
 	public String getView_gbn() {
 		return view_gbn;

@@ -92,25 +92,7 @@ public class EventManageServiceImpl extends CommonServiceImpl implements EventMa
 		String decodeText = vo.getBody_mime();
 		HashMap hm = comUtilService.getNamoContentAndFileInfo(decodeText);
 
-		if (hm.get("TYPE").equals("M")) {
-			ArrayList fileList = (ArrayList)hm.get("FILE_INFO");
-			
-			for (int i = 0; i < fileList.size(); i++) {
-				HashMap fileMap = (HashMap)fileList.get(i);
-				
-				Integer seq = new Integer(i);
-				String fileNm = (String)fileMap.get("FILE_NM");
-				String filePath = (String)fileMap.get("FILE_PTH");
-				String fileUrl = (String)fileMap.get("FILE_URL");
-				
-				File f = new File(filePath);
-				Long fileSize = new Long(f.length());
-			}			
-			vo.setEvent_cont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
-		}else {
-			vo.setEvent_cont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
-		}		
-		
+		vo.setEvent_cont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
 		return commonDAO.insert("las.lawservice.insertEventManage", vo);
 	}
 	/**
@@ -169,25 +151,8 @@ public class EventManageServiceImpl extends CommonServiceImpl implements EventMa
 		String decodeText = vo.getBody_mime();
 		HashMap hm = comUtilService.getNamoContentAndFileInfo(decodeText);
 
-		if (hm.get("TYPE").equals("M")) {
-			ArrayList fileList = (ArrayList)hm.get("FILE_INFO");
-			
-			for (int i = 0; i < fileList.size(); i++) {
-				HashMap fileMap = (HashMap)fileList.get(i);
-				
-				Integer seq = new Integer(i);
-				String fileNm = (String)fileMap.get("FILE_NM");
-				String filePath = (String)fileMap.get("FILE_PTH");
-				String fileUrl = (String)fileMap.get("FILE_URL");
-				
-				File f = new File(filePath);
-				Long fileSize = new Long(f.length());
-			}			
-			vo.setEvent_cont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
-		}else {
-			vo.setEvent_cont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
-		}		
-		
+		vo.setEvent_cont((StringUtil.convertNamoCharsToHtml((String)hm.get("CONTENT")))); //Cross-site Scripting 방지 처리
+
 		return commonDAO.modify("las.lawservice.modifyEventManage", vo);
 	}
 	/**

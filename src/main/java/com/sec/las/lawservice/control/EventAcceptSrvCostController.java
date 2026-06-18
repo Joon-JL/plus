@@ -407,7 +407,7 @@ public class EventAcceptSrvCostController extends CommonController {
 			mav.addObject("srv_cost_list", srv_cost_list);
 			mav.addObject("invoice_list", invoice_list);
 			mav.addObject("str_cday", str_cday);
-			mav.addObject("invoice_list_cnt", new Integer(invoice_list_cnt));	
+			mav.addObject("invoice_list_cnt", invoice_list_cnt);
 			mav.addObject("command", form);
 
 			return mav;

@@ -36,12 +36,6 @@ public class SubjectVO extends CommonVO {
 	/**********************************************
 	 * 페이징
 	 **********************************************/
-	/** 페이지(공통) */
-	protected String start_index;                      
-	/** 페이지(공통) */
-	protected String end_index;                        
-	/** 페이지(공통) */
-	protected String curPage;  
 	/** 페이지당 row 수 */
 	int row_cnt = 10;
 
@@ -111,24 +105,6 @@ public class SubjectVO extends CommonVO {
 	}
 	public void setSrch_dimension(String srch_dimension) {
 		this.srch_dimension = srch_dimension;
-	}
-	public String getStart_index() {
-		return start_index;
-	}
-	public void setStart_index(String start_index) {
-		this.start_index = start_index;
-	}
-	public String getEnd_index() {
-		return end_index;
-	}
-	public void setEnd_index(String end_index) {
-		this.end_index = end_index;
-	}
-	public String getCurPage() {
-		return curPage;
-	}
-	public void setCurPage(String curPage) {
-		this.curPage = curPage;
 	}
 	public int getRow_cnt() {
 		return row_cnt;

@@ -105,12 +105,8 @@ function contractReviewViewPoint(data){
 		br = "<br>";
 		//Sungwoo replaced for the avoid duplication CCed list 2014-11-07
 		if(item.cc_nm && item.demnd_seqno >= demnd_seq){
-			// $("#spCCedList").append(item.cc_nm+" / "+item.cc_jikgup+" / "+item.cc_dept+"<br/>======");
-
-            $("#spCCedList").append(item.cc_nm + " / " + item.cc_jikgup + " / " + item.cc_dept //+"<br/>");
-                + "<input type='hidden' name='arr_demnd_seqno' id='arr_demnd_seqno' value='"+demnd_seq+"'  /><input type='hidden' name='arr_trgtman_id' id='arr_trgtman_id' value='"+item.cc_nm+"' /><input type='hidden' name='arr_trgtman_nm' id='arr_trgtman_nm' value='"+item.cc_nm+"' /><input type='hidden' name='arr_trgtman_jikgup_nm' id='arr_trgtman_jikgup_nm' value='"+item.cc_jikgup+"' /><input type='hidden' name='arr_trgtman_dept_nm' id='arr_trgtman_dept_nm' value='"+item.cc_dept+"' /><br/>"); //
-
-            demnd_seq++;
+			$("#spCCedList").append(item.cc_nm+" / "+item.cc_jikgup+" / "+item.cc_dept+"<br/>");
+			demnd_seq++;
 		}
 	});
 	fileList = null;
@@ -244,13 +240,12 @@ function myContractViewPoint(data){
 		br = "<br>";
 		
 		//Sungwoo replaced for the avoid duplication CCed list 2014-11-07
-		if(item.cc_nm && item.demnd_seqno >= demnd_seq) {
-            $("#spCCedList").append(item.cc_nm + " / " + item.cc_jikgup + " / " + item.cc_dept //+"<br/>");
-                 + "<input type='hidden' name='arr_demnd_seqno' id='arr_demnd_seqno' value='"+demnd_seq+"'  /><input type='hidden' name='arr_trgtman_id' id='arr_trgtman_id' value='"+item.cc_nm+"' /><input type='hidden' name='arr_trgtman_nm' id='arr_trgtman_nm' value='"+item.cc_nm+"' /><input type='hidden' name='arr_trgtman_jikgup_nm' id='arr_trgtman_jikgup_nm' value='"+item.cc_jikgup+"' /><input type='hidden' name='arr_trgtman_dept_nm' id='arr_trgtman_dept_nm' value='"+item.cc_dept+"' /><br/>"); //
-            demnd_seq++;
-        }
-    });
-    fileList = null;
+		if(item.cc_nm && item.demnd_seqno >= demnd_seq){
+			$("#spCCedList").append(item.cc_nm+" / "+item.cc_jikgup+" / "+item.cc_dept+"<br/>");
+			demnd_seq++;
+		}
+	});
+	fileList = null;
 }
 
 
@@ -330,16 +325,8 @@ function setMarkUpAJAX(cntrt_id) {
 
 // CC button click event, open a pop-up for user search.
 function openChooseClient(){
-    // var frm = document.frm;
-    var frm = document.getElementById('frm');
-    // var frm = document.getElementById('miniFrm');
-
-    if (!frm) {
-        console.error("Error: Form with ID 'frm' not found.");
-        // Consider returning here or showing a user message instead of an alert
-        return;
-    }
-
+    var frm = document.frm;
+    
     var items_str1 = $("input[name=arr_demnd_seqno]").map(function(){return this.value;}).get();
     var items_str2 = $("input[name=arr_trgtman_id]").map(function(){return this.value;}).get();
     var items_str3 = $("input[name=arr_trgtman_nm]").map(function(){return this.value;}).get();
@@ -347,15 +334,9 @@ function openChooseClient(){
     var items_str5 = $("input[name=arr_trgtman_dept_nm]").map(function(){return this.value;}).get();
     
     var items = items_str1+"!@#$"+ items_str2  +"!@#$"+  items_str3  +"!@#$"+  items_str4 +"!@#$"+items_str5;
-    document.getElementById('chose_client').value = items;
-    // frm.chose_client.value = items;
-    // frm.elements['chose_client'].value = items;
-    // console.log("1 : " +  document.getElementById('chose_client').value);
-    // console.log("2 : " +  document.getElementById('chose_client').value);
-
-    // alert(frm.chose_client.value );
+    frm.chose_client.value = items;
             
-    PopUpWindowOpen('', "530", "480",true,'PopUpWindow');
+    PopUpWindowOpen('', "530", "480", false);
     frm.action = "<c:url value='/clm/manage/chooseClient.do' />";
     frm.method.value="forwardChooseClientPopup";
     frm.target = "PopUpWindow";
@@ -365,45 +346,30 @@ function openChooseClient(){
  // To receive user search result who will be added as CC.
 function setListClientInfo(returnValue) {
     var arrReturn = returnValue.split("!@#$");
-    var innerHtml ="";
-    var isListEmpty = (arrReturn.length === 1 && arrReturn[0] === ""); // True if result is just "" or if no separator was found
-
-    console.log('arrReturn[0] : ' + arrReturn[0]);//
-    // if(arrReturn[0]=="") { return ; }
+    var innerHtml ="";	
+    if(arrReturn[0]=="") { return ; }
     
     $('#spCCedList').html("");
-
-    var trgtmanIds = []; // Array to collect IDs
-
-    if (!isListEmpty) {
-        for(var i=0; i < arrReturn.length;i++) {
-            var arrInfo = arrReturn[i].split("|");
-
-            if (arrInfo.length >= 5) {
-                // Add the ID to our array for later handling
-                trgtmanIds.push(arrInfo[1]);
-
-                if((i != 0 && i != 1) && (i % 2 == 0)){
-                    innerHtml += "<br/>";
-                }
-                if(i != 0 && (i % 2 != 0)){
-                    innerHtml += ",";
-                }
-                innerHtml += "<input type='hidden' name='arr_demnd_seqno' id='arr_demnd_seqno' value='"+ arrInfo[0] +"' />";
-                innerHtml += "<input type='hidden' name='arr_trgtman_id' id='arr_trgtman_id' value='"+ arrInfo[1] +"' />";
-                innerHtml += "<input type='hidden' name='arr_trgtman_nm' id='arr_trgtman_nm' value='"+ arrInfo[2] +"' />";
-                innerHtml += "<input type='hidden' name='arr_trgtman_jikgup_nm' id='arr_trgtman_jikgup_nm' value='"+ arrInfo[3] +"' />";
-                innerHtml += "<input type='hidden' name='arr_trgtman_dept_nm' id='arr_trgtman_dept_nm' value='"+ arrInfo[4] +"' />";
-                innerHtml += arrInfo[2] +"/"+arrInfo[3] + "/" + arrInfo[4] ;
-            }
-        }
-        $('#spCCedList').html(innerHtml);
+    
+    for(var i=0; i < arrReturn.length;i++) {
+    	var arrInfo = arrReturn[i].split("|");
+    	if((i != 0 && i != 1) && (i % 2 == 0)){
+			innerHtml += "<br/>";
+    	}
+    	if(i != 0 && (i % 2 != 0)){
+    		innerHtml += ",";
+    	}
+		innerHtml += "<input type='hidden' name='arr_demnd_seqno' id='arr_demnd_seqno' value='"+ arrInfo[0] +"' />";
+		innerHtml += "<input type='hidden' name='arr_trgtman_id' id='arr_trgtman_id' value='"+ arrInfo[1] +"' />";
+		innerHtml += "<input type='hidden' name='arr_trgtman_nm' id='arr_trgtman_nm' value='"+ arrInfo[2] +"' />";		        	
+		innerHtml += "<input type='hidden' name='arr_trgtman_jikgup_nm' id='arr_trgtman_jikgup_nm' value='"+ arrInfo[3] +"' />";
+		innerHtml += "<input type='hidden' name='arr_trgtman_dept_nm' id='arr_trgtman_dept_nm' value='"+ arrInfo[4] +"' />";
+		innerHtml += arrInfo[2] +"/"+arrInfo[3] + "/" + arrInfo[4] ;
+    	$('#spCCedList').html(innerHtml);
     }
-
-
+    
     // 관련자 리스트 수정 여부 저장
-    document.getElementById('client_modify_div').value = "Y";
-    // $("#client_modify_div").val("Y");
+    $("#client_modify_div").val("Y");
     
     // 여기 부터 AJAX 로 실시간 DB 저장 처리   메소드 명 modifyRefCCAJAX
     var options = {   
@@ -417,11 +383,9 @@ function setListClientInfo(returnValue) {
 </script>
 <!-- Sungwoo commented 2014-09-03 동적 생성처리로 변경 -->
 <!-- <input type="hidden" id="hidFile_id" name="file_id"> -->
-
 <input type="hidden" id="mark_cntrt_id" name="mark_cntrt_id">
 <input type="hidden" id="mark_num" name="mark_num" >
 <input type="hidden" id="client_modify_div" name="client_modify_div">
-<input type="hidden" name="chose_client" id="chose_client" />
 <table cellspacing="0" cellpadding="0" class="table-style01" id="tbBasicInfo">
 	<colgroup>              
 	    <col width="15%" />

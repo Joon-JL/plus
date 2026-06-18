@@ -82,61 +82,68 @@ public class EventAcceptSrvCostServiceImpl extends CommonServiceImpl implements 
 		BigDecimal bdc_dc_rate[] = vo.getDc_rate();
 		
 		EventAcceptSrvCostVO eascvo = null;
+
+        if (str_dept_nm !=null && str_dept_nm.length>0) {
+            for(int i=0; i < str_dept_nm.length; i++) {
+                eascvo = new EventAcceptSrvCostVO();
+
+                boolean isDeptNotEmpty = (str_dept_nm[i] != null && !str_dept_nm[i].trim().isEmpty());
+                boolean isAmountNotZero = (bdc_totamt[i] != null && bdc_totamt[i].compareTo(java.math.BigDecimal.ZERO) != 0);
+
+                if(isDeptNotEmpty && isAmountNotZero) {
+
+                    claim_amt = claim_amt.add(bdc_totamt[i]);
+
+                    eascvo.setAcpt_no(vo.getAcpt_no());
+                    eascvo.setIntnl_dept_cd(StringUtil.convertHtmlTochars(StringUtil.bvl(str_intnl_dept_cd[i],"")));
+                    eascvo.setGrp_dept_cd(StringUtil.convertHtmlTochars(StringUtil.bvl(str_grp_dpet_cd[i],"")));
+                    eascvo.setDept_nm(StringUtil.convertHtmlTochars(StringUtil.bvl(str_dept_nm[i],"")));
+
+                    eascvo.setTotamt(bdc_totamt[i]);
+                    eascvo.setSrvc_amt(bdc_srvc_amt[i]);
+                    eascvo.setAddtnl_amt(bdc_addtnl_amt[i]);
+                    eascvo.setDc_rate(bdc_dc_rate[i]);
+
+                    if(check_rate_cnt > 0){
+
+                        BigDecimal plnd_remit_amt = null;
+
+                        //엔화일 경우 100을 나눠줘야 원화가 된다.
+                        if("JPY".equals(crrncy_unit)){
+
+                            BigDecimal plnd_remit_amt_jpy = bdc_totamt[i].multiply(exrate);
+                            BigDecimal plnd_remit_amt_rate = new BigDecimal("100");
+
+                            plnd_remit_amt = plnd_remit_amt_jpy.divide(plnd_remit_amt_rate);
+                        }else if("KRW".equals(crrncy_unit)){
+                            plnd_remit_amt = bdc_totamt[i];
+                        }else{
+                            plnd_remit_amt = bdc_totamt[i].multiply(exrate);
+                        }
+
+                        BigDecimal usd_amt = plnd_remit_amt.divide(usrate,2,BigDecimal.ROUND_HALF_UP); // 소수3자리에서 반올림
+                        eascvo.setPlnd_remit_amt(plnd_remit_amt);
+                        eascvo.setUsd_amt(usd_amt);
+                    } else {
+                        Locale locale1 = new Locale(vo.getSession_user_locale());
+
+                        //해당 날짜의 환율 정보가 없습니다. 시스템 담당자에게 문의바랍니다.
+                        throw new Exception((String)messageSource.getMessage("las.page.field.eventacceptsrvcost.insertEventAcceptSrvCost01", null, locale1));
+                    }
+                    eascvo.setRemitday(vo.getRemitday());
+                    eascvo.setEvent_no(vo.getEvent_no());
+                    eascvo.setTot_remit_amt(new BigDecimal((StringUtil.bvl(vo.getTot_remit_amt(),"0"))));
+                    eascvo.setReg_id(vo.getReg_id());
+                    eascvo.setReg_nm(vo.getReg_nm());
+
+                    commonDAO.insert("las.lawservice.insertAcceptSrvCost", eascvo);
+                }
+
+                eascvo = null;
+            }
+        }
 		
-		for(int i=0; i < str_dept_nm.length; i++) {
-			eascvo = new EventAcceptSrvCostVO();
-			
-			if(!str_dept_nm[i].equals("") && !bdc_totamt[i].equals(0.00)){
-				
-				claim_amt = claim_amt.add(bdc_totamt[i]);
-				
-				eascvo.setAcpt_no(vo.getAcpt_no());
-				eascvo.setIntnl_dept_cd(StringUtil.convertHtmlTochars(StringUtil.bvl(str_intnl_dept_cd[i],"")));
-				eascvo.setGrp_dept_cd(StringUtil.convertHtmlTochars(StringUtil.bvl(str_grp_dpet_cd[i],"")));
-				eascvo.setDept_nm(StringUtil.convertHtmlTochars(StringUtil.bvl(str_dept_nm[i],"")));
 
-				eascvo.setTotamt(bdc_totamt[i]);
-				eascvo.setSrvc_amt(bdc_srvc_amt[i]);
-				eascvo.setAddtnl_amt(bdc_addtnl_amt[i]);
-				eascvo.setDc_rate(bdc_dc_rate[i]);
-				
-				if(check_rate_cnt > 0){
-
-					BigDecimal plnd_remit_amt = null;
-					
-					//엔화일 경우 100을 나눠줘야 원화가 된다.
-		 			if("JPY".equals(crrncy_unit)){
-		 				
-		 				BigDecimal plnd_remit_amt_jpy = bdc_totamt[i].multiply(exrate);
-		 				BigDecimal plnd_remit_amt_rate = new BigDecimal("100");
-		 				
-		 				plnd_remit_amt = plnd_remit_amt_jpy.divide(plnd_remit_amt_rate);		 				
-		 			}else if("KRW".equals(crrncy_unit)){
-		 				plnd_remit_amt = bdc_totamt[i];
-		 			}else{
-		 				plnd_remit_amt = bdc_totamt[i].multiply(exrate);
-		 			}
-					
-					BigDecimal usd_amt = plnd_remit_amt.divide(usrate,2,BigDecimal.ROUND_HALF_UP); // 소수3자리에서 반올림
-					eascvo.setPlnd_remit_amt(plnd_remit_amt);
-					eascvo.setUsd_amt(usd_amt);
-				} else {
-					Locale locale1 = new Locale(vo.getSession_user_locale());
-					
-					//해당 날짜의 환율 정보가 없습니다. 시스템 담당자에게 문의바랍니다.
-					throw new Exception((String)messageSource.getMessage("las.page.field.eventacceptsrvcost.insertEventAcceptSrvCost01", null, locale1));
-				}
-				eascvo.setRemitday(vo.getRemitday());
-				eascvo.setEvent_no(vo.getEvent_no());
-				eascvo.setTot_remit_amt(new BigDecimal((StringUtil.bvl(vo.getTot_remit_amt(),"0"))));
-				eascvo.setReg_id(vo.getReg_id());
-				eascvo.setReg_nm(vo.getReg_nm());
-				
-				commonDAO.insert("las.lawservice.insertAcceptSrvCost", eascvo);
-			}
-			
-			eascvo = null;
-		}
 		
 		vo.setClaim_amt(claim_amt.toString());
 		claim_amt = null;

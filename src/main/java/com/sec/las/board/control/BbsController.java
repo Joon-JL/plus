@@ -1383,7 +1383,7 @@ public class BbsController extends CommonController {
 			/*********************************************************
              * 본인 글이 아닐 경우 조회수 증가	
             **********************************************************/   
-			if(!vo.getSession_user_id().equals(lom.get("reg_id"))) {
+			if((lom != null) && !vo.getSession_user_id().equals(lom.get("reg_id"))) {
 				bbsService.increseRdcnt(vo) ;				
 			}			
 
@@ -1797,12 +1797,13 @@ public class BbsController extends CommonController {
 			} 
 			
 			response.setContentType("text/html; charset=UTF-8");
-    		PrintWriter out = response.getWriter();
-    		out.print(lom.get("CNT"));
-    		out.flush();
-    		out.close();
-			
-			
+            if (lom != null) {
+                PrintWriter out = response.getWriter();
+                out.print(lom.get("CNT"));
+                out.flush();
+                out.close();
+            }
+
 		}catch (Exception e) {
 			JSONObject jo = new JSONObject();
 			jo.put("returnMessage", messageSource.getMessage("secfw.msg.error.error",  null, new RequestContext(request).getLocale()));

@@ -219,10 +219,10 @@
 		<property name="concurrent" value="false" />
 	</bean>
 	
-	<!-- TCMS STATUS 배치  매 1시간 마다 -->
+	<!-- TCMS STATUS 배치  매0분부터 20분 간격 -->
 	<bean id="secfw.lasjob.setTCMSjobBatchTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">        
         <property name="jobDetail" ref="secfw.lasjob.setTCMSjobBatchDetail" />        
-        <property name="cronExpression" value="0 0 0/1 * * ?" />
+        <property name="cronExpression" value="0 0/20 * * * ?" />
     </bean>
 	<bean id="secfw.lasjob.setTCMSjobBatchDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
 		<property name="targetObject" ref="secfw.tcmsBatchJobControl" />

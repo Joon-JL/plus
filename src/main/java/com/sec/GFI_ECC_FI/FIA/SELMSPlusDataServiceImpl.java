@@ -83,9 +83,10 @@ public class SELMSPlusDataServiceImpl extends CommonServiceImpl implements SELMS
 	public void setPropertyService(PropertyService propertyService){
 		this.propertyService = propertyService;
 	}
-	
+
+    //
 	// in some cases, the link address has got incompleted address(cropped string), so changed with constant string value. 
-	final String SELMSPLUS_URL = "http://selmsplus.sec.samsung.net/external/gateway.do?t=G&mt=c&id=";
+    private final static String SELMSPLUS_URL = "http://selmsplus.sec.samsung.net/external/gateway.do?t=G&mt=c&id=";
 	/*private String _detailUrl = null;*/
 	private String getDetailUrl()
 	{
@@ -207,7 +208,7 @@ public class SELMSPlusDataServiceImpl extends CommonServiceImpl implements SELMS
 					
 					final String CALL_TYPE = "S";
 					//String url = getServerUrl() + IPAAS_API_URL;
-					String url = IPAAS_API_URL;
+//					String url = IPAAS_API_URL;
 					String token = TOKEN;
 					DT_ZCG_CONT_IF_SELMS inputParamObj = new DT_ZCG_CONT_IF_SELMS(arrInputParam, "", "", targetCompCd, targetBA, CALL_TYPE);
 					// Method call
@@ -225,7 +226,7 @@ public class SELMSPlusDataServiceImpl extends CommonServiceImpl implements SELMS
 					request.put("F01_TO_I",F01_TO_I );
 					request.put("F01_TO_E",F01_TO_E );
 					request.put("F01_TO_T_PT_INTAB",intab );
-					String returnObj = callAPIByPost(url, token, request.toString());
+					String returnObj = callAPIByPost(token, request.toString());
 					if (null != returnObj && !"".equals(returnObj) ) {
 		                JSONObject jsonObject = JSONObject.fromObject(returnObj); 
 		                JSONObject d = jsonObject.getJSONObject("d");
@@ -242,7 +243,7 @@ public class SELMSPlusDataServiceImpl extends CommonServiceImpl implements SELMS
 					logVO.setFaildData("No data extracted");
 				}
 				
-				if(vo.getCNSDReqID() != null && vo.getCNSDReqID() != ""){
+				if(vo.getCNSDReqID() != null && !vo.getCNSDReqID().isEmpty()){
 					logVO.setFaildData(logVO.getFaildData()+"["+vo.getCNSDReqID()+"]");
 				}
 				
@@ -364,17 +365,17 @@ public class SELMSPlusDataServiceImpl extends CommonServiceImpl implements SELMS
 		return splitedUrl[3]; 
 	}
 	
-	public String callAPIByPost(String i_url, String i_token, String i_requestBody) throws Exception {
-		return callAPI(i_url, i_token, i_requestBody, HTTP_METHOD_POST);
+	public String callAPIByPost(String i_token, String i_requestBody) throws Exception {
+		return callAPI(i_token, i_requestBody, HTTP_METHOD_POST);
 	}
 
-	private String callAPI(String i_url, String i_token, String i_requestBody, String i_httpMethod) throws Exception {
-		openConnectionAndSetHttpProperties(i_url, i_httpMethod, i_token);
+	private String callAPI( String i_token, String i_requestBody, String i_httpMethod) throws Exception {
+		openConnectionAndSetHttpProperties(i_httpMethod, i_token);
 
 		try {
 			sendRequestBody(i_requestBody);
 
-			checkHttpResponse(i_url, i_httpMethod);
+			checkHttpResponse(i_httpMethod);
 			readMessageId();
 
 			return receiveResponseBody();
@@ -384,9 +385,9 @@ public class SELMSPlusDataServiceImpl extends CommonServiceImpl implements SELMS
 		}
 	}
 	
-	private void openConnectionAndSetHttpProperties(String i_url, String i_httpMethod, String i_token)
+	private void openConnectionAndSetHttpProperties(String i_httpMethod, String i_token)
 	throws MalformedURLException, IOException, ProtocolException {
-		m_url = new URL(i_url);
+		m_url = new URL(IPAAS_API_URL);
 		m_conn = (HttpURLConnection) m_url.openConnection();
 		m_conn.setDoOutput(true);
 		m_conn.setRequestMethod(i_httpMethod);
@@ -411,11 +412,17 @@ public class SELMSPlusDataServiceImpl extends CommonServiceImpl implements SELMS
 		}
 	}
 	
-	private void checkHttpResponse(String i_url, String i_httpMethod) throws IOException, UnsupportedEncodingException {
-		if (!isSucceeded(m_conn.getResponseCode())) {
+	private void checkHttpResponse(String i_httpMethod) throws IOException {
+        int responseCode = m_conn.getResponseCode();
+
+		if (!isSucceeded(responseCode)) {
 			throw new RuntimeException(String.format(
-					"failed to call REST API URL(%s) Method(%s)\n\tHTTP error code : %s(%s)\n\tDetail: ", i_url,
-					i_httpMethod, m_conn.getResponseCode(), m_conn.getResponseMessage(), getDetailErrorMsg()));
+					"failed to call REST API URL(%s) Method(%s)%n\tHTTP error code : %s(%s)%n\tDetail: %s",
+                IPAAS_API_URL,
+                i_httpMethod,
+                responseCode,
+                m_conn.getResponseMessage(),
+                getDetailErrorMsg()));
 		}
 	}
 	
@@ -458,18 +465,19 @@ public class SELMSPlusDataServiceImpl extends CommonServiceImpl implements SELMS
 	}
 	
 	private String getDetailErrorMsg() throws UnsupportedEncodingException, IOException {
-		BufferedReader br = new BufferedReader(
-				new InputStreamReader(m_conn.getErrorStream(), ENCODING_UTF8));
 
-		StringBuffer sb = new StringBuffer();
+        if (m_conn == null || m_conn.getErrorStream() == null) {
+            return "";
+        }
+        StringBuffer sb = new StringBuffer();
 
-		String strLine = br.readLine();
-		while (strLine != null) {
-			sb.append(strLine);
-
-			strLine = br.readLine();
-		}
-
+        try (InputStreamReader isr = new InputStreamReader(m_conn.getErrorStream(), ENCODING_UTF8); BufferedReader br = new BufferedReader(isr)) {
+            String strLine = br.readLine();
+            while (strLine != null) {
+                sb.append(strLine);
+                strLine = br.readLine();
+            }
+        }
 		return sb.toString();
 	}
 	
@@ -478,15 +486,18 @@ public class SELMSPlusDataServiceImpl extends CommonServiceImpl implements SELMS
 	}
 	
 	private String receiveResponseBody() throws UnsupportedEncodingException, IOException {
-		BufferedReader br = new BufferedReader(
-				new InputStreamReader(m_conn.getInputStream(), ENCODING_UTF8));
+        if (m_conn == null || m_conn.getErrorStream() == null) {
+            return "";
+        }
+        StringBuffer sb = new StringBuffer();
 
-		String lineData = null;
-		StringBuffer sb = new StringBuffer();
-		while ((lineData = br.readLine()) != null) {
-			sb.append(lineData);
-		}
-		return sb.toString();
+        try (InputStreamReader isr = new InputStreamReader(m_conn.getInputStream(), ENCODING_UTF8); BufferedReader br = new BufferedReader(isr)) {
+            String lineData;
+            while ((lineData = br.readLine()) != null) {
+                sb.append(lineData);
+            }
+        }
+        return sb.toString();
 	}
 	
 	private void closeConnection() {
@@ -497,7 +508,7 @@ public class SELMSPlusDataServiceImpl extends CommonServiceImpl implements SELMS
 	}
 	
 	public static String getTimeFromDate(String date) throws Exception{
-        if(date == null || "".equals(date))
+        if(date == null || date.isEmpty())
             return "";
         SimpleDateFormat sdf =  new SimpleDateFormat( "yyyyMMdd" ); 
         Date d = sdf.parse(date);

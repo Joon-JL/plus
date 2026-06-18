@@ -526,13 +526,14 @@ public class TypeController extends CommonController {
 			**********************************************************/
 			resultList = typeService.detailType(vo);
 
-			ListOrderedMap lom = (ListOrderedMap)resultList.get(0);
+            ListOrderedMap lom = null;
+
+            if (resultList != null && !resultList.isEmpty()) {
+                lom = (ListOrderedMap)resultList.get(0);
+            }
 			
 			ArrayList lom_item = listApplyItem(vo);
-			
-			if(resultList==null)
-				throw new Exception("##### queryService is null ##### ");
-			
+
 			/*********************************************************
 			 * Massage
 			**********************************************************/
@@ -611,11 +612,12 @@ public class TypeController extends CommonController {
 			 * Service
 			**********************************************************/
 			resultList = typeService.detailType(vo);
-			
-			if(resultList==null)
-				throw new Exception("##### queryService is null ##### ");
-			
-			ListOrderedMap lom = (ListOrderedMap)resultList.get(0);
+
+            ListOrderedMap lom = null;
+
+            if (resultList != null && !resultList.isEmpty()) {
+                lom = (ListOrderedMap)resultList.get(0);
+            }
 			
 			ArrayList lom_item = listApplyItem(vo);
 			

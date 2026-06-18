@@ -8,10 +8,7 @@
  */
 package com.sec.common.getXIRateData.service.impl;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.math.BigDecimal;
@@ -61,29 +58,44 @@ public class GetXIRateDataServiceImpl extends CommonServiceImpl implements GetXI
 
 		EMGERPManager sap = new EMGERPManager(propertyService);
 		IRepository repository = sap.get_Repository();
-		
-		IFunctionTemplate ftemplate = repository.getFunctionTemplate(rfcId);
-		function = ftemplate.getFunction();
-		importParams = function.getImportParameterList();
-		exportParams = function.getExportParameterList();
-		tableParams = function.getTableParameterList();
+
+        if (repository != null) {
+            synchronized (repository) {
+                IFunctionTemplate ftemplate = repository.getFunctionTemplate(rfcId);
+
+                if (ftemplate != null) {
+                    this.function = ftemplate.getFunction();
+                    this.importParams = function.getImportParameterList();
+                    this.exportParams = function.getExportParameterList();
+                    this.tableParams = function.getTableParameterList();
+                } else {
+                    throw new NullPointerException("Function template is null");
+                }
+            }
+        }
+
 	}
 
 	/* Execute */
 	public void execute() {
 		EMGERPManager xi = new EMGERPManager(propertyService);
-		Properties if_param = new Properties();
-		if_param = xi.getXIMapInfo();
+		Properties if_param = xi.getXIMapInfo();
 
-		JCO.Client client = JCO.createClient(if_param);
-		client.execute(function);
+		this.client = JCO.createClient(if_param);
+        this.client.execute(function);
 	}
 
 	/* Disconnect */
 	public void disconnect() {
-		JCO.releaseClient(client);
-		if (client != null)
-			JCO.releaseClient(client);
+		if (this.client != null) {
+            try {
+                JCO.releaseClient(this.client);
+            } catch (Exception e) {
+                getLogger().error("Failed to safely release SAP JCO client connection", e);
+            } finally {
+                this.client = null;
+            }
+        }
 	}
 	/**
 	 * XI 연계 커넥트/ 데이타 취득 / DB INSERT
@@ -103,11 +115,11 @@ public class GetXIRateDataServiceImpl extends CommonServiceImpl implements GetXI
 				
 			    JCO.ParameterList importListTable = function.getImportParameterList();
 			    
-			    String param1 = new String(getCurTime().trim());
-			    String param2 = new String("KRW");
+			    String param1 = getCurTime().trim();
+			    String param2 = "KRW";
 			    
-			    String param1_utf = new String(param1.getBytes(), "UTF-8");
-			    String param2_utf = new String(param2.getBytes(), "UTF-8");
+			    String param1_utf = param1;
+			    String param2_utf = param2;
 			    			    
 			    importParams.setValue(param1_utf,"DATE");
 			    importParams.setValue(param2_utf,"TCURR");
@@ -200,10 +212,10 @@ public class GetXIRateDataServiceImpl extends CommonServiceImpl implements GetXI
 			    JCO.ParameterList importListTable = function.getImportParameterList();
 			    
 			    String param1 = cdt;
-			    String param2 = new String("KRW");
+			    String param2 = "KRW";
 			    
-			    String param1_utf = new String(param1.getBytes(), "UTF-8");
-			    String param2_utf = new String(param2.getBytes(), "UTF-8");
+			    String param1_utf = param1;
+			    String param2_utf = param2;
 			    			    
 			    importParams.setValue(param1_utf,"DATE");
 			    importParams.setValue(param2_utf,"TCURR");
@@ -389,42 +401,35 @@ public class GetXIRateDataServiceImpl extends CommonServiceImpl implements GetXI
 	}
 	
 	public synchronized boolean getStatusBatch() throws Exception {
-		
-		if(comUtilService.isCronServer()) { // 운영 서버에서만 데몬 실행
-			String ins1pidFile = "/las/logs/las1/las1.pid";
-			
-			File ins1File = new File(ins1pidFile);
-		    
-		    if(ins1File.exists()) {
-		    	FileInputStream fis = new FileInputStream(ins1File);
-		    	BufferedInputStream bis = new BufferedInputStream(fis);
-		    	DataInputStream dis = new DataInputStream(bis);
-		     
-		    	String ins1Pid = "";
-	
-		    	if(dis.available() != 0) {
-		    		ins1Pid = dis.readLine();
-		    	}
-		    	
-		    	RuntimeMXBean rmb = ManagementFactory.getRuntimeMXBean();
-		        String processId = rmb.getName();
-		        
-		        if(processId.length() > ins1Pid.length()) {
-		         processId = processId.substring(0, ins1Pid.length());
-		        }
-		        
-		        // 첫번째 인스턴스에서만 실행
-		        if(processId.equals(ins1Pid)) {
-		        	return true;
-		        }else{
-		        	return false;
-		        }
-		        
-		    }else{
-	        	return false;
-	        }
-		}else{
-        	return false;
+        if(!comUtilService.isCronServer()) {
+            return false;
         }
+
+        String ins1pidFile = "/las/logs/las1/las1.pid"; //las2에서 돌아감
+        File ins1File = new File(ins1pidFile);
+
+        if (!ins1File.exists()) {
+            return false;
+        }
+
+        try (FileInputStream fis = new FileInputStream(ins1File);
+             InputStreamReader isr = new InputStreamReader(fis, "UTF-8");
+             BufferedReader br = new BufferedReader(isr)) {
+
+            String ins1Pid = br.readLine();
+
+            RuntimeMXBean rmb = ManagementFactory.getRuntimeMXBean();
+            String processId = rmb.getName();
+
+            if(processId != null && processId.length() > ins1Pid.length()) {
+                processId = processId.substring(0, ins1Pid.length());
+            }
+
+            return processId != null && processId.equals(ins1Pid);
+
+        } catch (IOException e) {
+            throw e;
+        }
+
 	}
 }

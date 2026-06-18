@@ -101,7 +101,7 @@ public class CalendarController extends CommonController {
 				int i = 0;
 				
 				// jsp 화면의 javascript 에서 월 계산시 실제 월 -1로 계산 (1월 = 0)
-				i = Integer.valueOf(temp) - 1;
+				i = Integer.parseInt(temp) - 1;
 				temp = Integer.toString(i);
 				
 				form.setSrch_year(DateUtil.year());
@@ -177,13 +177,13 @@ public class CalendarController extends CommonController {
 			String today  = DateUtil.today();
 
 			// 초기 검색 날짜 세팅
-			if(form.getSrch_yyyymm() == null || form.getSrch_yyyymm().equals(""))
+			if(form.getSrch_yyyymm() == null || form.getSrch_yyyymm().isEmpty())
 			{
 				String temp = DateUtil.month();
 				int i = 0;
 				
 				// jsp 화면의 javascript 에서 월 계산시 실제 월 -1로 계산 (1월 = 0)
-				i = Integer.valueOf(temp) - 1;
+				i = Integer.parseInt(temp) - 1;
 				temp = Integer.toString(i);
 				
 				form.setSrch_year(DateUtil.year());

@@ -744,8 +744,8 @@
 						ListOrderedMap lom = (ListOrderedMap)resultList.get(idx);
 				%>			
 				    <tr  <%if(idx == resultList.size()-1){%>class="end"<%}%> onmouseout="this.className='<%if(idx == resultList.size()-1){%>end<%}%>';this.style.cursor='pointer'" onmouseover="this.className='on <%if(idx == resultList.size()-1){%>end<%}%>';this.style.cursor='pointer'">
-				      <td class='tC'>
-						  <input type="radio" name="check_item" value="<%=lom.get("cntrt_id") %>" onclick="javascript:parentContract('<%=lom.get("cntrt_id") %>','<%= StringEscapeUtils.escapeJavaScript (StringUtils.trimToEmpty( (String)  lom.get("req_title")))  %>','<%=lom.get("biz_clsfcn") %>','<c:out value='${command.arg}'/>', '<%=lom.get("cntrt_no") %>');" />
+				      <td class='tC'> 
+				      		<input type="radio" name="check_item" value="<%=lom.get("cntrt_id") %>" onclick="javascript:parentContract('<%=lom.get("cntrt_id") %>','<%= StringEscapeUtils.escapeJavaScript (StringUtils.trimToEmpty( (String)  lom.get("req_title")))  %>','<%=lom.get("biz_clsfcn") %>','<c:out value='${command.arg}'/>', '<%=lom.get("cntrt_no") %>');" />
 				      </td>
 					      <td class="tL overflow" style="line-height:150%; border-left:1px solid #CADBE2;" title="<%=StringUtil.convertHtmlTochars((String)lom.get("req_title")) %>&#13(<%=StringUtil.convertHtmlTochars((String)lom.get("cntrt_nm")) %>)">
 					        <span style='color:#485B91' onclick="javascript:detailAction('<%=lom.get("cnsdreq_id") %>', '<%=lom.get("prcs_depth")%>');"><%=StringUtil.convertHtmlTochars((String)lom.get("req_title")) %></span><br/>

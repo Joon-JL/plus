@@ -839,17 +839,17 @@
 				</c:if>
 				<!-- 법무 회신 최종본 회신 완료시  표시 해야할 항목 임당~~ -->
 				<tr>
-					<th>D.P. Agreement</th>
-					<td colspan="5">
-						<c:out value="${lomRq2.cnclsnpurps_midclsfcn_etc}" />
-					</td>
-				</tr>
-				<tr>
-					<th>Contract ID of the relevant DP contract</th>
-					<td colspan="5">
-						<c:out value='${lomRq2.cnclsnaft_cstn_cause}' escapeXml='false'/>
-					</td>
-				</tr>
+                    <th>D.P. Agreement</th>
+                    <td colspan="5">
+                        <c:out value="${lomRq2.cnclsnpurps_midclsfcn_etc}" />
+                    </td>
+                </tr>
+                <tr>
+                    <th>Contract ID of the relevant DP contract</th>
+                    <td colspan="5">
+                        <c:out value='${lomRq2.cnclsnaft_cstn_cause}' escapeXml='false'/>
+                    </td>
+                </tr>
 			</table>
 			
 			<!-- 2014-04-03 Kevin Added. GERP Information -->

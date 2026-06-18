@@ -177,12 +177,12 @@ public class DimensionServiceImpl extends CommonServiceImpl implements Dimension
 				jo.put("treeUpKey", treeUpKey);
 				
 				String selectTypeCd = StringUtil.bvl(vo.getType_cd(), "");
-				if(selectTypeCd.equals(treeKey)) jo.put("activate", new Boolean(true));
+				if(selectTypeCd.equals(treeKey)) jo.put("activate", true);
 				
-				if("Y".equals(treeSelect)) jo.put("select", new Boolean(true));
+				if("Y".equals(treeSelect)) jo.put("select", true);
 				if("N".equals(treeIsLeaf)) {
-					jo.put("isFolder", new Boolean(true));
-					jo.put("expand", new Boolean(true));
+					jo.put("isFolder", true);
+					jo.put("expand", true);
 					ja = new JSONArray();
 					jo.put("children", ja);
 				}

@@ -29,21 +29,13 @@
                    , IN_DEPT_CD
                    , DEPT_NM
                    , DEPT_NM_ENG
-                   , CHANGE_DEPT_YMD
                    , ORIGIN_DEPT_CD
                    , ORIGIN_DEPT_NM
                    , APPOINT_CD
-                   , GRP_JOIN_YMD
                    , JOIN_TERM
                    , JOIN_LEVEL
-                   , JOIN_YMD
-                   , RAISE_YMD
-                   , PROMOTION_YMD
                    , NEXT_RAISE_YM
                    , NEXT_PROMOTION_YM
-                   , RETIREMENT_YMD
-                   , SUSPENSION_YMD
-                   , REINSTATMENT_YMD
                    , JIKGUN_CD
                    , JIKGUN_NM
                    , JIKGUN_NM_ENG
@@ -75,11 +67,9 @@
                    , ABO_BLOOD
                    , RH_BLOOD
                    , HOBBY
-                   , BIRTH_YMD
                    , SOLAR_YN
                    , HEIGHT
                    , WEIGHT
-                   , MARRIAGE_YMD
                    , REGION_CD
                    , EMAIL
                    , HOME_ADDRESS
@@ -166,13 +156,13 @@
 			SELECT t.*, COUNT(1) over() TOTAL_CNT
 				  FROM (
 				SELECT GRADUATE_SCHOOL_NM,GRADUATE_SCHOOL_NM_ENG,MASTER_MAJOR_CD,MASTER_MAJOR_NM,MASTER_MAJOR_NM_ENG,UNIV_CD,UNIV_NM,UNIV_NM_ENG,
-					BACHELOR_MAJOR_CD,BACHELOR_MAJOR_NM,BACHELOR_MAJOR_NM_ENG,MILITARY,SEX_CD,ABO_BLOOD,RH_BLOOD,HOBBY,BIRTH_YMD,SOLAR_YN,HEIGHT,WEIGHT,MARRIAGE_YMD,
+					BACHELOR_MAJOR_CD,BACHELOR_MAJOR_NM,BACHELOR_MAJOR_NM_ENG,MILITARY,SEX_CD,ABO_BLOOD,RH_BLOOD,HOBBY,SOLAR_YN,HEIGHT,WEIGHT,
 					REGION_CD,EMAIL,HOME_ADDRESS,COMP_ZIP_CD,COMP_ADDRESS,OFFICE_TEL_NO,HOME_TEL_NO,MOBILE_NO,STATUS,LAST_LOCALE,SYS_GBN,
 					CONVERT(CHAR(19), REG_DT, 20) AS REG_DT, /*YYYY-MM-DD HH24:MI:SS*/
 					MNA_MNG_YN,AREA_NM,USER_LEVEL,REGION_NM,REGION_NM_ENG,EMPLOYEE_TYPE,USER_ID,RES_NO,EMP_NO,
 					USER_NM,USER_NM_ENG,CHINESE_NM,SINGLE_ID,SINGLE_EPID,COMP_CD,COMP_NM,COMP_NM_ENG,BUSINESS_CD,BUSINESS_NM,BUSINESS_NM_ENG,DIVISION_CD,DIVISION_NM,
-					DIVISION_NM_ENG,AREA_CD,DEPT_CD,IN_DEPT_CD,DEPT_NM,CHANGE_DEPT_YMD,ORIGIN_DEPT_CD,ORIGIN_DEPT_NM,APPOINT_CD,GRP_JOIN_YMD,JOIN_TERM,JOIN_LEVEL,
-					JOIN_YMD,RAISE_YMD,PROMOTION_YMD,NEXT_RAISE_YM,NEXT_PROMOTION_YM,RETIREMENT_YMD,SUSPENSION_YMD,REINSTATMENT_YMD,JIKGUN_CD,JIKGUN_NM,JIKGUN_NM_ENG,
+					DIVISION_NM_ENG,AREA_CD,DEPT_CD,IN_DEPT_CD,DEPT_NM,ORIGIN_DEPT_CD,ORIGIN_DEPT_NM,APPOINT_CD,JOIN_TERM,JOIN_LEVEL,
+					NEXT_RAISE_YM,NEXT_PROMOTION_YM,JIKGUN_CD,JIKGUN_NM,JIKGUN_NM_ENG,
 					JIKGUP_CD,JIKGUP_NM,JIKGUP_NM_ENG,GRP_JIKGUP_CD,GRP_JIKGUP_NM,GRP_JIKGUP_NM_ENG,JIKMU_CD,JIKMU_NM,JIKMU_NM_ENG,JIKCHEK_CD,SCHOOLING_CD,GRADUATE_SCHOOL_CD
 				FROM TB_COM_USER
 				#if ($vo.srch_user_cntnt_type.equals("mobile_no"))
@@ -252,21 +242,13 @@
 					,DEPT_CD
 					,IN_DEPT_CD
 					,DEPT_NM
-					,CHANGE_DEPT_YMD
 					,ORIGIN_DEPT_CD
 					,ORIGIN_DEPT_NM
 					,APPOINT_CD
-					,GRP_JOIN_YMD
 					,JOIN_TERM
 					,JOIN_LEVEL
-					,JOIN_YMD
-					,RAISE_YMD
-					,PROMOTION_YMD
 					,NEXT_RAISE_YM
 					,NEXT_PROMOTION_YM
-					,RETIREMENT_YMD
-					,SUSPENSION_YMD
-					,REINSTATMENT_YMD
 					,JIKGUN_CD
 					,JIKGUN_NM
 					,JIKGUN_NM_ENG
@@ -298,11 +280,9 @@
 					,ABO_BLOOD
 					,RH_BLOOD
 					,HOBBY
-					,BIRTH_YMD
 					,SOLAR_YN
 					,HEIGHT
 					,WEIGHT
-					,MARRIAGE_YMD
 					,REGION_CD
 					,REGION_NM
 					,REGION_NM_ENG
@@ -344,21 +324,13 @@
 					, :vo.dept_cd
 					, :vo.in_dept_cd
 					, :vo.dept_nm
-					, :vo.change_dept_ymd
 					, :vo.origin_dept_cd
 					, :vo.origin_dept_nm
 					, :vo.appoint_cd
-					, :vo.grp_join_ymd
 					, :vo.join_term
 					, :vo.join_level
-					, :vo.join_ymd
-					, :vo.raise_ymd
-					, :vo.promotion_ymd
 					, :vo.next_raise_ym
 					, :vo.next_promotion_ym
-					, :vo.retirement_ymd
-					, :vo.suspension_ymd
-					, :vo.reinstatment_ymd
 					, :vo.jikgun_cd
 					, :vo.jikgun_nm
 					, :vo.jikgun_nm_eng
@@ -390,11 +362,9 @@
 					, :vo.abo_blood
 					, :vo.rh_blood
 					, :vo.hobby
-					, :vo.birth_ymd
 					, :vo.solar_yn
 					, :vo.height
 					, :vo.weight
-					, :vo.marriage_ymd
 					, :vo.region_cd
 					, :vo.region_nm
 					, :vo.region_nm_eng
@@ -443,21 +413,13 @@
 					,DEPT_CD                   = :vo.dept_cd
 					,IN_DEPT_CD                = :vo.in_dept_cd
 					,DEPT_NM                   = :vo.dept_nm
-					,CHANGE_DEPT_YMD           = :vo.change_dept_ymd
 					,ORIGIN_DEPT_CD            = :vo.origin_dept_cd
 					,ORIGIN_DEPT_NM            = :vo.origin_dept_nm
 					,APPOINT_CD                = :vo.appoint_cd
-					,GRP_JOIN_YMD              = :vo.grp_join_ymd
 					,JOIN_TERM                 = :vo.join_term
 					,JOIN_LEVEL                = :vo.join_level
-					,JOIN_YMD                  = :vo.join_ymd
-					,RAISE_YMD                 = :vo.raise_ymd
-					,PROMOTION_YMD             = :vo.promotion_ymd
 					,NEXT_RAISE_YM             = :vo.next_raise_ym
 					,NEXT_PROMOTION_YM         = :vo.next_promotion_ym
-					,RETIREMENT_YMD            = :vo.retirement_ymd
-					,SUSPENSION_YMD            = :vo.suspension_ymd
-					,REINSTATMENT_YMD          = :vo.reinstatment_ymd
 					,JIKGUN_CD                 = :vo.jikgun_cd
 					,JIKGUN_NM                 = :vo.jikgun_nm
 					,JIKGUN_NM_ENG             = :vo.jikgun_nm_eng
@@ -489,11 +451,9 @@
 					,ABO_BLOOD                 = :vo.abo_blood
 					,RH_BLOOD                  = :vo.rh_blood
 					,HOBBY                     = :vo.hobby
-					,BIRTH_YMD                 = :vo.birth_ymd
 					,SOLAR_YN                  = :vo.solar_yn
 					,HEIGHT                    = :vo.height
 					,WEIGHT                    = :vo.weight
-					,MARRIAGE_YMD              = :vo.marriage_ymd
 					,REGION_CD                 = :vo.region_cd
 					,REGION_NM                 = :vo.region_nm
 					,REGION_NM_ENG             = :vo.region_nm_eng

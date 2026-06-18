@@ -42,12 +42,6 @@ public class NoticeForm extends CommonForm {
 	/**********************************************
 	 * 페이징
 	 **********************************************/
-	/** 페이지(공통) */
-	protected String start_index;                      
-	/** 페이지(공통) */
-	protected String end_index;                        
-	/** 페이지(공통) */
-	protected String curPage;  
 	/** 페이지당 row 수 */
 	int row_cnt = 10;
 	/* 전사공지 체크여부 */
@@ -153,24 +147,6 @@ public class NoticeForm extends CommonForm {
 	}
 	public void setSrch_end_dt(String srch_end_dt) {
 		this.srch_end_dt = srch_end_dt;
-	}
-	public String getStart_index() {
-		return start_index;
-	}
-	public void setStart_index(String start_index) {
-		this.start_index = start_index;
-	}
-	public String getEnd_index() {
-		return end_index;
-	}
-	public void setEnd_index(String end_index) {
-		this.end_index = end_index;
-	}
-	public String getCurPage() {
-		return curPage;
-	}
-	public void setCurPage(String curPage) {
-		this.curPage = curPage;
 	}
 	public int getRow_cnt() {
 		return row_cnt;

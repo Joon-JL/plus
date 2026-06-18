@@ -607,7 +607,7 @@ public class UserController extends CommonController {
                 redirectUrl = "/clm/manage/completion.do?method=getContractDetail&menu_id=20130319154642301_0000000355&cnsdreq_id="+cnsdreq_id;
                 mav = new ModelAndView("redirect:"+redirectUrl);
 
-                if(from != null && from != ""){
+                if(from != null && !from.isEmpty()){
                     session.setAttribute("sys_type", from);
                 }
             } catch(Exception e) {
@@ -1519,87 +1519,6 @@ public class UserController extends CommonController {
         }
 
         return mav;
-    }
-
-    /**
-     * 사용자선택 로그인 처리
-     * @param request
-     * @param response
-     * @return
-     * @throws Exception
-     */
-    public ModelAndView clmsSelLoginView(HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-        ModelAndView mav = null;
-        HttpSession session=request.getSession(false);
-
-        if(session==null || StringUtils.isEmpty((String)session.getAttribute("secfw.session.user_id"))){
-            return new ModelAndView("redirect:/login.do");
-        }
-        boolean hasSystemAdminRole=false;
-
-        // Get roles from session
-        @SuppressWarnings("unchecked")
-        List <Map<String, String>> roleList=(List<Map<String, String>>) session.getAttribute("secfw.session.role");
-
-
-
-        for(Map<String, String> role: roleList){
-            if("RA00".equals(role.get("role_cd"))){
-                hasSystemAdminRole=true;
-                break;
-            }
-        }
-
-        if (!hasSystemAdminRole) {
-            return new ModelAndView("redirect:/login.do");
-        }
-
-        try {
-            //시스템 작업 공지 페이지로 바로 이동한다.
-            String x = StringUtil.bvl((String)request.getParameter("x"), "");
-            if("o".equals(x)){
-                mav = new ModelAndView();
-                mav.setViewName("/WEB-INF/jsp/common/SystemAlert.jsp"); //공지페이지로 이동
-            }else{
-                String loginId = (String)request.getParameter("login_id");
-                String loginPwd = (String)request.getParameter("login_pwd");
-
-                /*********************************************************
-                 * Forwarding URL
-                 **********************************************************/
-                String forwardURL = "";
-
-                mav = new ModelAndView();
-
-                String id = "selmsplus";
-                String pwd = "godnth";
-
-                if(id.equals(loginId) && pwd.equals(loginPwd)){
-                    forwardURL = "/secfw/ssoCheck.do?method=clmsSelLoginList";
-                }else{
-                    forwardURL = propertyService.getProperty("secfw.url.alertPage");
-                    // 메시지처리 - 아이디 또는 패스워드가 틀렸습니다.
-                    String alertTitle = messageSource.getMessage("secfw.page.field.alert.noIdPwdMessage", null, new RequestContext(request).getLocale());
-                    // 메시지처리 - 시스템 관리자에게 문의하십시오.
-                    String alertMessage = messageSource.getMessage("secfw.page.field.alert.adminMessage", null, new RequestContext(request).getLocale());
-                    mav.addObject("secfw.alert.title", alertTitle);
-                    mav.addObject("secfw.alert.message", alertMessage);
-                }
-
-                mav.setViewName(forwardURL);
-                String f = StringUtil.bvl((String)request.getParameter("f"), "");
-                mav.addObject("f", f);
-
-            }
-            return mav;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new Exception(e);
-        } catch (Throwable t) {
-            t.printStackTrace();
-            throw new Exception(t);
-        }
     }
 
     /**

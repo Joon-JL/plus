@@ -9,6 +9,7 @@
 package com.sec.las.lawservice.control;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -276,20 +277,13 @@ public class LawServiceStatisticController extends CommonController {
 		String str_exp_amount_ex_sum = null; 
 		String str_exp_amount_sum = null; 
 		
-		BigDecimal pre_for_amount_sum = new BigDecimal(x);
-		BigDecimal totamt_sum = new BigDecimal(x);
-		BigDecimal srvc_amt_sum = new BigDecimal(x);
-		BigDecimal addtnl_amt_sum = new BigDecimal(x);
-		BigDecimal exp_amount_exp_sum = new BigDecimal(x);
-		BigDecimal exp_amount_sum = new BigDecimal(x);
-		
-		pre_for_amount_sum.setScale(2);
-		totamt_sum.setScale(2);
-		srvc_amt_sum.setScale(2);
-		addtnl_amt_sum.setScale(2);
-		exp_amount_exp_sum.setScale(2);
-		exp_amount_sum.setScale(2);
-		
+		BigDecimal pre_for_amount_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal totamt_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal srvc_amt_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal addtnl_amt_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal exp_amount_exp_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal exp_amount_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+
 	    for(int i=0; i<resultList.size(); i++){
 			lom = (ListOrderedMap)resultList.get(i);
 			pre_for_amount_sum = pre_for_amount_sum.add(new BigDecimal((String)lom.get("pre_for_amount")));
@@ -361,61 +355,33 @@ public class LawServiceStatisticController extends CommonController {
 		String str_exp12_sum_all = null;
 		String str_for12_sum_all = null;
 		
-		BigDecimal exp01_sum = new BigDecimal(x);
-		BigDecimal exp02_sum = new BigDecimal(x);
-		BigDecimal exp03_sum = new BigDecimal(x);
-		BigDecimal exp04_sum = new BigDecimal(x);
-		BigDecimal exp05_sum = new BigDecimal(x);
-		BigDecimal exp06_sum = new BigDecimal(x);
-		BigDecimal exp07_sum = new BigDecimal(x);
-		BigDecimal exp08_sum = new BigDecimal(x);
-		BigDecimal exp09_sum = new BigDecimal(x);
-		BigDecimal exp10_sum = new BigDecimal(x);
-		BigDecimal exp11_sum = new BigDecimal(x);
-		BigDecimal exp12_sum = new BigDecimal(x);
-		BigDecimal exp12_sum_all = new BigDecimal(x);
+		BigDecimal exp01_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal exp02_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal exp03_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal exp04_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal exp05_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal exp06_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal exp07_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal exp08_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal exp09_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal exp10_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal exp11_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal exp12_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal exp12_sum_all = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
 		
-		exp01_sum.setScale(2);
-		exp02_sum.setScale(2);
-		exp03_sum.setScale(2);
-		exp04_sum.setScale(2);
-		exp05_sum.setScale(2);
-		exp06_sum.setScale(2);
-		exp07_sum.setScale(2);
-		exp08_sum.setScale(2);
-		exp09_sum.setScale(2);
-		exp10_sum.setScale(2);
-		exp11_sum.setScale(2);
-		exp12_sum.setScale(2);
-		exp12_sum_all.setScale(2); 
-		
-		BigDecimal for01_sum = new BigDecimal(x);
-		BigDecimal for02_sum = new BigDecimal(x);
-		BigDecimal for03_sum = new BigDecimal(x);
-		BigDecimal for04_sum = new BigDecimal(x);
-		BigDecimal for05_sum = new BigDecimal(x);
-		BigDecimal for06_sum = new BigDecimal(x);
-		BigDecimal for07_sum = new BigDecimal(x);
-		BigDecimal for08_sum = new BigDecimal(x);
-		BigDecimal for09_sum = new BigDecimal(x);
-		BigDecimal for10_sum = new BigDecimal(x);
-		BigDecimal for11_sum = new BigDecimal(x);
-		BigDecimal for12_sum = new BigDecimal(x);
-		BigDecimal for12_sum_all = new BigDecimal(x);
-		
-		for01_sum.setScale(2);
-		for02_sum.setScale(2);
-		for03_sum.setScale(2);
-		for04_sum.setScale(2);
-		for05_sum.setScale(2);
-		for06_sum.setScale(2);
-		for07_sum.setScale(2);
-		for08_sum.setScale(2);
-		for09_sum.setScale(2);
-		for10_sum.setScale(2);
-		for11_sum.setScale(2);
-		for12_sum.setScale(2);
-		for12_sum_all.setScale(2); 
+		BigDecimal for01_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal for02_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal for03_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal for04_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal for05_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal for06_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal for07_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal for08_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal for09_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal for10_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal for11_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal for12_sum = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal for12_sum_all = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
 		
 	    for(int i=0; i<resultList.size(); i++){
 			lom = (ListOrderedMap)resultList.get(i);

@@ -174,7 +174,4 @@ public interface MailSendService {
 	
 	void sendEmailReviewReplied(com.sec.clm.review.dto.ConsultationVO vo) throws Exception ;
 	
-	/* FERNANDO (MFA project) Jan/2024 - start */
-	public void sendSimpleEmail(Map params) throws Exception;
-	/* FERNANDO (MFA project) Jan/2024 - end */
 }

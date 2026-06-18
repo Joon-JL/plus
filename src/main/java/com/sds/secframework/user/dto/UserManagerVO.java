@@ -151,15 +151,6 @@ public class UserManagerVO extends CommonVO {
 		this.role_cd = role_cd;
 	}	
 
-	String sys_cd;
-	
-	public String getSys_cd() {
-		return sys_cd;
-	}
-	public void setSys_cd(String sys_cd) {
-		this.sys_cd = sys_cd;
-	}
-
 	/*로그인사용자*/
 	
 	String login_id;
@@ -848,8 +839,7 @@ public class UserManagerVO extends CommonVO {
 	 * TB_USER_ID 관련 
 	 **********************************************************************/
 
-	String		user_id;   
-	//String		res_no;       
+	//String		res_no;
 	//String		emp_no;    
 	//String		user_nm;   
 	String		user_nm_eng;       
@@ -939,12 +929,6 @@ public class UserManagerVO extends CommonVO {
 	//String		region_nm_eng;          
 	//String		employee_type;     
 	
-	public String getUser_id() {
-		return user_id;
-	}
-	public void setUser_id(String user_id) {
-		this.user_id = user_id;
-	}
 	public String getUser_nm_eng() {
 		return user_nm_eng;
 	}

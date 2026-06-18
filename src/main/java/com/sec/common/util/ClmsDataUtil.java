@@ -164,45 +164,5 @@ public class ClmsDataUtil {
 		}
 		return retUrl;
 	}
-	
-	/**
-	 * Gais interface 실패시 파일로 로그를 남긴다.
-	 * 의뢰ID, 계약ID 를 받아온다.
-	 */
-	public static void traceGaisErrLog(String cnsdreq_id, String cntrt_id, String errType) {
-		
-		SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss"); //시간설정
-		//에러 메세지 셋팅
-		String errMessage = "## cnsdreq_id : " + cnsdreq_id + " | cntrt_id : " + cntrt_id + " | errType : " + errType +" | error time : " + fmt.format(new Date());
-		PrintWriter pw = null;
-		
-		try{
-			Date date = new Date();  //현재날짜시간
-			String curYear = new SimpleDateFormat("yyyy").format(date);
-			String curMonth = new SimpleDateFormat("MM").format(date);
-			String curDay = new SimpleDateFormat("dd").format(date);
-			
-			//gais 에러로그 폴더위치
-			String folder = "/las/logs/intf/gaislog";
-			
-			//파일생성
-			String filePath = folder + "/" + "GaisErrLog" + curYear + "_" + curMonth + "_" + curDay + ".txt";
-			File dir2 = new File(filePath);
-			if(dir2.isFile()){ //경로상에 파일이 있다면				
-			}else{
-				FileOutputStream fileoutputstream = new FileOutputStream(filePath);
-				Writer writer = new OutputStreamWriter(fileoutputstream, "UTF-8");
-				writer.close();				
-			}
-			
-			pw = new PrintWriter(new FileWriter(filePath, true)); //파일 내용 이어쓰기
-			pw.write(errMessage);
-			pw.write("\r\n");
-			
-		}catch(Exception e){
-			e.printStackTrace();
-		}finally{
-			pw.close();
-		}
-	}	
+
 }
