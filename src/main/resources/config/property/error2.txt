@@ -1,0 +1,146 @@
+
+2026-06-19 01:00:00,383 INFO  [secfw.schedulerFactoryBean_Worker-8] job.EsbApprovalJobImpl     - ### Approval Status Batch getStatusBatch :103
+2026-06-19 01:00:00,414 INFO  [secfw.schedulerFactoryBean_Worker-7] control.ECMSToTCMSBatchJobControl     - copySendInfoForList (startTCMSBatch) is empty
+2026-06-19 01:00:00,466 INFO  [secfw.schedulerFactoryBean_Worker-8] job.EsbApprovalJobImpl     - ### delete previous approval; module_id :LAS, mis_id : APPR20260529081830JN14DPDQZT2LEE
+2026-06-19 01:00:00,466 INFO  [secfw.schedulerFactoryBean_Worker-8] job.EsbApprovalJobImpl     - ### insert the updated approval; module_id :com.sds.secframework.singleIF.dto.ApprovalRouteVO@130b551e
+2026-06-19 01:00:00,481 INFO  [secfw.schedulerFactoryBean_Worker-8] job.EsbApprovalJobImpl     - ### insert the updated approval; module_id :com.sds.secframework.singleIF.dto.ApprovalRouteVO@2d5d4bcb
+2026-06-19 01:00:00,481 INFO  [secfw.schedulerFactoryBean_Worker-8] job.EsbApprovalJobImpl     - ### insert the updated approval; module_id :com.sds.secframework.singleIF.dto.ApprovalRouteVO@6cd467a0
+2026-06-19 01:00:00,481 INFO  [secfw.schedulerFactoryBean_Worker-8] job.EsbApprovalJobImpl     - ### insert the updated approval; module_id :com.sds.secframework.singleIF.dto.ApprovalRouteVO@484a33d1
+2026-06-19 01:00:00,497 INFO  [secfw.schedulerFactoryBean_Worker-8] job.EsbApprovalJobImpl     - ### insert the updated approval; module_id :com.sds.secframework.singleIF.dto.ApprovalRouteVO@1202c63
+2026-06-19 01:00:00,497 INFO  [secfw.schedulerFactoryBean_Worker-8] job.EsbApprovalJobImpl     - ### insert the updated approval; module_id :com.sds.secframework.singleIF.dto.ApprovalRouteVO@46e43c9f
+2026-06-19 01:00:00,497 INFO  [secfw.schedulerFactoryBean_Worker-8] job.EsbApprovalJobImpl     - ### insert the updated approval; module_id :com.sds.secframework.singleIF.dto.ApprovalRouteVO@942aa84
+2026-06-19 01:00:00,513 INFO  [secfw.schedulerFactoryBean_Worker-8] job.EsbApprovalJobImpl     - ### insert the updated approval; module_id :com.sds.secframework.singleIF.dto.ApprovalRouteVO@100fd4c6
+2026-06-19 01:00:00,513 INFO  [secfw.schedulerFactoryBean_Worker-8] job.EsbApprovalJobImpl     - ### insert the updated approval; module_id :com.sds.secframework.singleIF.dto.ApprovalRouteVO@104ca190
+2026-06-19 01:00:00,513 INFO  [secfw.schedulerFactoryBean_Worker-8] job.EsbApprovalJobImpl     - ### insert the updated approval; module_id :com.sds.secframework.singleIF.dto.ApprovalRouteVO@77ab67c2
+2026-06-19 01:00:00,513 INFO  [secfw.schedulerFactoryBean_Worker-8] job.EsbApprovalJobImpl     - ### Update the current approval Status :1
+2026-06-19 01:00:00,544 DEBUG [secfw.schedulerFactoryBean_Worker-6] impl.EsbMailServiceImpl     - 
+** Secframework Logging Aspect : executed insertMail() in com.sds.secframework.singleif.service.impl.esbmailserviceimpl Class.
+*************com.sds.secframework.singleIF.dto.MailVO*************
+com.sds.secframework.singleIF.dto.MailVO@19944f52
+*******************************************
+
+2026-06-19 01:00:00,591 ERROR [secfw.schedulerFactoryBean_Worker-6] query.IQueryService     - RunTime failure
+anyframe.core.query.impl.util.InternalDataAccessException: sql; nested exception is com.microsoft.sqlserver.jdbc.SQLServerException: String or binary data would be truncated.
+	at anyframe.core.query.impl.util.RawSQLExceptionTranslator.translate(RawSQLExceptionTranslator.java:31)
+	at org.springframework.jdbc.core.JdbcTemplate.execute(JdbcTemplate.java:607)
+	at org.springframework.jdbc.core.JdbcTemplate.update(JdbcTemplate.java:792)
+	at org.springframework.jdbc.core.JdbcTemplate.update(JdbcTemplate.java:850)
+	at anyframe.core.query.impl.jdbc.PagingNamedParamJdbcTemplate.update(PagingNamedParamJdbcTemplate.java:80)
+	at anyframe.core.query.impl.QueryServiceImpl.sqlCUDExecutor(QueryServiceImpl.java:923)
+	at anyframe.core.query.impl.QueryServiceImpl.sqlCUDExecutor(QueryServiceImpl.java:858)
+	at anyframe.core.query.impl.QueryServiceImpl.create(QueryServiceImpl.java:286)
+	at sun.reflect.GeneratedMethodAccessor125.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:307)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:182)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:149)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:106)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:171)
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:89)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:171)
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:204)
+	at com.sun.proxy.$Proxy125.create(Unknown Source)
+	at anyframe.core.query.AbstractDAO.create(AbstractDAO.java:202)
+	at anyframe.core.query.AbstractDAO.create(AbstractDAO.java:100)
+	at com.sds.secframework.common.dao.CommonDAO.insert(CommonDAO.java:121)
+	at com.sds.secframework.singleIF.service.impl.EsbMailServiceImpl.insertMailHeader(EsbMailServiceImpl.java:1125)
+	at com.sds.secframework.singleIF.service.impl.EsbMailServiceImpl.insertMail(EsbMailServiceImpl.java:995)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:307)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:182)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:149)
+	at org.springframework.aop.aspectj.AspectJAfterThrowingAdvice.invoke(AspectJAfterThrowingAdvice.java:54)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:171)
+	at org.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor.invoke(MethodBeforeAdviceInterceptor.java:50)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:171)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:106)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:171)
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:89)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:171)
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:204)
+	at com.sun.proxy.$Proxy136.insertMail(Unknown Source)
+	at com.sec.common.jobs.service.impl.LasJobServiceImpl.clmMailBatch(LasJobServiceImpl.java:190)
+	at com.sec.common.jobs.service.impl.LasJobServiceImpl$$FastClassByCGLIB$$56da9a80.invoke(<generated>)
+	at net.sf.cglib.proxy.MethodProxy.invoke(MethodProxy.java:191)
+	at org.springframework.aop.framework.Cglib2AopProxy$CglibMethodInvocation.invokeJoinpoint(Cglib2AopProxy.java:700)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:149)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:106)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:171)
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:89)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:171)
+	at org.springframework.aop.framework.Cglib2AopProxy$DynamicAdvisedInterceptor.intercept(Cglib2AopProxy.java:635)
+	at com.sec.common.jobs.service.impl.LasJobServiceImpl$$EnhancerByCGLIB$$d953ae58.clmMailBatch(<generated>)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.util.MethodInvoker.invoke(MethodInvoker.java:276)
+	at org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean$MethodInvokingJob.executeInternal(MethodInvokingJobDetailFactoryBean.java:260)
+	at org.springframework.scheduling.quartz.QuartzJobBean.execute(QuartzJobBean.java:86)
+	at org.quartz.core.JobRunShell.run(JobRunShell.java:202)
+	at org.quartz.simpl.SimpleThreadPool$WorkerThread.run(SimpleThreadPool.java:525)
+Caused by: com.microsoft.sqlserver.jdbc.SQLServerException: String or binary data would be truncated.
+	at com.microsoft.sqlserver.jdbc.SQLServerException.makeFromDatabaseError(SQLServerException.java:216)
+	at com.microsoft.sqlserver.jdbc.SQLServerStatement.getNextResult(SQLServerStatement.java:1515)
+	at com.microsoft.sqlserver.jdbc.SQLServerPreparedStatement.doExecutePreparedStatement(SQLServerPreparedStatement.java:404)
+	at com.microsoft.sqlserver.jdbc.SQLServerPreparedStatement$PrepStmtExecCmd.doExecute(SQLServerPreparedStatement.java:350)
+	at com.microsoft.sqlserver.jdbc.TDSCommand.execute(IOBuffer.java:5696)
+	at com.microsoft.sqlserver.jdbc.SQLServerConnection.executeCommand(SQLServerConnection.java:1715)
+	at com.microsoft.sqlserver.jdbc.SQLServerStatement.executeCommand(SQLServerStatement.java:180)
+	at com.microsoft.sqlserver.jdbc.SQLServerStatement.executeStatement(SQLServerStatement.java:155)
+	at com.microsoft.sqlserver.jdbc.SQLServerPreparedStatement.executeUpdate(SQLServerPreparedStatement.java:314)
+	at weblogic.jdbc.wrapper.PreparedStatement.executeUpdate(PreparedStatement.java:170)
+	at org.springframework.jdbc.core.JdbcTemplate$2.doInPreparedStatement(JdbcTemplate.java:798)
+	at org.springframework.jdbc.core.JdbcTemplate.execute(JdbcTemplate.java:591)
+	... 60 more
+2026-06-19 01:00:00,716 ERROR [secfw.schedulerFactoryBean_Worker-6] core.JobRunShell      - Job DEFAULT.secfw.lasjob.setLasjobBatchDetail2 threw an unhandled Exception: 
+org.springframework.scheduling.quartz.JobMethodInvocationFailedException: Invocation of method 'clmMailBatch' on target class [class com.sec.common.jobs.service.impl.LasJobServiceImpl$$EnhancerByCGLIB$$d953ae58] failed; nested exception is org.springframework.transaction.UnexpectedRollbackException: Transaction rolled back because it has been marked as rollback-only
+	at org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean$MethodInvokingJob.executeInternal(MethodInvokingJobDetailFactoryBean.java:269)
+	at org.springframework.scheduling.quartz.QuartzJobBean.execute(QuartzJobBean.java:86)
+	at org.quartz.core.JobRunShell.run(JobRunShell.java:202)
+	at org.quartz.simpl.SimpleThreadPool$WorkerThread.run(SimpleThreadPool.java:525)
+Caused by: org.springframework.transaction.UnexpectedRollbackException: Transaction rolled back because it has been marked as rollback-only
+	at org.springframework.transaction.support.AbstractPlatformTransactionManager.commit(AbstractPlatformTransactionManager.java:695)
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.commitTransactionAfterReturning(TransactionAspectSupport.java:321)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:116)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:171)
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:89)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:171)
+	at org.springframework.aop.framework.Cglib2AopProxy$DynamicAdvisedInterceptor.intercept(Cglib2AopProxy.java:635)
+	at com.sec.common.jobs.service.impl.LasJobServiceImpl$$EnhancerByCGLIB$$d953ae58.clmMailBatch(<generated>)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.util.MethodInvoker.invoke(MethodInvoker.java:276)
+	at org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean$MethodInvokingJob.executeInternal(MethodInvokingJobDetailFactoryBean.java:260)
+	... 3 more
+2026-06-19 01:00:00,716 ERROR [secfw.schedulerFactoryBean_Worker-6] core.ErrorLogger      - Job (DEFAULT.secfw.lasjob.setLasjobBatchDetail2 threw an exception.
+org.quartz.SchedulerException: Job threw an unhandled exception. [See nested exception: org.springframework.scheduling.quartz.JobMethodInvocationFailedException: Invocation of method 'clmMailBatch' on target class [class com.sec.common.jobs.service.impl.LasJobServiceImpl$$EnhancerByCGLIB$$d953ae58] failed; nested exception is org.springframework.transaction.UnexpectedRollbackException: Transaction rolled back because it has been marked as rollback-only]
+	at org.quartz.core.JobRunShell.run(JobRunShell.java:213)
+	at org.quartz.simpl.SimpleThreadPool$WorkerThread.run(SimpleThreadPool.java:525)
+Caused by: org.springframework.scheduling.quartz.JobMethodInvocationFailedException: Invocation of method 'clmMailBatch' on target class [class com.sec.common.jobs.service.impl.LasJobServiceImpl$$EnhancerByCGLIB$$d953ae58] failed; nested exception is org.springframework.transaction.UnexpectedRollbackException: Transaction rolled back because it has been marked as rollback-only
+	at org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean$MethodInvokingJob.executeInternal(MethodInvokingJobDetailFactoryBean.java:269)
+	at org.springframework.scheduling.quartz.QuartzJobBean.execute(QuartzJobBean.java:86)
+	at org.quartz.core.JobRunShell.run(JobRunShell.java:202)
+	... 1 more
+Caused by: org.springframework.transaction.UnexpectedRollbackException: Transaction rolled back because it has been marked as rollback-only
+	at org.springframework.transaction.support.AbstractPlatformTransactionManager.commit(AbstractPlatformTransactionManager.java:695)
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.commitTransactionAfterReturning(TransactionAspectSupport.java:321)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:116)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:171)
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:89)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:171)
+	at org.springframework.aop.framework.Cglib2AopProxy$DynamicAdvisedInterceptor.intercept(Cglib2AopProxy.java:635)
+	at com.sec.common.jobs.service.impl.LasJobServiceImpl$$EnhancerByCGLIB$$d953ae58.clmMailBatch(<generated>)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.util.MethodInvoker.invoke(MethodInvoker.java:276)
+	at org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean$MethodInvokingJob.executeInternal(MethodInvokingJobDetailFactoryBean.java:260)
+	... 3 more
