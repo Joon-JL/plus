@@ -13,35 +13,32 @@
 /**
  * 파  일  명 : historyInfo.jsp
  * 프로그램명 : History Information List
- * 설      명 : 기존 History 페이지를 공통으로 통합처리
- * 작  성  자 : 신성우
- * 작  성  일 : 2014.09.12
  */
 --%>
 <%
 	ArrayList review   = (ArrayList)request.getAttribute("review");
 	ArrayList approve  = (ArrayList)request.getAttribute("approve");
-	ArrayList info        = (ArrayList)request.getAttribute("info");
+	ArrayList info     = (ArrayList)request.getAttribute("info");
 
 	ArrayList resultAttachArrList = (ArrayList)request.getAttribute("resultAttachList");
 	ListOrderedMap tempLom = new ListOrderedMap();
-	ArrayList listInfoAttach          = new ArrayList();       //사전품의
-	ArrayList listHisConsultCntrtAttach     = new ArrayList();       //의뢰계약서
-	ArrayList listHisConsultAppendAttach = new ArrayList();       //의뢰별첨
-	ArrayList listHisConsultOtherAttach     = new ArrayList();       //의뢰기타
-	ArrayList listHisConsultOutLookAttach= new ArrayList();       //Outlook Sungwoo added 2014-09-01
-	ArrayList listHisReplyCntrtAttach   = new ArrayList();       //회신계약서
-	ArrayList listHisReplyAppendAttach  = new ArrayList();       //회신별첨
-	ArrayList listHisReplyOtherAttach   = new ArrayList();       //회신기타 Sungwoo added 2014-09-01
-	ArrayList listHisApproveAttach     = new ArrayList();       //승인
-	ArrayList listHisSignAttach           = new ArrayList();       //체결
+	ArrayList listInfoAttach             = new ArrayList();
+	ArrayList listHisConsultCntrtAttach  = new ArrayList();
+	ArrayList listHisConsultAppendAttach = new ArrayList();
+	ArrayList listHisConsultOtherAttach  = new ArrayList();
+	ArrayList listHisConsultOutLookAttach= new ArrayList();
+	ArrayList listHisReplyCntrtAttach    = new ArrayList();
+	ArrayList listHisReplyAppendAttach   = new ArrayList();
+	ArrayList listHisReplyOtherAttach    = new ArrayList();
+	ArrayList listHisApproveAttach       = new ArrayList();
+	ArrayList listHisSignAttach          = new ArrayList();
 
 	if(resultAttachArrList != null && resultAttachArrList.size() > 0) {
 		for(int j=0; j < resultAttachArrList.size(); j++) {
 			tempLom = (ListOrderedMap)resultAttachArrList.get(j);
 			if("info".equals((String)tempLom.get("filetype"))) {
 				listInfoAttach.add(resultAttachArrList.get(j));
-			} else if("hisConsultCntrt".equals((String)tempLom.get("filetype"))) {    //Contract Request
+			} else if("hisConsultCntrt".equals((String)tempLom.get("filetype"))) {
 				listHisConsultCntrtAttach.add(resultAttachArrList.get(j));
 			} else if("hisConsultOther".equals((String)tempLom.get("filetype"))) {
 				listHisConsultOtherAttach.add(resultAttachArrList.get(j));
@@ -49,13 +46,13 @@
 				listHisConsultAppendAttach.add(resultAttachArrList.get(j));
 			} else if("hisConsultOutlook".equals((String)tempLom.get("filetype"))) {
 				listHisConsultOutLookAttach.add(resultAttachArrList.get(j));
-			} else if("hisReplyCntrt".equals((String)tempLom.get("filetype"))) {      //Contract Reply
+			} else if("hisReplyCntrt".equals((String)tempLom.get("filetype"))) {
 				listHisReplyCntrtAttach.add(resultAttachArrList.get(j));
 			} else if("hisReplyAppend".equals((String)tempLom.get("filetype"))) {
 				listHisReplyAppendAttach.add(resultAttachArrList.get(j));
 			} else if("hisReplyOthers".equals((String)tempLom.get("filetype"))) {
 				listHisReplyOtherAttach.add(resultAttachArrList.get(j));
-			} else if("hisApprove".equals((String)tempLom.get("filetype"))) {     //Copy of Concluded Contract
+			} else if("hisApprove".equals((String)tempLom.get("filetype"))) {
 				listHisApproveAttach.add(resultAttachArrList.get(j));
 			} else if("hisSign".equals((String)tempLom.get("filetype"))) {
 				listHisSignAttach.add(resultAttachArrList.get(j));
@@ -81,6 +78,7 @@
 		if(review.size() > 0){
 			for(int idx=0;idx < review.size();idx++){
 				ListOrderedMap lom = (ListOrderedMap)review.get(idx);
+				String currentReqId = (String)lom.get("cnsdreq_id");
 	%>
 	<tr>
 		<td class="tL">
@@ -104,7 +102,7 @@
 				%>
 				<tr class="slide-target02 slide-area">
 					<th><spring:message code="clm.page.msg.manage.reviewReqCont" /></th>
-					<td colspan="2"><%=StringUtil.convertEnterToBR((String)lom.get("cont")) %></td>
+					<td colspan="2"><%=StringUtil.convertEnterToBR(StringUtil.convertHtmlTochars(StringUtil.bvl((String)lom.get("cont"),""))) %></td>
 				</tr>
 				<%
 					if("Y".equals(lom.get("plndbn_req_yn"))){
@@ -128,17 +126,24 @@
 				%>
 
 				<%
-					// Fix: Dynamically calculate rowspan to prevent table collapse
+					boolean hasConsultCntrt = false; boolean hasConsultAppend = false;
+					boolean hasConsultOther = false; boolean hasConsultOutlook = false;
 					int consultAttachRows = 0;
-					if(listHisConsultCntrtAttach != null && listHisConsultCntrtAttach.size() > 0) consultAttachRows++;
-					if(listHisConsultAppendAttach != null && listHisConsultAppendAttach.size() > 0) consultAttachRows++;
-					if(listHisConsultOtherAttach != null && listHisConsultOtherAttach.size() > 0) consultAttachRows++;
-					if(listHisConsultOutLookAttach != null && listHisConsultOutLookAttach.size() > 0) consultAttachRows++;
+
+					for(int i=0; i<listHisConsultCntrtAttach.size(); i++){ if(currentReqId.equals(((ListOrderedMap)listHisConsultCntrtAttach.get(i)).get("cnsdreq_id"))) { hasConsultCntrt = true; break; } }
+					for(int i=0; i<listHisConsultAppendAttach.size(); i++){ if(currentReqId.equals(((ListOrderedMap)listHisConsultAppendAttach.get(i)).get("cnsdreq_id"))) { hasConsultAppend = true; break; } }
+					for(int i=0; i<listHisConsultOtherAttach.size(); i++){ if(currentReqId.equals(((ListOrderedMap)listHisConsultOtherAttach.get(i)).get("cnsdreq_id"))) { hasConsultOther = true; break; } }
+					for(int i=0; i<listHisConsultOutLookAttach.size(); i++){ if(currentReqId.equals(((ListOrderedMap)listHisConsultOutLookAttach.get(i)).get("cnsdreq_id"))) { hasConsultOutlook = true; break; } }
+
+					if(hasConsultCntrt) consultAttachRows++;
+					if(hasConsultAppend) consultAttachRows++;
+					if(hasConsultOther) consultAttachRows++;
+					if(hasConsultOutlook) consultAttachRows++;
 
 					if(consultAttachRows > 0) {
 						boolean isFirstConsultAttach = true;
 				%>
-				<% if(listHisConsultCntrtAttach != null && listHisConsultCntrtAttach.size() > 0) { %>
+				<% if(hasConsultCntrt) { %>
 				<tr class="slide-target02 slide-area">
 					<% if(isFirstConsultAttach) { %><th rowspan="<%=consultAttachRows%>"><spring:message code="clm.page.msg.common.attachment" /></th><% isFirstConsultAttach = false; } %>
 					<td class="tal_lineL"><span class="blueD"><spring:message code="clm.page.msg.manage.contract" /></span></td>
@@ -146,70 +151,55 @@
 						<%
 							for(int i=0; i<listHisConsultCntrtAttach.size(); i++){
 								tempLom = (ListOrderedMap)listHisConsultCntrtAttach.get(i);
-								if( (lom.get("cnsdreq_id")).equals(tempLom.get("cnsdreq_id")) ){
+								if( currentReqId.equals(tempLom.get("cnsdreq_id")) ){
 						%>
-						<img src="/images/clm/en/icon/ico_save_w.gif"/> <a href=<%="javascript:downloadFile(\'"+tempLom.get("file_id")+"\');"%>><%=tempLom.get("org_file_nm") %></a><br/>
-						<%
-								}
-							}
-						%>
+						<img src="/images/clm/en/icon/ico_save_w.gif"/> <a href=<%="javascript:downloadFile(\'"+tempLom.get("file_id")+"\');"%>><%=StringUtil.convertHtmlTochars((String)tempLom.get("org_file_nm")) %></a><br/>
+						<% } } %>
 					</td>
 				</tr>
 				<% } %>
 
-				<% if(listHisConsultAppendAttach != null && listHisConsultAppendAttach.size() > 0) { %>
+				<% if(hasConsultAppend) { %>
 				<tr class="slide-target02 slide-area">
 					<% if(isFirstConsultAttach) { %><th rowspan="<%=consultAttachRows%>"><spring:message code="clm.page.msg.common.attachment" /></th><% isFirstConsultAttach = false; } %>
 					<td class="tal_lineL"><span class="blueD"><spring:message code="clm.page.msg.manage.attachment_br" /></span></td>
 					<td>
-						<%
-							for(int i=0; i<listHisConsultAppendAttach.size(); i++){
-								tempLom = (ListOrderedMap)listHisConsultAppendAttach.get(i);
-								if( (lom.get("cnsdreq_id")).equals(tempLom.get("cnsdreq_id")) ){
+						<% for(int i=0; i<listHisConsultAppendAttach.size(); i++){
+							tempLom = (ListOrderedMap)listHisConsultAppendAttach.get(i);
+							if( currentReqId.equals(tempLom.get("cnsdreq_id")) ){
 						%>
-						<img src="/images/clm/en/icon/ico_save_w.gif"/> <a href=<%="javascript:downloadFile(\'"+tempLom.get("file_id")+"\');"%>><%=tempLom.get("org_file_nm") %></a><br/>
-						<%
-								}
-							}
-						%>
+						<img src="/images/clm/en/icon/ico_save_w.gif"/> <a href=<%="javascript:downloadFile(\'"+tempLom.get("file_id")+"\');"%>><%=StringUtil.convertHtmlTochars((String)tempLom.get("org_file_nm")) %></a><br/>
+						<% } } %>
 					</td>
 				</tr>
 				<% } %>
 
-				<% if(listHisConsultOtherAttach != null && listHisConsultOtherAttach.size() > 0) { %>
+				<% if(hasConsultOther) { %>
 				<tr class="slide-target02 slide-area">
 					<% if(isFirstConsultAttach) { %><th rowspan="<%=consultAttachRows%>"><spring:message code="clm.page.msg.common.attachment" /></th><% isFirstConsultAttach = false; } %>
 					<td class="tal_lineL"><span class="blueD"><spring:message code="clm.page.msg.common.etc" /></span></td>
 					<td>
-						<%
-							for(int i=0; i<listHisConsultOtherAttach.size();i++){
-								tempLom = (ListOrderedMap)listHisConsultOtherAttach.get(i);
-								if( (lom.get("cnsdreq_id")).equals(tempLom.get("cnsdreq_id")) ){
+						<% for(int i=0; i<listHisConsultOtherAttach.size();i++){
+							tempLom = (ListOrderedMap)listHisConsultOtherAttach.get(i);
+							if( currentReqId.equals(tempLom.get("cnsdreq_id")) ){
 						%>
-						<img src="/images/clm/en/icon/ico_save_w.gif"/> <a href=<%="javascript:downloadFile(\'"+tempLom.get("file_id")+"\');"%>><%=tempLom.get("org_file_nm") %></a><br/>
-						<%
-								}
-							}
-						%>
+						<img src="/images/clm/en/icon/ico_save_w.gif"/> <a href=<%="javascript:downloadFile(\'"+tempLom.get("file_id")+"\');"%>><%=StringUtil.convertHtmlTochars((String)tempLom.get("org_file_nm")) %></a><br/>
+						<% } } %>
 					</td>
 				</tr>
 				<% } %>
 
-				<% if(listHisConsultOutLookAttach != null && listHisConsultOutLookAttach.size() > 0) { %>
+				<% if(hasConsultOutlook) { %>
 				<tr class="slide-target02 slide-area">
 					<% if(isFirstConsultAttach) { %><th rowspan="<%=consultAttachRows%>"><spring:message code="clm.page.msg.common.attachment" /></th><% isFirstConsultAttach = false; } %>
 					<td class="tal_lineL"><span class="blueD"><spring:message code="clm.page.msg.common.outlook" /></span></td>
 					<td>
-						<%
-							for(int i=0; i<listHisConsultOutLookAttach.size();i++){
-								tempLom = (ListOrderedMap)listHisConsultOutLookAttach.get(i);
-								if( (lom.get("cnsdreq_id")).equals(tempLom.get("cnsdreq_id")) ){
+						<% for(int i=0; i<listHisConsultOutLookAttach.size();i++){
+							tempLom = (ListOrderedMap)listHisConsultOutLookAttach.get(i);
+							if( currentReqId.equals(tempLom.get("cnsdreq_id")) ){
 						%>
-						<img src="/images/clm/en/icon/ico_save_w.gif"/> <a href=<%="javascript:downloadFile(\'"+tempLom.get("file_id")+"\');"%>><%=tempLom.get("org_file_nm") %></a><br/>
-						<%
-								}
-							}
-						%>
+						<img src="/images/clm/en/icon/ico_save_w.gif"/> <a href=<%="javascript:downloadFile(\'"+tempLom.get("file_id")+"\');"%>><%=StringUtil.convertHtmlTochars((String)tempLom.get("org_file_nm")) %></a><br/>
+						<% } } %>
 					</td>
 				</tr>
 				<% } %>
@@ -220,10 +210,10 @@
 				%>
 				<tr class="slide-target02 slide-area">
 					<th><spring:message code="clm.page.msg.manage.reviewOpinion" /></th>
-					<td colspan="2"><%=(String)lom.get("cont")%></td>
+					<td colspan="2"><%=StringUtil.convertEnterToBR(StringUtil.convertHtmlTochars(StringUtil.bvl((String)lom.get("cont"), "")))%></td>
 				</tr>
 				<%
-					if(!"".equals(((String)lom.get("cnsd_apbt")).trim())){// 그룹장 의견
+					if(!"".equals(StringUtil.bvl((String)lom.get("cnsd_apbt"),"").trim())){
 				%>
 				<c:if test="${command.top_role ne 'ETC' }">
 					<tr class="slide-target02 slide-area">
@@ -236,88 +226,78 @@
 				%>
 
 				<%
-					// Fix: Dynamically calculate rowspan for Reply attachments
+					boolean hasReplyCntrt = false; boolean hasReplyAppend = false; boolean hasReplyOther = false;
 					int replyAttachRows = 0;
-					if(listHisReplyCntrtAttach != null && listHisReplyCntrtAttach.size() > 0) replyAttachRows++;
-					if(listHisReplyAppendAttach != null && listHisReplyAppendAttach.size() > 0) replyAttachRows++;
-					if(listHisReplyOtherAttach != null && listHisReplyOtherAttach.size() > 0) replyAttachRows++;
+					for(int i=0; i<listHisReplyCntrtAttach.size(); i++){ if(currentReqId.equals(((ListOrderedMap)listHisReplyCntrtAttach.get(i)).get("cnsdreq_id"))) { hasReplyCntrt = true; break; } }
+					for(int i=0; i<listHisReplyAppendAttach.size(); i++){ if(currentReqId.equals(((ListOrderedMap)listHisReplyAppendAttach.get(i)).get("cnsdreq_id"))) { hasReplyAppend = true; break; } }
+					for(int i=0; i<listHisReplyOtherAttach.size(); i++){ if(currentReqId.equals(((ListOrderedMap)listHisReplyOtherAttach.get(i)).get("cnsdreq_id"))) { hasReplyOther = true; break; } }
+
+					if(hasReplyCntrt) replyAttachRows++;
+					if(hasReplyAppend) replyAttachRows++;
+					if(hasReplyOther) replyAttachRows++;
 
 					if(replyAttachRows > 0) {
 						boolean isFirstReplyAttach = true;
 				%>
-				<% if(listHisReplyCntrtAttach != null && listHisReplyCntrtAttach.size() > 0) { %>
+				<% if(hasReplyCntrt) { %>
 				<tr class="slide-target02 slide-area">
 					<% if(isFirstReplyAttach) { %><th rowspan="<%=replyAttachRows%>"><spring:message code="clm.page.msg.common.attachment" /></th><% isFirstReplyAttach = false; } %>
 					<td class="tal_lineL"><span class="blueD"><spring:message code="clm.page.msg.manage.contract" /></span></td>
 					<td><div style='clear:both;'></div>
-						<%
-							for(int i=0; i<listHisReplyCntrtAttach.size(); i++){
-								tempLom = (ListOrderedMap)listHisReplyCntrtAttach.get(i);
-								if( (lom.get("cnsdreq_id")).equals(tempLom.get("cnsdreq_id")) ){
+						<% for(int i=0; i<listHisReplyCntrtAttach.size(); i++){
+							tempLom = (ListOrderedMap)listHisReplyCntrtAttach.get(i);
+							if( currentReqId.equals(tempLom.get("cnsdreq_id")) ){
 						%>
-						<img src="/images/clm/en/icon/ico_save_w.gif"/> <a href=<%="javascript:downloadFile(\'"+tempLom.get("file_id")+"\');"%>><%=tempLom.get("org_file_nm") %></a><br/>
-						<%
-								}
-							}
-						%>
+						<img src="/images/clm/en/icon/ico_save_w.gif"/> <a href=<%="javascript:downloadFile(\'"+tempLom.get("file_id")+"\');"%>><%=StringUtil.convertHtmlTochars((String)tempLom.get("org_file_nm")) %></a><br/>
+						<% } } %>
 					</td>
 				</tr>
 				<% } %>
 
-				<% if(listHisReplyAppendAttach != null && listHisReplyAppendAttach.size() > 0) { %>
+				<% if(hasReplyAppend) { %>
 				<tr class="slide-target02 slide-area">
 					<% if(isFirstReplyAttach) { %><th rowspan="<%=replyAttachRows%>"><spring:message code="clm.page.msg.common.attachment" /></th><% isFirstReplyAttach = false; } %>
 					<td class="tal_lineL"><span class="blueD"><spring:message code="clm.page.msg.manage.attachment_br" /></span></td>
 					<td>
-						<%
-							for(int i=0; i<listHisReplyAppendAttach.size(); i++){
-								tempLom = (ListOrderedMap)listHisReplyAppendAttach.get(i);
-								if( (lom.get("cnsdreq_id")).equals(tempLom.get("cnsdreq_id")) ){
+						<% for(int i=0; i<listHisReplyAppendAttach.size(); i++){
+							tempLom = (ListOrderedMap)listHisReplyAppendAttach.get(i);
+							if( currentReqId.equals(tempLom.get("cnsdreq_id")) ){
 						%>
-						<img src="/images/clm/en/icon/ico_save_w.gif"/> <a href=<%="javascript:downloadFile(\'"+tempLom.get("file_id")+"\');"%>><%=tempLom.get("org_file_nm") %></a><br/>
-						<%
-								}
-							}
-						%>
+						<img src="/images/clm/en/icon/ico_save_w.gif"/> <a href=<%="javascript:downloadFile(\'"+tempLom.get("file_id")+"\');"%>><%=StringUtil.convertHtmlTochars((String)tempLom.get("org_file_nm")) %></a><br/>
+						<% } } %>
 					</td>
 				</tr>
 				<% } %>
 
-				<% if(listHisReplyOtherAttach != null && listHisReplyOtherAttach.size() > 0) { %>
+				<% if(hasReplyOther) { %>
 				<tr class="slide-target02 slide-area">
 					<% if(isFirstReplyAttach) { %><th rowspan="<%=replyAttachRows%>"><spring:message code="clm.page.msg.common.attachment" /></th><% isFirstReplyAttach = false; } %>
 					<td class="tal_lineL"><span class="blueD"><spring:message code="clm.page.msg.common.etc" /></span></td>
 					<td>
-						<%
-							for(int i=0; i<listHisReplyOtherAttach.size(); i++){
-								tempLom = (ListOrderedMap)listHisReplyOtherAttach.get(i);
-								if( (lom.get("cnsdreq_id")).equals(tempLom.get("cnsdreq_id")) ){
+						<% for(int i=0; i<listHisReplyOtherAttach.size(); i++){
+							tempLom = (ListOrderedMap)listHisReplyOtherAttach.get(i);
+							if( currentReqId.equals(tempLom.get("cnsdreq_id")) ){
 						%>
-						<img src="/images/clm/en/icon/ico_save_w.gif"/> <a href=<%="javascript:downloadFile(\'"+tempLom.get("file_id")+"\');"%>><%=tempLom.get("org_file_nm") %></a><br/>
-						<%
-								}
-							}
-						%>
+						<img src="/images/clm/en/icon/ico_save_w.gif"/> <a href=<%="javascript:downloadFile(\'"+tempLom.get("file_id")+"\');"%>><%=StringUtil.convertHtmlTochars((String)tempLom.get("org_file_nm")) %></a><br/>
+						<% } } %>
 					</td>
 				</tr>
 				<% } %>
 				<% } %>
 
 				<%
-				}else if("RESHOLD".equals(lom.get("cr_flag")) && !lom.get("cont").equals("")){
+				}else if("RESHOLD".equals(lom.get("cr_flag")) && !StringUtil.bvl((String)lom.get("cont"),"").equals("")){
 				%>
 				<tr class="slide-target02 slide-area">
 					<th><spring:message code="clm.page.msg.manage.rsnDelay" /></th>
-					<td><%=StringUtil.convertEnterToBR(StringUtil.convertHtmlTochars((String)lom.get("cont")))%></td>
+					<td colspan="2"><%=StringUtil.convertEnterToBR(StringUtil.convertHtmlTochars((String)lom.get("cont")))%></td>
 				</tr>
 				<%
-				}else if("ZADMIN_REPLY".equals(lom.get("cr_flag")) && !lom.get("cont").equals("")){//ZADMIN_REPLY
+				}else if("ZADMIN_REPLY".equals(lom.get("cr_flag")) && !StringUtil.bvl((String)lom.get("cont"),"").equals("")){
 				%>
 				<tr class="slide-target02 slide-area">
 					<th><spring:message code="las.page.field.contractManager.pstpnRs"/></th>
-					<td>
-						<%=(String)lom.get("cont") %>
-					</td>
+					<td colspan="2"><%=StringUtil.convertEnterToBR(StringUtil.convertHtmlTochars(StringUtil.bvl((String)lom.get("cont"), "")))%></td>
 				</tr>
 				<% }%>
 			</table>
@@ -362,7 +342,7 @@
 			<spring:message code="clm.page.msg.manage.preApprInf" />
 		</td>
 		<td><%=lom.get("bfhdcstn_apbt_mthd_nm")!=null?lom.get("bfhdcstn_apbt_mthd_nm"):"" %></td>
-		<td class="tC"><<%=lom.get("bfhdcstn_apbtday")!=null ?lom.get("bfhdcstn_apbtday"):"" %></td>
+		<td class="tC"><%=lom.get("bfhdcstn_apbtday")!=null ?lom.get("bfhdcstn_apbtday"):"" %></td>
 		<td><%=lom.get("bfhdcstn_apbtman_nm") %>/<%=lom.get("bfhdcstn_apbtman_jikgup_nm") %>/<%=lom.get("bfhdcstn_apbt_dept_nm") %></td>
 	</tr>
 	<tr class="Nocol" id="tr_show01" >
@@ -370,14 +350,11 @@
 			<table class="table-style_sub02">
 				<colgroup>
 					<col width="13%" />
-					<col width="87%" /> </colgroup>
+					<col width="87%" />
+				</colgroup>
 				<tr class="Nocol">
-					<th>
-						<spring:message code="clm.page.msg.manage.proposer" />
-					</th>
-					<td>
-						<%=lom.get("bfhdcstn_mtnman_nm") %>
-					</td>
+					<th><spring:message code="clm.page.msg.manage.proposer" /></th>
+					<td><%=lom.get("bfhdcstn_mtnman_nm") %></td>
 				</tr>
 				<%
 					if(listInfoAttach != null && listInfoAttach.size() > 0) {
@@ -385,19 +362,13 @@
 				<tr class="Nocol">
 					<th><spring:message code="clm.page.msg.common.attachment" /></th>
 					<td>
-						<%
-							for(int i=0; i<listInfoAttach.size(); i++){
-								tempLom = (ListOrderedMap)listInfoAttach.get(i);
-						%>
-						<img src="/images/clm/en/icon/ico_save_w.gif"/> <a href=<%="javascript:downloadFile(\'"+tempLom.get("file_id")+"\');"%>><%=tempLom.get("org_file_nm") %></a><br/>
-						<%
-							}
-						%>
+						<% for(int i=0; i<listInfoAttach.size(); i++){
+							tempLom = (ListOrderedMap)listInfoAttach.get(i); %>
+						<img src="/images/clm/en/icon/ico_save_w.gif"/> <a href=<%="javascript:downloadFile(\'"+tempLom.get("file_id")+"\');"%>><%=StringUtil.convertHtmlTochars((String)tempLom.get("org_file_nm")) %></a><br/>
+						<% } %>
 					</td>
 				</tr>
-				<%
-					}
-				%>
+				<% } %>
 			</table>
 		</td>
 	</tr>
@@ -413,17 +384,17 @@
 	%>
 	<%
 		if(approve.size() > 0){
-			boolean bFirstLine  = false; //현재 Mis_id의 첫번째 라인여부
-			String sMemMis_id   = "" ;  //현재 Mis_id
-			int iMemAllMember   = 0 ;   //현재 결재건(MIS_ID)에 묶인  기안,합의,승인자의 갯수
-			int iMemRow        = 0 ;   //현재 iMemAllMember의 Row위치
-			String sNextMis_id  = "" ;  //다음  Mis_id
-			int iFileRowIndex   = 0 ;   //파일 index
-			String sApprovalName= "";   //승인자명
+			boolean bFirstLine  = false;
+			String sMemMis_id   = "" ;
+			int iMemAllMember   = 0 ;
+			int iMemRow        = 0 ;
+			String sNextMis_id  = "" ;
+			int iFileRowIndex   = 0 ;
+			String sApprovalName= "";
 			String sStatus   = "";
 			String sStatusCd      = "";
 			ListOrderedMap LastApprover = null;
-			//Sungwoo replaced 2014-09-16 script 호출형태에서 변경처리
+
 			if(approve.size() > 0){
 				LastApprover = ((ListOrderedMap)approve.get(approve.size()-1));
 				sApprovalName = (String)LastApprover.get("user_name") + "/" + (String)LastApprover.get("duty") + "/" + (String)LastApprover.get("dept_name");
@@ -431,7 +402,6 @@
 
 			for(int idx=0;idx < approve.size();idx++){
 				ListOrderedMap lom = (ListOrderedMap)approve.get(idx);
-
 				sNextMis_id = (String)lom.get("mis_id");
 
 				if(idx == 0){
@@ -440,13 +410,11 @@
 					iMemAllMember= (((BigDecimal)lom.get("cntrt_id_cnt")).intValue());
 					iMemRow = 1;
 				}else{
-					//다음Mis_id와  현재Mis_id가 동일하지 않으면 다른 결재권임.
 					if(! sNextMis_id.equals(sMemMis_id)){
 						sMemMis_id = sNextMis_id;
 						bFirstLine  = true;
 						iMemAllMember= (((BigDecimal)lom.get("cntrt_id_cnt")).intValue());
 						iMemRow = 0;
-
 						iFileRowIndex ++;
 					}
 					iMemRow ++;
@@ -482,7 +450,7 @@
 					</td>
 					<td><%=lom.get("prg_status")%></td>
 					<td><%=lom.get("approved")%></td>
-					<td><%=lom.get("opinion")%></td>
+					<td><%=StringUtil.convertHtmlTochars((String)lom.get("opinion"))%></td>
 				</tr>
 				<%
 				}else if(! bFirstLine){
@@ -495,31 +463,35 @@
 					</td>
 					<td><%=lom.get("prg_status")%></td>
 					<td><%=lom.get("approved")%></td>
-					<td><%=lom.get("opinion")%></td>
+					<td><%=StringUtil.convertHtmlTochars((String)lom.get("opinion"))%></td>
 				</tr>
 				<%
 					}
 
-					//해당Mis_id의 최종 Row이면
-					if(iMemRow == iMemAllMember) {
+					// FIX: Fail-Safe Closure. Ensures the HTML table closes properly even if the database count is wrong.
+					boolean isLastInGroup = (iMemRow == iMemAllMember);
+					boolean isAbsolutelyLast = (idx == approve.size() - 1);
+					boolean nextIsDifferentGroup = false;
+					if (!isAbsolutelyLast) {
+						ListOrderedMap nextLom = (ListOrderedMap)approve.get(idx + 1);
+						if (!sMemMis_id.equals((String)nextLom.get("mis_id"))) {
+							nextIsDifferentGroup = true;
+						}
+					}
+
+					if(isLastInGroup || isAbsolutelyLast || nextIsDifferentGroup) {
 						if(listHisApproveAttach != null && listHisApproveAttach.size() > 0) {
 				%>
 				<tr class="slide-target02 slide-area">
 					<th><span class="tal_lineL"><spring:message code="clm.page.msg.common.attachment" /></span></th>
 					<td colspan="4">
-						<%
-							for(int i=0; i<listHisApproveAttach.size(); i++){
-								tempLom = (ListOrderedMap)listHisApproveAttach.get(i);
-						%>
-						<img src="/images/clm/en/icon/ico_save_w.gif"/> <a href=<%="javascript:downloadFile(\'"+tempLom.get("file_id")+"\');"%>><%=tempLom.get("org_file_nm") %></a><br/>
-						<%
-							}
-						%>
+						<% for(int i=0; i<listHisApproveAttach.size(); i++){
+							tempLom = (ListOrderedMap)listHisApproveAttach.get(i); %>
+						<img src="/images/clm/en/icon/ico_save_w.gif"/> <a href=<%="javascript:downloadFile(\'"+tempLom.get("file_id")+"\');"%>><%=StringUtil.convertHtmlTochars((String)tempLom.get("org_file_nm")) %></a><br/>
+						<% } %>
 					</td>
 				</tr>
-				<%
-					}
-				%>
+				<% } %>
 			</table>
 		</td>
 	</tr>
@@ -529,6 +501,7 @@
 		}
 	%>
 </table>
+
 <script language="javascript">
 	$(document).ready(function(){
 		$("[id^='tr_show']").hide();
@@ -537,7 +510,6 @@
 	var collapseIcon = '<%=IMAGE%>/icon/ico_plus.gif';
 	var expandIcon = '<%=IMAGE%>/icon/ico_minus.gif';
 
-	//검토이력
 	$('img[alt$=show]').toggle(function(){
 		$(this).removeAttr().attr("src",expandIcon);
 		$(this).parent().parent().parent().next('#tr_show').attr("style", "display:");
@@ -545,20 +517,18 @@
 		$(this).removeAttr().attr("src",collapseIcon);
 		$(this).parent().parent().parent().next('#tr_show').attr("style", "display:none");
 	});
-	//승인이력
+
 	$('img[alt$=show01]').toggle(function(){
 		$(this).removeAttr().attr("src",expandIcon);
 		$(this).parent().parent().parent().next('#tr_show01').attr("style", "display:");
-
 	}, function(){
 		$(this).removeAttr().attr("src",collapseIcon);
 		$(this).parent().parent().parent().next('#tr_show01').attr("style", "display:none");
 	});
-	//체결이력
+
 	$('img[alt$=show02]').toggle(function(){
 		$(this).removeAttr().attr("src",expandIcon);
 		$(this).parent().parent().parent().next('#tr_show02').attr("style", "display:");
-
 	}, function(){
 		$(this).removeAttr().attr("src",collapseIcon);
 		$(this).parent().parent().parent().next('#tr_show02').attr("style", "display:none");
