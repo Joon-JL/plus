@@ -102,7 +102,10 @@
 				%>
 				<tr class="slide-target02 slide-area">
 					<th><spring:message code="clm.page.msg.manage.reviewReqCont" /></th>
-					<td colspan="2"><%=StringUtil.convertEnterToBR(StringUtil.convertHtmlTochars(StringUtil.bvl((String)lom.get("cont"),""))) %></td>
+					<td colspan="2">
+						<div class="safe-html-target"></div>
+						<textarea class="safe-html-source" style="display:none;"><%=StringUtil.convertHtmlTochars(StringUtil.bvl((String)lom.get("cont"),""))%></textarea>
+					</td>
 				</tr>
 				<%
 					if("Y".equals(lom.get("plndbn_req_yn"))){
@@ -118,7 +121,10 @@
 				%>
 				<tr class="slide-target02 slide-area">
 					<th><spring:message code="clm.page.msg.manage.rsnBrkChange" /></th>
-					<td colspan="2"><%=StringUtil.convertEnterToBR(StringUtil.convertHtmlTochars((String)lom.get("plndbn_chge_cont"))) %></td>
+					<td colspan="2">
+						<div class="safe-html-target"></div>
+						<textarea class="safe-html-source" style="display:none;"><%=StringUtil.convertHtmlTochars(StringUtil.bvl((String)lom.get("plndbn_chge_cont"),""))%></textarea>
+					</td>
 				</tr>
 				<%
 						}
@@ -210,7 +216,10 @@
 				%>
 				<tr class="slide-target02 slide-area">
 					<th><spring:message code="clm.page.msg.manage.reviewOpinion" /></th>
-					<td colspan="2"><%=StringUtil.convertEnterToBR(StringUtil.convertHtmlTochars(StringUtil.bvl((String)lom.get("cont"), "")))%></td>
+					<td colspan="2">
+						<div class="safe-html-target"></div>
+						<textarea class="safe-html-source" style="display:none;"><%=StringUtil.convertHtmlTochars(StringUtil.bvl((String)lom.get("cont"),""))%></textarea>
+					</td>
 				</tr>
 				<%
 					if(!"".equals(StringUtil.bvl((String)lom.get("cnsd_apbt"),"").trim())){
@@ -218,7 +227,10 @@
 				<c:if test="${command.top_role ne 'ETC' }">
 					<tr class="slide-target02 slide-area">
 						<th><spring:message code="clm.page.msg.manage.grpMasterOp" /></th>
-						<td colspan="2"><%=StringUtil.convertEnterToBR(StringUtil.convertHtmlTochars((String)lom.get("cnsd_apbt"))) %></td>
+						<td colspan="2">
+							<div class="safe-html-target"></div>
+							<textarea class="safe-html-source" style="display:none;"><%=StringUtil.convertHtmlTochars(StringUtil.bvl((String)lom.get("cnsd_apbt"),""))%></textarea>
+						</td>
 					</tr>
 				</c:if>
 				<%
@@ -290,14 +302,20 @@
 				%>
 				<tr class="slide-target02 slide-area">
 					<th><spring:message code="clm.page.msg.manage.rsnDelay" /></th>
-					<td colspan="2"><%=StringUtil.convertEnterToBR(StringUtil.convertHtmlTochars((String)lom.get("cont")))%></td>
+					<td colspan="2">
+						<div class="safe-html-target"></div>
+						<textarea class="safe-html-source" style="display:none;"><%=StringUtil.convertHtmlTochars(StringUtil.bvl((String)lom.get("cont"),""))%></textarea>
+					</td>
 				</tr>
 				<%
 				}else if("ZADMIN_REPLY".equals(lom.get("cr_flag")) && !StringUtil.bvl((String)lom.get("cont"),"").equals("")){
 				%>
 				<tr class="slide-target02 slide-area">
 					<th><spring:message code="las.page.field.contractManager.pstpnRs"/></th>
-					<td colspan="2"><%=StringUtil.convertEnterToBR(StringUtil.convertHtmlTochars(StringUtil.bvl((String)lom.get("cont"), "")))%></td>
+					<td colspan="2">
+						<div class="safe-html-target"></div>
+						<textarea class="safe-html-source" style="display:none;"><%=StringUtil.convertHtmlTochars(StringUtil.bvl((String)lom.get("cont"),""))%></textarea>
+					</td>
 				</tr>
 				<% }%>
 			</table>
@@ -411,6 +429,7 @@
 					iMemRow = 1;
 				}else{
 					if(! sNextMis_id.equals(sMemMis_id)){
+						if (iMemRow != iMemAllMember && iMemRow > 1) { out.print("</table></td></tr>"); }
 						sMemMis_id = sNextMis_id;
 						bFirstLine  = true;
 						iMemAllMember= (((BigDecimal)lom.get("cntrt_id_cnt")).intValue());
@@ -450,7 +469,10 @@
 					</td>
 					<td><%=lom.get("prg_status")%></td>
 					<td><%=lom.get("approved")%></td>
-					<td><%=StringUtil.convertHtmlTochars((String)lom.get("opinion"))%></td>
+					<td>
+						<div class="safe-html-target"></div>
+						<textarea class="safe-html-source" style="display:none;"><%=StringUtil.convertHtmlTochars(StringUtil.bvl((String)lom.get("opinion"),""))%></textarea>
+					</td>
 				</tr>
 				<%
 				}else if(! bFirstLine){
@@ -463,12 +485,14 @@
 					</td>
 					<td><%=lom.get("prg_status")%></td>
 					<td><%=lom.get("approved")%></td>
-					<td><%=StringUtil.convertHtmlTochars((String)lom.get("opinion"))%></td>
+					<td>
+						<div class="safe-html-target"></div>
+						<textarea class="safe-html-source" style="display:none;"><%=StringUtil.convertHtmlTochars(StringUtil.bvl((String)lom.get("opinion"),""))%></textarea>
+					</td>
 				</tr>
 				<%
 					}
 
-					// FIX: Fail-Safe Closure. Ensures the HTML table closes properly even if the database count is wrong.
 					boolean isLastInGroup = (iMemRow == iMemAllMember);
 					boolean isAbsolutelyLast = (idx == approve.size() - 1);
 					boolean nextIsDifferentGroup = false;
@@ -506,7 +530,20 @@
 	$(document).ready(function(){
 		$("[id^='tr_show']").hide();
 		$("[id^='tr_show01']").hide();
+
+		// ==========================================
+		// SECURE HTML RENDERING ENGINE
+		// ==========================================
+		$(".safe-html-target").each(function() {
+			// 1. Get the securely escaped HTML from the hidden textarea
+			var rawHtml = $(this).next(".safe-html-source").val();
+
+			// 2. Inject it safely. The browser's DOM parser will automatically
+			//    fix and close any broken tags, preventing the layout from breaking!
+			$(this).html(rawHtml);
+		});
 	});
+
 	var collapseIcon = '<%=IMAGE%>/icon/ico_plus.gif';
 	var expandIcon = '<%=IMAGE%>/icon/ico_minus.gif';
 
@@ -533,5 +570,4 @@
 		$(this).removeAttr().attr("src",collapseIcon);
 		$(this).parent().parent().parent().next('#tr_show02').attr("style", "display:none");
 	});
-
 </script>
