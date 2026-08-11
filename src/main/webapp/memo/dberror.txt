@@ -1,0 +1,70 @@
+2026-08-11 13:47:10,018 ERROR [secfw.schedulerFactoryBean_Worker-7] core.JobRunShell      - Job DEFAULT.secfw.lasjob.setTncInfDatajobBatchDetail threw an unhandled Exception:
+org.springframework.scheduling.quartz.JobMethodInvocationFailedException: Invocation of method 'makeECMSBatch' on target class [class com.sec.clm.tnc.control.TNCtempToECMSBatchJobControl] failed; nested exception is org.springframework.transaction.CannotCreateTransactionException: Could not open JDBC Connection for transaction; nested exception is weblogic.jdbc.extensions.PoolLimitSQLException: weblogic.common.resourcepool.ResourceLimitException: No resources currently available in pool selmsplusDS to allocate to applications, please increase the size of the pool and retry..
+	at org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean$MethodInvokingJob.executeInternal(MethodInvokingJobDetailFactoryBean.java:269)
+	at org.springframework.scheduling.quartz.QuartzJobBean.execute(QuartzJobBean.java:86)
+	at org.quartz.core.JobRunShell.run(JobRunShell.java:202)
+	at org.quartz.simpl.SimpleThreadPool$WorkerThread.run(SimpleThreadPool.java:525)
+Caused by: org.springframework.transaction.CannotCreateTransactionException: Could not open JDBC Connection for transaction; nested exception is weblogic.jdbc.extensions.PoolLimitSQLException: weblogic.common.resourcepool.ResourceLimitException: No resources currently available in pool selmsplusDS to allocate to applications, please increase the size of the pool and retry..
+	at org.springframework.jdbc.datasource.DataSourceTransactionManager.doBegin(DataSourceTransactionManager.java:238)
+	at org.springframework.transaction.support.AbstractPlatformTransactionManager.getTransaction(AbstractPlatformTransactionManager.java:374)
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.createTransactionIfNecessary(TransactionAspectSupport.java:263)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:101)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:171)
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:89)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:171)
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:204)
+	at com.sun.proxy.$Proxy128.isCronServer(Unknown Source)
+	at com.sec.clm.tnc.control.TNCtempToECMSBatchJobControl.makeECMSBatch(TNCtempToECMSBatchJobControl.java:106)
+	at sun.reflect.GeneratedMethodAccessor479.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.util.MethodInvoker.invoke(MethodInvoker.java:276)
+	at org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean$MethodInvokingJob.executeInternal(MethodInvokingJobDetailFactoryBean.java:260)
+	... 3 more
+Caused by: weblogic.jdbc.extensions.PoolLimitSQLException: weblogic.common.resourcepool.ResourceLimitException: No resources currently available in pool selmsplusDS to allocate to applications, please increase the size of the pool and retry..
+	at weblogic.jdbc.common.internal.JDBCUtil.wrapAndThrowResourceException(JDBCUtil.java:290)
+	at weblogic.jdbc.common.internal.WLDataSourceImpl.getPoolConnection(WLDataSourceImpl.java:563)
+	at weblogic.jdbc.common.internal.WLDataSourceImpl.getConnectionInternal(WLDataSourceImpl.java:660)
+	at weblogic.jdbc.common.internal.WLDataSourceImpl.getConnection(WLDataSourceImpl.java:611)
+	at weblogic.jdbc.common.internal.WLDataSourceImpl.getConnection(WLDataSourceImpl.java:604)
+	at weblogic.jdbc.common.internal.RmiDataSource.getConnection(RmiDataSource.java:108)
+	at org.springframework.jdbc.datasource.DataSourceTransactionManager.doBegin(DataSourceTransactionManager.java:200)
+	... 17 more
+2026-08-11 13:47:10,018 ERROR [secfw.schedulerFactoryBean_Worker-7] core.ErrorLogger      - Job (DEFAULT.secfw.lasjob.setTncInfDatajobBatchDetail threw an exception.
+org.quartz.SchedulerException: Job threw an unhandled exception. [See nested exception: org.springframework.scheduling.quartz.JobMethodInvocationFailedException: Invocation of method 'makeECMSBatch' on target class [class com.sec.clm.tnc.control.TNCtempToECMSBatchJobControl] failed; nested exception is org.springframework.transaction.CannotCreateTransactionException: Could not open JDBC Connection for transaction; nested exception is weblogic.jdbc.extensions.PoolLimitSQLException: weblogic.common.resourcepool.ResourceLimitException: No resources currently available in pool selmsplusDS to allocate to applications, please increase the size of the pool and retry..]
+	at org.quartz.core.JobRunShell.run(JobRunShell.java:213)
+	at org.quartz.simpl.SimpleThreadPool$WorkerThread.run(SimpleThreadPool.java:525)
+Caused by: org.springframework.scheduling.quartz.JobMethodInvocationFailedException: Invocation of method 'makeECMSBatch' on target class [class com.sec.clm.tnc.control.TNCtempToECMSBatchJobControl] failed; nested exception is org.springframework.transaction.CannotCreateTransactionException: Could not open JDBC Connection for transaction; nested exception is weblogic.jdbc.extensions.PoolLimitSQLException: weblogic.common.resourcepool.ResourceLimitException: No resources currently available in pool selmsplusDS to allocate to applications, please increase the size of the pool and retry..
+	at org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean$MethodInvokingJob.executeInternal(MethodInvokingJobDetailFactoryBean.java:269)
+	at org.springframework.scheduling.quartz.QuartzJobBean.execute(QuartzJobBean.java:86)
+	at org.quartz.core.JobRunShell.run(JobRunShell.java:202)
+	... 1 more
+Caused by: org.springframework.transaction.CannotCreateTransactionException: Could not open JDBC Connection for transaction; nested exception is weblogic.jdbc.extensions.PoolLimitSQLException: weblogic.common.resourcepool.ResourceLimitException: No resources currently available in pool selmsplusDS to allocate to applications, please increase the size of the pool and retry..
+	at org.springframework.jdbc.datasource.DataSourceTransactionManager.doBegin(DataSourceTransactionManager.java:238)
+	at org.springframework.transaction.support.AbstractPlatformTransactionManager.getTransaction(AbstractPlatformTransactionManager.java:374)
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.createTransactionIfNecessary(TransactionAspectSupport.java:263)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:101)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:171)
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:89)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:171)
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:204)
+	at com.sun.proxy.$Proxy128.isCronServer(Unknown Source)
+	at com.sec.clm.tnc.control.TNCtempToECMSBatchJobControl.makeECMSBatch(TNCtempToECMSBatchJobControl.java:106)
+	at sun.reflect.GeneratedMethodAccessor479.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.util.MethodInvoker.invoke(MethodInvoker.java:276)
+	at org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean$MethodInvokingJob.executeInternal(MethodInvokingJobDetailFactoryBean.java:260)
+	... 3 more
+Caused by: weblogic.jdbc.extensions.PoolLimitSQLException: weblogic.common.resourcepool.ResourceLimitException: No resources currently available in pool selmsplusDS to allocate to applications, please increase the size of the pool and retry..
+	at weblogic.jdbc.common.internal.JDBCUtil.wrapAndThrowResourceException(JDBCUtil.java:290)
+	at weblogic.jdbc.common.internal.WLDataSourceImpl.getPoolConnection(WLDataSourceImpl.java:563)
+	at weblogic.jdbc.common.internal.WLDataSourceImpl.getConnectionInternal(WLDataSourceImpl.java:660)
+	at weblogic.jdbc.common.internal.WLDataSourceImpl.getConnection(WLDataSourceImpl.java:611)
+	at weblogic.jdbc.common.internal.WLDataSourceImpl.getConnection(WLDataSourceImpl.java:604)
+	at weblogic.jdbc.common.internal.RmiDataSource.getConnection(RmiDataSource.java:108)
+	at org.springframework.jdbc.datasource.DataSourceTransactionManager.doBegin(DataSourceTransactionManager.java:200)
+	... 17 more
+2026-08-11 13:47:13,034 INFO  [[ACTIVE] ExecuteThread: '74' for queue: 'weblogic.kernel.Default (self-tuning)'] control.UserController     - secfw.session.user_id , single_id try : [M221003080007C109051, seaceukselms]
+2026-08-11 13:47:15,841 INFO  [[ACTIVE] ExecuteThread: '1' for queue: 'weblogic.kernel.Default (self-tuning)'] control.UserController     - secfw.session.user_id , single_id try : [P171011055340C100443, a.pruszek]
+2026-08-11 13:47:19,169 INFO  [[ACTIVE] ExecuteThread: '62' for queue: 'weblogic.kernel.Default (self-tuning)'] control.UserController     - secfw.session.user_id , single_id try : [M231211220251C109357, meghann.eon]
